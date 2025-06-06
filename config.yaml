@@ -1,0 +1,6 @@
+# config file, environenment variables are expanded
+
+application:
+  listen: :8080
+scanner: 
+
