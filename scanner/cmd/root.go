@@ -22,6 +22,17 @@ var EnvOrDefault = utils.EnvOrDefaultFunc("PHAROS") // return function that retu
 var RootArgs = RootArgsType{}
 var logger *zerolog.Logger
 
+// define command line arguments
+func init() {
+
+	// Persistent flags
+	rootCmd.PersistentFlags().StringVar(&RootArgs.LogType, "logtype", EnvOrDefault("logtype", "console"), "Log output format [console,json]")
+	rootCmd.PersistentFlags().StringVar(&RootArgs.LogLevel, "loglevel", EnvOrDefault("loglevel", "info"), "Loglevel [debug,info,warn,error]")
+
+	// Local flags, which will only run when this action is called directly.
+	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "scanner",
@@ -44,16 +55,4 @@ func Execute() {
 	if err != nil {
 		os.Exit(1)
 	}
-}
-
-func init() {
-	// Here you will define your flags and configuration settings.
-
-	// Persistent flags
-
-	rootCmd.PersistentFlags().StringVar(&RootArgs.LogType, "logtype", EnvOrDefault("logtype", "console"), "Log output format [console,json]")
-	rootCmd.PersistentFlags().StringVar(&RootArgs.LogLevel, "loglevel", EnvOrDefault("loglevel", "info"), "Loglevel [debug,info,warn,error]")
-
-	// Local flags, which will only run when this action is called directly.
-	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
