@@ -6,7 +6,7 @@
     "configurations": [
     
         {
-            "name": "Launch gorm-test",
+            "name": "Launch Pharos",
             "type": "go",
             "request": "launch",
             "mode": "auto",
