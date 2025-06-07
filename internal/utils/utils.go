@@ -1,8 +1,14 @@
 package utils
 
 import (
+	"fmt"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
+	"time"
+
+	"github.com/acarl005/stripansi"
 )
 
 // return function (closure) thats returns the <prefix>_<name> envvar if it exists, else the default value
@@ -13,5 +19,37 @@ func EnvOrDefaultFunc(prefix string) func(string, string) string {
 			return value
 		}
 		return defval
+	}
+}
+
+// remove ansi color codes from string (from console output)
+func NoColorCodes(input string) string {
+	return stripansi.Strip(input)
+}
+
+// return true if given program is installed (found in $PATH)
+func IsInstalled(cmd string) bool {
+	_, err := exec.LookPath(cmd)
+	return err == nil
+}
+
+func OsWhich(cmd string) (string, error) {
+	path, err := exec.LookPath(cmd)
+	if err != nil {
+		return "", fmt.Errorf("%s not found in PATH", cmd)
+	}
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		return "", fmt.Errorf("error getting absolute path: %s", cmd)
+
+	}
+	return absPath, nil
+
+}
+
+func ElapsedFunc() func() time.Duration {
+	startTime := time.Now()
+	return func() time.Duration {
+		return time.Since(startTime)
 	}
 }

@@ -5,8 +5,8 @@ package cmd
 
 import (
 	"os"
-	"os/exec"
 
+	"github.com/metraction/pharos/internal/utils"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 )
@@ -35,26 +35,23 @@ func ExecuteCheck(logger *zerolog.Logger) {
 	logger.Info().Msg("-----< Scanner Check >-----")
 
 	logger.Info().
-		Bool("grype", isInstalled("grype")).
-		Bool("syft", isInstalled("syft")).
-		Bool("trivy", isInstalled("trivy")).
+		Bool("grype", utils.IsInstalled("grype")).
+		Bool("syft", utils.IsInstalled("syft")).
+		Bool("trivy", utils.IsInstalled("trivy")).
 		Msg("check dependencies")
 
 	errors := 0
 	for _, name := range requiredPrograms {
-		if !isInstalled(name) {
+		if !utils.IsInstalled(name) {
 			errors += 1
 			logger.Error().Msg("Not found: " + name)
+		}
+		if path, err := utils.OsWhich(name); err == nil {
+			logger.Info().Str("name", name).Str("path", path).Msg("")
 		}
 	}
 	if errors > 0 {
 		os.Exit(1)
 	}
 	logger.Info().Msg("Success")
-
-}
-
-func isInstalled(cmd string) bool {
-	_, err := exec.LookPath(cmd)
-	return err == nil
 }
