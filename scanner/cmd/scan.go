@@ -7,17 +7,21 @@ import (
 	"os"
 	"time"
 
+	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/metraction/pharos/internal/scanner/grype"
 	"github.com/metraction/pharos/internal/scanner/syft"
+	"github.com/metraction/pharos/internal/scanner/trivy"
+	"github.com/metraction/pharos/pkg/model"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 )
 
 // command line arguments of root command
 type ScanArgsType = struct {
+	ScanEngine  string // scan engine to use
+	ScanTimeout string // sbom & scan execution timeout
 	Image       string
 	Platform    string
-	ScanTimeout string // sbom & scan execution timeout
 }
 
 var ScanArgs = ScanArgsType{}
@@ -27,7 +31,11 @@ func init() {
 
 	scanCmd.Flags().StringVar(&ScanArgs.Image, "image", EnvOrDefault("image", ""), "Image to scan, e.g. docker.io/alpine:3.16")
 	scanCmd.Flags().StringVar(&ScanArgs.Platform, "platform", EnvOrDefault("platform", "linux/amd64"), "Image platform")
+
+	scanCmd.Flags().StringVar(&ScanArgs.ScanEngine, "engine", EnvOrDefault("engine", ""), "Scan engine to use [grype,trivy]")
 	scanCmd.Flags().StringVar(&ScanArgs.ScanTimeout, "scan_timeout", EnvOrDefault("scan_timeout", "180s"), "Scan timeout")
+
+	scanCmd.MarkFlagRequired("engine")
 }
 
 // scanCmd represents the scan command
@@ -42,50 +50,103 @@ var scanCmd = &cobra.Command{
 			logger.Fatal().Err(err).Msg("invalid argument")
 		}
 
-		ExecuteScan(ScanArgs.Image, ScanArgs.Platform, scanTimeout, logger)
+		ExecuteScan(ScanArgs.ScanEngine, ScanArgs.Image, ScanArgs.Platform, scanTimeout, logger)
 	},
 }
 
-func ExecuteScan(imageUri, platform string, scanTimeout time.Duration, logger *zerolog.Logger) {
+func ExecuteScan(engine, imageUri, platform string, scanTimeout time.Duration, logger *zerolog.Logger) {
 
 	logger.Info().Msg("-----< Scanner Scan >-----")
 	logger.Info().
+		Str("engine", engine).
 		Str("image", imageUri).
 		Str("platform", platform).
 		Any("scan_timeout", scanTimeout.String()).
 		Msg("")
 
 	var err error
-	var sbomGenerator *syft.SyftSbomCreator
-	var vulnScanner *grype.GrypeScanner
-	//var sbomCydx *cyclonedx.BOM
+	var scanResult model.ScanResultModel
+
 	var sbomData *[]byte
 	var scanData *[]byte
 
-	// create sbom and scanner generators
-	if sbomGenerator, err = syft.NewSyftSbomCreator(scanTimeout, logger); err != nil {
-		logger.Fatal().Err(err).Msg("NewSyftSbomCreator()")
-	}
-	if vulnScanner, err = grype.NewGrypeScanner(scanTimeout, logger); err != nil {
-		logger.Fatal().Err(err).Msg("NewGrypeScanner()")
-	}
+	// scan sbom with chosen scanner engine
+	if engine == "grype" {
+		var grypeResult *grype.GrypeScanType
+		var vulnScanner *grype.GrypeScanner
+		var syftSbomGenerator *syft.SyftSbomCreator
 
-	// ensure initial update of vuln database
-	if err = vulnScanner.UpdateDatabase(); err != nil {
-		logger.Fatal().Err(err).Msg("UpdateDatabase()")
-	}
+		// create sbom generator
+		if syftSbomGenerator, err = syft.NewSyftSbomCreator(scanTimeout, logger); err != nil {
+			logger.Fatal().Err(err).Msg("NewSyftSbomCreator()")
+		}
+		// create scanner
+		if vulnScanner, err = grype.NewGrypeScanner(scanTimeout, logger); err != nil {
+			logger.Fatal().Err(err).Msg("NewGrypeScanner()")
+		}
+		// get image and create sbom
+		if sbomData, err = syftSbomGenerator.CreateSbom(imageUri, platform, "syft-json"); err != nil {
+			logger.Fatal().Err(err).Msg("CreateSbom()")
+		}
+		// check/update scanner database
+		if err = vulnScanner.UpdateDatabase(); err != nil {
+			logger.Fatal().Err(err).Msg("UpdateDatabase()")
+		}
+		// scan sbom
+		if grypeResult, scanData, err = vulnScanner.VulnScanSbom(sbomData); err != nil {
+			logger.Fatal().Err(err).Msg("VulnScanSbom()")
+		}
+		if err = scanResult.LoadGrypeScan(grypeResult); err != nil {
+			logger.Fatal().Err(err).Msg("scanResult.LoadGrypeScan()")
+		}
+		logger.Info().Any("model", scanResult).Msg("")
 
-	// get image and create sbom
-	_, sbomData, err = sbomGenerator.CreateSbom(imageUri, platform)
-	if err != nil {
-		logger.Fatal().Err(err).Msg("CreateSbom()")
-	}
+		os.WriteFile("grype-sbom.json", *sbomData, 0644)
+		os.WriteFile("grype-scan.json", *scanData, 0644)
 
-	scanData, err = vulnScanner.VulnScanSbom(sbomData)
-	if err != nil {
-		logger.Fatal().Err(err).Msg("VulnScanSbom()")
-	}
+		//os.WriteFile("scan-grype-model.json", scanResult.ToBytes(), 0644)
 
-	os.WriteFile("scan.json", *scanData, 0644)
+	} else if engine == "trivy" {
+		var sbom *cdx.BOM
+		var trivyResult *trivy.TrivyScanType
+		var vulnScanner *trivy.TrivyScanner
+		var trivySbomGenerator *trivy.TrivySbomCreator
+
+		// create sbom generator
+		if trivySbomGenerator, err = trivy.NewTrivySbomCreator(scanTimeout, logger); err != nil {
+			logger.Fatal().Err(err).Msg("NewTrivySbomCreator()")
+		}
+		// create scanner
+		if vulnScanner, err = trivy.NewTrivyScanner(scanTimeout, logger); err != nil {
+			logger.Fatal().Err(err).Msg("NewTrivyScanner()")
+		}
+
+		// get image and create sbom
+		if sbom, sbomData, err = trivySbomGenerator.CreateSbom(imageUri, platform, "cyclonedx"); err != nil {
+			logger.Fatal().Err(err).Msg("CreateSbom()")
+		}
+
+		// ensure initial update of vuln database
+		if err = vulnScanner.UpdateDatabase(); err != nil {
+			logger.Fatal().Err(err).Msg("UpdateDatabase()")
+		}
+		if trivyResult, scanData, err = vulnScanner.VulnScanSbom(sbomData); err != nil {
+			logger.Fatal().Err(err).Msg("VulnScanSbom()")
+		}
+
+		// map into model
+		if err = scanResult.LoadTrivyScan(sbom, trivyResult); err != nil {
+			logger.Fatal().Err(err).Msg("scanResult.LoadGrypeScan()")
+		}
+		logger.Info().Any("model", scanResult).Msg("")
+
+		os.WriteFile("trivy-sbom.json", *sbomData, 0644)
+		os.WriteFile("trivy-scan.json", *scanData, 0644)
+
+	} else {
+
+		logger.Fatal().Str("engine", engine).Msg("unknown engine")
+	}
 	logger.Info().Msg("done")
+
 }
