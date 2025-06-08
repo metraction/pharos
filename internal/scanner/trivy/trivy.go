@@ -18,13 +18,11 @@ type TrivyScanner struct {
 	HomeDir     string
 	ScannerBin  string
 	ScanTimeout time.Duration
+
 	// version / status
 	ScannerVersion  string
 	DatabaseVersion string
 	DatabaseUpdated time.Time
-
-	//Version     GrypeVersion      // grype binary version + meta
-	//DbState     GrypeLocalDbState // grype local database state
 
 	logger *zerolog.Logger
 }
@@ -57,7 +55,6 @@ func NewTrivyScanner(scanTimeout time.Duration, logger *zerolog.Logger) (*TrivyS
 	scanner.logger.Info().
 		Str("engine", scanner.ScannerBin).
 		Str("scan.version", scanner.ScannerVersion).
-		Str("db.version", scanner.DatabaseVersion).
 		Any("scan.timeout", scanner.ScanTimeout.String()).
 		Msg("NewTrivyScanner() ready")
 
@@ -115,6 +112,7 @@ func (rx *TrivyScanner) UpdateDatabase() error {
 		Str("result", result).
 		Str("db.version", rx.DatabaseVersion).
 		Any("db.updated", rx.DatabaseUpdated).
+		Str("db.age", utils.HumanDeltaMin(time.Since(rx.DatabaseUpdated))).
 		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).
 		Msg("UpdateDatabase() ready")
 

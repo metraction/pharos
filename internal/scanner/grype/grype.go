@@ -14,12 +14,17 @@ import (
 
 // grype vulnerability scanner
 type GrypeScanner struct {
-	Generator    string
-	HomeDir      string
-	ScannerBin   string
-	ScanTimeout  time.Duration
-	grypeVersion GrypeVersion      // grype binary version + meta
-	DbState      GrypeLocalDbState // grype local database state
+	Generator   string
+	HomeDir     string
+	ScannerBin  string
+	ScanTimeout time.Duration
+	// version / status
+	ScannerVersion  string
+	DatabaseVersion string
+	DatabaseUpdated time.Time
+
+	//grypeVersion GrypeVersion      // grype binary version + meta
+	//DbState      GrypeLocalDbState // grype local database state
 
 	logger *zerolog.Logger
 }
@@ -45,13 +50,12 @@ func NewGrypeScanner(scanTimeout time.Duration, logger *zerolog.Logger) (*GrypeS
 		ScanTimeout: scanTimeout,
 		logger:      logger,
 	}
-	scanner.GetVersion()
+	if err := scanner.GetVersion(); err != nil {
+		return nil, err
+	}
 	scanner.logger.Info().
 		Str("engine", scanner.ScannerBin).
-		Str("grype.version", scanner.grypeVersion.GrypeVersion).
-		Str("grype.dbschema", scanner.grypeVersion.SupportedDbSchema).
-		Str("grype.platform", scanner.grypeVersion.Platform).
-		Any("grype.built", scanner.grypeVersion.BuildDate).
+		Str("scan.version", scanner.ScannerVersion).
 		Any("scan.timeout", scanner.ScanTimeout.String()).
 		Msg("NewGrypeScanner() ready")
 
@@ -68,9 +72,17 @@ func (rx *GrypeScanner) GetVersion() error {
 	cmd.Stderr = &stderr
 
 	err := cmd.Run()
-	rx.grypeVersion.FromBytes(stdout.Bytes())
+
+	result := GrypeVersion{}
+	err = result.FromBytes(stdout.Bytes())
+
 	if err != nil {
 		return fmt.Errorf(utils.NoColorCodes(stderr.String()))
+	}
+	rx.ScannerVersion = result.GrypeVersion
+
+	if err := rx.GetDatabaseState(); err != nil {
+		return err
 	}
 	return nil
 }
@@ -85,10 +97,16 @@ func (rx *GrypeScanner) GetDatabaseState() error {
 	cmd.Stderr = &stderr
 
 	err := cmd.Run()
-	rx.DbState.FromBytes(stdout.Bytes())
 	if err != nil {
 		return fmt.Errorf(utils.NoColorCodes(stderr.String()))
 	}
+
+	result := GrypeLocalDbState{}
+	if err := result.FromBytes(stdout.Bytes()); err != nil {
+		return fmt.Errorf(utils.NoColorCodes(stderr.String()))
+	}
+	rx.DatabaseVersion = result.SchemaVersion
+	rx.DatabaseUpdated = result.Built
 	return nil
 }
 
@@ -110,14 +128,14 @@ func (rx *GrypeScanner) UpdateDatabase() error {
 	if err != nil {
 		return fmt.Errorf(utils.NoColorCodes(stderr.String()))
 	}
-	rx.GetDatabaseState()
+	if err := rx.GetDatabaseState(); err != nil {
+		return err
+	}
 	rx.logger.Info().
 		Str("result", utils.NoColorCodes(stdout.String())).
-		Str("db.path", rx.DbState.Path).
-		Str("db.schema", rx.DbState.SchemaVersion).
-		Any("db.built", rx.DbState.Built).
-		Str("db.age", utils.HumanDeltaMin(time.Since(rx.DbState.Built))).
-		Any("db.valid", rx.DbState.Valid).
+		Str("db.version", rx.DatabaseVersion).
+		Any("db.updated", rx.DatabaseUpdated).
+		Str("db.age", utils.HumanDeltaMin(time.Since(rx.DatabaseUpdated))).
 		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).
 		Msg("UpdateDatabase() ready")
 
