@@ -143,7 +143,7 @@ func (rx *GrypeScanner) UpdateDatabase() error {
 }
 
 // scan cyclondex sbom with grype
-func (rx *GrypeScanner) VulnScanSbom(sbom *[]byte) (*[]byte, error) {
+func (rx *GrypeScanner) VulnScanSbom(sbom *[]byte) (*GrypeScanType, *[]byte, error) {
 
 	rx.logger.Info().
 		Any("scan_timeout", rx.ScanTimeout.String()).
@@ -173,15 +173,15 @@ func (rx *GrypeScanner) VulnScanSbom(sbom *[]byte) (*[]byte, error) {
 	data := stdout.Bytes() // results as []byte
 
 	if ctx.Err() == context.DeadlineExceeded {
-		return nil, fmt.Errorf("scan sbom: timeout after %s", rx.ScanTimeout.String())
+		return nil, nil, fmt.Errorf("scan sbom: timeout after %s", rx.ScanTimeout.String())
 	} else if err != nil {
-		return nil, fmt.Errorf(utils.NoColorCodes(stderr.String()))
+		return nil, nil, fmt.Errorf(utils.NoColorCodes(stderr.String()))
 	}
 
 	// parse into grype scan model
 	result := GrypeScanType{}
 	if err := result.ReadBytes(data); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	rx.logger.Info().
@@ -191,5 +191,5 @@ func (rx *GrypeScanner) VulnScanSbom(sbom *[]byte) (*[]byte, error) {
 		Any("path", result.Source.TargetPath).
 		Msg("VulnScanSbom() success")
 
-	return &data, nil
+	return &result, &data, nil
 }

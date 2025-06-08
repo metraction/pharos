@@ -3,13 +3,11 @@ package syft
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
 	"time"
 
-	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/dustin/go-humanize"
 	"github.com/metraction/pharos/internal/utils"
 	"github.com/rs/zerolog"
@@ -55,15 +53,8 @@ func NewSyftSbomCreator(timeout time.Duration, logger *zerolog.Logger) (*SyftSbo
 	return &generator, nil
 }
 
-// download image, create sbom
-func (rx *SyftSbomCreator) CreateSbom(imageUri string, platform string) (*cdx.BOM, *[]byte, error) {
-
-	// rx.logger.Info().
-	// 	Str("image", imageUri).
-	// 	Str("platform", platform).
-	// 	Str("engine", rx.SyftBin).
-	// 	Any("timeout", rx.Timeout.String()).
-	// 	Msg("CreateSbom()")
+// download image, create sbom in chosen format, e.g. "syft-json", "cyclonedx-json"
+func (rx *SyftSbomCreator) CreateSbom(imageUri, platform, format string) (*[]byte, error) {
 
 	var stdout, stderr bytes.Buffer
 
@@ -72,15 +63,15 @@ func (rx *SyftSbomCreator) CreateSbom(imageUri string, platform string) (*cdx.BO
 
 	// fail if not imge is provided
 	if imageUri == "" {
-		return nil, nil, fmt.Errorf("no image provided")
+		return nil, fmt.Errorf("no image provided")
 	}
 	// be explicit, set default in app and not here
 	if platform == "" {
-		return nil, nil, fmt.Errorf("no platform provided")
+		return nil, fmt.Errorf("no platform provided")
 	}
 
 	elapsed := utils.ElapsedFunc()
-	cmd := exec.Command(rx.SyftBin, "registry:"+imageUri, "--platform", platform, "-o", "cyclonedx-json")
+	cmd := exec.Command(rx.SyftBin, "registry:"+imageUri, "--platform", platform, "-o", format)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 
@@ -106,33 +97,24 @@ func (rx *SyftSbomCreator) CreateSbom(imageUri string, platform string) (*cdx.BO
 	err := cmd.Run()
 
 	if ctx.Err() == context.DeadlineExceeded {
-		return nil, nil, fmt.Errorf("create sbom: timeout after %s", rx.Timeout.String())
+		return nil, fmt.Errorf("create sbom: timeout after %s", rx.Timeout.String())
 	} else if err != nil {
-		return nil, nil, fmt.Errorf(utils.NoColorCodes(stderr.String()))
+		return nil, fmt.Errorf(utils.NoColorCodes(stderr.String()))
 	}
-	//fmt.Println(stdout.String())
-
-	var sbom cdx.BOM
 	data := stdout.Bytes()
-
-	if err := json.Unmarshal(data, &sbom); err != nil {
-		return nil, nil, err
-	}
+	//fmt.Println(stdout.String())
 
 	rx.logger.Info().
 		Str("inp.image", imageUri).
 		Str("inp.platform", platform).
+		Str("inp.format", format).
 		Str("engine", rx.SyftBin).
 		Any("timeout", rx.Timeout.String()).
 		Any("size", humanize.Bytes(uint64(len(stdout.String())))).
-		Any("type", sbom.Metadata.Component.Type).
-		Any("name", sbom.Metadata.Component.Name+" "+sbom.Metadata.Component.Version).
-		Any("components", safeLen(sbom.Components)).
-		Any("dependencies", safeLen(sbom.Dependencies)).
 		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).
 		Msg("CreateSbom() success")
 
-	return &sbom, &data, nil
+	return &data, nil
 }
 
 func safeLen[T any](data *[]T) int {

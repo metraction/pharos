@@ -28,8 +28,9 @@ tasks:
       - mkdir -p _scans/{{.name}}
 
       # Create cyclonedx SBOM with grype and trivy
-      - trivy image {{.image}} --scanners vuln -f cyclonedx     -o {{.sbomfile}}.trivy.sbom-cyclonedx.json
+      - trivy image {{.image}}                 -f cyclonedx     -o {{.sbomfile}}.trivy.sbom-cyclonedx.json
       - syft {{.image}}                        -o cyclonedx-json > {{.sbomfile}}.syft.sbom-cyclonedx.json
+      - syft {{.image}}                        -o syft-json      > {{.sbomfile}}.syft.sbom-syft.json
 
       # Scan sbom with Trivy
       - trivy sbom {{.sbomfile}}.trivy.sbom-cyclonedx.json --scanners vuln -f json -o {{.scanfile}}.trivy.scan-cyclonedx.json

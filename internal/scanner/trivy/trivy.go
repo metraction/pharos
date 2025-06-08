@@ -2,6 +2,7 @@ package trivy
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -12,7 +13,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
-// grype vulnerability scanner
+// trivy vulnerability scanner
 type TrivyScanner struct {
 	Generator   string
 	HomeDir     string
@@ -30,7 +31,7 @@ type TrivyScanner struct {
 // create trivy scanner
 func NewTrivyScanner(scanTimeout time.Duration, logger *zerolog.Logger) (*TrivyScanner, error) {
 
-	// find grype path
+	// find trivy path
 	trivyBin, err := utils.OsWhich("trivy")
 	if err != nil {
 		return nil, fmt.Errorf("trivy not installed")
@@ -61,7 +62,7 @@ func NewTrivyScanner(scanTimeout time.Duration, logger *zerolog.Logger) (*TrivyS
 	return &scanner, nil
 }
 
-// check grype local database status, update DbState
+// check trivy local database status, update DbState
 func (rx *TrivyScanner) GetVersion() error {
 
 	var stdout, stderr bytes.Buffer
@@ -96,9 +97,6 @@ func (rx *TrivyScanner) UpdateDatabase() error {
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 
-	//cmd.Env = append(cmd.Env, "GRYPE_DB_UPDATE_URL=30s")    // mac check time
-	//cmd.Env = append(cmd.Env, "UPDATE_DOWNLOAD_TIMEOUT=3m") // max download time
-
 	err := cmd.Run()
 	if err != nil {
 		return fmt.Errorf(utils.NoColorCodes(stderr.String()))
@@ -117,4 +115,65 @@ func (rx *TrivyScanner) UpdateDatabase() error {
 		Msg("UpdateDatabase() ready")
 
 	return nil
+}
+
+// scan cyclondex sbom with trivy
+func (rx *TrivyScanner) VulnScanSbom(sbom *[]byte) (*TrivyScanType, *[]byte, error) {
+
+	rx.logger.Info().
+		Any("scan_timeout", rx.ScanTimeout.String()).
+		Msg("VulnScanSbom()")
+
+	var err error
+	var stdout, stderr bytes.Buffer
+
+	ctx, cancel := context.WithTimeout(context.Background(), rx.ScanTimeout)
+	defer cancel()
+
+	elapsed := utils.ElapsedFunc()
+
+	// trivy cannot read sbom from stdin, so we create a file
+	tmpfile := "sbom=temp.json"
+	fh, err := os.CreateTemp("", tmpfile)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer fh.Close()
+	defer os.Remove(fh.Name())
+
+	if err = os.WriteFile(fh.Name(), *sbom, 0644); err != nil {
+		return nil, nil, err
+	}
+
+	cmd := exec.Command(rx.ScannerBin, "sbom", fh.Name(), "--scanners", "vuln", "-f", "json")
+	cmd.Stdin = bytes.NewReader([]byte(*sbom))
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	//cmd.Env = append(cmd.Env, "GRYPE_DB_REQUIRE_UPDATE_CHECK=true")
+
+	err = cmd.Run()
+	data := stdout.Bytes() // results as []byte
+
+	if ctx.Err() == context.DeadlineExceeded {
+		return nil, nil, fmt.Errorf("scan sbom: timeout after %s", rx.ScanTimeout.String())
+	} else if err != nil {
+		return nil, nil, fmt.Errorf(utils.NoColorCodes(stderr.String()))
+	}
+
+	// parse into grype scan model
+	scan := TrivyScanType{}
+	if err := scan.ReadBytes(data); err != nil {
+		return nil, nil, err
+	}
+
+	rx.logger.Info().
+		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).
+		Str("type", scan.ArtifactType).
+		Any("size", len(data)).
+		//Any("matches", len(result.Matches)).
+		//Any("path", result.Source.TargetPath).
+		Msg("VulnScanSbom() success")
+
+	return &scan, &data, nil
 }
