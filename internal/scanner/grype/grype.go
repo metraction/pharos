@@ -14,17 +14,17 @@ import (
 
 // grype vulnerability scanner
 type GrypeScanner struct {
-	Generator   string
-	HomeDir     string
-	GrypeBin    string
-	ScanTimeout time.Duration
-	Version     GrypeVersion      // grype binary version + meta
-	DbState     GrypeLocalDbState // grype local database state
+	Generator    string
+	HomeDir      string
+	ScannerBin   string
+	ScanTimeout  time.Duration
+	grypeVersion GrypeVersion      // grype binary version + meta
+	DbState      GrypeLocalDbState // grype local database state
 
 	logger *zerolog.Logger
 }
 
-// create new sbom generator using syft
+// create grype scanner
 func NewGrypeScanner(scanTimeout time.Duration, logger *zerolog.Logger) (*GrypeScanner, error) {
 
 	// find grype path
@@ -38,20 +38,20 @@ func NewGrypeScanner(scanTimeout time.Duration, logger *zerolog.Logger) (*GrypeS
 		return nil, err
 	}
 	scanner := GrypeScanner{
-		Generator: "grype",
-		HomeDir:   homeDir,
-		GrypeBin:  grypeBin,
+		Generator:  "grype",
+		HomeDir:    homeDir,
+		ScannerBin: grypeBin,
 
 		ScanTimeout: scanTimeout,
 		logger:      logger,
 	}
-	scanner.GetGrypeVersion()
+	scanner.GetVersion()
 	scanner.logger.Info().
-		Str("engine", scanner.GrypeBin).
-		Str("grype.version", scanner.Version.GrypeVersion).
-		Str("grype.dbschema", scanner.Version.SupportedDbSchema).
-		Str("grype.platform", scanner.Version.Platform).
-		Any("grype.built", scanner.Version.BuildDate).
+		Str("engine", scanner.ScannerBin).
+		Str("grype.version", scanner.grypeVersion.GrypeVersion).
+		Str("grype.dbschema", scanner.grypeVersion.SupportedDbSchema).
+		Str("grype.platform", scanner.grypeVersion.Platform).
+		Any("grype.built", scanner.grypeVersion.BuildDate).
 		Any("scan.timeout", scanner.ScanTimeout.String()).
 		Msg("NewGrypeScanner() ready")
 
@@ -59,16 +59,16 @@ func NewGrypeScanner(scanTimeout time.Duration, logger *zerolog.Logger) (*GrypeS
 }
 
 // check grype local database status, update DbState
-func (rx *GrypeScanner) GetGrypeVersion() error {
+func (rx *GrypeScanner) GetVersion() error {
 
 	var stdout, stderr bytes.Buffer
 
-	cmd := exec.Command(rx.GrypeBin, "version", "-o", "json")
+	cmd := exec.Command(rx.ScannerBin, "version", "-o", "json")
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 
 	err := cmd.Run()
-	rx.Version.FromBytes(stdout.Bytes())
+	rx.grypeVersion.FromBytes(stdout.Bytes())
 	if err != nil {
 		return fmt.Errorf(utils.NoColorCodes(stderr.String()))
 	}
@@ -80,7 +80,7 @@ func (rx *GrypeScanner) GetDatabaseState() error {
 
 	var stdout, stderr bytes.Buffer
 
-	cmd := exec.Command(rx.GrypeBin, "db", "status", "-o", "json")
+	cmd := exec.Command(rx.ScannerBin, "db", "status", "-o", "json")
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 
@@ -99,7 +99,7 @@ func (rx *GrypeScanner) UpdateDatabase() error {
 	var stdout, stderr bytes.Buffer
 
 	elapsed := utils.ElapsedFunc()
-	cmd := exec.Command(rx.GrypeBin, "db", "update")
+	cmd := exec.Command(rx.ScannerBin, "db", "update")
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 
@@ -137,7 +137,7 @@ func (rx *GrypeScanner) VulnScanSbom(sbom *[]byte) (*[]byte, error) {
 	defer cancel()
 
 	elapsed := utils.ElapsedFunc()
-	cmd := exec.Command(rx.GrypeBin, "-o", "json") // cyclonedx-json has no "fixed" state ;-(
+	cmd := exec.Command(rx.ScannerBin, "-o", "json") // cyclonedx-json has no "fixed" state ;-(
 	cmd.Stdin = bytes.NewReader([]byte(*sbom))
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
