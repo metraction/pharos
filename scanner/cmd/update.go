@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/metraction/pharos/internal/scanner/grype"
+	"github.com/metraction/pharos/internal/scanner/trivy"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 )
@@ -24,9 +25,10 @@ var UpdateArgs = UpdateArgsType{}
 func init() {
 	rootCmd.AddCommand(updateCmd)
 
-	updateCmd.Flags().StringVar(&UpdateArgs.ScanEngine, "engine", EnvOrDefault("engine", "trivy"), "Scan engine to use [grype,trivy]")
+	updateCmd.Flags().StringVar(&UpdateArgs.ScanEngine, "engine", EnvOrDefault("engine", ""), "Scan engine to use [grype,trivy]")
 	updateCmd.Flags().StringVar(&UpdateArgs.ScanTimeout, "scan_timeout", EnvOrDefault("scan_timeout", "180s"), "Scan timeout")
 
+	updateCmd.MarkFlagRequired("engine")
 }
 
 // updateCmd represents the update command
@@ -36,23 +38,41 @@ var updateCmd = &cobra.Command{
 	Long:  `Check and update scanner vulnerability database`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		ExecuteUpdate(logger)
+		ExecuteUpdate(UpdateArgs.ScanEngine, logger)
 	},
 }
 
 // execute command
-func ExecuteUpdate(logger *zerolog.Logger) {
+func ExecuteUpdate(engine string, logger *zerolog.Logger) {
 
 	logger.Info().Msg("-----< Scanner Update >-----")
+	logger.Info().Str("engine", engine).Msg("")
 
-	vulnScanner, err := grype.NewGrypeScanner(1*time.Second, logger)
-	if err != nil {
-		logger.Fatal().Err(err).Msg("NewGrypeScanner()")
-	}
+	if engine == "grype" {
+		vulnScanner, err := grype.NewGrypeScanner(1*time.Second, logger)
+		if err != nil {
+			logger.Fatal().Err(err).Msg("NewGrypeScanner()")
+		}
 
-	err = vulnScanner.UpdateDatabase()
-	if err != nil {
-		logger.Fatal().Err(err).Msg("UpdateDatabase()")
+		err = vulnScanner.UpdateDatabase()
+		if err != nil {
+			logger.Fatal().Err(err).Str("engine", engine).Msg("UpdateDatabase()")
+		}
+	} else if engine == "trivy" {
+
+		vulnScanner, err := trivy.NewTrivyScanner(1*time.Second, logger)
+		if err != nil {
+			logger.Fatal().Err(err).Msg("NewTrivyScanner()")
+		}
+
+		err = vulnScanner.UpdateDatabase()
+		if err != nil {
+			logger.Fatal().Err(err).Str("engine", engine).Msg("UpdateDatabase()")
+		}
+
+	} else {
+		logger.Fatal().Str("engine", engine).Msg("unknown engine")
 	}
+	logger.Info().Msg("done")
 
 }
