@@ -53,3 +53,14 @@ func ElapsedFunc() func() time.Duration {
 		return time.Since(startTime)
 	}
 }
+
+// return humanized time delat rounded to minuts (not to have like 1h12m1.112521806s)
+func HumanDeltaMin(delta time.Duration) string {
+	return delta.Round(time.Minute).String()
+}
+func HumanDeltaSec(delta time.Duration) string {
+	return delta.Round(time.Second).String()
+}
+func HumanDeltaMilisec(delta time.Duration) string {
+	return delta.Round(10 * time.Millisecond).String()
+}

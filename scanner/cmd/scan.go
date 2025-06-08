@@ -6,17 +6,15 @@ package cmd
 import (
 	"time"
 
-	"github.com/metraction/pharos/internal/scanner/grype"
-	"github.com/metraction/pharos/internal/scanner/syft"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 )
 
 // command line arguments of root command
 type ScanArgsType = struct {
-	Image    string
-	Platform string
-	Timeout  string // sbom and scan timeout
+	Image       string
+	Platform    string
+	ScanTimeout string // sbom generation and scan execution timeout
 }
 
 var ScanArgs = ScanArgsType{}
@@ -26,7 +24,7 @@ func init() {
 
 	scanCmd.Flags().StringVar(&ScanArgs.Image, "image", EnvOrDefault("image", ""), "Image to scan, e.g. docker.io/alpine:3.16")
 	scanCmd.Flags().StringVar(&ScanArgs.Platform, "platform", EnvOrDefault("platform", "linux/amd64"), "Image platform")
-	scanCmd.Flags().StringVar(&ScanArgs.Timeout, "timeout", EnvOrDefault("timeout", "90s"), "Scan timeout")
+	scanCmd.Flags().StringVar(&ScanArgs.ScanTimeout, "scan_timeout", EnvOrDefault("scan_timeout", "180s"), "Scan timeout")
 }
 
 // scanCmd represents the scan command
@@ -36,41 +34,45 @@ var scanCmd = &cobra.Command{
 	Long:  `Scan one asset then exit`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		timeout, err := time.ParseDuration(ScanArgs.Timeout)
+		scanTimeout, err := time.ParseDuration(ScanArgs.ScanTimeout)
 		if err != nil {
 			logger.Fatal().Err(err).Msg("invalid argument")
 		}
 
-		ExecuteScan(ScanArgs.Image, ScanArgs.Platform, timeout, logger)
+		ExecuteScan(ScanArgs.Image, ScanArgs.Platform, scanTimeout, logger)
 	},
 }
 
-func ExecuteScan(imageUri, platform string, timeout time.Duration, logger *zerolog.Logger) {
+func ExecuteScan(imageUri, platform string, scanTimeout time.Duration, logger *zerolog.Logger) {
 
 	logger.Info().Msg("-----< Scanner Scan >-----")
 	logger.Info().
 		Str("image", imageUri).
 		Str("platform", platform).
-		Any("timeout", timeout.String()).
+		Any("scan_timeout", scanTimeout.String()).
 		Msg("")
 
-	sbomGenerator, err := syft.NewSyftSbomCreator(timeout, logger)
-	if err != nil {
-		logger.Fatal().Err(err).Msg("NewSyftSbomCreator()")
-	}
-	vulnScanner, err := grype.NewGrypeScanner(timeout, logger)
-	if err != nil {
-		logger.Fatal().Err(err).Msg("NewGrypeScanner()")
-	}
+	// var err error
+	// var sbomGenerator *syft.SyftSbomCreator
+	// var vulnScanner *grype.GrypeScanner
 
-	// check vulnerability database
-	if err := vulnScanner.CheckUpdate(); err != nil {
-		logger.Fatal().Err(err).Msg("CheckUpdate()")
-	}
+	// // create sbom and scanner generators
+	// if sbomGenerator, err = syft.NewSyftSbomCreator(scanTimeout, logger); err != nil {
+	// 	logger.Fatal().Err(err).Msg("NewSyftSbomCreator()")
+	// }
+	// if vulnScanner, err = grype.NewGrypeScanner(1*time.Second, logger); err != nil {
+	// 	logger.Fatal().Err(err).Msg("NewGrypeScanner()")
+	// }
 
-	_, _, err = sbomGenerator.CreateSbom(imageUri, platform)
-	if err != nil {
-		logger.Fatal().Err(err).Msg("CreateSbom()")
-	}
+	// //
+	// _, _, err = sbomGenerator.CreateSbom(imageUri, platform)
+	// if err != nil {
+	// 	logger.Fatal().Err(err).Msg("CreateSbom()")
+	// }
+
+	// err = vulnScanner.UpdateDatabase()
+	// if err != nil {
+	// 	logger.Fatal().Err(err).Msg("UpdateDatabase()")
+	// }
 
 }
