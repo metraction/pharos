@@ -4,8 +4,11 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"os"
 	"time"
 
+	"github.com/metraction/pharos/internal/scanner/grype"
+	"github.com/metraction/pharos/internal/scanner/syft"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 )
@@ -14,7 +17,7 @@ import (
 type ScanArgsType = struct {
 	Image       string
 	Platform    string
-	ScanTimeout string // sbom generation and scan execution timeout
+	ScanTimeout string // sbom & scan execution timeout
 }
 
 var ScanArgs = ScanArgsType{}
@@ -52,27 +55,37 @@ func ExecuteScan(imageUri, platform string, scanTimeout time.Duration, logger *z
 		Any("scan_timeout", scanTimeout.String()).
 		Msg("")
 
-	// var err error
-	// var sbomGenerator *syft.SyftSbomCreator
-	// var vulnScanner *grype.GrypeScanner
+	var err error
+	var sbomGenerator *syft.SyftSbomCreator
+	var vulnScanner *grype.GrypeScanner
+	//var sbomCydx *cyclonedx.BOM
+	var sbomData *[]byte
+	var scanData *[]byte
 
-	// // create sbom and scanner generators
-	// if sbomGenerator, err = syft.NewSyftSbomCreator(scanTimeout, logger); err != nil {
-	// 	logger.Fatal().Err(err).Msg("NewSyftSbomCreator()")
-	// }
-	// if vulnScanner, err = grype.NewGrypeScanner(1*time.Second, logger); err != nil {
-	// 	logger.Fatal().Err(err).Msg("NewGrypeScanner()")
-	// }
+	// create sbom and scanner generators
+	if sbomGenerator, err = syft.NewSyftSbomCreator(scanTimeout, logger); err != nil {
+		logger.Fatal().Err(err).Msg("NewSyftSbomCreator()")
+	}
+	if vulnScanner, err = grype.NewGrypeScanner(scanTimeout, logger); err != nil {
+		logger.Fatal().Err(err).Msg("NewGrypeScanner()")
+	}
 
-	// //
-	// _, _, err = sbomGenerator.CreateSbom(imageUri, platform)
-	// if err != nil {
-	// 	logger.Fatal().Err(err).Msg("CreateSbom()")
-	// }
+	// ensure initial update of vuln database
+	if err = vulnScanner.UpdateDatabase(); err != nil {
+		logger.Fatal().Err(err).Msg("UpdateDatabase()")
+	}
 
-	// err = vulnScanner.UpdateDatabase()
-	// if err != nil {
-	// 	logger.Fatal().Err(err).Msg("UpdateDatabase()")
-	// }
+	// get image and create sbom
+	_, sbomData, err = sbomGenerator.CreateSbom(imageUri, platform)
+	if err != nil {
+		logger.Fatal().Err(err).Msg("CreateSbom()")
+	}
 
+	scanData, err = vulnScanner.VulnScanSbom(sbomData)
+	if err != nil {
+		logger.Fatal().Err(err).Msg("VulnScanSbom()")
+	}
+
+	os.WriteFile("scan.json", *scanData, 0644)
+	logger.Info().Msg("done")
 }

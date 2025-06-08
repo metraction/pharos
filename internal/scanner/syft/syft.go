@@ -41,24 +41,29 @@ func NewSyftSbomCreator(timeout time.Duration, logger *zerolog.Logger) (*SyftSbo
 		return nil, err
 	}
 
-	return &SyftSbomCreator{
+	generator := SyftSbomCreator{
 		Generator: "syft",
 		HomeDir:   homeDir,
 		SyftBin:   syftBin,
 		Timeout:   timeout,
 		logger:    logger,
-	}, nil
+	}
+
+	logger.Info().
+		Any("timeout", generator.Timeout.String()).
+		Msg("NewSyftSbomCreator() ready")
+	return &generator, nil
 }
 
 // download image, create sbom
 func (rx *SyftSbomCreator) CreateSbom(imageUri string, platform string) (*cdx.BOM, *[]byte, error) {
 
-	rx.logger.Info().
-		Str("image", imageUri).
-		Str("platform", platform).
-		Str("engine", rx.SyftBin).
-		Any("timeout", rx.Timeout.String()).
-		Msg("generate sbom")
+	// rx.logger.Info().
+	// 	Str("image", imageUri).
+	// 	Str("platform", platform).
+	// 	Str("engine", rx.SyftBin).
+	// 	Any("timeout", rx.Timeout.String()).
+	// 	Msg("CreateSbom()")
 
 	var stdout, stderr bytes.Buffer
 
@@ -115,13 +120,17 @@ func (rx *SyftSbomCreator) CreateSbom(imageUri string, platform string) (*cdx.BO
 	}
 
 	rx.logger.Info().
+		Str("inp.image", imageUri).
+		Str("inp.platform", platform).
+		Str("engine", rx.SyftBin).
+		Any("timeout", rx.Timeout.String()).
 		Any("size", humanize.Bytes(uint64(len(stdout.String())))).
 		Any("type", sbom.Metadata.Component.Type).
 		Any("name", sbom.Metadata.Component.Name+" "+sbom.Metadata.Component.Version).
 		Any("components", safeLen(sbom.Components)).
 		Any("dependencies", safeLen(sbom.Dependencies)).
-		Any("elapsed", elapsed().String()).
-		Msg("scccess")
+		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).
+		Msg("CreateSbom() success")
 
 	return &sbom, &data, nil
 }
