@@ -143,10 +143,11 @@ func (rx *GrypeScanner) VulnScanSbom(sbom *[]byte) (*[]byte, error) {
 	cmd.Stderr = &stderr
 
 	// check https://github.com/anchore/grype
-	//cmd.Env = append(cmd.Env, "GRYPE_DB_VALIDATE_AGE=false") // we ensure db is up-to-date
-	// X cmd.Env = append(cmd.Env, "GRYPE_DB_AUTO_UPDATE=false") // don't auto update db
 	cmd.Env = append(cmd.Env, "GRYPE_CHECK_FOR_APP_UPDATE=false")
-	//cmd.Env = append(cmd.Env, "GRYPE_DB_REQUIRE_UPDATE_CHECK=false")
+	cmd.Env = append(cmd.Env, "GRYPE_ADD_CPES_IF_NONE=true")
+	//cmd.Env = append(cmd.Env, "GRYPE_DB_REQUIRE_UPDATE_CHECK=true")
+	//cmd.Env = append(cmd.Env, "GRYPE_DB_AUTO_UPDATE=false") // don't auto update db
+	//cmd.Env = append(cmd.Env, "GRYPE_DB_VALIDATE_AGE=false") // we ensure db is up-to-date
 
 	// GRYPE_ADD_CPES_IF_NONE
 
@@ -159,8 +160,17 @@ func (rx *GrypeScanner) VulnScanSbom(sbom *[]byte) (*[]byte, error) {
 		return nil, fmt.Errorf(utils.NoColorCodes(stderr.String()))
 	}
 
+	// parse into grype scan model
+	result := GrypeScanType{}
+	if err := result.ReadBytes(data); err != nil {
+		return nil, err
+	}
+
 	rx.logger.Info().
 		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).
+		Str("type", result.Type).
+		Any("matches", len(result.Matches)).
+		Any("path", result.Source.TargetPath).
 		Msg("VulnScanSbom() success")
 
 	return &data, nil
