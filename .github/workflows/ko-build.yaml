@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 name: Build
+=======
+name: Build with ko
+
+>>>>>>> c457fd0 (Subscriber implemented)
 on:
   push:
     branches: 
@@ -7,6 +12,12 @@ on:
     tags:
     - 'v*'
 
+<<<<<<< HEAD
+=======
+  pull_request:
+    branches: [ main ]
+
+>>>>>>> c457fd0 (Subscriber implemented)
 permissions:
   contents: read
   packages: write

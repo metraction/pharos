@@ -30,11 +30,19 @@ These submissions are then published to a Redis stream for further processing by
 			log.Fatal("Failed to create publisher flow:", err)
 			return
 		}
+<<<<<<< HEAD
 		model.NewDatabaseContext(&currentConfig.Database).Migrate()
+=======
+
+>>>>>>> c457fd0 (Subscriber implemented)
 		http.HandleFunc("/submit/image", routing.SubmitImageHandler(ch, currentConfig))
 		serverAddr := fmt.Sprintf(":%d", httpPort)
 		log.Printf("Starting HTTP server on %s\n", serverAddr)
 		log.Printf("Listening for POST requests on /submit/image\n")
+<<<<<<< HEAD
+=======
+
+>>>>>>> c457fd0 (Subscriber implemented)
 		if err := http.ListenAndServe(serverAddr, nil); err != nil {
 			log.Fatalf("Failed to start HTTP server: %v\n", err)
 		}

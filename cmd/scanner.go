@@ -10,6 +10,7 @@ import (
 	"github.com/metraction/pharos/model"
 	"github.com/metraction/pharos/routing"
 	"github.com/spf13/cobra"
+<<<<<<< HEAD
 	"github.com/spf13/viper"
 )
 
@@ -30,18 +31,30 @@ func init() {
 	viper.SetDefault("scanner.stream-name", "scanner")
 }
 
+=======
+)
+
+>>>>>>> c457fd0 (Subscriber implemented)
 var scannerCmd = &cobra.Command{
 	Use:   "scanner",
 	Short: "Run the pharos scanner",
 	Long:  `Run the vulnerability scanner against specified targets or configurations.`, // You can customize this more
 	Run: func(cmd *cobra.Command, args []string) {
 		config := cmd.Context().Value("config").(*model.Config)
+<<<<<<< HEAD
 		fmt.Println("Using config:", config)
+=======
+
+>>>>>>> c457fd0 (Subscriber implemented)
 		// Create a new context that can be cancelled.
 		ctx, cancel := context.WithCancel(cmd.Context())
 		defer cancel() // Ensure cancel is called on exit to clean up resources
 
+<<<<<<< HEAD
 		err := routing.NewScannerFlow(ctx, config, config.Scanner.StreamName)
+=======
+		err := routing.NewScannerFlow(ctx, config)
+>>>>>>> c457fd0 (Subscriber implemented)
 		if err != nil {
 			fmt.Printf("Error creating scanner flow: %v\n", err)
 			return

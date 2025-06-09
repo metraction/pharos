@@ -1,5 +1,6 @@
 package model
 
+<<<<<<< HEAD
 // ScannerConfig holds scanner-specific configuration.
 type ScannerConfig struct {
 	StreamName string `mapstructure:"stream-name"`
@@ -34,4 +35,12 @@ const (
 type Database struct {
 	Driver DatabaseDriver `mapstructure:"driver"` // e.g., "sqlite" or "postgres"
 	Dsn    string         `mapstructure:"dsn"`
+=======
+type Config struct {
+	Redis Redis
+}
+
+type Redis struct {
+	Port int
+>>>>>>> c457fd0 (Subscriber implemented)
 }

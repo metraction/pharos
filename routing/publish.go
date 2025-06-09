@@ -14,7 +14,11 @@ import (
 )
 
 func NewPublisherFlow(ctx context.Context, cfg *model.Config) (chan<- any, error) {
+<<<<<<< HEAD
 	redisSink, err := integrations.NewRedisStreamSink(ctx, cfg.Redis, cfg.Publisher.StreamName)
+=======
+	redisSink, err := integrations.NewRedisStreamSink(ctx, cfg.Redis, imageSubmissionStream)
+>>>>>>> c457fd0 (Subscriber implemented)
 	if err != nil {
 		log.Printf("Error creating Redis sink: %v\n", err)
 		return nil, err
@@ -53,6 +57,7 @@ func SubmitImageHandler(ch chan<- any, cfg *model.Config) http.HandlerFunc {
 			return
 		}
 
+<<<<<<< HEAD
 		// this db context should be initialized in a middleware later, for now we just create it here
 		db := model.NewDatabaseContext(&cfg.Database)
 		tx := db.DB.Save(&dockerImage)
@@ -63,6 +68,11 @@ func SubmitImageHandler(ch chan<- any, cfg *model.Config) http.HandlerFunc {
 		ch <- dockerImage
 
 		log.Printf("Successfully sent image %s:%s to stream %s\n", dockerImage.Name, dockerImage.SHA, cfg.Publisher.StreamName)
+=======
+		ch <- dockerImage
+
+		log.Printf("Successfully sent image %s:%s to stream %s\n", dockerImage.Name, dockerImage.SHA, imageSubmissionStream)
+>>>>>>> c457fd0 (Subscriber implemented)
 		w.WriteHeader(http.StatusAccepted)
 		fmt.Fprintf(w, "Image %s:%s accepted for scanning\n", dockerImage.Name, dockerImage.SHA)
 		return

@@ -9,12 +9,18 @@ import (
 	"io"
 	"log"
 	"os"
+<<<<<<< HEAD
 	"strconv"
+=======
+>>>>>>> c457fd0 (Subscriber implemented)
 	"strings"
 
 	"github.com/metraction/pharos/model"
 	"github.com/spf13/cobra"
+<<<<<<< HEAD
 	"github.com/spf13/pflag"
+=======
+>>>>>>> c457fd0 (Subscriber implemented)
 	"github.com/spf13/viper"
 )
 
@@ -45,6 +51,7 @@ func Execute() {
 }
 
 func initConfig() {
+<<<<<<< HEAD
 	// Setup environment variable handling
 	// Viper will look for environment variables like PHAROS_REDIS_PORT, PHAROS_CONFIG
 	viper.SetEnvPrefix("PHAROS")
@@ -81,6 +88,10 @@ func initConfig() {
 	// Note: viper.AutomaticEnv() with SetEnvPrefix and SetEnvKeyReplacer handles binding environment variables.
 	// Explicit viper.BindEnv calls are not strictly necessary if keys align.
 
+=======
+	viper.AutomaticEnv() // read in environment variables that match
+
+>>>>>>> c457fd0 (Subscriber implemented)
 	var cfgFilePath string
 
 	if cfgFile != "" {
@@ -92,6 +103,7 @@ func initConfig() {
 	}
 	viper.SetConfigType("yaml")
 
+<<<<<<< HEAD
 	// Attempt to read config file for ENV variables substitution
 	file, err := os.Open(cfgFilePath)
 	if err != nil {
@@ -118,6 +130,25 @@ func initConfig() {
 			// This could happen if the file is malformed, for example.
 			fmt.Printf("Error parsing config file: %v\n", err)
 		}
+=======
+	// Open config file for ENV variables substitution
+	file, err := os.Open(cfgFilePath)
+	if err != nil {
+		log.Fatal("No config file found ", err)
+	}
+	defer file.Close()
+	content, err := io.ReadAll(file)
+	if err != nil {
+		log.Fatal("Error reading config file", err)
+	}
+	expandedContent := os.ExpandEnv(string(content))
+	myReader := strings.NewReader(expandedContent)
+	// If a config file is found, read it in.
+	if err := viper.ReadConfig(myReader); err == nil {
+		fmt.Println("Using config file:", cfgFilePath)
+	} else {
+		fmt.Println("Error loading config", err)
+>>>>>>> c457fd0 (Subscriber implemented)
 	}
 
 	err = viper.Unmarshal(&config)
@@ -129,6 +160,7 @@ func initConfig() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
+<<<<<<< HEAD
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.pharos.yaml)")  // cfgFile is handled specially for file loading, so direct binding is fine.
 	rootCmd.PersistentFlags().String("redis.host", "localhost", "Redis host")                                   // Use dot-notation for Viper key compatibility with nested structs.
 	rootCmd.PersistentFlags().Int("redis.port", 6379, "Redis port")                                             // Use dot-notation for Viper key compatibility with nested structs.
@@ -140,5 +172,9 @@ func init() {
 	}
 	defaultDSN := fmt.Sprintf("%s/%s", homeDir, "pharos.db") // run `brew install db-browser-for-sqlite` to view the database.
 	rootCmd.PersistentFlags().String("database.dsn", defaultDSN, "Database DSN for the scanner, for sqlite it is the file name (default is $HOME/.pharos.db, can be 'file::memory:?cache=shared'), for postgres it is the connection string.")
+=======
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.pharos.yaml)")
+	rootCmd.PersistentFlags().IntVar(&config.Redis.Port, "redis-port", 6379, "Redis port")
+>>>>>>> c457fd0 (Subscriber implemented)
 	rootCmd.AddCommand(scannerCmd)
 }
