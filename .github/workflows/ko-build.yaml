@@ -1,0 +1,22 @@
+name: Build with ko
+
+on:
+  push:
+    branches: 
+    - main
+    - PH-1/*
+    tags:
+    - 'v*'
+
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  ko-build:
+    uses: metraction/github-actions/.github/workflows/ko-build.yaml@main
+    secrets: inherit
+        
