@@ -24,7 +24,8 @@ import (
 // messageCount: Number of messages to fetch per XREADGROUP command.
 func NewRedisStreamSource(ctx context.Context, redisCfg model.Redis, streamName string, groupName string, consumerName string, groupStartID string, blockTimeout time.Duration, messageCount int64) (streams.Source, error) {
 	// 1. Create Redis client (using go-redis/redis v6)
-	redisAddr := fmt.Sprintf("localhost:%d", redisCfg.Port)
+	redisAddr := fmt.Sprintf("%s:%d", redisCfg.Host, redisCfg.Port)
+	fmt.Println("Connecting to Redis at:", redisAddr)
 	rdb := redis.NewClient(&redis.Options{
 		Addr: redisAddr,
 		// Other v6 options if needed (e.g., Password, DB)
@@ -74,7 +75,7 @@ func NewRedisStreamSource(ctx context.Context, redisCfg model.Redis, streamName 
 // The context.Context can be used for cancellation during sink setup.
 // streamName: The name of the Redis stream to publish to (e.g., "images_to_scan").
 func NewRedisStreamSink(ctx context.Context, redisCfg model.Redis, streamName string) (streams.Sink, error) {
-	redisAddr := fmt.Sprintf("localhost:%d", redisCfg.Port)
+	redisAddr := fmt.Sprintf("%s:%d", redisCfg.Host, redisCfg.Port)
 	rdb := redis.NewClient(&redis.Options{
 		Addr: redisAddr,
 	})

@@ -9,10 +9,9 @@ import (
 	"github.com/reugn/go-streams/flow"
 )
 
-const imageSubmissionStream = "scanner"
 
-func NewScannerFlow(ctx context.Context, cfg *model.Config) error {
-	source, err := integrations.NewRedisStreamSource(ctx, cfg.Redis, imageSubmissionStream, "scanner", "scanner", "0", 0, 1)
+func NewScannerFlow(ctx context.Context, cfg *model.Config, streamName string) error {
+	source, err := integrations.NewRedisStreamSource(ctx, cfg.Redis, streamName, "scanner", "scanner", "0", 0, 1)
 	if err != nil {
 		return err
 	}
