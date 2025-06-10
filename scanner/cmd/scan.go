@@ -99,10 +99,11 @@ func ExecuteScan(engine, imageUri, platform string, scanTimeout time.Duration, l
 		if err = pharosScanResult.LoadGrypeImageScan(grypeResult); err != nil {
 			logger.Fatal().Err(err).Msg("scanResult.LoadGrypeScan()")
 		}
-		logger.Info().Any("model", pharosScanResult).Msg("")
+		//logger.Info().Any("model", pharosScanResult).Msg("")
 
 		os.WriteFile("grype-sbom.json", *sbomData, 0644)
 		os.WriteFile("grype-scan.json", *scanData, 0644)
+		os.WriteFile("grype-model.json", pharosScanResult.ToBytes(), 0644)
 
 		//os.WriteFile("scan-grype-model.json", scanResult.ToBytes(), 0644)
 
@@ -138,10 +139,11 @@ func ExecuteScan(engine, imageUri, platform string, scanTimeout time.Duration, l
 		if err = pharosScanResult.LoadTrivyImageScan(sbom, trivyResult); err != nil {
 			logger.Fatal().Err(err).Msg("scanResult.LoadGrypeScan()")
 		}
-		logger.Info().Any("model", pharosScanResult).Msg("")
+		//logger.Info().Any("model", pharosScanResult).Msg("")
 
 		os.WriteFile("trivy-sbom.json", *sbomData, 0644)
 		os.WriteFile("trivy-scan.json", *scanData, 0644)
+		os.WriteFile("trivy-model.json", pharosScanResult.ToBytes(), 0644)
 
 	} else {
 
