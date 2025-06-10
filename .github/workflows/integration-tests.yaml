@@ -1,15 +1,15 @@
 name: Integration Tests
 
 on:
-  push:
-    branches:
-      - main
-      - 'PH-1/*' # Assuming you want to run this on feature branches like PH-1/...
-  pull_request:
+  workflow_run:
+    workflows: ["Ko Build"]
+    types:
+      - completed
     branches: [ main ]
 
 jobs:
   calculate-version:
+    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
