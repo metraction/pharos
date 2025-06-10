@@ -103,9 +103,6 @@ func ExecuteScan(engine, imageUri, platform string, scanTimeout time.Duration, l
 
 		os.WriteFile("grype-sbom.json", *sbomData, 0644)
 		os.WriteFile("grype-scan.json", *scanData, 0644)
-		os.WriteFile("grype-model.json", pharosScanResult.ToBytes(), 0644)
-
-		//os.WriteFile("scan-grype-model.json", scanResult.ToBytes(), 0644)
 
 	} else if engine == "trivy" {
 		var sbom *cdx.BOM
@@ -143,12 +140,19 @@ func ExecuteScan(engine, imageUri, platform string, scanTimeout time.Duration, l
 
 		os.WriteFile("trivy-sbom.json", *sbomData, 0644)
 		os.WriteFile("trivy-scan.json", *scanData, 0644)
-		os.WriteFile("trivy-model.json", pharosScanResult.ToBytes(), 0644)
-
 	} else {
 
 		logger.Fatal().Str("engine", engine).Msg("unknown engine")
 	}
+	logger.Info().
+		Str("engine", engine).
+		Str("image", imageUri).
+		Str("platform", platform).
+		Any("findings", len(pharosScanResult.Findings)).
+		Any("vulns", len(pharosScanResult.Vulnerabilities)).
+		Msg("success")
+	os.WriteFile(engine+"-model.json", pharosScanResult.ToBytes(), 0644)
+
 	logger.Info().Msg("done")
 
 }

@@ -11,12 +11,25 @@ import (
 	"github.com/samber/lo"
 )
 
-// hold results from divers scanners
+// hold results if images scans returned from a variety of scanner engines
 type PharosImageScanResult struct {
-	Version         string                `json:"Version"`
+	Version    string           `json:"Version"`
+	ScanEngine PharosScanEngine `json:"Scan"` // scanner & scan metadata
+	// Add Scantask
+
 	Image           PharosImageMeta       `json:"Image"`
-	Findings        []PharosScanFinding   `json:"Findings"`
-	Vulnerabilities []PharosVulnerability `json:"Vulnerabilities"`
+	Findings        []PharosScanFinding   `json:"Findings"`        // instatiation of vulnerabilities in packages
+	Vulnerabilities []PharosVulnerability `json:"Vulnerabilities"` // vulnerabilities found with vuln metadata (description, CVSS, ..)
+	// Context
+}
+
+// scan metadata to identify scanner tool and versions
+// (this is importan once we have a variety of scanners)
+type PharosScanEngine struct {
+	Name     string    `json:"Name"`
+	Version  string    `json:"Version"`
+	ScanTime time.Time `json:"ScanTime"`
+	Status   string    `json:"Status"`
 }
 
 // metadata about the asset (image, code, vm, ..)
@@ -80,9 +93,15 @@ func (rx *PharosImageScanResult) ToBytes() []byte {
 // populate model from grype scan
 func (rx *PharosImageScanResult) LoadGrypeImageScan(scan *grype.GrypeScanType) error {
 
+	// scan engine
 	rx.Version = "1.0"
-	// unique
+	rx.ScanEngine.Name = scan.Descriptor.Name
+	rx.ScanEngine.Version = scan.Descriptor.Version
+	rx.ScanEngine.ScanTime = scan.Descriptor.ScanTime
+
+	// unique lists
 	vulnsList := map[string]int{}
+
 	target := scan.Source.Target
 
 	// map image metadata
@@ -152,13 +171,16 @@ func (rx *PharosImageScanResult) LoadGrypeImageScan(scan *grype.GrypeScanType) e
 // populate model from trivy scan
 func (rx *PharosImageScanResult) LoadTrivyImageScan(sbom *cdx.BOM, scan *trivy.TrivyScanType) error {
 
-	rx.Version = "1.0"
-
 	// unique
 	vulnsList := map[string]int{}
 	component := sbom.Metadata.Component
-
 	properties := sbom.Metadata.Component.Properties
+
+	// scan engine
+	rx.Version = "1.0"
+	rx.ScanEngine.Name = "trivy"
+	rx.ScanEngine.Version = trivy.GetToolVersion(sbom)
+	rx.ScanEngine.ScanTime = scan.CreatedAt
 
 	// map image
 	rx.Image.ImageSpec = sbom.Metadata.Component.Name
