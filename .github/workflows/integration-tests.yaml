@@ -1,17 +1,9 @@
 name: Integration Tests
 
-on:
-  workflow_run:
-    workflows: ["Build"]
-    types:
-      - completed
-    branches: 
-      - main
-      - PH-1/*
+on: workflow_dispatch
 
 jobs:
   calculate-version:
-    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
