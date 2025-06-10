@@ -1,5 +1,4 @@
-name: Build with ko
-
+name: Build
 on:
   push:
     branches: 
