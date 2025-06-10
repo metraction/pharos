@@ -56,6 +56,12 @@ func NewSyftSbomCreator(timeout time.Duration, logger *zerolog.Logger) (*SyftSbo
 // download image, create sbom in chosen format, e.g. "syft-json", "cyclonedx-json"
 func (rx *SyftSbomCreator) CreateSbom(imageUri, platform, format string) (*[]byte, error) {
 
+	rx.logger.Info().
+		Str("image", imageUri).
+		Str("platform", platform).
+		Str("format", format).
+		Msg("CreateSbom() ..")
+
 	var stdout, stderr bytes.Buffer
 
 	ctx, cancel := context.WithTimeout(context.Background(), rx.Timeout)
@@ -105,11 +111,9 @@ func (rx *SyftSbomCreator) CreateSbom(imageUri, platform, format string) (*[]byt
 	//fmt.Println(stdout.String())
 
 	rx.logger.Info().
-		Str("inp.image", imageUri).
-		Str("inp.platform", platform).
-		Str("inp.format", format).
-		Str("engine", rx.SyftBin).
-		Any("timeout", rx.Timeout.String()).
+		Str("image", imageUri).
+		Str("platform", platform).
+		Str("format", format).
 		Any("size", humanize.Bytes(uint64(len(stdout.String())))).
 		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).
 		Msg("CreateSbom() success")

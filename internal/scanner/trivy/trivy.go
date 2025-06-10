@@ -170,11 +170,9 @@ func (rx *TrivyScanner) VulnScanSbom(sbom *[]byte) (*TrivyScanType, *[]byte, err
 	}
 
 	rx.logger.Info().
-		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).
 		Str("type", scan.ArtifactType).
-		Any("size", len(data)).
-		//Any("matches", len(result.Matches)).
-		//Any("path", result.Source.TargetPath).
+		Any("matches", len(scan.ListVulnerabilities())).
+		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).
 		Msg("VulnScanSbom() success")
 
 	return &scan, &data, nil

@@ -3,7 +3,22 @@ package trivy
 import (
 	"encoding/json"
 	"time"
+
+	cdx "github.com/CycloneDX/cyclonedx-go"
+	"github.com/samber/lo"
 )
+
+// SBOM accessors for nexted properties
+func GetToolVersion(sbom *cdx.BOM) string {
+	values := lo.Map(
+		*sbom.Metadata.Tools.Components,
+		func(x cdx.Component, k int) string { return x.Version },
+	)
+
+	return lo.FirstOr(values, "")
+}
+
+//
 
 type TrivyScanType struct {
 	SchemaVersion int       `json:"SchemaVersion"`
@@ -22,6 +37,16 @@ func (rx *TrivyScanType) ReadBytes(data []byte) error {
 		return err
 	}
 	return nil
+}
+
+// return complete list of vulnerabilities
+func (rx *TrivyScanType) ListVulnerabilities() []TrivyVulnerability {
+	vulns := []TrivyVulnerability{}
+
+	for _, result := range rx.Results {
+		vulns = append(vulns, result.Vulnerabilities...)
+	}
+	return vulns
 }
 
 // `json:""`

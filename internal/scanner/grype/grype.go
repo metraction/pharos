@@ -187,10 +187,9 @@ func (rx *GrypeScanner) VulnScanSbom(sbom *[]byte) (*GrypeScanType, *[]byte, err
 	}
 
 	rx.logger.Info().
-		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).
 		Str("type", result.Type).
 		Any("matches", len(result.Matches)).
-		Any("path", result.Source.TargetPath).
+		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).
 		Msg("VulnScanSbom() success")
 
 	return &result, &data, nil
