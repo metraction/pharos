@@ -2,7 +2,7 @@ name: Integration Tests
 
 on:
   workflow_run:
-    workflows: ["Ko Build"]
+    workflows: ["Build with ko"]
     types:
       - completed
     branches: [ main ]
