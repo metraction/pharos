@@ -55,7 +55,7 @@ func NewTrivySbomCreator(timeout time.Duration, logger *zerolog.Logger) (*TrivyS
 	return &generator, nil
 }
 
-// download image, create sbom in chosen format, e.g. "syft-json", "cyclonedx"
+// download image, create sbom in chosen format, e.g. "cyclonedx"
 func (rx *TrivySbomCreator) CreateSbom(imageUri, platform, format string) (*cdx.BOM, *[]byte, error) {
 
 	var stdout, stderr bytes.Buffer

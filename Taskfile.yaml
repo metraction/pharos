@@ -14,7 +14,7 @@ tasks:
       - grype db list
 
   scan:
-    desc: Scan image [name], [tag] with grype and trivy
+    desc: Scan image [name], [tag] with grype, trivy, cdxgen
     requires:
       vars: [name,tag]
     vars:
@@ -27,7 +27,8 @@ tasks:
       - mkdir -p _scans
       - mkdir -p _scans/{{.name}}
 
-      # Create cyclonedx SBOM with grype and trivy
+      # Create cyclonedx SBOM with grype, trivy, cdxgetn
+      - cdxgen --type docker {{.image}}                         -o {{.sbomfile}}.cdxgetn.sbom-cyclonedx.json
       - trivy image {{.image}}                 -f cyclonedx     -o {{.sbomfile}}.trivy.sbom-cyclonedx.json
       - syft {{.image}}                        -o cyclonedx-json > {{.sbomfile}}.syft.sbom-cyclonedx.json
       - syft {{.image}}                        -o syft-json      > {{.sbomfile}}.syft.sbom-syft.json

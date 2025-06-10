@@ -92,6 +92,8 @@ func (rx *TrivyScanner) UpdateDatabase() error {
 
 	var stdout, stderr bytes.Buffer
 
+	rx.logger.Info().Msg("UpdateDatabase() .. ")
+
 	elapsed := utils.ElapsedFunc()
 	cmd := exec.Command(rx.ScannerBin, "image", "--download-db-only")
 	cmd.Stdout = &stdout

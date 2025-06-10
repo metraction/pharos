@@ -116,6 +116,8 @@ func (rx *GrypeScanner) UpdateDatabase() error {
 
 	var stdout, stderr bytes.Buffer
 
+	rx.logger.Info().Msg("UpdateDatabase() .. ")
+
 	elapsed := utils.ElapsedFunc()
 	cmd := exec.Command(rx.ScannerBin, "db", "update")
 	cmd.Stdout = &stdout
