@@ -2,42 +2,37 @@ package model
 
 import (
 	"encoding/json"
+	"fmt"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/metraction/pharos/internal/scanner/grype"
 	"github.com/metraction/pharos/internal/scanner/trivy"
-	"github.com/metraction/pharos/internal/utils"
 	"github.com/samber/lo"
 )
 
 // hold results from divers scanners
-type ScanResultModel struct {
-	Asset AssetMetaType `json:"assetmeta"`
-}
-
-// hold metadata for different asset types [image,code,vm,..]
-type AssetMetaType struct {
-	Image ImageMetaType `json:"image"`
+type PharosImageScanResult struct {
+	Image PharosImageMeta `json:"image"`
 }
 
 // metadata about the asset (image, code, vm, ..)
-type ImageMetaType struct {
-	Input          string   `json:"Input"`
+type PharosImageMeta struct {
+	ImageSpec      string   `json:"ImageSpec"` // scan input / image uri
 	ImageId        string   `json:"ImageId"`
+	Digest         string   `json:"digest"` // internal ID for cache
 	ManigestDigest string   `json:"ManifestDigest"`
 	RepoDigests    []string `json:"RepoDigests"`
-	Architecture   string   `json:"Architecture"`
-	OS             string   `json:"OS"`
+	ArchName       string   `json:"ArchName"` // image platform architecture amd64/..
+	ArchOS         string   `json:"ArchOS"`   // image platform OS
 	DistroName     string   `json:"DistroName"`
 	DistroVersion  string   `json:"DistroVersion"`
 	Size           uint64   `json:"Size"`
-
-	Tags   []string `json:"tags"`
-	Layers []string `json:"layers"`
+	Tags           []string `json:"tags"`
+	Layers         []string `json:"layers"`
 }
 
 // return model as []byte
-func (rx *ScanResultModel) ToBytes() []byte {
+func (rx *PharosImageScanResult) ToBytes() []byte {
 	data, err := json.Marshal(rx)
 	if err != nil {
 		return []byte{}
@@ -46,57 +41,55 @@ func (rx *ScanResultModel) ToBytes() []byte {
 }
 
 // populate model from grype scan
-func (rx *ScanResultModel) LoadGrypeScan(scan *grype.GrypeScanType) error {
+func (rx *PharosImageScanResult) LoadGrypeImageScan(scan *grype.GrypeScanType) error {
 
 	target := scan.Source.Target
 
-	// map image
-	rx.Asset.Image.Input = target.UserInput
-	rx.Asset.Image.ImageId = target.ImageId
-	rx.Asset.Image.ManigestDigest = target.ManifestDigest
-	rx.Asset.Image.RepoDigests = lo.Map(target.RepoDigests,
-		func(x string, k int) string {
-			return parseDigest(x)
-		})
+	// map image metadata
+	rx.Image.ImageSpec = target.UserInput
+	rx.Image.ImageId = target.ImageId
+	rx.Image.ManigestDigest = target.ManifestDigest
+	rx.Image.RepoDigests = lo.Map(target.RepoDigests, func(x string, k int) string { return parseDigest(x) })
 
-	rx.Asset.Image.Architecture = target.Architecture
-	rx.Asset.Image.OS = target.OS
-	rx.Asset.Image.Size = target.ImageSize
+	rx.Image.ArchName = target.Architecture
+	rx.Image.ArchOS = target.OS
+	rx.Image.DistroName = scan.Distro.Name
+	rx.Image.DistroVersion = scan.Distro.Version
+	rx.Image.Size = target.ImageSize
 
-	rx.Asset.Image.DistroName = scan.Distro.Name
-	rx.Asset.Image.DistroVersion = scan.Distro.Version
-
-	rx.Asset.Image.Tags = target.Tags
-	rx.Asset.Image.Layers = lo.Map(target.Layers, func(x grype.GrypeLayer, k int) string { return x.Digest })
+	rx.Image.Tags = target.Tags
+	rx.Image.Layers = lo.Map(target.Layers, func(x grype.GrypeLayer, k int) string { return x.Digest })
 
 	// map matches
+
 	return nil
 }
 
 // populate model from trivy scan
-func (rx *ScanResultModel) LoadTrivyScan(sbom *cdx.BOM, scan *trivy.TrivyScanType) error {
+func (rx *PharosImageScanResult) LoadTrivyImageScan(sbom *cdx.BOM, scan *trivy.TrivyScanType) error {
 
-	// map image
-	component := sbom.Metadata.Component
+	// component := sbom.Metadata.Component
+	// cdxFilterPropertyFirstOr("aquasecurity:trivy:ImageID", "", *properties)
 	properties := sbom.Metadata.Component.Properties
 
-	rx.Asset.Image.Input = component.Name
-	rx.Asset.Image.Name = ""
-	rx.Asset.Image.Tag = ""
-	rx.Asset.Image.ImageId = cdxFilterPropertyFirstOr("aquasecurity:trivy:ImageID", "", *properties)
-	rx.Asset.Image.ManigestDigest = parseDigest(component.BOMRef)
-	rx.Asset.Image.RepoDigests = lo.Map(cdxFilterProperty("aquasecurity:trivy:RepoDigest", *properties),
-		func(x string, k int) string {
-			return parseDigest(x)
-		})
+	fmt.Println()
 
-	// rx.Asset.Image.Architecture = target.Architecture
-	// rx.Asset.Image.OS = target.OS
-	rx.Asset.Image.Size = utils.UInt64Or(cdxFilterPropertyFirstOr("aquasecurity:trivy:Size", "", *properties), 0)
+	// map image
+	rx.Image.ImageSpec = sbom.Metadata.Component.Name
+	rx.Image.ImageId = cdxFilterPropertyFirstOr("aquasecurity:trivy:ImageID", "", *properties)
+	rx.Image.ManigestDigest = "" // parseDigest(component.BOMRef)
+	rx.Image.RepoDigests = scan.Metadata.RepoDigests
 
-	// rx.Asset.Image.Tags = target.Tags
-	rx.Asset.Image.Layers = cdxFilterProperty("aquasecurity:trivy:DiffID", *properties)
+	rx.Image.ArchName = scan.Metadata.ImageConfig.Architecture
+	rx.Image.ArchOS = scan.Metadata.ImageConfig.OS
+	rx.Image.DistroName = scan.Metadata.OS.Famile
+	rx.Image.DistroVersion = scan.Metadata.OS.Name
+	rx.Image.Size = scan.Metadata.Size
+
+	rx.Image.Tags = scan.Metadata.RepoTags
+	rx.Image.Layers = lo.Map(scan.Metadata.Layers, func(x trivy.TrivyLayer, k int) string { return x.DiffId })
 
 	// map matches
+
 	return nil
 }

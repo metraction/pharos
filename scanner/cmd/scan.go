@@ -65,7 +65,7 @@ func ExecuteScan(engine, imageUri, platform string, scanTimeout time.Duration, l
 		Msg("")
 
 	var err error
-	var scanResult model.ScanResultModel
+	var pharosScanResult model.PharosImageScanResult
 
 	var sbomData *[]byte
 	var scanData *[]byte
@@ -96,10 +96,10 @@ func ExecuteScan(engine, imageUri, platform string, scanTimeout time.Duration, l
 		if grypeResult, scanData, err = vulnScanner.VulnScanSbom(sbomData); err != nil {
 			logger.Fatal().Err(err).Msg("VulnScanSbom()")
 		}
-		if err = scanResult.LoadGrypeScan(grypeResult); err != nil {
+		if err = pharosScanResult.LoadGrypeImageScan(grypeResult); err != nil {
 			logger.Fatal().Err(err).Msg("scanResult.LoadGrypeScan()")
 		}
-		logger.Info().Any("model", scanResult).Msg("")
+		logger.Info().Any("model", pharosScanResult).Msg("")
 
 		os.WriteFile("grype-sbom.json", *sbomData, 0644)
 		os.WriteFile("grype-scan.json", *scanData, 0644)
@@ -135,10 +135,10 @@ func ExecuteScan(engine, imageUri, platform string, scanTimeout time.Duration, l
 		}
 
 		// map into model
-		if err = scanResult.LoadTrivyScan(sbom, trivyResult); err != nil {
+		if err = pharosScanResult.LoadTrivyImageScan(sbom, trivyResult); err != nil {
 			logger.Fatal().Err(err).Msg("scanResult.LoadGrypeScan()")
 		}
-		logger.Info().Any("model", scanResult).Msg("")
+		logger.Info().Any("model", pharosScanResult).Msg("")
 
 		os.WriteFile("trivy-sbom.json", *sbomData, 0644)
 		os.WriteFile("trivy-scan.json", *scanData, 0644)

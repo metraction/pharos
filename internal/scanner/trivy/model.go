@@ -6,11 +6,14 @@ import (
 )
 
 type TrivyScanType struct {
-	SchemaVersion int           `json:"SchemaVersion"`
-	CreatedAt     time.Time     `json:"CreatedAt"`
-	ArtifactType  string        `json:"ArtifactType"`
-	Metadata      TrivyMetadata `json:"Metadata"`
-	Results       []TrivyResult `json:"Results"`
+	SchemaVersion int       `json:"SchemaVersion"`
+	CreatedAt     time.Time `json:"CreatedAt"`
+
+	ArtifactName string `json:"ArtifactName"`
+	ArtifactType string `json:"ArtifactType"`
+
+	Metadata TrivyMetadata `json:"Metadata"`
+	Results  []TrivyResult `json:"Results"`
 }
 
 // parse trivy scan
@@ -23,14 +26,23 @@ func (rx *TrivyScanType) ReadBytes(data []byte) error {
 
 // `json:""`
 type TrivyMetadata struct {
-	OS struct {
+	ImageId string `json:"ImageID"`
+	Size    uint64 `json:"Size"`
+	OS      struct {
 		Famile string `json:"Family"`
 		Name   string `json:"Name"`
 		EOSL   bool   `json:"EOSL"`
 	} `json:"OS"`
+	RepoTags    []string         `json:"RepoTags"`
+	RepoDigests []string         `json:"RepoDigests"`
 	ImageConfig TrivyImageConfig `json:"ImageConfig"`
+	Layers      []TrivyLayer     `json:"Layers"`
 }
 
+type TrivyLayer struct {
+	Size   uint64 `json:"Size"`
+	DiffId string `json:"DiffID"`
+}
 type TrivyImageConfig struct {
 	Architecture string    `json:"architecture"`
 	Created      time.Time `json:"created"`
