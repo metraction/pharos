@@ -5,7 +5,9 @@ on:
     workflows: ["Build with ko"]
     types:
       - completed
-    branches: [ main ]
+    branches: 
+      - main
+      - PH-1/*
 
 jobs:
   calculate-version:
