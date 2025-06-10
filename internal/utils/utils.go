@@ -75,3 +75,11 @@ func UInt64Or(input string, defval uint64) uint64 {
 	}
 	return defval
 }
+
+// parse string, return time.Time or defauls
+func DateStrOr(input string, defval time.Time) time.Time {
+	if t, err := time.Parse("2006-01-02", input); err == nil {
+		return t
+	}
+	return defval
+}

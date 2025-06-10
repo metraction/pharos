@@ -27,8 +27,8 @@ func (rx *TrivyScanType) ReadBytes(data []byte) error {
 // `json:""`
 type TrivyMetadata struct {
 	ImageId string `json:"ImageID"`
-	Size    uint64 `json:"Size"`
-	OS      struct {
+	//Size    uint64 `json:"Size"`
+	OS struct {
 		Famile string `json:"Family"`
 		Name   string `json:"Name"`
 		EOSL   bool   `json:"EOSL"`
