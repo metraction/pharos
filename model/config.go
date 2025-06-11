@@ -35,6 +35,7 @@ const (
 type Database struct {
 	Driver DatabaseDriver `mapstructure:"driver"` // e.g., "sqlite" or "postgres"
 	Dsn    string         `mapstructure:"dsn"`
+<<<<<<< HEAD
 =======
 type Config struct {
 	Redis Redis
@@ -43,4 +44,6 @@ type Config struct {
 type Redis struct {
 	Port int
 >>>>>>> c457fd0 (Subscriber implemented)
+=======
+>>>>>>> 539dff5 (add database)
 }

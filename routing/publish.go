@@ -58,6 +58,9 @@ func SubmitImageHandler(ch chan<- any, cfg *model.Config) http.HandlerFunc {
 		}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 539dff5 (add database)
 		// this db context should be initialized in a middleware later, for now we just create it here
 		db := model.NewDatabaseContext(&cfg.Database)
 		tx := db.DB.Save(&dockerImage)

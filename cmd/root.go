@@ -52,6 +52,9 @@ func Execute() {
 
 func initConfig() {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 539dff5 (add database)
 	// Setup environment variable handling
 	// Viper will look for environment variables like PHAROS_REDIS_PORT, PHAROS_CONFIG
 	viper.SetEnvPrefix("PHAROS")
@@ -161,6 +164,9 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 539dff5 (add database)
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.pharos.yaml)")  // cfgFile is handled specially for file loading, so direct binding is fine.
 	rootCmd.PersistentFlags().String("redis.host", "localhost", "Redis host")                                   // Use dot-notation for Viper key compatibility with nested structs.
 	rootCmd.PersistentFlags().Int("redis.port", 6379, "Redis port")                                             // Use dot-notation for Viper key compatibility with nested structs.
@@ -172,9 +178,12 @@ func init() {
 	}
 	defaultDSN := fmt.Sprintf("%s/%s", homeDir, "pharos.db") // run `brew install db-browser-for-sqlite` to view the database.
 	rootCmd.PersistentFlags().String("database.dsn", defaultDSN, "Database DSN for the scanner, for sqlite it is the file name (default is $HOME/.pharos.db, can be 'file::memory:?cache=shared'), for postgres it is the connection string.")
+<<<<<<< HEAD
 =======
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.pharos.yaml)")
 	rootCmd.PersistentFlags().IntVar(&config.Redis.Port, "redis-port", 6379, "Redis port")
 >>>>>>> c457fd0 (Subscriber implemented)
+=======
+>>>>>>> 539dff5 (add database)
 	rootCmd.AddCommand(scannerCmd)
 }
