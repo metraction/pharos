@@ -45,41 +45,41 @@ func Execute() {
 }
 
 func initConfig() {
-    // Setup environment variable handling
-    // Viper will look for environment variables like PHAROS_REDIS_PORT, PHAROS_CONFIG
+	// Setup environment variable handling
+	// Viper will look for environment variables like PHAROS_REDIS_PORT, PHAROS_CONFIG
 	viper.SetEnvPrefix("PHAROS")
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_", ".", "_"))
 	viper.AutomaticEnv() // read in environment variables that match
 
-    // Iterate over all flags to bind them to Viper and set Viper defaults from flag defaults
+	// Iterate over all flags to bind them to Viper and set Viper defaults from flag defaults
 	rootCmd.PersistentFlags().VisitAll(func(f *pflag.Flag) {
-        // Set Viper's default for this key using the flag's default value.
-        // This has the lowest precedence in Viper's hierarchy.
-        // Need to handle type conversion for f.DefValue if it's not a string.
-        var typedDefaultValue any
-        switch f.Value.Type() {
-        case "int", "int8", "int16", "int32", "int64":
-            typedDefaultValue, _ = strconv.Atoi(f.DefValue)
-        case "bool":
-            typedDefaultValue, _ = strconv.ParseBool(f.DefValue)
-        // Add other types like float, stringSlice if needed
-        default: // Assumes string for others (like the 'config' flag)
-            typedDefaultValue = f.DefValue
-        }
-        if typedDefaultValue != nil { // Only set if conversion was meaningful or it's a string default
-	viper.SetDefault(f.Name, typedDefaultValue)
-        }
+		// Set Viper's default for this key using the flag's default value.
+		// This has the lowest precedence in Viper's hierarchy.
+		// Need to handle type conversion for f.DefValue if it's not a string.
+		var typedDefaultValue any
+		switch f.Value.Type() {
+		case "int", "int8", "int16", "int32", "int64":
+			typedDefaultValue, _ = strconv.Atoi(f.DefValue)
+		case "bool":
+			typedDefaultValue, _ = strconv.ParseBool(f.DefValue)
+		// Add other types like float, stringSlice if needed
+		default: // Assumes string for others (like the 'config' flag)
+			typedDefaultValue = f.DefValue
+		}
+		if typedDefaultValue != nil { // Only set if conversion was meaningful or it's a string default
+			viper.SetDefault(f.Name, typedDefaultValue)
+		}
 
-        // Bind the pflag to Viper. If the flag is set on the command line,
-        // its value will take precedence over environment variables, config files, and Viper defaults.
-	viper.BindPFlag(f.Name, f)
+		// Bind the pflag to Viper. If the flag is set on the command line,
+		// its value will take precedence over environment variables, config files, and Viper defaults.
+		viper.BindPFlag(f.Name, f)
 
-        // Debug output (optional)
-        // envVarKey := "PHAROS_" + strings.ToUpper(strings.ReplaceAll(f.Name, "-", "_"))
-        // fmt.Printf("Viper key '%s': CLI (via BindPFlag), Env ('%s'), Default ('%v')\n", f.Name, envVarKey, f.DefValue)
+		// Debug output (optional)
+		// envVarKey := "PHAROS_" + strings.ToUpper(strings.ReplaceAll(f.Name, "-", "_"))
+		// fmt.Printf("Viper key '%s': CLI (via BindPFlag), Env ('%s'), Default ('%v')\n", f.Name, envVarKey, f.DefValue)
 	})
-    // Note: viper.AutomaticEnv() with SetEnvPrefix and SetEnvKeyReplacer handles binding environment variables.
-    // Explicit viper.BindEnv calls are not strictly necessary if keys align.
+	// Note: viper.AutomaticEnv() with SetEnvPrefix and SetEnvKeyReplacer handles binding environment variables.
+	// Explicit viper.BindEnv calls are not strictly necessary if keys align.
 
 	var cfgFilePath string
 
@@ -129,9 +129,16 @@ func initConfig() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.pharos.yaml)") // cfgFile is handled specially for file loading, so direct binding is fine.
-	rootCmd.PersistentFlags().String("redis.host", "localhost", "Redis host") // Use dot-notation for Viper key compatibility with nested structs.
-	rootCmd.PersistentFlags().Int("redis.port", 6379, "Redis port") // Use dot-notation for Viper key compatibility with nested structs.
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.pharos.yaml)")  // cfgFile is handled specially for file loading, so direct binding is fine.
+	rootCmd.PersistentFlags().String("redis.host", "localhost", "Redis host")                                   // Use dot-notation for Viper key compatibility with nested structs.
+	rootCmd.PersistentFlags().Int("redis.port", 6379, "Redis port")                                             // Use dot-notation for Viper key compatibility with nested structs.
 	rootCmd.PersistentFlags().String("publisher.stream-name", "scanner", "Redis stream name for the publisher") // Publisher specific config
+	rootCmd.PersistentFlags().String("database.driver", "sqlite", "Database driver for the scanner, can be 'sqlite' or 'postgres', `sqlite` is default.")
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatalf("Unable to determine home directory: %v", err)
+	}
+	defaultDSN := fmt.Sprintf("%s/%s", homeDir, "pharos.db") // run `brew install db-browser-for-sqlite` to view the database.
+	rootCmd.PersistentFlags().String("database.dsn", defaultDSN, "Database DSN for the scanner, for sqlite it is the file name (default is $HOME/.pharos.db, can be 'file::memory:?cache=shared'), for postgres it is the connection string.")
 	rootCmd.AddCommand(scannerCmd)
 }
