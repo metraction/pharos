@@ -5,9 +5,9 @@ go 1.23
 toolchain go1.23.10
 
 require (
-	github.com/nix-community/go-nix v0.0.0-20250101154619-4bdde671e0a1
 	github.com/reugn/go-streams v0.13.0
 	github.com/reugn/go-streams/redis v0.1.3-0.20250510062123-d43ee10d8177
+	github.com/samber/lo v1.51.0
 	github.com/spf13/viper v1.20.1
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/driver/sqlite v1.6.0
@@ -38,6 +38,7 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
+	github.com/package-url/packageurl-go v0.1.3
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/redis/go-redis/v9 v9.10.0

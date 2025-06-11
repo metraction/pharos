@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/acarl005/stripansi"
+	"github.com/package-url/packageurl-go"
 )
 
 // return function (closure) thats returns the <prefix>_<name> envvar if it exists, else the default value
@@ -82,4 +83,16 @@ func DateStrOr(input string, defval time.Time) time.Time {
 		return t
 	}
 	return defval
+}
+
+// decode purl encoding,
+// from pkg:deb/debian/adduser@3.134?arch=all\u0026distro=debian-12
+//   to pkg:deb/debian/adduser@3.134?arch=all&distro=debian-12
+
+func DecodePurl(input string) string {
+	purl, err := packageurl.FromString(input)
+	if err != nil {
+		return input
+	}
+	return purl.ToString()
 }
