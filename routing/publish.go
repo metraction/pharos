@@ -53,6 +53,13 @@ func SubmitImageHandler(ch chan<- any, cfg *model.Config) http.HandlerFunc {
 			return
 		}
 
+		// this db context should be initialized in a middleware later, for now we just create it here
+		db := model.NewDatabaseContext(&cfg.Database)
+		tx := db.DB.Save(&dockerImage)
+		if tx.Error != nil {
+			http.Error(w, tx.Error.Error(), http.StatusInternalServerError)
+			return
+		}
 		ch <- dockerImage
 
 		log.Printf("Successfully sent image %s:%s to stream %s\n", dockerImage.Name, dockerImage.SHA, cfg.Publisher.StreamName)
