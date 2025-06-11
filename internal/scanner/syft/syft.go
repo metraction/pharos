@@ -3,6 +3,7 @@ package syft
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -54,7 +55,7 @@ func NewSyftSbomCreator(timeout time.Duration, logger *zerolog.Logger) (*SyftSbo
 }
 
 // download image, create sbom in chosen format, e.g. "syft-json", "cyclonedx-json"
-func (rx *SyftSbomCreator) CreateSbom(imageUri, platform, format string) (*[]byte, error) {
+func (rx *SyftSbomCreator) CreateSbom(imageUri, platform, format string) (*SyftSbomType, *[]byte, error) {
 
 	rx.logger.Info().
 		Str("image", imageUri).
@@ -69,11 +70,11 @@ func (rx *SyftSbomCreator) CreateSbom(imageUri, platform, format string) (*[]byt
 
 	// fail if not imge is provided
 	if imageUri == "" {
-		return nil, fmt.Errorf("no image provided")
+		return nil, nil, fmt.Errorf("no image provided")
 	}
 	// be explicit, set default in app and not here
 	if platform == "" {
-		return nil, fmt.Errorf("no platform provided")
+		return nil, nil, fmt.Errorf("no platform provided")
 	}
 
 	elapsed := utils.ElapsedFunc()
@@ -103,12 +104,17 @@ func (rx *SyftSbomCreator) CreateSbom(imageUri, platform, format string) (*[]byt
 	err := cmd.Run()
 
 	if ctx.Err() == context.DeadlineExceeded {
-		return nil, fmt.Errorf("create sbom: timeout after %s", rx.Timeout.String())
+		return nil, nil, fmt.Errorf("create sbom: timeout after %s", rx.Timeout.String())
 	} else if err != nil {
-		return nil, fmt.Errorf(utils.NoColorCodes(stderr.String()))
+		return nil, nil, fmt.Errorf(utils.NoColorCodes(stderr.String()))
 	}
 	data := stdout.Bytes()
 	//fmt.Println(stdout.String())
+
+	var sbom SyftSbomType
+	if err := json.Unmarshal(data, &sbom); err != nil {
+		return nil, nil, err
+	}
 
 	rx.logger.Info().
 		Str("image", imageUri).
@@ -118,7 +124,7 @@ func (rx *SyftSbomCreator) CreateSbom(imageUri, platform, format string) (*[]byt
 		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).
 		Msg("CreateSbom() success")
 
-	return &data, nil
+	return &sbom, &data, nil
 }
 
 func safeLen[T any](data *[]T) int {

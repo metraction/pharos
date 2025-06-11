@@ -73,6 +73,7 @@ func ExecuteScan(engine, imageUri, platform string, scanTimeout time.Duration, l
 	// scan sbom with chosen scanner engine
 	if engine == "grype" {
 		var grypeResult *grype.GrypeScanType
+		var syftSbom *syft.SyftSbomType
 		var vulnScanner *grype.GrypeScanner
 		var syftSbomGenerator *syft.SyftSbomCreator
 
@@ -85,7 +86,7 @@ func ExecuteScan(engine, imageUri, platform string, scanTimeout time.Duration, l
 			logger.Fatal().Err(err).Msg("NewGrypeScanner()")
 		}
 		// get image and create sbom
-		if sbomData, err = syftSbomGenerator.CreateSbom(imageUri, platform, "syft-json"); err != nil {
+		if syftSbom, sbomData, err = syftSbomGenerator.CreateSbom(imageUri, platform, "syft-json"); err != nil {
 			logger.Fatal().Err(err).Msg("CreateSbom()")
 		}
 		// check/update scanner database
@@ -96,12 +97,13 @@ func ExecuteScan(engine, imageUri, platform string, scanTimeout time.Duration, l
 		if grypeResult, scanData, err = vulnScanner.VulnScanSbom(sbomData); err != nil {
 			logger.Fatal().Err(err).Msg("VulnScanSbom()")
 		}
-		if err = pharosScanResult.LoadGrypeImageScan(grypeResult); err != nil {
+		if err = pharosScanResult.LoadGrypeImageScan(syftSbom, grypeResult); err != nil {
 			logger.Fatal().Err(err).Msg("scanResult.LoadGrypeScan()")
 		}
 		//logger.Info().Any("model", pharosScanResult).Msg("")
 
 		os.WriteFile("grype-sbom.json", *sbomData, 0644)
+		os.WriteFile("grype-sbom-model.json", syftSbom.ToBytes(), 0644)
 		os.WriteFile("grype-scan.json", *scanData, 0644)
 
 	} else if engine == "trivy" {
@@ -148,9 +150,11 @@ func ExecuteScan(engine, imageUri, platform string, scanTimeout time.Duration, l
 		Str("engine", engine).
 		Str("image", imageUri).
 		Str("platform", platform).
-		Any("findings", len(pharosScanResult.Findings)).
-		Any("vulns", len(pharosScanResult.Vulnerabilities)).
+		Any("x.findings", len(pharosScanResult.Findings)).
+		Any("x.vulns", len(pharosScanResult.Vulnerabilities)).
+		Any("x.packages", len(pharosScanResult.Packages)).
 		Msg("success")
+
 	os.WriteFile(engine+"-model.json", pharosScanResult.ToBytes(), 0644)
 
 	logger.Info().Msg("done")
