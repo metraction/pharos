@@ -33,5 +33,6 @@ go.work.sum
 .DS_Store
 
 # Dev/Test data
+.env
 _scans/
 *.json
