@@ -8,6 +8,7 @@ import (
 	"time"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	"github.com/metraction/pharos/internal/scanner"
 	"github.com/metraction/pharos/internal/scanner/grype"
 	"github.com/metraction/pharos/internal/scanner/syft"
 	"github.com/metraction/pharos/internal/scanner/trivy"
@@ -54,12 +55,12 @@ var scanCmd = &cobra.Command{
 	},
 }
 
-func ExecuteScan(engine, imageUri, platform string, scanTimeout time.Duration, logger *zerolog.Logger) {
+func ExecuteScan(engine, imageRef, platform string, scanTimeout time.Duration, logger *zerolog.Logger) {
 
 	logger.Info().Msg("-----< Scanner Scan >-----")
 	logger.Info().
 		Str("engine", engine).
-		Str("image", imageUri).
+		Str("image", imageRef).
 		Str("platform", platform).
 		Any("scan_timeout", scanTimeout.String()).
 		Msg("")
@@ -69,6 +70,16 @@ func ExecuteScan(engine, imageUri, platform string, scanTimeout time.Duration, l
 
 	var sbomData *[]byte
 	var scanData *[]byte
+
+	variant := ""
+	for _, platform := range []string{"linux/arm64", "linux/386", "linux/mips64le"} {
+		digest, err := scanner.GetImageDigests(imageRef, platform, variant, scanner.RepoAuthType{})
+		if err != nil {
+			logger.Error().Err(err).Msg("GetImageDigest()")
+		}
+		logger.Info().Str("digest", digest).Str("platform", platform).Msg("")
+	}
+	//os.Exit(1)
 
 	// scan sbom with chosen scanner engine
 	if engine == "grype" {
@@ -86,7 +97,7 @@ func ExecuteScan(engine, imageUri, platform string, scanTimeout time.Duration, l
 			logger.Fatal().Err(err).Msg("NewGrypeScanner()")
 		}
 		// get image and create sbom
-		if syftSbom, sbomData, err = syftSbomGenerator.CreateSbom(imageUri, platform, "syft-json"); err != nil {
+		if syftSbom, sbomData, err = syftSbomGenerator.CreateSbom(imageRef, platform, "syft-json"); err != nil {
 			logger.Fatal().Err(err).Msg("CreateSbom()")
 		}
 		// check/update scanner database
@@ -122,7 +133,7 @@ func ExecuteScan(engine, imageUri, platform string, scanTimeout time.Duration, l
 		}
 
 		// get image and create sbom
-		if sbom, sbomData, err = trivySbomGenerator.CreateSbom(imageUri, platform, "cyclonedx"); err != nil {
+		if sbom, sbomData, err = trivySbomGenerator.CreateSbom(imageRef, platform, "cyclonedx"); err != nil {
 			logger.Fatal().Err(err).Msg("CreateSbom()")
 		}
 
@@ -148,7 +159,7 @@ func ExecuteScan(engine, imageUri, platform string, scanTimeout time.Duration, l
 	}
 	logger.Info().
 		Str("engine", engine).
-		Str("image", imageUri).
+		Str("image", imageRef).
 		Str("platform", platform).
 		Any("x.findings", len(pharosScanResult.Findings)).
 		Any("x.vulns", len(pharosScanResult.Vulnerabilities)).
