@@ -1,0 +1,49 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  PORT: 1337
+
+silent: true
+
+tasks:
+  grype-db:
+    desc: Show Grype db
+    cmds:
+      - grype db list
+
+  scan:
+    desc: Scan image [name], [tag] with grype and trivy
+    requires:
+      vars: [name,tag]
+    vars:
+      image:   docker.io/{{.name}}:{{.tag}}
+      scanfile: _scans/{{.name}}/{{.name}}-{{.tag}}.scan
+      sbomfile: _scans/{{.name}}/{{.name}}-{{.tag}}.sbom
+    cmds:
+      - 'echo "image:  {{.image}}"'
+      - 'echo "outdir: {{.outdir}}"'
+      - mkdir -p _scans
+      - mkdir -p _scans/{{.name}}
+
+      # Create cyclonedx SBOM with grype and trivy
+      - trivy image {{.image}} --scanners vuln -f cyclonedx     -o {{.sbomfile}}.trivy.sbom-cyclonedx.json
+      - syft {{.image}}                        -o cyclonedx-json > {{.sbomfile}}.syft.sbom-cyclonedx.json
+
+      # Scan sbom with Trivy
+      - trivy sbom {{.sbomfile}}.trivy.sbom-cyclonedx.json --scanners vuln -f json -o {{.scanfile}}.trivy.scan-cyclonedx.json
+      - trivy image {{.image}}                             --scanners vuln -f json -o {{.scanfile}}.trivy.scan-image.json
+
+      # Scan sbom with grype
+      - grype sbom:{{.sbomfile}}.syft.sbom-cyclonedx.json   -o json    > {{.scanfile}}.grype.scan-cyclondex-0.json
+      - grype sbom:{{.sbomfile}}.trivy.sbom-cyclonedx.json   -o json    > {{.scanfile}}.grype.scan-cyclondex-1.json
+      - grype {{.image}}       -o json    > {{.scanfile}}.grype.scan-image.json
+
+  trivy-db:
+    desc: Show trivy db
+    vars:
+      path: ~/Library/Caches/trivy/db/
+    cmds:
+      - echo "dir {{.path}}"
+      - ls ~/Library/Caches/trivy/db/
