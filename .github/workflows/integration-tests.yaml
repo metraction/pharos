@@ -1,9 +1,14 @@
 name: Integration Tests
 
-on: workflow_dispatch
+on:
+  workflow_run:
+    workflows: ["Build"] # This must match the 'name' field in your ko-build.yaml
+    types:
+      - completed
 
 jobs:
   calculate-version:
+    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
