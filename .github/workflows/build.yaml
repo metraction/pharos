@@ -17,11 +17,15 @@ jobs:
     secrets: inherit
     
   get-version:
-    needs: ko-build
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Get version from semver.sh
         id: version
         run: |
