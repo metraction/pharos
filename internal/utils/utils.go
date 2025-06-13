@@ -10,8 +10,37 @@ import (
 	"time"
 
 	"github.com/acarl005/stripansi"
+	"github.com/kos-v/dsnparser"
 	"github.com/package-url/packageurl-go"
+	"github.com/samber/lo"
 )
+
+// return left of digest, e.g. "sha256:f85340bf132ae1"
+func ShortDigest(input string) string {
+	return lo.Substring(input, 0, 19)
+}
+
+// return service, user, password, host from
+//
+//		redis://pwd@localhost:6379/0
+//	 registry://usr:pwd@docker.io/?type=password
+func ParseDsn(input string) (string, string, string, string, error) {
+
+	dsn := dsnparser.Parse(input)
+	if dsn == nil {
+		return "", "", "", "", fmt.Errorf("invalid DSN '%s'", input)
+	}
+	return dsn.GetScheme(), dsn.GetUser(), dsn.GetPassword(), dsn.GetHost(), nil
+}
+
+// return DSN with password masked as ***
+func MaskDsn(input string) string {
+	_, _, password, _, _ := ParseDsn(input)
+	if password == "" {
+		return input
+	}
+	return strings.Replace(input, ":"+password+"@", ":***@", 1)
+}
 
 // return function (closure) thats returns the <prefix>_<name> envvar if it exists, else the default value
 func EnvOrDefaultFunc(prefix string) func(string, string) string {
