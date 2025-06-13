@@ -38,7 +38,7 @@ jobs:
           echo "Using version: $VERSION"
         
   integration-test:
-    needs: get-version
+    needs: [get-version, ko-build]
     # Only run on manual trigger (workflow_dispatch)
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
