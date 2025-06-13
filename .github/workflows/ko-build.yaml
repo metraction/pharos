@@ -3,7 +3,7 @@ on:
   push:
     branches: 
     - main
-    - PH-1/*
+    - PH-4/*
     tags:
     - 'v*'
 

@@ -3,6 +3,9 @@ name: Integration Tests
 on:
   workflow_run:
     workflows: ["Build"] # This must match the 'name' field in your ko-build.yaml
+    branches:
+    - main  
+    - PH-4/*
     types:
       - completed
 
