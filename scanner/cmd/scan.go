@@ -4,6 +4,8 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"context"
+	"fmt"
 	"os"
 	"time"
 
@@ -12,6 +14,8 @@ import (
 	"github.com/metraction/pharos/internal/scanner/repo"
 	"github.com/metraction/pharos/internal/scanner/syft"
 	"github.com/metraction/pharos/internal/scanner/trivy"
+	"github.com/metraction/pharos/internal/services/cache"
+
 	"github.com/metraction/pharos/internal/utils"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/rs/zerolog"
@@ -71,23 +75,38 @@ func ExecuteScan(engine, imageRef, platform, regAuth, cacheEndpoint string, scan
 		Any("scan_timeout", scanTimeout.String()).
 		Msg("")
 
-	os.Exit(1)
 	var err error
 	var pharosScanResult model.PharosImageScanResult
 
 	var sbomData *[]byte
 	var scanData *[]byte
 
+	ctx := context.Background()
+
+	// connect redis cache
+	cache, err := cache.NewPharosCache(cacheEndpoint, logger)
+	if err != nil {
+		logger.Fatal().Err(err).Msg("Redis cache create")
+	}
+	defer cache.Close()
+
+	err = cache.Connect(ctx)
+	if err != nil {
+		logger.Fatal().Err(err).Msg("Redis cache connect")
+	}
+
+	logger.Info().
+		Str("redis.version", cache.Version(ctx)).
+		Msg("")
+
 	// process repository auth
 	auth := repo.RepoAuth{}
 	if err = auth.FromDsn(regAuth); err != nil {
 		logger.Error().Err(err).Msg("Load registry authority")
 	}
-	logger.Info().
-		Any("HasAuth", auth.HasAuth()).
-		Str("AuthDSN", auth.ToMaskedDsn("***")).
-		Msg("")
 
+	err = ScanWithGrype(imageRef, platform, auth, cache, logger)
+	os.Exit(1)
 	// scan sbom with chosen scanner engine
 	if engine == "grype" {
 		var grypeResult *grype.GrypeScanType
@@ -180,9 +199,13 @@ func ExecuteScan(engine, imageRef, platform, regAuth, cacheEndpoint string, scan
 }
 
 // Scan with Grype and cache
-func ScanWithGrype(imageRef, platform string, auth repo.RepoAuth, logger *zerolog.Logger) error {
+func ScanWithGrype(imageRef, platform string, auth repo.RepoAuth, cache *cache.PharosCache, logger *zerolog.Logger) error {
+
+	ctx := context.Background()
+	sbomTTL := 60 * time.Second // sbom cache expiry
 
 	logger.Info().Msg("Scan with Grype")
+
 	// get digest
 	indexDigest, manifestDigest, err := repo.GetImageDigests(imageRef, platform, auth)
 	if err != nil {
@@ -192,7 +215,31 @@ func ScanWithGrype(imageRef, platform string, auth repo.RepoAuth, logger *zerolo
 	logger.Info().
 		Str("digest.idx", utils.ShortDigest(indexDigest)).
 		Str("digest.man", utils.ShortDigest(manifestDigest)).
+		Any("sbomTTL", sbomTTL).
 		Msg("image digests")
+
+	what := "cached"
+	key := utils.ShortDigest(manifestDigest) + ".sbom"
+
+	data, err := cache.GetExpire(ctx, key, sbomTTL)
+	fmt.Println("11.d:", string(data))
+	fmt.Println("11.e:", err)
+	if err != nil {
+		fmt.Println("22: cache miss")
+		// cache miss: generate sbom
+		data = []byte(imageRef + " " + time.Now().String())
+		// cache sbom
+		cache.SetExpire(ctx, key, data, sbomTTL)
+		what = "new"
+	} else {
+		fmt.Println("22: cache HIT")
+	}
+
+	logger.Info().
+		Str("key", key).
+		Str("what", what).
+		Any("data", data).
+		Msg("")
 
 	return nil
 }
