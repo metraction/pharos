@@ -5,6 +5,9 @@ import (
 	"time"
 )
 
+type ImageScanTask struct {
+}
+
 // hold results if images scans returned from a variety of scanner engines
 type PharosImageScanResult struct {
 	Version    string           `json:"Version"`
