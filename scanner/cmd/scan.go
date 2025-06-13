@@ -8,10 +8,11 @@ import (
 	"time"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
-	"github.com/metraction/pharos/internal/scanner"
 	"github.com/metraction/pharos/internal/scanner/grype"
+	"github.com/metraction/pharos/internal/scanner/repo"
 	"github.com/metraction/pharos/internal/scanner/syft"
 	"github.com/metraction/pharos/internal/scanner/trivy"
+	"github.com/metraction/pharos/internal/utils"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
@@ -21,6 +22,8 @@ import (
 type ScanArgsType = struct {
 	ScanEngine  string // scan engine to use
 	ScanTimeout string // sbom & scan execution timeout
+	RepoAuth    string // Registry authority dsn
+	Cache       string // redis://user:pwd@localhost:6379/0
 	Image       string
 	Platform    string
 }
@@ -30,11 +33,13 @@ var ScanArgs = ScanArgsType{}
 func init() {
 	rootCmd.AddCommand(scanCmd)
 
-	scanCmd.Flags().StringVar(&ScanArgs.Image, "image", EnvOrDefault("image", ""), "Image to scan, e.g. docker.io/alpine:3.16")
-	scanCmd.Flags().StringVar(&ScanArgs.Platform, "platform", EnvOrDefault("platform", "linux/amd64"), "Image platform")
-
 	scanCmd.Flags().StringVar(&ScanArgs.ScanEngine, "engine", EnvOrDefault("engine", ""), "Scan engine to use [grype,trivy]")
 	scanCmd.Flags().StringVar(&ScanArgs.ScanTimeout, "scan_timeout", EnvOrDefault("scan_timeout", "180s"), "Scan timeout")
+
+	scanCmd.Flags().StringVar(&ScanArgs.Image, "image", EnvOrDefault("image", ""), "Image to scan, e.g. docker.io/alpine:3.16")
+	scanCmd.Flags().StringVar(&ScanArgs.Platform, "platform", EnvOrDefault("platform", "linux/amd64"), "Image platform")
+	scanCmd.Flags().StringVar(&ScanArgs.RepoAuth, "repoauth", EnvOrDefault("repoauth", ""), "Registry auth, e.g. registry://user:pwd@docker.io/?type=password")
+	scanCmd.Flags().StringVar(&ScanArgs.Cache, "cache", EnvOrDefault("cache", ""), "Redis cache, e.g. redis://user:pwd@localhost:6379/0")
 
 	scanCmd.MarkFlagRequired("engine")
 }
@@ -51,35 +56,37 @@ var scanCmd = &cobra.Command{
 			logger.Fatal().Err(err).Msg("invalid argument")
 		}
 
-		ExecuteScan(ScanArgs.ScanEngine, ScanArgs.Image, ScanArgs.Platform, scanTimeout, logger)
+		ExecuteScan(ScanArgs.ScanEngine, ScanArgs.Image, ScanArgs.Platform, ScanArgs.RepoAuth, ScanArgs.Cache, scanTimeout, logger)
 	},
 }
 
-func ExecuteScan(engine, imageRef, platform string, scanTimeout time.Duration, logger *zerolog.Logger) {
+func ExecuteScan(engine, imageRef, platform, regAuth, cacheEndpoint string, scanTimeout time.Duration, logger *zerolog.Logger) {
 
 	logger.Info().Msg("-----< Scanner Scan >-----")
 	logger.Info().
 		Str("engine", engine).
 		Str("image", imageRef).
 		Str("platform", platform).
+		Str("cache", utils.MaskDsn(cacheEndpoint)).
 		Any("scan_timeout", scanTimeout.String()).
 		Msg("")
 
+	os.Exit(1)
 	var err error
 	var pharosScanResult model.PharosImageScanResult
 
 	var sbomData *[]byte
 	var scanData *[]byte
 
-	variant := ""
-	for _, platform := range []string{"linux/arm64", "linux/386", "linux/mips64le"} {
-		digest, err := scanner.GetImageDigests(imageRef, platform, variant, scanner.RepoAuthType{})
-		if err != nil {
-			logger.Error().Err(err).Msg("GetImageDigest()")
-		}
-		logger.Info().Str("digest", digest).Str("platform", platform).Msg("")
+	// process repository auth
+	auth := repo.RepoAuth{}
+	if err = auth.FromDsn(regAuth); err != nil {
+		logger.Error().Err(err).Msg("Load registry authority")
 	}
-	//os.Exit(1)
+	logger.Info().
+		Any("HasAuth", auth.HasAuth()).
+		Str("AuthDSN", auth.ToMaskedDsn("***")).
+		Msg("")
 
 	// scan sbom with chosen scanner engine
 	if engine == "grype" {
@@ -97,7 +104,7 @@ func ExecuteScan(engine, imageRef, platform string, scanTimeout time.Duration, l
 			logger.Fatal().Err(err).Msg("NewGrypeScanner()")
 		}
 		// get image and create sbom
-		if syftSbom, sbomData, err = syftSbomGenerator.CreateSbom(imageRef, platform, "syft-json"); err != nil {
+		if syftSbom, sbomData, err = syftSbomGenerator.CreateSbom(imageRef, platform, "syft-json", auth); err != nil {
 			logger.Fatal().Err(err).Msg("CreateSbom()")
 		}
 		// check/update scanner database
@@ -170,4 +177,22 @@ func ExecuteScan(engine, imageRef, platform string, scanTimeout time.Duration, l
 
 	logger.Info().Msg("done")
 
+}
+
+// Scan with Grype and cache
+func ScanWithGrype(imageRef, platform string, auth repo.RepoAuth, logger *zerolog.Logger) error {
+
+	logger.Info().Msg("Scan with Grype")
+	// get digest
+	indexDigest, manifestDigest, err := repo.GetImageDigests(imageRef, platform, auth)
+	if err != nil {
+		return err
+	}
+
+	logger.Info().
+		Str("digest.idx", utils.ShortDigest(indexDigest)).
+		Str("digest.man", utils.ShortDigest(manifestDigest)).
+		Msg("image digests")
+
+	return nil
 }

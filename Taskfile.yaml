@@ -5,9 +5,25 @@ version: '3'
 vars:
   PORT: 1337
 
+dotenv:
+  - .env
+
 silent: true
 
 tasks:
+
+  pod-up:
+    desc: App start (compose)
+    cmds:
+      - echo "App up"
+      - podman-compose -f docker-compose.yaml up
+
+  pod-down:
+    desc: App stop (compose)
+    cmds:
+      - echo "App down"
+      - podman-compose -f docker-compose.yaml down
+
   grype-db:
     desc: Show Grype db
     cmds:

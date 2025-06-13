@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/dustin/go-humanize"
+	"github.com/metraction/pharos/internal/scanner/repo"
 	"github.com/metraction/pharos/internal/utils"
 	"github.com/rs/zerolog"
 )
@@ -55,21 +56,22 @@ func NewSyftSbomCreator(timeout time.Duration, logger *zerolog.Logger) (*SyftSbo
 }
 
 // download image, create sbom in chosen format, e.g. "syft-json", "cyclonedx-json"
-func (rx *SyftSbomCreator) CreateSbom(imageUri, platform, format string) (*SyftSbomType, *[]byte, error) {
+func (rx *SyftSbomCreator) CreateSbom(imageRef, platform, format string, auth repo.RepoAuth) (*SyftSbomType, *[]byte, error) {
 
 	rx.logger.Info().
-		Str("image", imageUri).
+		Str("image", imageRef).
 		Str("platform", platform).
 		Str("format", format).
 		Msg("CreateSbom() ..")
 
+	var err error
 	var stdout, stderr bytes.Buffer
 
 	ctx, cancel := context.WithTimeout(context.Background(), rx.Timeout)
 	defer cancel()
 
 	// fail if not imge is provided
-	if imageUri == "" {
+	if imageRef == "" {
 		return nil, nil, fmt.Errorf("no image provided")
 	}
 	// be explicit, set default in app and not here
@@ -77,8 +79,10 @@ func (rx *SyftSbomCreator) CreateSbom(imageUri, platform, format string) (*SyftS
 		return nil, nil, fmt.Errorf("no platform provided")
 	}
 
+	// authentication
+
 	elapsed := utils.ElapsedFunc()
-	cmd := exec.Command(rx.SyftBin, "registry:"+imageUri, "--platform", platform, "-o", format)
+	cmd := exec.Command(rx.SyftBin, "registry:"+imageRef, "--platform", platform, "-o", format)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 
@@ -101,7 +105,7 @@ func (rx *SyftSbomCreator) CreateSbom(imageUri, platform, format string) (*SyftS
 	// cmd.Env = append(cmd.Env, "DOCKER_CONFIG="+filePath)
 
 	// execute, then check success or timeout
-	err := cmd.Run()
+	err = cmd.Run()
 
 	if ctx.Err() == context.DeadlineExceeded {
 		return nil, nil, fmt.Errorf("create sbom: timeout after %s", rx.Timeout.String())
@@ -117,7 +121,7 @@ func (rx *SyftSbomCreator) CreateSbom(imageUri, platform, format string) (*SyftS
 	}
 
 	rx.logger.Info().
-		Str("image", imageUri).
+		Str("image", imageRef).
 		Str("platform", platform).
 		Str("format", format).
 		Any("size", humanize.Bytes(uint64(len(stdout.String())))).
