@@ -22,16 +22,6 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.21' # Or your project's Go version
-
       - name: Get version from semver.sh
         id: version
         run: |
@@ -64,7 +54,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23' # Or your project's Go version
+
       - name: Wait for services to be healthy
         run: |
           echo "Waiting for services to initialize..."
