@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       packages: read # Required to pull images from GHCR
-
+      contents: read # Required for checkout
     services:
       redis:
         image: redis:6.2-alpine
