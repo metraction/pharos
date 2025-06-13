@@ -26,7 +26,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
@@ -62,6 +62,9 @@ jobs:
         image: ghcr.io/metraction/pharos/pharos-c52785725d1132c2f91e01422b7f40ba:${{ needs.get-version.outputs.version }}
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
       - name: Wait for services to be healthy
         run: |
           echo "Waiting for services to initialize..."
