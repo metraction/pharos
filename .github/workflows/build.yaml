@@ -6,6 +6,7 @@ on:
     - PH-4/*
     tags:
     - 'v*'
+  workflow_dispatch: # Allow manual triggering
 
 permissions:
   contents: read
@@ -13,6 +14,8 @@ permissions:
 
 jobs:
   ko-build:
+    # Only run this job on push events, not when manually triggered just for tests
+    if: github.event_name == 'push'
     uses: metraction/github-actions/.github/workflows/ko-build.yaml@main
     secrets: inherit
     
@@ -35,11 +38,13 @@ jobs:
           echo "Using version: $VERSION"
         
   integration-test:
-    needs: [ko-build, get-version]
+    needs: get-version
+    # Only run on manual trigger (workflow_dispatch)
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
-      packages: read # Required to pull images from GHCR
       contents: read # Required for checkout
+      packages: read # Required to pull images from GHCR
     services:
       redis:
         image: redis:6.2-alpine
