@@ -79,8 +79,6 @@ func (rx *SyftSbomCreator) CreateSbom(imageRef, platform, format string, auth re
 		return SyftSbomType{}, nil, fmt.Errorf("no platform provided")
 	}
 
-	// authentication
-
 	elapsed := utils.ElapsedFunc()
 	cmd := exec.Command(rx.SyftBin, "registry:"+imageRef, "--platform", platform, "-o", format)
 	cmd.Stdout = &stdout
@@ -92,17 +90,26 @@ func (rx *SyftSbomCreator) CreateSbom(imageRef, platform, format string, auth re
 	cmd.Env = append(cmd.Env, "SYFT_PARALLELISM=5")
 
 	// Authentication
+	if auth.HasAuth() {
+		rx.logger.Info().Msg("Add Authenication")
+		cmd.Env = append(cmd.Env, "SYFT_REGISTRY_AUTH_AUTHORITY="+auth.Authority)
+		if auth.Username != "" {
+			cmd.Env = append(cmd.Env, "SYFT_REGISTRY_AUTH_USERNAME="+auth.Username)
+			cmd.Env = append(cmd.Env, "SYFT_REGISTRY_AUTH_PASSWORD="+auth.Password)
+		} else if auth.Token != "" {
+			cmd.Env = append(cmd.Env, "SYFT_REGISTRY_AUTH_TOKEN="+auth.Token)
+		}
+	}
 	// SYFT_REGISTRY_AUTH_AUTHORITY
 	// SYFT_REGISTRY_AUTH_USERNAME
 	// SYFT_REGISTRY_AUTH_PASSWORD
 	// SYFT_REGISTRY_AUTH_TOKEN
+
 	// SYFT_REGISTRY_AUTH_TLS_CERT
 	// SYFT_REGISTRY_AUTH_TLS_KEY
 
 	// TODO: Registry certificates
 	// SYFT_REGISTRY_CA_CERT
-	// filePath := fmt.Sprintf("%s/scanner-config", homeDir)
-	// cmd.Env = append(cmd.Env, "DOCKER_CONFIG="+filePath)
 
 	// execute, then check success or timeout
 	err = cmd.Run()
