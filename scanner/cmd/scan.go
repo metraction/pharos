@@ -133,10 +133,14 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, scanTimeout, cache
 		}
 
 		// scan image, use cache
-		err := ScanAndCacheGrype(imageRef, platform, auth, scanTimeout, cacheExpiry, sbomGenerator, kvc, logger)
+		result, sbomData, scanData, err := ScanAndCacheGrype(imageRef, platform, auth, scanTimeout, cacheExpiry, sbomGenerator, vulnScanner, kvc, logger)
 		if err != nil {
 			logger.Fatal().Err(err).Msg("ScanAndCacheGrype()")
 		}
+
+		os.WriteFile("grype-sbom.json", sbomData, 0644)
+		os.WriteFile("grype-scan.json", scanData, 0644)
+		os.WriteFile("grype-model.json", result.ToBytes(), 0644)
 	}
 
 	os.Exit(1)
@@ -233,12 +237,13 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, scanTimeout, cache
 }
 
 // scan image with grype
-func ScanAndCacheGrype(imageRef, platform string, auth repo.RepoAuth, scanTimeout, cacheExpiry time.Duration, sbomGen *syft.SyftSbomCreator, kvc *cache.PharosCache, logger *zerolog.Logger) error {
+func ScanAndCacheGrype(imageRef, platform string, auth repo.RepoAuth, scanTimeout, cacheExpiry time.Duration, sbomEngine *syft.SyftSbomCreator, scanEngine *grype.GrypeScanner, kvc *cache.PharosCache, logger *zerolog.Logger) (model.PharosImageScanResult, []byte, []byte, error) {
 
 	// return sbom cache key for given digest
 	CacheKey := func(digest string) string {
 		return lo.Substring(digest, 0, 39) + ".sbom"
 	}
+	noResult := model.PharosImageScanResult{}
 
 	ctx := context.Background()
 
@@ -247,14 +252,12 @@ func ScanAndCacheGrype(imageRef, platform string, auth repo.RepoAuth, scanTimeou
 	// get manifestDigest to have a platform unique key for caching
 	indexDigest, manifestDigest, err := repo.GetImageDigests(imageRef, platform, auth)
 	if err != nil {
-		return err
+		return noResult, nil, nil, err
 	}
 
 	logger.Info().
 		Str("digest.idx", utils.ShortDigest(indexDigest)).
 		Str("digest.man", utils.ShortDigest(manifestDigest)).
-		Any("scan_timeout", scanTimeout.String()).
-		Any("cache_expiry", cacheExpiry.String()).
 		Msg("image digests")
 
 	var sbomData []byte            // raw data
@@ -266,33 +269,49 @@ func ScanAndCacheGrype(imageRef, platform string, auth repo.RepoAuth, scanTimeou
 	// try cache, else create
 	sbomData, err = kvc.GetExpire(ctx, key, scanTimeout)
 	if err != nil && !errors.Is(err, cache.ErrKeyNotFound) {
-		return err
+		return noResult, nil, nil, err
 	}
 
 	if errors.Is(err, cache.ErrKeyNotFound) {
 		// cache miss: generate sbom
 		cacheState = "cache miss"
-		if sbomProd, sbomData, err = sbomGen.CreateSbom(imageRef, platform, "syft-json", auth); err != nil {
-			return err
+		if sbomProd, sbomData, err = sbomEngine.CreateSbom(imageRef, platform, "syft-json", auth); err != nil {
+			return noResult, nil, nil, err
 		}
 		// cache sbom
 		if err := kvc.SetExpire(ctx, key, sbomData, scanTimeout); err != nil {
-			return err
+			return noResult, nil, nil, err
 		}
 	} else {
 		// cache hit, parse []byte
 		cacheState = "cache hit"
 		if err := sbomProd.FromBytes(sbomData); err != nil {
-			return err
+			return noResult, nil, nil, err
 		}
+	}
+	var scanResult model.PharosImageScanResult
+	var scanProd grype.GrypeScanType
+	var scanData []byte
+
+	// scan sbom
+	if scanProd, scanData, err = scanEngine.VulnScanSbom(sbomData); err != nil {
+		logger.Fatal().Err(err).Msg("VulnScanSbom()")
+	}
+	if err = scanResult.LoadGrypeImageScan(sbomProd, scanProd); err != nil {
+		logger.Fatal().Err(err).Msg("scanResult.LoadGrypeScan()")
 	}
 
 	logger.Info().
 		Str("key", key).
 		Str("cache", cacheState).
-		Any("distro", sbomProd.Distro.Name).
-		Any("size", humanize.Bytes(sbomProd.Source.Metadata.ImageSize)).
+		Any("time.scan_timeout", scanTimeout.String()).
+		Any("time.cache_expiry", cacheExpiry.String()).
+		Any("img.distro", sbomProd.Distro.Name+" "+sbomProd.Source.Version).
+		Any("img.size", humanize.Bytes(sbomProd.Source.Metadata.ImageSize)).
+		Any("scan.findings", len(scanResult.Findings)).
+		Any("scan.vulns", len(scanResult.Vulnerabilities)).
+		Any("scan.packages", len(scanResult.Packages)).
 		Msg("")
 
-	return nil
+	return scanResult, sbomData, scanData, nil
 }

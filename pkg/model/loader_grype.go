@@ -10,7 +10,7 @@ import (
 )
 
 // populate model from grype scan
-func (rx *PharosImageScanResult) LoadGrypeImageScan(sbom *syft.SyftSbomType, scan *grype.GrypeScanType) error {
+func (rx *PharosImageScanResult) LoadGrypeImageScan(sbom syft.SyftSbomType, scan grype.GrypeScanType) error {
 
 	// scan engine
 	rx.Version = "1.0"
