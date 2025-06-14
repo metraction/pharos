@@ -56,13 +56,13 @@ func NewSyftSbomCreator(timeout time.Duration, logger *zerolog.Logger) (*SyftSbo
 }
 
 // download image, create sbom in chosen format, e.g. "syft-json", "cyclonedx-json"
-func (rx *SyftSbomCreator) CreateSbom(imageRef, platform, format string, auth repo.RepoAuth) (*SyftSbomType, *[]byte, error) {
+func (rx *SyftSbomCreator) CreateSbom(imageRef, platform, format string, auth repo.RepoAuth) (SyftSbomType, []byte, error) {
 
 	rx.logger.Info().
 		Str("image", imageRef).
 		Str("platform", platform).
 		Str("format", format).
-		Msg("CreateSbom() ..")
+		Msg("SyftSbomCreator.CreateSbom() ..")
 
 	var err error
 	var stdout, stderr bytes.Buffer
@@ -72,11 +72,11 @@ func (rx *SyftSbomCreator) CreateSbom(imageRef, platform, format string, auth re
 
 	// fail if not imge is provided
 	if imageRef == "" {
-		return nil, nil, fmt.Errorf("no image provided")
+		return SyftSbomType{}, nil, fmt.Errorf("no image provided")
 	}
 	// be explicit, set default in app and not here
 	if platform == "" {
-		return nil, nil, fmt.Errorf("no platform provided")
+		return SyftSbomType{}, nil, fmt.Errorf("no platform provided")
 	}
 
 	// authentication
@@ -108,27 +108,29 @@ func (rx *SyftSbomCreator) CreateSbom(imageRef, platform, format string, auth re
 	err = cmd.Run()
 
 	if ctx.Err() == context.DeadlineExceeded {
-		return nil, nil, fmt.Errorf("create sbom: timeout after %s", rx.Timeout.String())
+		return SyftSbomType{}, nil, fmt.Errorf("create sbom: timeout after %s", rx.Timeout.String())
 	} else if err != nil {
-		return nil, nil, fmt.Errorf(utils.NoColorCodes(stderr.String()))
+		return SyftSbomType{}, nil, fmt.Errorf(utils.NoColorCodes(stderr.String()))
 	}
 	data := stdout.Bytes()
 	//fmt.Println(stdout.String())
 
 	var sbom SyftSbomType
 	if err := json.Unmarshal(data, &sbom); err != nil {
-		return nil, nil, err
+		return SyftSbomType{}, nil, err
 	}
 
 	rx.logger.Info().
 		Str("image", imageRef).
 		Str("platform", platform).
 		Str("format", format).
-		Any("size", humanize.Bytes(uint64(len(stdout.String())))).
+		Str("distro", sbom.Distro.Name).
+		Any("size.1", len(data)).
+		Any("size.2", humanize.Bytes(uint64(len(stdout.String())))).
 		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).
 		Msg("CreateSbom() success")
 
-	return &sbom, &data, nil
+	return sbom, data, nil
 }
 
 func safeLen[T any](data *[]T) int {

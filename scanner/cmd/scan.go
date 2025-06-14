@@ -10,11 +10,13 @@ import (
 	"time"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	"github.com/dustin/go-humanize"
 	"github.com/metraction/pharos/internal/scanner/grype"
 	"github.com/metraction/pharos/internal/scanner/repo"
 	"github.com/metraction/pharos/internal/scanner/syft"
 	"github.com/metraction/pharos/internal/scanner/trivy"
 	"github.com/metraction/pharos/internal/services/cache"
+	"github.com/samber/lo"
 
 	"github.com/metraction/pharos/internal/utils"
 	"github.com/metraction/pharos/pkg/model"
@@ -114,18 +116,24 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, scanTimeout, cache
 
 	if engine == "grype" {
 		var vulnScanner *grype.GrypeScanner
+		var sbomGenerator *syft.SyftSbomCreator
 
+		// create sbom generator
+		if sbomGenerator, err = syft.NewSyftSbomCreator(scanTimeout, logger); err != nil {
+			logger.Fatal().Err(err).Msg("NewSyftSbomCreator()")
+		}
 		// create scanner
 		if vulnScanner, err = grype.NewGrypeScanner(scanTimeout, logger); err != nil {
 			logger.Fatal().Err(err).Msg("NewGrypeScanner()")
 		}
+
 		// update database
 		if err = vulnScanner.UpdateDatabase(); err != nil {
 			logger.Fatal().Err(err).Msg("UpdateDatabase()")
 		}
 
 		// scan image, use cache
-		err := ScanAndCacheGrype(imageRef, platform, auth, scanTimeout, cacheExpiry, kvc, logger)
+		err := ScanAndCacheGrype(imageRef, platform, auth, scanTimeout, cacheExpiry, sbomGenerator, kvc, logger)
 		if err != nil {
 			logger.Fatal().Err(err).Msg("ScanAndCacheGrype()")
 		}
@@ -135,39 +143,39 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, scanTimeout, cache
 
 	// scan sbom with chosen scanner engine
 	if engine == "grype" {
-		var grypeResult *grype.GrypeScanType
-		var syftSbom *syft.SyftSbomType
-		var vulnScanner *grype.GrypeScanner
-		var syftSbomGenerator *syft.SyftSbomCreator
+		// var grypeResult *grype.GrypeScanType
+		// var syftSbom *syft.SyftSbomType
+		// var vulnScanner *grype.GrypeScanner
+		// var syftSbomGenerator *syft.SyftSbomCreator
 
-		// create sbom generator
-		if syftSbomGenerator, err = syft.NewSyftSbomCreator(scanTimeout, logger); err != nil {
-			logger.Fatal().Err(err).Msg("NewSyftSbomCreator()")
-		}
-		// create scanner
-		if vulnScanner, err = grype.NewGrypeScanner(scanTimeout, logger); err != nil {
-			logger.Fatal().Err(err).Msg("NewGrypeScanner()")
-		}
-		// get image and create sbom
-		if syftSbom, sbomData, err = syftSbomGenerator.CreateSbom(imageRef, platform, "syft-json", auth); err != nil {
-			logger.Fatal().Err(err).Msg("CreateSbom()")
-		}
-		// check/update scanner database
-		if err = vulnScanner.UpdateDatabase(); err != nil {
-			logger.Fatal().Err(err).Msg("UpdateDatabase()")
-		}
-		// scan sbom
-		if grypeResult, scanData, err = vulnScanner.VulnScanSbom(sbomData); err != nil {
-			logger.Fatal().Err(err).Msg("VulnScanSbom()")
-		}
-		if err = pharosScanResult.LoadGrypeImageScan(syftSbom, grypeResult); err != nil {
-			logger.Fatal().Err(err).Msg("scanResult.LoadGrypeScan()")
-		}
-		//logger.Info().Any("model", pharosScanResult).Msg("")
+		// // create sbom generator
+		// if syftSbomGenerator, err = syft.NewSyftSbomCreator(scanTimeout, logger); err != nil {
+		// 	logger.Fatal().Err(err).Msg("NewSyftSbomCreator()")
+		// }
+		// // create scanner
+		// if vulnScanner, err = grype.NewGrypeScanner(scanTimeout, logger); err != nil {
+		// 	logger.Fatal().Err(err).Msg("NewGrypeScanner()")
+		// }
+		// // get image and create sbom
+		// if syftSbom, sbomData, err = syftSbomGenerator.CreateSbom(imageRef, platform, "syft-json", auth); err != nil {
+		// 	logger.Fatal().Err(err).Msg("CreateSbom()")
+		// }
+		// // check/update scanner database
+		// if err = vulnScanner.UpdateDatabase(); err != nil {
+		// 	logger.Fatal().Err(err).Msg("UpdateDatabase()")
+		// }
+		// // scan sbom
+		// if grypeResult, scanData, err = vulnScanner.VulnScanSbom(sbomData); err != nil {
+		// 	logger.Fatal().Err(err).Msg("VulnScanSbom()")
+		// }
+		// if err = pharosScanResult.LoadGrypeImageScan(syftSbom, grypeResult); err != nil {
+		// 	logger.Fatal().Err(err).Msg("scanResult.LoadGrypeScan()")
+		// }
+		// //logger.Info().Any("model", pharosScanResult).Msg("")
 
-		os.WriteFile("grype-sbom.json", *sbomData, 0644)
-		os.WriteFile("grype-sbom-model.json", syftSbom.ToBytes(), 0644)
-		os.WriteFile("grype-scan.json", *scanData, 0644)
+		// os.WriteFile("grype-sbom.json", *sbomData, 0644)
+		// os.WriteFile("grype-sbom-model.json", syftSbom.ToBytes(), 0644)
+		// os.WriteFile("grype-scan.json", *scanData, 0644)
 
 	} else if engine == "trivy" {
 		var sbom *cdx.BOM
@@ -225,7 +233,12 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, scanTimeout, cache
 }
 
 // scan image with grype
-func ScanAndCacheGrype(imageRef, platform string, auth repo.RepoAuth, scanTimeout, cacheExpiry time.Duration, kvc *cache.PharosCache, logger *zerolog.Logger) error {
+func ScanAndCacheGrype(imageRef, platform string, auth repo.RepoAuth, scanTimeout, cacheExpiry time.Duration, sbomGen *syft.SyftSbomCreator, kvc *cache.PharosCache, logger *zerolog.Logger) error {
+
+	// return sbom cache key for given digest
+	CacheKey := func(digest string) string {
+		return lo.Substring(digest, 0, 39) + ".sbom"
+	}
 
 	ctx := context.Background()
 
@@ -240,34 +253,45 @@ func ScanAndCacheGrype(imageRef, platform string, auth repo.RepoAuth, scanTimeou
 	logger.Info().
 		Str("digest.idx", utils.ShortDigest(indexDigest)).
 		Str("digest.man", utils.ShortDigest(manifestDigest)).
-		Any("scan_timeout", scanTimeout).
-		Any("cache_expiry", cacheExpiry).
+		Any("scan_timeout", scanTimeout.String()).
+		Any("cache_expiry", cacheExpiry.String()).
 		Msg("image digests")
 
-	key := utils.ShortDigest(manifestDigest) + ".sbom"
-	cacheState := "cache miss"
+	var sbomData []byte            // raw data
+	var sbomProd syft.SyftSbomType // syft sbom struct
+
+	cacheState := "n/a"
+	key := CacheKey(manifestDigest)
 
 	// try cache, else create
-	data, err := kvc.GetExpire(ctx, key, scanTimeout)
+	sbomData, err = kvc.GetExpire(ctx, key, scanTimeout)
 	if err != nil && !errors.Is(err, cache.ErrKeyNotFound) {
 		return err
 	}
 
 	if errors.Is(err, cache.ErrKeyNotFound) {
 		// cache miss: generate sbom
-		data = []byte(imageRef + " " + time.Now().String())
+		cacheState = "cache miss"
+		if sbomProd, sbomData, err = sbomGen.CreateSbom(imageRef, platform, "syft-json", auth); err != nil {
+			return err
+		}
 		// cache sbom
-		if err := kvc.SetExpire(ctx, key, data, scanTimeout); err != nil {
+		if err := kvc.SetExpire(ctx, key, sbomData, scanTimeout); err != nil {
 			return err
 		}
 	} else {
+		// cache hit, parse []byte
 		cacheState = "cache hit"
+		if err := sbomProd.FromBytes(sbomData); err != nil {
+			return err
+		}
 	}
 
 	logger.Info().
 		Str("key", key).
 		Str("cache", cacheState).
-		Any("data", data).
+		Any("distro", sbomProd.Distro.Name).
+		Any("size", humanize.Bytes(sbomProd.Source.Metadata.ImageSize)).
 		Msg("")
 
 	return nil

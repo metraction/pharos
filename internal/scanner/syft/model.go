@@ -8,6 +8,8 @@ import (
 
 // output of grype -o json
 type SyftSbomType struct {
+	Source     SyftSource     `json:"source"`
+	Distro     SyftDistro     `json:"distro"`
 	Artifacts  []SyftArtifact `json:"artifacts"`
 	Descriptor SyftDescriptor `json:"descriptor"`
 }
@@ -19,6 +21,33 @@ func (rx *SyftSbomType) ToBytes() []byte {
 		return []byte{}
 	}
 	return data
+}
+
+// parse []bytes to model
+func (rx *SyftSbomType) FromBytes(input []byte) error {
+	err := json.Unmarshal(input, &rx)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type SyftSource struct {
+	Name     string       `json:"name"`
+	Version  string       `json:"version"`
+	Metadata SyftMetadata `json:"metadata"`
+}
+
+type SyftMetadata struct {
+	UserInput string `json:"userInput"`
+	ImageId   string `json:"imageId"`
+	ImageSize uint64 `json:"imageSize"`
+}
+
+type SyftDistro struct {
+	Id      string `json:"id"`
+	Name    string `json:"name"`
+	Version string `json:"version"`
 }
 
 // `json:""`
