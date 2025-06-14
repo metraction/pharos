@@ -5,7 +5,7 @@ package cmd
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"os"
 	"time"
 
@@ -24,12 +24,13 @@ import (
 
 // command line arguments of root command
 type ScanArgsType = struct {
-	ScanEngine  string // scan engine to use
-	ScanTimeout string // sbom & scan execution timeout
-	RepoAuth    string // Registry authority dsn
-	Cache       string // redis://user:pwd@localhost:6379/0
-	Image       string
-	Platform    string
+	ScanEngine    string // scan engine to use
+	Image         string
+	Platform      string
+	RepoAuth      string // Registry authority dsn
+	ScanTimeout   string // sbom & scan execution timeout
+	CacheExpiry   string // how log to cache sboms in redis
+	CacheEndpoint string // redis://user:pwd@localhost:6379/0
 }
 
 var ScanArgs = ScanArgsType{}
@@ -38,12 +39,13 @@ func init() {
 	rootCmd.AddCommand(scanCmd)
 
 	scanCmd.Flags().StringVar(&ScanArgs.ScanEngine, "engine", EnvOrDefault("engine", ""), "Scan engine to use [grype,trivy]")
-	scanCmd.Flags().StringVar(&ScanArgs.ScanTimeout, "scan_timeout", EnvOrDefault("scan_timeout", "180s"), "Scan timeout")
-
 	scanCmd.Flags().StringVar(&ScanArgs.Image, "image", EnvOrDefault("image", ""), "Image to scan, e.g. docker.io/alpine:3.16")
 	scanCmd.Flags().StringVar(&ScanArgs.Platform, "platform", EnvOrDefault("platform", "linux/amd64"), "Image platform")
-	scanCmd.Flags().StringVar(&ScanArgs.RepoAuth, "repoauth", EnvOrDefault("repoauth", ""), "Registry auth, e.g. registry://user:pwd@docker.io/?type=password")
-	scanCmd.Flags().StringVar(&ScanArgs.Cache, "cache", EnvOrDefault("cache", ""), "Redis cache, e.g. redis://user:pwd@localhost:6379/0")
+	scanCmd.Flags().StringVar(&ScanArgs.RepoAuth, "repo_auth", EnvOrDefault("repo_auth", ""), "Registry auth, e.g. registry://user:pwd@docker.io/?type=password")
+
+	scanCmd.Flags().StringVar(&ScanArgs.ScanTimeout, "scan_timeout", EnvOrDefault("scan_timeout", "180s"), "Scan timeout")
+	scanCmd.Flags().StringVar(&ScanArgs.CacheExpiry, "cache_expiry", EnvOrDefault("cache_expiry", "90s"), "Redis sbom cache expiry")
+	scanCmd.Flags().StringVar(&ScanArgs.CacheEndpoint, "cache_endpoint", EnvOrDefault("cache_endpoint", ""), "Redis cache, e.g. redis://user:pwd@localhost:6379/0")
 
 	scanCmd.MarkFlagRequired("engine")
 }
@@ -57,22 +59,27 @@ var scanCmd = &cobra.Command{
 
 		scanTimeout, err := time.ParseDuration(ScanArgs.ScanTimeout)
 		if err != nil {
-			logger.Fatal().Err(err).Msg("invalid argument")
+			logger.Fatal().Err(err).Msg("invalid scan_timeout argument")
 		}
-
-		ExecuteScan(ScanArgs.ScanEngine, ScanArgs.Image, ScanArgs.Platform, ScanArgs.RepoAuth, ScanArgs.Cache, scanTimeout, logger)
+		cacheExpiry, err := time.ParseDuration(ScanArgs.CacheExpiry)
+		if err != nil {
+			logger.Fatal().Err(err).Msg("invalid cache_expiry argument")
+		}
+		ExecuteScan(ScanArgs.ScanEngine, ScanArgs.Image, ScanArgs.Platform, ScanArgs.RepoAuth, scanTimeout, cacheExpiry, ScanArgs.CacheEndpoint, logger)
 	},
 }
 
-func ExecuteScan(engine, imageRef, platform, regAuth, cacheEndpoint string, scanTimeout time.Duration, logger *zerolog.Logger) {
+func ExecuteScan(engine, imageRef, platform, repoAuth string, scanTimeout, cacheExpiry time.Duration, cacheEndpoint string, logger *zerolog.Logger) {
 
 	logger.Info().Msg("-----< Scanner Scan >-----")
 	logger.Info().
 		Str("engine", engine).
 		Str("image", imageRef).
 		Str("platform", platform).
-		Str("cache", utils.MaskDsn(cacheEndpoint)).
-		Any("scan_timeout", scanTimeout.String()).
+		Str("repo_auth", utils.MaskDsn(repoAuth)).
+		Str("scan_timeout", scanTimeout.String()).
+		Str("cache_expiry", cacheExpiry.String()).
+		Str("cache_endpoint", utils.MaskDsn(cacheEndpoint)).
 		Msg("")
 
 	var err error
@@ -83,30 +90,49 @@ func ExecuteScan(engine, imageRef, platform, regAuth, cacheEndpoint string, scan
 
 	ctx := context.Background()
 
-	// connect redis cache
-	cache, err := cache.NewPharosCache(cacheEndpoint, logger)
+	// connect redis for key value cache
+	kvc, err := cache.NewPharosCache(cacheEndpoint, logger)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("Redis cache create")
 	}
-	defer cache.Close()
+	defer kvc.Close()
 
-	err = cache.Connect(ctx)
+	err = kvc.Connect(ctx)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("Redis cache connect")
 	}
 
 	logger.Info().
-		Str("redis.version", cache.Version(ctx)).
+		Str("redis.version", kvc.Version(ctx)).
 		Msg("")
 
 	// process repository auth
 	auth := repo.RepoAuth{}
-	if err = auth.FromDsn(regAuth); err != nil {
+	if err = auth.FromDsn(repoAuth); err != nil {
 		logger.Error().Err(err).Msg("Load registry authority")
 	}
 
-	err = ScanWithGrype(imageRef, platform, auth, cache, logger)
+	if engine == "grype" {
+		var vulnScanner *grype.GrypeScanner
+
+		// create scanner
+		if vulnScanner, err = grype.NewGrypeScanner(scanTimeout, logger); err != nil {
+			logger.Fatal().Err(err).Msg("NewGrypeScanner()")
+		}
+		// update database
+		if err = vulnScanner.UpdateDatabase(); err != nil {
+			logger.Fatal().Err(err).Msg("UpdateDatabase()")
+		}
+
+		// scan image, use cache
+		err := ScanAndCacheGrype(imageRef, platform, auth, scanTimeout, cacheExpiry, kvc, logger)
+		if err != nil {
+			logger.Fatal().Err(err).Msg("ScanAndCacheGrype()")
+		}
+	}
+
 	os.Exit(1)
+
 	// scan sbom with chosen scanner engine
 	if engine == "grype" {
 		var grypeResult *grype.GrypeScanType
@@ -198,15 +224,14 @@ func ExecuteScan(engine, imageRef, platform, regAuth, cacheEndpoint string, scan
 
 }
 
-// Scan with Grype and cache
-func ScanWithGrype(imageRef, platform string, auth repo.RepoAuth, cache *cache.PharosCache, logger *zerolog.Logger) error {
+// scan image with grype
+func ScanAndCacheGrype(imageRef, platform string, auth repo.RepoAuth, scanTimeout, cacheExpiry time.Duration, kvc *cache.PharosCache, logger *zerolog.Logger) error {
 
 	ctx := context.Background()
-	sbomTTL := 60 * time.Second // sbom cache expiry
 
 	logger.Info().Msg("Scan with Grype")
 
-	// get digest
+	// get manifestDigest to have a platform unique key for caching
 	indexDigest, manifestDigest, err := repo.GetImageDigests(imageRef, platform, auth)
 	if err != nil {
 		return err
@@ -215,29 +240,33 @@ func ScanWithGrype(imageRef, platform string, auth repo.RepoAuth, cache *cache.P
 	logger.Info().
 		Str("digest.idx", utils.ShortDigest(indexDigest)).
 		Str("digest.man", utils.ShortDigest(manifestDigest)).
-		Any("sbomTTL", sbomTTL).
+		Any("scan_timeout", scanTimeout).
+		Any("cache_expiry", cacheExpiry).
 		Msg("image digests")
 
-	what := "cached"
 	key := utils.ShortDigest(manifestDigest) + ".sbom"
+	cacheState := "cache miss"
 
-	data, err := cache.GetExpire(ctx, key, sbomTTL)
-	fmt.Println("11.d:", string(data))
-	fmt.Println("11.e:", err)
-	if err != nil {
-		fmt.Println("22: cache miss")
+	// try cache, else create
+	data, err := kvc.GetExpire(ctx, key, scanTimeout)
+	if err != nil && !errors.Is(err, cache.ErrKeyNotFound) {
+		return err
+	}
+
+	if errors.Is(err, cache.ErrKeyNotFound) {
 		// cache miss: generate sbom
 		data = []byte(imageRef + " " + time.Now().String())
 		// cache sbom
-		cache.SetExpire(ctx, key, data, sbomTTL)
-		what = "new"
+		if err := kvc.SetExpire(ctx, key, data, scanTimeout); err != nil {
+			return err
+		}
 	} else {
-		fmt.Println("22: cache HIT")
+		cacheState = "cache hit"
 	}
 
 	logger.Info().
 		Str("key", key).
-		Str("what", what).
+		Str("cache", cacheState).
 		Any("data", data).
 		Msg("")
 
