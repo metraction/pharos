@@ -12,6 +12,8 @@ import (
 	"github.com/rs/zerolog"
 )
 
+var ErrKeyNotFound = errors.New("key not found")
+
 // Pharos redis cache
 
 type PharosCache struct {
@@ -50,11 +52,8 @@ func (rx *PharosCache) Connect(ctx context.Context) error {
 		return err
 	}
 	rx.logger.Info().
-		Str("endpoint", rx.Endpoint).
-		Any("options", options).
-		Any("opt.pass", options.Password).
-		Any("opt.user", options.Username).
-		Msg("Connect() ..")
+		Str("redis_endpoint", utils.MaskDsn(rx.Endpoint)).
+		Msg("PharosCache.Connect() ..")
 
 	rx.client = redis.NewClient(options)
 
@@ -104,7 +103,7 @@ func (rx PharosCache) Get(ctx context.Context, key string) ([]byte, error) {
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
 			// key not found
-			return nil, fmt.Errorf("key not found")
+			return nil, ErrKeyNotFound
 		} else {
 			return nil, err
 		}
