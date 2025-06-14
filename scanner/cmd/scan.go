@@ -116,12 +116,7 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, scanTimeout, cache
 
 	if engine == "grype" {
 		var vulnScanner *grype.GrypeScanner
-		var sbomGenerator *syft.SyftSbomCreator
 
-		// create sbom generator
-		if sbomGenerator, err = syft.NewSyftSbomCreator(scanTimeout, logger); err != nil {
-			logger.Fatal().Err(err).Msg("NewSyftSbomCreator()")
-		}
 		// create scanner
 		if vulnScanner, err = grype.NewGrypeScanner(scanTimeout, logger); err != nil {
 			logger.Fatal().Err(err).Msg("NewGrypeScanner()")
@@ -133,7 +128,7 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, scanTimeout, cache
 		}
 
 		// scan image, use cache
-		result, sbomData, scanData, err := ScanAndCacheGrype(imageRef, platform, auth, scanTimeout, cacheExpiry, sbomGenerator, vulnScanner, kvc, logger)
+		result, sbomData, scanData, err := ScanAndCacheGrype(imageRef, platform, auth, scanTimeout, cacheExpiry, vulnScanner, kvc, logger)
 		if err != nil {
 			logger.Fatal().Err(err).Msg("ScanAndCacheGrype()")
 		}
@@ -237,7 +232,7 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, scanTimeout, cache
 }
 
 // scan image with grype
-func ScanAndCacheGrype(imageRef, platform string, auth repo.RepoAuth, scanTimeout, cacheExpiry time.Duration, sbomEngine *syft.SyftSbomCreator, scanEngine *grype.GrypeScanner, kvc *cache.PharosCache, logger *zerolog.Logger) (model.PharosImageScanResult, []byte, []byte, error) {
+func ScanAndCacheGrype(imageRef, platform string, auth repo.RepoAuth, scanTimeout, cacheExpiry time.Duration, scanEngine *grype.GrypeScanner, kvc *cache.PharosCache, logger *zerolog.Logger) (model.PharosImageScanResult, []byte, []byte, error) {
 
 	// return sbom cache key for given digest
 	CacheKey := func(digest string) string {
@@ -259,6 +254,13 @@ func ScanAndCacheGrype(imageRef, platform string, auth repo.RepoAuth, scanTimeou
 		Str("digest.idx", utils.ShortDigest(indexDigest)).
 		Str("digest.man", utils.ShortDigest(manifestDigest)).
 		Msg("image digests")
+
+	var sbomEngine *syft.SyftSbomCreator
+
+	// create sbom generator
+	if sbomEngine, err = syft.NewSyftSbomCreator(scanTimeout, logger); err != nil {
+		logger.Fatal().Err(err).Msg("NewSyftSbomCreator()")
+	}
 
 	var sbomData []byte            // raw data
 	var sbomProd syft.SyftSbomType // syft sbom struct

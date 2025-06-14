@@ -2,6 +2,7 @@ package repo
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/google/go-containerregistry/pkg/authn"
@@ -17,6 +18,48 @@ type RepoAuth struct {
 	Username  string `json:"Username"`
 	Password  string `json:"Password"`
 	Token     string `json:"Token"`
+}
+
+// write docker config file with auth
+func (rx RepoAuth) WriteDockerConfig(outfile string) error {
+
+	text := ""
+	if rx.Username != "" {
+		text = rx.DockerUserAuth()
+	} else if rx.Token != "" {
+		text = rx.DockerTokenAuth()
+	} else {
+		return fmt.Errorf("empt authenication")
+	}
+
+	if err := os.WriteFile(outfile, []byte(text), 0644); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (rx RepoAuth) DockerUserAuth() string {
+	return fmt.Sprintf(`
+	"{
+		auths": {
+			"%s": {
+				"username": "%s",
+				"password": "%s"
+			}
+		}
+	}
+	`, rx.Authority, rx.Username, rx.Password)
+}
+func (rx RepoAuth) DockerTokenAuth() string {
+	return fmt.Sprintf(`
+	"{
+		auths": {
+			"%s": {
+				"auth": "%s"
+			}
+		}
+	}
+	`, rx.Authority, rx.Token)
 }
 
 // return true if auth is not empty
