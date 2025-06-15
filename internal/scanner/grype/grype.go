@@ -6,16 +6,27 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/metraction/pharos/internal/utils"
 	"github.com/rs/zerolog"
 )
 
+// helper
+func TranslateMessage(msg string) string {
+	// translate as original messages that are missleading is missleading
+	msg = strings.Replace(msg, "No vulnerability database update available", "OK, no update required", 1)
+	msg = strings.TrimSpace(msg)
+	return msg
+}
+
 // grype vulnerability scanner
 type GrypeScanner struct {
 	Generator   string
 	HomeDir     string
+	DatabaseDir string
 	ScannerBin  string
 	ScanTimeout time.Duration
 	// version / status
@@ -42,10 +53,12 @@ func NewGrypeScanner(scanTimeout time.Duration, logger *zerolog.Logger) (*GrypeS
 	if err != nil {
 		return nil, err
 	}
+
 	scanner := GrypeScanner{
-		Generator:  "grype",
-		HomeDir:    homeDir,
-		ScannerBin: grypeBin,
+		Generator:   "grype",
+		HomeDir:     homeDir,
+		DatabaseDir: filepath.Join(homeDir, ".cache", "grype", "db"), //
+		ScannerBin:  grypeBin,
 
 		ScanTimeout: scanTimeout,
 		logger:      logger,
@@ -55,9 +68,10 @@ func NewGrypeScanner(scanTimeout time.Duration, logger *zerolog.Logger) (*GrypeS
 	}
 	scanner.logger.Info().
 		Str("engine", scanner.ScannerBin).
-		Str("scan.version", scanner.ScannerVersion).
-		Any("scan.timeout", scanner.ScanTimeout.String()).
-		Msg("NewGrypeScanner() ready")
+		Str("database_dir", scanner.DatabaseDir).
+		Str("scan_version", scanner.ScannerVersion).
+		Any("scan_timeout", scanner.ScanTimeout.String()).
+		Msg("NewGrypeScanner() OK")
 
 	return &scanner, nil
 }
@@ -103,7 +117,8 @@ func (rx *GrypeScanner) GetDatabaseState() error {
 
 	result := GrypeLocalDbState{}
 	if err := result.FromBytes(stdout.Bytes()); err != nil {
-		return fmt.Errorf(utils.NoColorCodes(stderr.String()))
+		msg := TranslateMessage(stderr.String())
+		return fmt.Errorf(utils.NoColorCodes(msg))
 	}
 	rx.DatabaseVersion = result.SchemaVersion
 	rx.DatabaseUpdated = result.Built
@@ -120,6 +135,7 @@ func (rx *GrypeScanner) UpdateDatabase() error {
 
 	elapsed := utils.ElapsedFunc()
 	cmd := exec.Command(rx.ScannerBin, "db", "update")
+	cmd.Env = append(cmd.Env, "GRYPE_DB_CACHE_DIR="+rx.DatabaseDir)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 
@@ -133,13 +149,15 @@ func (rx *GrypeScanner) UpdateDatabase() error {
 	if err := rx.GetDatabaseState(); err != nil {
 		return err
 	}
+	msg := TranslateMessage(stdout.String())
+
 	rx.logger.Info().
-		Str("result", utils.NoColorCodes(stdout.String())).
+		Str("result", utils.NoColorCodes(msg)).
 		Str("db.version", rx.DatabaseVersion).
 		Any("db.updated", rx.DatabaseUpdated).
 		Str("db.age", utils.HumanDeltaMin(time.Since(rx.DatabaseUpdated))).
 		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).
-		Msg("UpdateDatabase() ready")
+		Msg("UpdateDatabase() OK")
 
 	return nil
 }
@@ -149,7 +167,7 @@ func (rx *GrypeScanner) VulnScanSbom(sbom []byte) (GrypeScanType, []byte, error)
 
 	rx.logger.Info().
 		Any("scan_timeout", rx.ScanTimeout.String()).
-		Msg("VulnScanSbom()")
+		Msg("VulnScanSbom() ..")
 
 	var stdout, stderr bytes.Buffer
 
@@ -166,10 +184,11 @@ func (rx *GrypeScanner) VulnScanSbom(sbom []byte) (GrypeScanType, []byte, error)
 	// check https://github.com/anchore/grype
 	cmd.Env = append(cmd.Env, "GRYPE_CHECK_FOR_APP_UPDATE=false")
 	cmd.Env = append(cmd.Env, "GRYPE_ADD_CPES_IF_NONE=true")
+	cmd.Env = append(cmd.Env, "GRYPE_DB_CACHE_DIR="+rx.DatabaseDir)
+
 	//cmd.Env = append(cmd.Env, "GRYPE_DB_REQUIRE_UPDATE_CHECK=true")
 	//cmd.Env = append(cmd.Env, "GRYPE_DB_AUTO_UPDATE=false") // don't auto update db
 	//cmd.Env = append(cmd.Env, "GRYPE_DB_VALIDATE_AGE=false") // we ensure db is up-to-date
-
 	// GRYPE_ADD_CPES_IF_NONE
 
 	err := cmd.Run()
@@ -191,7 +210,7 @@ func (rx *GrypeScanner) VulnScanSbom(sbom []byte) (GrypeScanType, []byte, error)
 		Str("type", result.Type).
 		Any("matches", len(result.Matches)).
 		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).
-		Msg("VulnScanSbom() success")
+		Msg("VulnScanSbom() OK")
 
 	return result, data, nil
 }

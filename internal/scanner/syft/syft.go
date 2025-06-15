@@ -51,16 +51,17 @@ func NewSyftSbomCreator(timeout time.Duration, logger *zerolog.Logger) (*SyftSbo
 
 	logger.Info().
 		Any("timeout", generator.Timeout.String()).
-		Msg("NewSyftSbomCreator() ready")
+		Msg("NewSyftSbomCreator() OK")
 	return &generator, nil
 }
 
 // download image, create sbom in chosen format, e.g. "syft-json", "cyclonedx-json"
-func (rx *SyftSbomCreator) CreateSbom(imageRef, platform, format string, auth repo.RepoAuth) (SyftSbomType, []byte, error) {
+func (rx *SyftSbomCreator) CreateSbom(imageRef, platform string, auth repo.RepoAuth, tlsCheck bool, format string) (SyftSbomType, []byte, error) {
 
 	rx.logger.Info().
 		Str("image", imageRef).
 		Str("platform", platform).
+		Bool("tlsCheck", tlsCheck).
 		Str("format", format).
 		Msg("SyftSbomCreator.CreateSbom() ..")
 
@@ -91,15 +92,27 @@ func (rx *SyftSbomCreator) CreateSbom(imageRef, platform, format string, auth re
 
 	// Authentication
 	if auth.HasAuth() {
-		rx.logger.Info().Msg("Add Authenication")
 		cmd.Env = append(cmd.Env, "SYFT_REGISTRY_AUTH_AUTHORITY="+auth.Authority)
 		if auth.Username != "" {
+			rx.logger.Info().
+				Str("authority", auth.Authority).
+				Str("user", auth.Username).
+				Msg("Add user authenication")
+
 			cmd.Env = append(cmd.Env, "SYFT_REGISTRY_AUTH_USERNAME="+auth.Username)
 			cmd.Env = append(cmd.Env, "SYFT_REGISTRY_AUTH_PASSWORD="+auth.Password)
 		} else if auth.Token != "" {
+			rx.logger.Info().
+				Str("authority", auth.Authority).
+				Str("token", auth.Token).
+				Msg("Add token authenication")
 			cmd.Env = append(cmd.Env, "SYFT_REGISTRY_AUTH_TOKEN="+auth.Token)
 		}
 	}
+	if !tlsCheck {
+		cmd.Env = append(cmd.Env, "SYFT_REGISTRY_INSECURE_SKIP_TLS_VERIFY=true")
+	}
+
 	// SYFT_REGISTRY_AUTH_AUTHORITY
 	// SYFT_REGISTRY_AUTH_USERNAME
 	// SYFT_REGISTRY_AUTH_PASSWORD

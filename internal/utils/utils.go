@@ -1,7 +1,9 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -10,6 +12,7 @@ import (
 	"time"
 
 	"github.com/acarl005/stripansi"
+	"github.com/joho/godotenv"
 	"github.com/kos-v/dsnparser"
 	"github.com/package-url/packageurl-go"
 	"github.com/samber/lo"
@@ -18,6 +21,17 @@ import (
 // return left of digest, e.g. "sha256:f85340bf132ae1"
 func ShortDigest(input string) string {
 	return lo.Substring(input, 0, 19)
+}
+
+// return true if input string is one of 1, t, true, on, yes
+func ToBool(input string) bool {
+	input = strings.TrimSpace(input)
+	input = strings.ToLower(input)
+
+	if lo.Contains([]string{"1", "t", "true", "on", "yes"}, input) {
+		return true
+	}
+	return false
 }
 
 // return service, user, password, host from
@@ -30,7 +44,11 @@ func ParseDsn(input string) (string, string, string, string, error) {
 	if dsn == nil {
 		return "", "", "", "", fmt.Errorf("invalid DSN '%s'", input)
 	}
-	return dsn.GetScheme(), dsn.GetUser(), dsn.GetPassword(), dsn.GetHost(), nil
+	hostPort := dsn.GetHost()
+	if dsn.GetPort() != "" {
+		hostPort = dsn.GetHost() + ":" + dsn.GetPort()
+	}
+	return dsn.GetScheme(), dsn.GetUser(), dsn.GetPassword(), hostPort, nil
 }
 
 // return DSN with password masked as ***
@@ -44,6 +62,15 @@ func MaskDsn(input string) string {
 
 // return function (closure) thats returns the <prefix>_<name> envvar if it exists, else the default value
 func EnvOrDefaultFunc(prefix string) func(string, string) string {
+
+	// load .env if it exists
+	err := godotenv.Load()
+	if err != nil {
+		if !errors.Is(err, os.ErrNotExist) {
+			fmt.Println("error", err)
+			log.Fatal("Error loading .env file")
+		}
+	}
 	return func(name, defval string) string {
 		key := strings.ToUpper(prefix + "_" + name)
 		if value := os.Getenv(key); value != "" {
