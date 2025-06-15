@@ -4,10 +4,12 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"bufio"
 	"context"
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"time"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
@@ -134,14 +136,46 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, tlsCheck bool, sca
 			logger.Fatal().Err(err).Msg("UpdateDatabase()")
 		}
 		// scan image, use cache
-		result, sbomData, scanData, err := ScanAndCacheGrype(imageRef, platform, auth, tlsCheck, scanTimeout, cacheExpiry, vulnScanner, kvc, logger)
+
+		// if imageRef is a file, scan all images in file
+		file, err := os.Open(imageRef)
 		if err != nil {
-			logger.Fatal().Err(err).Msg("ScanAndCacheGrype()")
+			// scan one image
+			result, sbomData, scanData, err := ScanAndCacheGrype(imageRef, platform, auth, tlsCheck, scanTimeout, cacheExpiry, vulnScanner, kvc, logger)
+			if err != nil {
+				logger.Fatal().Err(err).Msg("ScanAndCacheGrype()")
+			}
+			os.WriteFile("grype-sbom.json", sbomData, 0644)
+			os.WriteFile("grype-scan.json", scanData, 0644)
+			os.WriteFile("grype-model.json", result.ToBytes(), 0644)
+			os.Exit(0)
 		}
 
-		os.WriteFile("grype-sbom.json", sbomData, 0644)
-		os.WriteFile("grype-scan.json", scanData, 0644)
-		os.WriteFile("grype-model.json", result.ToBytes(), 0644)
+		// scan all images in file
+		defer file.Close()
+		k := 0
+		scanner := bufio.NewScanner(file)
+
+		for scanner.Scan() {
+			k += 1
+			fileBase := filepath.Join("_output", fmt.Sprintf("%v", k))
+			image := scanner.Text()
+			logger.Info().Any("#", k).Str("image", image).Str("base", fileBase).Msg("")
+			result, sbomData, scanData, err := ScanAndCacheGrype(image, platform, auth, tlsCheck, scanTimeout, cacheExpiry, vulnScanner, kvc, logger)
+			if err != nil {
+				logger.Error().Err(err).Msg("ScanAndCacheGrype")
+				continue
+			}
+
+			os.WriteFile(fileBase+"-grype-sbom.json", sbomData, 0644)
+			os.WriteFile(fileBase+"-grype-scan.json", scanData, 0644)
+			os.WriteFile(fileBase+"-grype-model.json", result.ToBytes(), 0644)
+
+		}
+		if err := scanner.Err(); err != nil {
+			logger.Fatal().Err(err).Msg("File Scanner")
+		}
+
 	}
 
 	os.Exit(1)
