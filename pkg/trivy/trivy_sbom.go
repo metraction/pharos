@@ -9,14 +9,14 @@ import (
 	"os/exec"
 	"time"
 
-	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/dustin/go-humanize"
 	"github.com/metraction/pharos/internal/utils"
+	"github.com/metraction/pharos/pkg/model"
+	"github.com/metraction/pharos/pkg/trivytype"
 	"github.com/rs/zerolog"
 )
 
 // Create cyclonedx from artifact
-
 type TrivySbomCreator struct {
 	Generator string
 
@@ -42,7 +42,7 @@ func NewTrivySbomCreator(timeout time.Duration, logger *zerolog.Logger) (*TrivyS
 	}
 
 	generator := TrivySbomCreator{
-		Generator:    "syft",
+		Generator:    "trivy",
 		HomeDir:      homeDir,
 		GeneratorBin: trivyBin,
 		Timeout:      timeout,
@@ -56,59 +56,82 @@ func NewTrivySbomCreator(timeout time.Duration, logger *zerolog.Logger) (*TrivyS
 }
 
 // download image, create sbom in chosen format, e.g. "cyclonedx"
-func (rx *TrivySbomCreator) CreateSbom(imageUri, platform, format string) (*cdx.BOM, *[]byte, error) {
+func (rx *TrivySbomCreator) CreateSbom(task model.PharosImageScanTask, format string) (trivytype.TrivySbomType, []byte, error) {
+
+	auth := task.Auth
+	imageRef := task.ImageSpec.Image
+	platform := task.ImageSpec.Platform
 
 	rx.logger.Info().
-		Str("image", imageUri).
+		Str("image", imageRef).
 		Str("platform", platform).
+		Bool("tlsCheck", auth.TlsCheck).
 		Str("format", format).
-		Msg("CreateSbom() ..")
+		Msg("TrivySbomCreator.CreateSbom() ..")
 
 	var stdout, stderr bytes.Buffer
 
 	ctx, cancel := context.WithTimeout(context.Background(), rx.Timeout)
 	defer cancel()
 
-	// fail if not imge is provided
-	if imageUri == "" {
-		return nil, nil, fmt.Errorf("no image provided")
+	// fail if image is not provided
+	if imageRef == "" {
+		return trivytype.TrivySbomType{}, nil, fmt.Errorf("no image provided")
 	}
 	// be explicit, set default in app and not here
 	if platform == "" {
-		return nil, nil, fmt.Errorf("no platform provided")
+		return trivytype.TrivySbomType{}, nil, fmt.Errorf("no platform provided")
 	}
 
+	// auth
 	elapsed := utils.ElapsedFunc()
-	cmd := exec.Command(rx.GeneratorBin, "image", "--platform", platform, "--format", format, imageUri)
+	cmd := exec.Command(rx.GeneratorBin, "image", "--platform", platform, "--format", format, imageRef)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 
 	// prepare environment
-	// cmd.Env = append(cmd.Env, "SYFT_CHECK_FOR_APP_UPDATE=false")
+	// Authentication
+	if auth.HasAuth() {
+		if auth.Username != "" {
+			rx.logger.Info().
+				Str("authority", auth.Authority).
+				Str("user", auth.Username).
+				Msg("Add user authenication")
+
+			cmd.Env = append(cmd.Env, "TRIVY_USERNAME="+auth.Username)
+			cmd.Env = append(cmd.Env, "TRIVY_PASSWORD="+auth.Password)
+		} else if auth.Token != "" {
+			return trivytype.TrivySbomType{}, nil, fmt.Errorf("token authentication not supported")
+		}
+	}
+	if !auth.TlsCheck {
+		cmd.Env = append(cmd.Env, "TRIVY_INSECURE=true")
+	}
 
 	// execute, then check success or timeout
 	err := cmd.Run()
 
 	if ctx.Err() == context.DeadlineExceeded {
-		return nil, nil, fmt.Errorf("create sbom: timeout after %s", rx.Timeout.String())
+		return trivytype.TrivySbomType{}, nil, fmt.Errorf("create sbom: timeout after %s", rx.Timeout.String())
 	} else if err != nil {
-		return nil, nil, fmt.Errorf(utils.NoColorCodes(stderr.String()))
+		return trivytype.TrivySbomType{}, nil, fmt.Errorf(utils.NoColorCodes(stderr.String()))
 	}
-	data := stdout.Bytes()
 
-	// parse sbom
-	var sbom cdx.BOM
+	// get and parse sbom
+	data := stdout.Bytes()
+	var sbom trivytype.TrivySbomType
 	if err := json.Unmarshal(data, &sbom); err != nil {
-		return nil, nil, err
+		return trivytype.TrivySbomType{}, nil, err
 	}
 
 	rx.logger.Info().
-		Str("image", imageUri).
+		Str("image", imageRef).
 		Str("platform", platform).
 		Str("format", format).
-		Any("size", humanize.Bytes(uint64(len(stdout.String())))).
+		Str("distro", "N/A").
+		Any("size", humanize.Bytes(uint64(len(data)))).
 		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).
 		Msg("CreateSbom() OK")
 
-	return &sbom, &data, nil
+	return sbom, data, nil
 }

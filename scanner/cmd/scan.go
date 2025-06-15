@@ -9,12 +9,10 @@ import (
 	"os"
 	"time"
 
-	cdx "github.com/CycloneDX/cyclonedx-go"
-
-	"github.com/metraction/pharos/internal/scanner/trivy"
 	"github.com/metraction/pharos/internal/services/cache"
 	"github.com/metraction/pharos/pkg/grype"
 	"github.com/metraction/pharos/pkg/model"
+	"github.com/metraction/pharos/pkg/trivy"
 
 	"github.com/metraction/pharos/internal/utils"
 
@@ -95,9 +93,6 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, tlsCheck bool, sca
 	var err error
 	var pharosScanResult model.PharosImageScanResult
 
-	var sbomData *[]byte
-	var scanData *[]byte
-
 	ctx := context.Background()
 
 	// build scantask from arguments
@@ -135,6 +130,7 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, tlsCheck bool, sca
 	logger.Info().Str("redis_version", kvc.Version(ctx)).Msg("PharosCache.Connect() OK")
 
 	if engine == "grype" {
+		// Grype Scanner
 		var scanEngine *grype.GrypeScanner
 
 		// create scanner & update database
@@ -147,52 +143,26 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, tlsCheck bool, sca
 			logger.Fatal().Err(err).Msg("grype.ScanImage()")
 		}
 		WriteResults("grype", sbomData, scanData, result)
-	}
 
-	os.Exit(1)
-
-	// scan sbom with chosen scanner engine
-	if engine == "grype" {
 	} else if engine == "trivy" {
-		var sbom *cdx.BOM
-		var trivyResult *trivy.TrivyScanType
-		var vulnScanner *trivy.TrivyScanner
-		var trivySbomGenerator *trivy.TrivySbomCreator
+		// Trivy Scanner
+		var scanEngine *trivy.TrivyScanner
 
-		// create sbom generator
-		if trivySbomGenerator, err = trivy.NewTrivySbomCreator(scanTimeout, logger); err != nil {
-			logger.Fatal().Err(err).Msg("NewTrivySbomCreator()")
-		}
-		// create scanner
-		if vulnScanner, err = trivy.NewTrivyScanner(scanTimeout, logger); err != nil {
+		// create scanner & update database
+		if scanEngine, err = trivy.NewTrivyScanner(scanTimeout, true, logger); err != nil {
 			logger.Fatal().Err(err).Msg("NewTrivyScanner()")
 		}
-
-		// get image and create sbom
-		if sbom, sbomData, err = trivySbomGenerator.CreateSbom(imageRef, platform, "cyclonedx"); err != nil {
-			logger.Fatal().Err(err).Msg("CreateSbom()")
+		// scan image, use cache
+		result, sbomData, scanData, err := trivy.ScanImage(task, scanEngine, kvc, logger)
+		if err != nil {
+			logger.Fatal().Err(err).Msg("trivy.ScanImage()")
 		}
+		WriteResults("trivy", sbomData, scanData, result)
 
-		// ensure initial update of vuln database
-		if err = vulnScanner.UpdateDatabase(); err != nil {
-			logger.Fatal().Err(err).Msg("UpdateDatabase()")
-		}
-		if trivyResult, scanData, err = vulnScanner.VulnScanSbom(sbomData); err != nil {
-			logger.Fatal().Err(err).Msg("VulnScanSbom()")
-		}
-
-		// map into model
-		if err = pharosScanResult.LoadTrivyImageScan(sbom, trivyResult); err != nil {
-			logger.Fatal().Err(err).Msg("scanResult.LoadGrypeScan()")
-		}
-		//logger.Info().Any("model", pharosScanResult).Msg("")
-
-		os.WriteFile("trivy-sbom.json", *sbomData, 0644)
-		os.WriteFile("trivy-scan.json", *scanData, 0644)
 	} else {
-
 		logger.Fatal().Str("engine", engine).Msg("unknown engine")
 	}
+
 	logger.Info().
 		Str("engine", engine).
 		Str("image", imageRef).
@@ -201,8 +171,6 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, tlsCheck bool, sca
 		Any("x.vulns", len(pharosScanResult.Vulnerabilities)).
 		Any("x.packages", len(pharosScanResult.Packages)).
 		Msg("success")
-
-	os.WriteFile(engine+"-model.json", pharosScanResult.ToBytes(), 0644)
 
 	logger.Info().Msg("done")
 

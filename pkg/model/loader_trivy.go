@@ -3,14 +3,14 @@ package model
 import (
 	"time"
 
-	cdx "github.com/CycloneDX/cyclonedx-go"
-	"github.com/metraction/pharos/internal/scanner/trivy"
 	"github.com/metraction/pharos/internal/utils"
+
+	"github.com/metraction/pharos/pkg/trivytype"
 	"github.com/samber/lo"
 )
 
 // populate model from trivy scan
-func (rx *PharosImageScanResult) LoadTrivyImageScan(sbom *cdx.BOM, scan *trivy.TrivyScanType) error {
+func (rx *PharosImageScanResult) LoadTrivyImageScan(sbom trivytype.TrivySbomType, scan trivytype.TrivyScanType) error {
 
 	// unique
 	vulnsList := map[string]int{}
@@ -22,7 +22,7 @@ func (rx *PharosImageScanResult) LoadTrivyImageScan(sbom *cdx.BOM, scan *trivy.T
 	// scan engine
 	rx.Version = "1.0"
 	rx.ScanEngine.Name = "trivy"
-	rx.ScanEngine.Version = trivy.GetToolVersion(sbom)
+	rx.ScanEngine.Version = trivytype.GetToolVersion(sbom)
 	rx.ScanEngine.ScanTime = scan.CreatedAt
 
 	// (1) load image metadata
@@ -38,7 +38,7 @@ func (rx *PharosImageScanResult) LoadTrivyImageScan(sbom *cdx.BOM, scan *trivy.T
 	rx.Image.Size = utils.UInt64Or(cdxFilterPropertyFirstOr("aquasecurity:trivy:Size", "", *properties), 0)
 
 	rx.Image.Tags = scan.Metadata.RepoTags
-	rx.Image.Layers = lo.Map(scan.Metadata.Layers, func(x trivy.TrivyLayer, k int) string { return x.DiffId })
+	rx.Image.Layers = lo.Map(scan.Metadata.Layers, func(x trivytype.TrivyLayer, k int) string { return x.DiffId })
 
 	// (2) load findings and vulnerabilities
 	for _, match := range scan.Results {

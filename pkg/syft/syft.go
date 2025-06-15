@@ -77,7 +77,7 @@ func (rx *SyftSbomCreator) CreateSbom(task model.PharosImageScanTask, format str
 	ctx, cancel := context.WithTimeout(context.Background(), rx.Timeout)
 	defer cancel()
 
-	// fail if not imge is provided
+	// fail if image is not provided
 	if imageRef == "" {
 		return syfttype.SyftSbomType{}, nil, fmt.Errorf("no image provided")
 	}
@@ -130,9 +130,9 @@ func (rx *SyftSbomCreator) CreateSbom(task model.PharosImageScanTask, format str
 	} else if err != nil {
 		return syfttype.SyftSbomType{}, nil, fmt.Errorf(utils.NoColorCodes(stderr.String()))
 	}
-	data := stdout.Bytes()
-	//fmt.Println(stdout.String())
 
+	// get and parse sbom
+	data := stdout.Bytes()
 	var sbom syfttype.SyftSbomType
 	if err := json.Unmarshal(data, &sbom); err != nil {
 		return syfttype.SyftSbomType{}, nil, err
@@ -143,8 +143,7 @@ func (rx *SyftSbomCreator) CreateSbom(task model.PharosImageScanTask, format str
 		Str("platform", platform).
 		Str("format", format).
 		Str("distro", sbom.Distro.Name).
-		Any("size.1", len(data)).
-		Any("size.2", humanize.Bytes(uint64(len(stdout.String())))).
+		Any("size", humanize.Bytes(uint64(len(data)))).
 		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).
 		Msg("CreateSbom() OK")
 

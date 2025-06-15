@@ -6,8 +6,8 @@ package cmd
 import (
 	"time"
 
-	"github.com/metraction/pharos/internal/scanner/trivy"
 	"github.com/metraction/pharos/pkg/grype"
+	"github.com/metraction/pharos/pkg/trivy"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 )
@@ -49,14 +49,14 @@ func ExecuteUpdate(engine string, logger *zerolog.Logger) {
 	logger.Info().Str("engine", engine).Msg("")
 
 	if engine == "grype" {
-		_, err := grype.NewGrypeScanner(1*time.Second, true, logger)
+		_, err := grype.NewGrypeScanner(90*time.Second, true, logger)
 		if err != nil {
 			logger.Fatal().Err(err).Msg("NewGrypeScanner()")
 		}
 
 	} else if engine == "trivy" {
 
-		vulnScanner, err := trivy.NewTrivyScanner(1*time.Second, logger)
+		vulnScanner, err := trivy.NewTrivyScanner(90*time.Second, true, logger)
 		if err != nil {
 			logger.Fatal().Err(err).Msg("NewTrivyScanner()")
 		}
