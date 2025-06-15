@@ -57,7 +57,7 @@ func NewTrivyScanner(scanTimeout time.Duration, logger *zerolog.Logger) (*TrivyS
 		Str("engine", scanner.ScannerBin).
 		Str("scan.version", scanner.ScannerVersion).
 		Any("scan.timeout", scanner.ScanTimeout.String()).
-		Msg("NewTrivyScanner() ready")
+		Msg("NewTrivyScanner() OK")
 
 	return &scanner, nil
 }
@@ -114,7 +114,7 @@ func (rx *TrivyScanner) UpdateDatabase() error {
 		Any("db.updated", rx.DatabaseUpdated).
 		Str("db.age", utils.HumanDeltaMin(time.Since(rx.DatabaseUpdated))).
 		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).
-		Msg("UpdateDatabase() ready")
+		Msg("UpdateDatabase() OK")
 
 	return nil
 }
@@ -124,7 +124,7 @@ func (rx *TrivyScanner) VulnScanSbom(sbom *[]byte) (*TrivyScanType, *[]byte, err
 
 	rx.logger.Info().
 		Any("scan_timeout", rx.ScanTimeout.String()).
-		Msg("VulnScanSbom()")
+		Msg("VulnScanSbom() ..")
 
 	var err error
 	var stdout, stderr bytes.Buffer
@@ -173,7 +173,7 @@ func (rx *TrivyScanner) VulnScanSbom(sbom *[]byte) (*TrivyScanType, *[]byte, err
 		Str("type", scan.ArtifactType).
 		Any("matches", len(scan.ListVulnerabilities())).
 		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).
-		Msg("VulnScanSbom() success")
+		Msg("VulnScanSbom() OK")
 
 	return &scan, &data, nil
 }

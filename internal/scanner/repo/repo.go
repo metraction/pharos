@@ -1,7 +1,9 @@
 package repo
 
 import (
+	"crypto/tls"
 	"fmt"
+	"net/http"
 	"os"
 	"strings"
 
@@ -98,6 +100,9 @@ func (rx *RepoAuth) FromDsn(input string) error {
 	}
 	what := dsn.GetParam("type")
 	rx.Authority = dsn.GetHost()
+	if dsn.GetPort() != "" {
+		rx.Authority = dsn.GetHost() + ":" + dsn.GetPort()
+	}
 	if what == "password" {
 		rx.Username = dsn.GetUser()
 		rx.Password = dsn.GetPassword()
@@ -121,7 +126,7 @@ func SplitPlatformStr(input string) (string, string, string) {
 //
 //	indexDigest (general)
 //	manifestDigest (platform specific)
-func GetImageDigests(imageRef, platform string, auth RepoAuth) (string, string, error) {
+func GetImageDigests(imageRef, platform string, auth RepoAuth, tlsCheck bool) (string, string, error) {
 
 	var options []remote.Option
 
@@ -148,6 +153,13 @@ func GetImageDigests(imageRef, platform string, auth RepoAuth) (string, string, 
 		options = append(options, remote.WithAuth(&authn.Basic{
 			Username: auth.Username,
 			Password: auth.Password,
+		}))
+	}
+
+	// slip tls certificate verify
+	if !tlsCheck {
+		options = append(options, remote.WithTransport(&http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		}))
 	}
 
