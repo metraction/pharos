@@ -1,4 +1,4 @@
-package grype
+package grypetype
 
 import (
 	"encoding/json"

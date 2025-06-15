@@ -10,8 +10,9 @@ import (
 	"time"
 
 	"github.com/dustin/go-humanize"
-	"github.com/metraction/pharos/internal/scanner/repo"
 	"github.com/metraction/pharos/internal/utils"
+	"github.com/metraction/pharos/pkg/model"
+	"github.com/metraction/pharos/pkg/syfttype"
 	"github.com/rs/zerolog"
 )
 
@@ -56,7 +57,7 @@ func NewSyftSbomCreator(timeout time.Duration, logger *zerolog.Logger) (*SyftSbo
 }
 
 // download image, create sbom in chosen format, e.g. "syft-json", "cyclonedx-json"
-func (rx *SyftSbomCreator) CreateSbom(imageRef, platform string, auth repo.RepoAuth, tlsCheck bool, format string) (SyftSbomType, []byte, error) {
+func (rx *SyftSbomCreator) CreateSbom(imageRef, platform string, auth model.PharosRepoAuth, tlsCheck bool, format string) (syfttype.SyftSbomType, []byte, error) {
 
 	rx.logger.Info().
 		Str("image", imageRef).
@@ -73,11 +74,11 @@ func (rx *SyftSbomCreator) CreateSbom(imageRef, platform string, auth repo.RepoA
 
 	// fail if not imge is provided
 	if imageRef == "" {
-		return SyftSbomType{}, nil, fmt.Errorf("no image provided")
+		return syfttype.SyftSbomType{}, nil, fmt.Errorf("no image provided")
 	}
 	// be explicit, set default in app and not here
 	if platform == "" {
-		return SyftSbomType{}, nil, fmt.Errorf("no platform provided")
+		return syfttype.SyftSbomType{}, nil, fmt.Errorf("no platform provided")
 	}
 
 	elapsed := utils.ElapsedFunc()
@@ -128,16 +129,16 @@ func (rx *SyftSbomCreator) CreateSbom(imageRef, platform string, auth repo.RepoA
 	err = cmd.Run()
 
 	if ctx.Err() == context.DeadlineExceeded {
-		return SyftSbomType{}, nil, fmt.Errorf("create sbom: timeout after %s", rx.Timeout.String())
+		return syfttype.SyftSbomType{}, nil, fmt.Errorf("create sbom: timeout after %s", rx.Timeout.String())
 	} else if err != nil {
-		return SyftSbomType{}, nil, fmt.Errorf(utils.NoColorCodes(stderr.String()))
+		return syfttype.SyftSbomType{}, nil, fmt.Errorf(utils.NoColorCodes(stderr.String()))
 	}
 	data := stdout.Bytes()
 	//fmt.Println(stdout.String())
 
-	var sbom SyftSbomType
+	var sbom syfttype.SyftSbomType
 	if err := json.Unmarshal(data, &sbom); err != nil {
-		return SyftSbomType{}, nil, err
+		return syfttype.SyftSbomType{}, nil, err
 	}
 
 	rx.logger.Info().

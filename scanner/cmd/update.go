@@ -6,8 +6,8 @@ package cmd
 import (
 	"time"
 
-	"github.com/metraction/pharos/internal/scanner/grype"
 	"github.com/metraction/pharos/internal/scanner/trivy"
+	"github.com/metraction/pharos/pkg/grype"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 )

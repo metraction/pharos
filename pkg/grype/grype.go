@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/metraction/pharos/internal/utils"
+	"github.com/metraction/pharos/pkg/grypetype"
 	"github.com/rs/zerolog"
 )
 
@@ -163,7 +164,7 @@ func (rx *GrypeScanner) UpdateDatabase() error {
 }
 
 // scan cyclondex sbom with grype
-func (rx *GrypeScanner) VulnScanSbom(sbom []byte) (GrypeScanType, []byte, error) {
+func (rx *GrypeScanner) VulnScanSbom(sbom []byte) (grypetype.GrypeScanType, []byte, error) {
 
 	rx.logger.Info().
 		Any("scan_timeout", rx.ScanTimeout.String()).
@@ -195,15 +196,15 @@ func (rx *GrypeScanner) VulnScanSbom(sbom []byte) (GrypeScanType, []byte, error)
 	data := stdout.Bytes() // results as []byte
 
 	if ctx.Err() == context.DeadlineExceeded {
-		return GrypeScanType{}, nil, fmt.Errorf("scan sbom: timeout after %s", rx.ScanTimeout.String())
+		return grypetype.GrypeScanType{}, nil, fmt.Errorf("scan sbom: timeout after %s", rx.ScanTimeout.String())
 	} else if err != nil {
-		return GrypeScanType{}, nil, fmt.Errorf(utils.NoColorCodes(stderr.String()))
+		return grypetype.GrypeScanType{}, nil, fmt.Errorf(utils.NoColorCodes(stderr.String()))
 	}
 
 	// parse into grype scan model
-	result := GrypeScanType{}
+	result := grypetype.GrypeScanType{}
 	if err := result.ReadBytes(data); err != nil {
-		return GrypeScanType{}, nil, err
+		return grypetype.GrypeScanType{}, nil, err
 	}
 
 	rx.logger.Info().

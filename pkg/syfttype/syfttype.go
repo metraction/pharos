@@ -1,9 +1,9 @@
-package syft
+package syfttype
 
 import (
 	"encoding/json"
 
-	"github.com/metraction/pharos/internal/scanner/grype"
+	"github.com/metraction/pharos/pkg/grypetype"
 )
 
 // output of grype -o json
@@ -52,15 +52,15 @@ type SyftDistro struct {
 
 // `json:""`
 type SyftArtifact struct {
-	Id        string                `json:"id"`
-	Name      string                `json:"name"`
-	Version   string                `json:"version"`
-	Type      string                `json:"type"`
-	FoundBy   string                `json:"foundBy"`
-	Language  string                `json:"language"`
-	Purl      string                `json:"purl"`
-	Cpes      []SyftCpe             `json:"cpes"`
-	Locations []grype.GrypeLocation `json:"location"`
+	Id        string                    `json:"id"`
+	Name      string                    `json:"name"`
+	Version   string                    `json:"version"`
+	Type      string                    `json:"type"`
+	FoundBy   string                    `json:"foundBy"`
+	Language  string                    `json:"language"`
+	Purl      string                    `json:"purl"`
+	Cpes      []SyftCpe                 `json:"cpes"`
+	Locations []grypetype.GrypeLocation `json:"location"`
 }
 
 type SyftCpe struct {

@@ -1,119 +1,20 @@
-package repo
+package scanning
 
 import (
 	"crypto/tls"
 	"fmt"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/name"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
-	"github.com/kos-v/dsnparser"
+	"github.com/metraction/pharos/pkg/model"
 )
-
-// authentication for image repos
-type RepoAuth struct {
-	Authority string `json:"Authority"`
-	Username  string `json:"Username"`
-	Password  string `json:"Password"`
-	Token     string `json:"Token"`
-}
-
-// write docker config file with auth
-func (rx RepoAuth) WriteDockerConfig(outfile string) error {
-
-	text := ""
-	if rx.Username != "" {
-		text = rx.DockerUserAuth()
-	} else if rx.Token != "" {
-		text = rx.DockerTokenAuth()
-	} else {
-		return fmt.Errorf("empt authenication")
-	}
-
-	if err := os.WriteFile(outfile, []byte(text), 0644); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (rx RepoAuth) DockerUserAuth() string {
-	return fmt.Sprintf(`
-	"{
-		auths": {
-			"%s": {
-				"username": "%s",
-				"password": "%s"
-			}
-		}
-	}
-	`, rx.Authority, rx.Username, rx.Password)
-}
-func (rx RepoAuth) DockerTokenAuth() string {
-	return fmt.Sprintf(`
-	"{
-		auths": {
-			"%s": {
-				"auth": "%s"
-			}
-		}
-	}
-	`, rx.Authority, rx.Token)
-}
-
-// return true if auth is not empty
-func (rx RepoAuth) HasAuth() bool {
-	return rx.Authority != "" && (rx.Username != "" || rx.Token != "")
-}
-
-// return DSN without password
-func (rx RepoAuth) ToMaskedDsn(mask string) string {
-	if rx.Password != "" {
-		return fmt.Sprintf("registry://%s:%s@%s/?type=password", rx.Username, mask, rx.Authority)
-	}
-	if rx.Token != "" {
-		return fmt.Sprintf("registry://%s:%s@%s/?type=token", rx.Username, mask, rx.Authority)
-	}
-	return ""
-}
-
-// parse DSN
-// registry://user:password@docker.io/type=password
-// registry://user:token@docker.io/type=token
-func (rx *RepoAuth) FromDsn(input string) error {
-
-	// reset
-	rx.Authority = ""
-	rx.Username = ""
-	rx.Password = ""
-	rx.Token = ""
-
-	if input == "" {
-		return nil
-	}
-	dsn := dsnparser.Parse(input)
-	if dsn == nil {
-		return fmt.Errorf("invalid DSN")
-	}
-	what := dsn.GetParam("type")
-	rx.Authority = dsn.GetHost()
-	if dsn.GetPort() != "" {
-		rx.Authority = dsn.GetHost() + ":" + dsn.GetPort()
-	}
-	if what == "password" {
-		rx.Username = dsn.GetUser()
-		rx.Password = dsn.GetPassword()
-		return nil
-	}
-	return fmt.Errorf("invalid DSN type '%s' (e.g. 'registry://usr:pwd@docker.io/?type=password')", what)
-}
 
 // split "linux/amd64" or "linux/arm/v6" to OS, architecture, variant
 func SplitPlatformStr(input string) (string, string, string) {
-
 	parts := strings.Split(strings.TrimSpace(input)+"/", "/")
 	if len(parts) > 2 {
 		return parts[0], parts[1], parts[2]
@@ -126,7 +27,7 @@ func SplitPlatformStr(input string) (string, string, string) {
 //
 //	indexDigest (general)
 //	manifestDigest (platform specific)
-func GetImageDigests(imageRef, platform string, auth RepoAuth, tlsCheck bool) (string, string, error) {
+func GetImageDigests(imageRef, platform string, auth model.PharosRepoAuth, tlsCheck bool) (string, string, error) {
 
 	var options []remote.Option
 
