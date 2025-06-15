@@ -27,11 +27,16 @@ func SplitPlatformStr(input string) (string, string, string) {
 //
 //	indexDigest (general)
 //	manifestDigest (platform specific)
-func GetImageDigests(imageRef, platform string, auth model.PharosRepoAuth, tlsCheck bool) (string, string, error) {
+//
+// func GetImageDigests(imageRef, platform string, auth model.PharosRepoAuth, tlsCheck bool) (string, string, error) {
+func GetImageDigests(task model.PharosImageScanTask) (string, string, error) {
 
 	var options []remote.Option
 
-	ref, err := name.ParseReference(imageRef)
+	auth := task.Auth
+	platform := task.ImageSpec.Platform
+
+	ref, err := name.ParseReference(task.ImageSpec.Image)
 	if err != nil {
 		return "", "", err
 	}
@@ -55,10 +60,11 @@ func GetImageDigests(imageRef, platform string, auth model.PharosRepoAuth, tlsCh
 			Username: auth.Username,
 			Password: auth.Password,
 		}))
+		// TODO Token Auth
 	}
 
 	// slip tls certificate verify
-	if !tlsCheck {
+	if !auth.TlsCheck {
 		options = append(options, remote.WithTransport(&http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		}))
@@ -91,10 +97,6 @@ func GetImageDigests(imageRef, platform string, auth model.PharosRepoAuth, tlsCh
 	// 	digest, _ := layer.Digest()
 	// 	fmt.Printf("L%d:\t%s\n", k, digest.String())
 	// }
-
-	//fmt.Println("image", imageRef)
-	//fmt.Println("- digest.idx", indexDigest)
-	//fmt.Println("- digest.man", manifestDigest, platform)
 
 	return indexDigest, manifestDigest, nil
 

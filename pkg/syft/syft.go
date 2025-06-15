@@ -57,12 +57,17 @@ func NewSyftSbomCreator(timeout time.Duration, logger *zerolog.Logger) (*SyftSbo
 }
 
 // download image, create sbom in chosen format, e.g. "syft-json", "cyclonedx-json"
-func (rx *SyftSbomCreator) CreateSbom(imageRef, platform string, auth model.PharosRepoAuth, tlsCheck bool, format string) (syfttype.SyftSbomType, []byte, error) {
+// func (rx *SyftSbomCreator) CreateSbom(imageRef, platform string, auth model.PharosRepoAuth, tlsCheck bool, format string) (syfttype.SyftSbomType, []byte, error) {
+func (rx *SyftSbomCreator) CreateSbom(task model.PharosImageScanTask, format string) (syfttype.SyftSbomType, []byte, error) {
+
+	auth := task.Auth
+	imageRef := task.ImageSpec.Image
+	platform := task.ImageSpec.Platform
 
 	rx.logger.Info().
 		Str("image", imageRef).
 		Str("platform", platform).
-		Bool("tlsCheck", tlsCheck).
+		Bool("tlsCheck", auth.TlsCheck).
 		Str("format", format).
 		Msg("SyftSbomCreator.CreateSbom() ..")
 
@@ -110,19 +115,11 @@ func (rx *SyftSbomCreator) CreateSbom(imageRef, platform string, auth model.Phar
 			cmd.Env = append(cmd.Env, "SYFT_REGISTRY_AUTH_TOKEN="+auth.Token)
 		}
 	}
-	if !tlsCheck {
+	if !auth.TlsCheck {
 		cmd.Env = append(cmd.Env, "SYFT_REGISTRY_INSECURE_SKIP_TLS_VERIFY=true")
 	}
-
-	// SYFT_REGISTRY_AUTH_AUTHORITY
-	// SYFT_REGISTRY_AUTH_USERNAME
-	// SYFT_REGISTRY_AUTH_PASSWORD
-	// SYFT_REGISTRY_AUTH_TOKEN
-
 	// SYFT_REGISTRY_AUTH_TLS_CERT
 	// SYFT_REGISTRY_AUTH_TLS_KEY
-
-	// TODO: Registry certificates
 	// SYFT_REGISTRY_CA_CERT
 
 	// execute, then check success or timeout
@@ -149,7 +146,7 @@ func (rx *SyftSbomCreator) CreateSbom(imageRef, platform string, auth model.Phar
 		Any("size.1", len(data)).
 		Any("size.2", humanize.Bytes(uint64(len(stdout.String())))).
 		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).
-		Msg("CreateSbom() success")
+		Msg("CreateSbom() OK")
 
 	return sbom, data, nil
 }

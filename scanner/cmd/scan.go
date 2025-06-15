@@ -4,27 +4,17 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"bufio"
 	"context"
-	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 	"time"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
-	"github.com/dustin/go-humanize"
 
 	"github.com/metraction/pharos/internal/scanner/trivy"
 	"github.com/metraction/pharos/internal/services/cache"
 	"github.com/metraction/pharos/pkg/grype"
-	"github.com/metraction/pharos/pkg/grypetype"
 	"github.com/metraction/pharos/pkg/model"
-	"github.com/metraction/pharos/pkg/scanning"
-	"github.com/metraction/pharos/pkg/syft"
-	"github.com/metraction/pharos/pkg/syfttype"
-
-	"github.com/samber/lo"
 
 	"github.com/metraction/pharos/internal/utils"
 
@@ -65,6 +55,14 @@ func init() {
 	scanCmd.MarkFlagRequired("image")
 }
 
+// dump scan results to files (for debug)
+func WriteResults(prefix string, sbomData []byte, scanData []byte, result model.PharosImageScanResult) {
+	os.WriteFile(fmt.Sprintf("%s-sbom.json", prefix), sbomData, 0644)
+	os.WriteFile(fmt.Sprintf("%s-scan.json", prefix), scanData, 0644)
+	os.WriteFile(fmt.Sprintf("%sgrype-model.json", prefix), result.ToBytes(), 0644)
+	return
+}
+
 // scanCmd represents the scan command
 var scanCmd = &cobra.Command{
 	Use:   "scan",
@@ -89,8 +87,8 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, tlsCheck bool, sca
 		Str("platform", platform).
 		Str("repo_auth", utils.MaskDsn(repoAuth)).
 		Bool("tlscheck", tlsCheck).
-		Any("scan_timeout", scanTimeout).
-		Any("cache_expiry", cacheExpiry).
+		Any("scan_timeout", scanTimeout.String()).
+		Any("cache_expiry", cacheExpiry.String()).
 		Str("cache_endpoint", utils.MaskDsn(cacheEndpoint)).
 		Msg("")
 
@@ -102,11 +100,12 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, tlsCheck bool, sca
 
 	ctx := context.Background()
 
-	// build scantask
+	// build scantask from arguments
 	auth := model.PharosRepoAuth{}
 	if err := auth.FromDsn(repoAuth); err != nil {
 		logger.Fatal().Err(err).Msg("PharosRepoAuth.FromDsn()")
 	}
+	auth.TlsCheck = tlsCheck
 
 	task := model.PharosImageScanTask{
 		JobId: "",
@@ -132,62 +131,22 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, tlsCheck bool, sca
 	if err != nil {
 		logger.Fatal().Err(err).Msg("Redis cache connect")
 	}
-	logger.Info().
-		Str("redis_version", kvc.Version(ctx)).
-		Msg("PharosCache.Connect() OK")
+
+	logger.Info().Str("redis_version", kvc.Version(ctx)).Msg("PharosCache.Connect() OK")
 
 	if engine == "grype" {
-		var vulnScanner *grype.GrypeScanner
+		var scanEngine *grype.GrypeScanner
 
-		// create scanner
-		if vulnScanner, err = grype.NewGrypeScanner(scanTimeout, logger); err != nil {
+		// create scanner & update database
+		if scanEngine, err = grype.NewGrypeScanner(scanTimeout, true, logger); err != nil {
 			logger.Fatal().Err(err).Msg("NewGrypeScanner()")
 		}
-		// update database
-		if err = vulnScanner.UpdateDatabase(); err != nil {
-			logger.Fatal().Err(err).Msg("UpdateDatabase()")
-		}
 		// scan image, use cache
-
-		// if imageRef is a file, scan all images in file
-		file, err := os.Open(imageRef)
+		result, sbomData, scanData, err := grype.ScanImage(task, scanEngine, kvc, logger)
 		if err != nil {
-			// scan one image
-			result, sbomData, scanData, err := ScanAndCacheGrype(imageRef, platform, auth, tlsCheck, scanTimeout, cacheExpiry, vulnScanner, kvc, logger)
-			if err != nil {
-				logger.Fatal().Err(err).Msg("ScanAndCacheGrype()")
-			}
-			os.WriteFile("grype-sbom.json", sbomData, 0644)
-			os.WriteFile("grype-scan.json", scanData, 0644)
-			os.WriteFile("grype-model.json", result.ToBytes(), 0644)
-			os.Exit(0)
+			logger.Fatal().Err(err).Msg("grype.ScanImage()")
 		}
-
-		// scan all images in file
-		defer file.Close()
-		k := 0
-		scanner := bufio.NewScanner(file)
-
-		for scanner.Scan() {
-			k += 1
-			fileBase := filepath.Join("_output", fmt.Sprintf("%v", k))
-			image := scanner.Text()
-			logger.Info().Any("#", k).Str("image", image).Str("base", fileBase).Msg("")
-			result, sbomData, scanData, err := ScanAndCacheGrype(image, platform, auth, tlsCheck, scanTimeout, cacheExpiry, vulnScanner, kvc, logger)
-			if err != nil {
-				logger.Error().Err(err).Msg("ScanAndCacheGrype")
-				continue
-			}
-
-			os.WriteFile(fileBase+"-grype-sbom.json", sbomData, 0644)
-			os.WriteFile(fileBase+"-grype-scan.json", scanData, 0644)
-			os.WriteFile(fileBase+"-grype-model.json", result.ToBytes(), 0644)
-
-		}
-		if err := scanner.Err(); err != nil {
-			logger.Fatal().Err(err).Msg("File Scanner")
-		}
-
+		WriteResults("grype", sbomData, scanData, result)
 	}
 
 	os.Exit(1)
@@ -247,91 +206,4 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, tlsCheck bool, sca
 
 	logger.Info().Msg("done")
 
-}
-
-// scan image with grype
-func ScanAndCacheGrype(imageRef, platform string, auth model.PharosRepoAuth, tlsCheck bool, scanTimeout, cacheExpiry time.Duration, scanEngine *grype.GrypeScanner, kvc *cache.PharosCache, logger *zerolog.Logger) (model.PharosImageScanResult, []byte, []byte, error) {
-
-	// return sbom cache key for given digest
-	CacheKey := func(digest string) string {
-		return lo.Substring(digest, 0, 39) + ".grype.sbom"
-	}
-	noResult := model.PharosImageScanResult{}
-
-	ctx := context.Background()
-
-	logger.Info().Msg("Scan with Grype")
-
-	// get manifestDigest to have a platform unique key for caching
-	indexDigest, manifestDigest, err := scanning.GetImageDigests(imageRef, platform, auth, tlsCheck)
-	if err != nil {
-		return noResult, nil, nil, fmt.Errorf("get image digest: %v", err)
-	}
-
-	logger.Info().
-		Str("digest.idx", utils.ShortDigest(indexDigest)).
-		Str("digest.man", utils.ShortDigest(manifestDigest)).
-		Msg("image digests")
-
-	var sbomEngine *syft.SyftSbomCreator
-
-	// create sbom generator
-	if sbomEngine, err = syft.NewSyftSbomCreator(scanTimeout, logger); err != nil {
-		logger.Fatal().Err(err).Msg("NewSyftSbomCreator()")
-	}
-
-	var sbomData []byte                // raw data
-	var sbomProd syfttype.SyftSbomType // syft sbom struct
-
-	cacheState := "n/a"
-	key := CacheKey(manifestDigest)
-
-	// try cache, else create
-	sbomData, err = kvc.GetExpire(ctx, key, scanTimeout)
-	if err != nil && !errors.Is(err, cache.ErrKeyNotFound) {
-		return noResult, nil, nil, err
-	}
-
-	if errors.Is(err, cache.ErrKeyNotFound) {
-		// cache miss: generate sbom
-		cacheState = "cache miss"
-		if sbomProd, sbomData, err = sbomEngine.CreateSbom(imageRef, platform, auth, tlsCheck, "syft-json"); err != nil {
-			return noResult, nil, nil, err
-		}
-		// cache sbom
-		if err := kvc.SetExpire(ctx, key, sbomData, scanTimeout); err != nil {
-			return noResult, nil, nil, err
-		}
-	} else {
-		// cache hit, parse []byte
-		cacheState = "cache hit"
-		if err := sbomProd.FromBytes(sbomData); err != nil {
-			return noResult, nil, nil, err
-		}
-	}
-	var scanResult model.PharosImageScanResult
-	var scanProd grypetype.GrypeScanType
-	var scanData []byte
-
-	// scan sbom
-	if scanProd, scanData, err = scanEngine.VulnScanSbom(sbomData); err != nil {
-		logger.Fatal().Err(err).Msg("VulnScanSbom()")
-	}
-	if err = scanResult.LoadGrypeImageScan(sbomProd, scanProd); err != nil {
-		logger.Fatal().Err(err).Msg("scanResult.LoadGrypeScan()")
-	}
-
-	logger.Info().
-		Str("key", key).
-		Str("cache", cacheState).
-		Any("time.scan_timeout", scanTimeout.String()).
-		Any("time.cache_expiry", cacheExpiry.String()).
-		Any("img.distro", sbomProd.Distro.Name+" "+sbomProd.Source.Version).
-		Any("img.size", humanize.Bytes(sbomProd.Source.Metadata.ImageSize)).
-		Any("scan.findings", len(scanResult.Findings)).
-		Any("scan.vulns", len(scanResult.Vulnerabilities)).
-		Any("scan.packages", len(scanResult.Packages)).
-		Msg("")
-
-	return scanResult, sbomData, scanData, nil
 }

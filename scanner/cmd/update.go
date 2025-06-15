@@ -49,15 +49,11 @@ func ExecuteUpdate(engine string, logger *zerolog.Logger) {
 	logger.Info().Str("engine", engine).Msg("")
 
 	if engine == "grype" {
-		vulnScanner, err := grype.NewGrypeScanner(1*time.Second, logger)
+		_, err := grype.NewGrypeScanner(1*time.Second, true, logger)
 		if err != nil {
 			logger.Fatal().Err(err).Msg("NewGrypeScanner()")
 		}
 
-		err = vulnScanner.UpdateDatabase()
-		if err != nil {
-			logger.Fatal().Err(err).Str("engine", engine).Msg("UpdateDatabase()")
-		}
 	} else if engine == "trivy" {
 
 		vulnScanner, err := trivy.NewTrivyScanner(1*time.Second, logger)
