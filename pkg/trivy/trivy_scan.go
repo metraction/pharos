@@ -1,4 +1,4 @@
-package grype
+package trivy
 
 import (
 	"context"
@@ -8,23 +8,21 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/metraction/pharos/internal/services/cache"
 	"github.com/metraction/pharos/internal/utils"
-	"github.com/metraction/pharos/pkg/grypetype"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/metraction/pharos/pkg/scanning"
-	"github.com/metraction/pharos/pkg/syft"
-	"github.com/metraction/pharos/pkg/syfttype"
+	"github.com/metraction/pharos/pkg/trivytype"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 )
 
 // execute scan with grype scanner
-func ScanImage(task model.PharosImageScanTask, scanEngine *GrypeScanner, kvc *cache.PharosCache, logger *zerolog.Logger) (model.PharosImageScanResult, []byte, []byte, error) {
+func ScanImage(task model.PharosImageScanTask, scanEngine *TrivyScanner, kvc *cache.PharosCache, logger *zerolog.Logger) (model.PharosImageScanResult, []byte, []byte, error) {
 
-	logger.Info().Msg("Grype.ScanImage()")
+	logger.Info().Msg("Trivy.ScanImage()")
 
 	// return sbom cache key for given digest
 	CacheKey := func(digest string) string {
-		return lo.Substring(digest, 0, 39) + ".grype.sbom"
+		return lo.Substring(digest, 0, 39) + ".trivy.sbom"
 	}
 
 	ctx := context.Background()
@@ -41,15 +39,15 @@ func ScanImage(task model.PharosImageScanTask, scanEngine *GrypeScanner, kvc *ca
 		Str("digest.man", utils.ShortDigest(manifestDigest)).
 		Msg("image digests")
 
-	var sbomEngine *syft.SyftSbomCreator
+	var sbomEngine *TrivySbomCreator
 
 	// create sbom generator
-	if sbomEngine, err = syft.NewSyftSbomCreator(task.Timeout, logger); err != nil {
-		logger.Fatal().Err(err).Msg("NewSyftSbomCreator()")
+	if sbomEngine, err = NewTrivySbomCreator(task.Timeout, logger); err != nil {
+		logger.Fatal().Err(err).Msg("NewTrivySbomCreator()")
 	}
 
-	var sbomData []byte                // raw data
-	var sbomProd syfttype.SyftSbomType // syft sbom struct
+	var sbomData []byte                  // raw data
+	var sbomProd trivytype.TrivySbomType // trivy sbom struct = CyconeDX
 
 	cacheState := "n/a"
 	key := CacheKey(manifestDigest)
@@ -63,7 +61,7 @@ func ScanImage(task model.PharosImageScanTask, scanEngine *GrypeScanner, kvc *ca
 	if errors.Is(err, cache.ErrKeyNotFound) {
 		// cache miss: generate sbom
 		cacheState = "cache miss"
-		if sbomProd, sbomData, err = sbomEngine.CreateSbom(task, "syft-json"); err != nil {
+		if sbomProd, sbomData, err = sbomEngine.CreateSbom(task, "cyclonedx"); err != nil {
 			return noResult, nil, nil, err
 		}
 		// cache sbom
@@ -78,15 +76,15 @@ func ScanImage(task model.PharosImageScanTask, scanEngine *GrypeScanner, kvc *ca
 		}
 	}
 	var scanResult model.PharosImageScanResult
-	var scanProd grypetype.GrypeScanType
+	var scanProd trivytype.TrivyScanType
 	var scanData []byte
 
 	// scan sbom
 	if scanProd, scanData, err = scanEngine.VulnScanSbom(sbomData); err != nil {
 		logger.Fatal().Err(err).Msg("VulnScanSbom()")
 	}
-	if err = scanResult.LoadGrypeImageScan(sbomProd, scanProd); err != nil {
-		logger.Fatal().Err(err).Msg("scanResult.LoadGrypeScan()")
+	if err = scanResult.LoadTrivyImageScan(sbomProd, scanProd); err != nil {
+		logger.Fatal().Err(err).Msg("scanResult.LoadTrivyScan()")
 	}
 
 	logger.Info().

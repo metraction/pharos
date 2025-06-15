@@ -35,9 +35,6 @@ type GrypeScanner struct {
 	DatabaseVersion string
 	DatabaseUpdated time.Time
 
-	//grypeVersion GrypeVersion      // grype binary version + meta
-	//DbState      GrypeLocalDbState // grype local database state
-
 	logger *zerolog.Logger
 }
 

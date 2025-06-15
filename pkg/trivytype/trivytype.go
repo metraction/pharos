@@ -1,4 +1,4 @@
-package trivy
+package trivytype
 
 import (
 	"encoding/json"
@@ -8,8 +8,21 @@ import (
 	"github.com/samber/lo"
 )
 
+type TrivySbomType struct {
+	cdx.BOM
+}
+
+// parse []bytes to model
+func (rx *TrivySbomType) FromBytes(input []byte) error {
+	err := json.Unmarshal(input, &rx)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // SBOM accessors for nexted properties
-func GetToolVersion(sbom *cdx.BOM) string {
+func GetToolVersion(sbom TrivySbomType) string {
 	values := lo.Map(
 		*sbom.Metadata.Tools.Components,
 		func(x cdx.Component, k int) string { return x.Version },
@@ -17,8 +30,6 @@ func GetToolVersion(sbom *cdx.BOM) string {
 
 	return lo.FirstOr(values, "")
 }
-
-//
 
 type TrivyScanType struct {
 	SchemaVersion int       `json:"SchemaVersion"`

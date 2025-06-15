@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/metraction/pharos/internal/utils"
+	"github.com/metraction/pharos/pkg/trivytype"
 	"github.com/rs/zerolog"
 )
 
@@ -29,7 +30,7 @@ type TrivyScanner struct {
 }
 
 // create trivy scanner
-func NewTrivyScanner(scanTimeout time.Duration, logger *zerolog.Logger) (*TrivyScanner, error) {
+func NewTrivyScanner(scanTimeout time.Duration, updateDb bool, logger *zerolog.Logger) (*TrivyScanner, error) {
 
 	// find trivy path
 	trivyBin, err := utils.OsWhich("trivy")
@@ -59,6 +60,12 @@ func NewTrivyScanner(scanTimeout time.Duration, logger *zerolog.Logger) (*TrivyS
 		Any("scan.timeout", scanner.ScanTimeout.String()).
 		Msg("NewTrivyScanner() OK")
 
+	// update database
+	if updateDb {
+		if err = scanner.UpdateDatabase(); err != nil {
+			logger.Fatal().Err(err).Msg("UpdateDatabase()")
+		}
+	}
 	return &scanner, nil
 }
 
@@ -120,7 +127,7 @@ func (rx *TrivyScanner) UpdateDatabase() error {
 }
 
 // scan cyclondex sbom with trivy
-func (rx *TrivyScanner) VulnScanSbom(sbom *[]byte) (*TrivyScanType, *[]byte, error) {
+func (rx *TrivyScanner) VulnScanSbom(sbom []byte) (trivytype.TrivyScanType, []byte, error) {
 
 	rx.logger.Info().
 		Any("scan_timeout", rx.ScanTimeout.String()).
@@ -135,20 +142,20 @@ func (rx *TrivyScanner) VulnScanSbom(sbom *[]byte) (*TrivyScanType, *[]byte, err
 	elapsed := utils.ElapsedFunc()
 
 	// trivy cannot read sbom from stdin, so we create a file
-	tmpfile := "sbom=temp.json"
+	tmpfile := "trivy-sbom-temp.json"
 	fh, err := os.CreateTemp("", tmpfile)
 	if err != nil {
-		return nil, nil, err
+		return trivytype.TrivyScanType{}, nil, err
 	}
 	defer fh.Close()
 	defer os.Remove(fh.Name())
 
-	if err = os.WriteFile(fh.Name(), *sbom, 0644); err != nil {
-		return nil, nil, err
+	if err = os.WriteFile(fh.Name(), sbom, 0644); err != nil {
+		return trivytype.TrivyScanType{}, nil, err
 	}
 
 	cmd := exec.Command(rx.ScannerBin, "sbom", fh.Name(), "--scanners", "vuln", "-f", "json")
-	cmd.Stdin = bytes.NewReader([]byte(*sbom))
+	cmd.Stdin = bytes.NewReader([]byte(sbom))
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 
@@ -158,15 +165,15 @@ func (rx *TrivyScanner) VulnScanSbom(sbom *[]byte) (*TrivyScanType, *[]byte, err
 	data := stdout.Bytes() // results as []byte
 
 	if ctx.Err() == context.DeadlineExceeded {
-		return nil, nil, fmt.Errorf("scan sbom: timeout after %s", rx.ScanTimeout.String())
+		return trivytype.TrivyScanType{}, nil, fmt.Errorf("scan sbom: timeout after %s", rx.ScanTimeout.String())
 	} else if err != nil {
-		return nil, nil, fmt.Errorf(utils.NoColorCodes(stderr.String()))
+		return trivytype.TrivyScanType{}, nil, fmt.Errorf(utils.NoColorCodes(stderr.String()))
 	}
 
 	// parse into grype scan model
-	scan := TrivyScanType{}
+	scan := trivytype.TrivyScanType{}
 	if err := scan.ReadBytes(data); err != nil {
-		return nil, nil, err
+		return trivytype.TrivyScanType{}, nil, err
 	}
 
 	rx.logger.Info().
@@ -175,5 +182,5 @@ func (rx *TrivyScanner) VulnScanSbom(sbom *[]byte) (*TrivyScanType, *[]byte, err
 		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).
 		Msg("VulnScanSbom() OK")
 
-	return &scan, &data, nil
+	return scan, data, nil
 }
