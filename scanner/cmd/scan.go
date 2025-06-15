@@ -14,15 +14,20 @@ import (
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/dustin/go-humanize"
-	"github.com/metraction/pharos/internal/scanner/grype"
-	"github.com/metraction/pharos/internal/scanner/repo"
-	"github.com/metraction/pharos/internal/scanner/syft"
+
 	"github.com/metraction/pharos/internal/scanner/trivy"
 	"github.com/metraction/pharos/internal/services/cache"
+	"github.com/metraction/pharos/pkg/grype"
+	"github.com/metraction/pharos/pkg/grypetype"
+	"github.com/metraction/pharos/pkg/model"
+	"github.com/metraction/pharos/pkg/scanning"
+	"github.com/metraction/pharos/pkg/syft"
+	"github.com/metraction/pharos/pkg/syfttype"
+
 	"github.com/samber/lo"
 
 	"github.com/metraction/pharos/internal/utils"
-	"github.com/metraction/pharos/pkg/model"
+
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 )
@@ -67,15 +72,9 @@ var scanCmd = &cobra.Command{
 	Long:  `Scan one asset then exit`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		scanTimeout, err := time.ParseDuration(ScanArgs.ScanTimeout)
-		if err != nil {
-			logger.Fatal().Err(err).Msg("invalid scan_timeout argument")
-		}
-		cacheExpiry, err := time.ParseDuration(ScanArgs.CacheExpiry)
-		if err != nil {
-			logger.Fatal().Err(err).Msg("invalid cache_expiry argument")
-		}
 		tlsCheck := utils.ToBool(ScanArgs.TlsCheck)
+		scanTimeout := utils.DurationOr(ScanArgs.ScanTimeout, 90*time.Second)
+		cacheExpiry := utils.DurationOr(ScanArgs.CacheExpiry, 90*time.Second)
 
 		ExecuteScan(ScanArgs.ScanEngine, ScanArgs.Image, ScanArgs.Platform, ScanArgs.RepoAuth, tlsCheck, scanTimeout, cacheExpiry, ScanArgs.CacheEndpoint, logger)
 	},
@@ -90,8 +89,8 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, tlsCheck bool, sca
 		Str("platform", platform).
 		Str("repo_auth", utils.MaskDsn(repoAuth)).
 		Bool("tlscheck", tlsCheck).
-		Str("scan_timeout", scanTimeout.String()).
-		Str("cache_expiry", cacheExpiry.String()).
+		Any("scan_timeout", scanTimeout).
+		Any("cache_expiry", cacheExpiry).
 		Str("cache_endpoint", utils.MaskDsn(cacheEndpoint)).
 		Msg("")
 
@@ -102,6 +101,25 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, tlsCheck bool, sca
 	var scanData *[]byte
 
 	ctx := context.Background()
+
+	// build scantask
+	auth := model.PharosRepoAuth{}
+	if err := auth.FromDsn(repoAuth); err != nil {
+		logger.Fatal().Err(err).Msg("PharosRepoAuth.FromDsn()")
+	}
+
+	task := model.PharosImageScanTask{
+		JobId: "",
+		Auth:  auth,
+		ImageSpec: model.PharosImageSpec{
+			Image:       imageRef,
+			Platform:    platform,
+			CacheExpiry: cacheExpiry,
+		},
+		Timeout: scanTimeout,
+	}
+
+	logger.Info().Any("task", task).Msg("ScanTask")
 
 	// connect redis for key value cache
 	kvc, err := cache.NewPharosCache(cacheEndpoint, logger)
@@ -117,12 +135,6 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, tlsCheck bool, sca
 	logger.Info().
 		Str("redis_version", kvc.Version(ctx)).
 		Msg("PharosCache.Connect() OK")
-
-	// process repository auth
-	auth := repo.RepoAuth{}
-	if err = auth.FromDsn(repoAuth); err != nil {
-		logger.Error().Err(err).Msg("Load registry authority")
-	}
 
 	if engine == "grype" {
 		var vulnScanner *grype.GrypeScanner
@@ -238,7 +250,7 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, tlsCheck bool, sca
 }
 
 // scan image with grype
-func ScanAndCacheGrype(imageRef, platform string, auth repo.RepoAuth, tlsCheck bool, scanTimeout, cacheExpiry time.Duration, scanEngine *grype.GrypeScanner, kvc *cache.PharosCache, logger *zerolog.Logger) (model.PharosImageScanResult, []byte, []byte, error) {
+func ScanAndCacheGrype(imageRef, platform string, auth model.PharosRepoAuth, tlsCheck bool, scanTimeout, cacheExpiry time.Duration, scanEngine *grype.GrypeScanner, kvc *cache.PharosCache, logger *zerolog.Logger) (model.PharosImageScanResult, []byte, []byte, error) {
 
 	// return sbom cache key for given digest
 	CacheKey := func(digest string) string {
@@ -251,7 +263,7 @@ func ScanAndCacheGrype(imageRef, platform string, auth repo.RepoAuth, tlsCheck b
 	logger.Info().Msg("Scan with Grype")
 
 	// get manifestDigest to have a platform unique key for caching
-	indexDigest, manifestDigest, err := repo.GetImageDigests(imageRef, platform, auth, tlsCheck)
+	indexDigest, manifestDigest, err := scanning.GetImageDigests(imageRef, platform, auth, tlsCheck)
 	if err != nil {
 		return noResult, nil, nil, fmt.Errorf("get image digest: %v", err)
 	}
@@ -268,8 +280,8 @@ func ScanAndCacheGrype(imageRef, platform string, auth repo.RepoAuth, tlsCheck b
 		logger.Fatal().Err(err).Msg("NewSyftSbomCreator()")
 	}
 
-	var sbomData []byte            // raw data
-	var sbomProd syft.SyftSbomType // syft sbom struct
+	var sbomData []byte                // raw data
+	var sbomProd syfttype.SyftSbomType // syft sbom struct
 
 	cacheState := "n/a"
 	key := CacheKey(manifestDigest)
@@ -298,7 +310,7 @@ func ScanAndCacheGrype(imageRef, platform string, auth repo.RepoAuth, tlsCheck b
 		}
 	}
 	var scanResult model.PharosImageScanResult
-	var scanProd grype.GrypeScanType
+	var scanProd grypetype.GrypeScanType
 	var scanData []byte
 
 	// scan sbom

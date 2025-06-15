@@ -38,7 +38,7 @@ func cdxFilterPropertyFirstOr(name, defval string, data []cdx.Property) string {
 }
 
 // return digest from "bom-ref": "pkg:oci/alpine@sha256%3A0db9d004361b106932f8c7632ae54d56e92c18281e2dd203127d77405020abf6?arch=amd64&repository_url=index.docker.io%2Flibrary%2Falpine",
-func parseDigest(input string) string {
+func ParseDigest(input string) string {
 
 	decoded, _ := url.QueryUnescape(input)
 
