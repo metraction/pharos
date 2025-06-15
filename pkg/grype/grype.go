@@ -42,7 +42,7 @@ type GrypeScanner struct {
 }
 
 // create grype scanner
-func NewGrypeScanner(scanTimeout time.Duration, logger *zerolog.Logger) (*GrypeScanner, error) {
+func NewGrypeScanner(scanTimeout time.Duration, updateDb bool, logger *zerolog.Logger) (*GrypeScanner, error) {
 
 	// find grype path
 	grypeBin, err := utils.OsWhich("grype")
@@ -73,6 +73,13 @@ func NewGrypeScanner(scanTimeout time.Duration, logger *zerolog.Logger) (*GrypeS
 		Str("scan_version", scanner.ScannerVersion).
 		Any("scan_timeout", scanner.ScanTimeout.String()).
 		Msg("NewGrypeScanner() OK")
+
+	// update database
+	if updateDb {
+		if err = scanner.UpdateDatabase(); err != nil {
+			logger.Fatal().Err(err).Msg("UpdateDatabase()")
+		}
+	}
 
 	return &scanner, nil
 }

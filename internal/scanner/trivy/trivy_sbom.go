@@ -108,7 +108,7 @@ func (rx *TrivySbomCreator) CreateSbom(imageUri, platform, format string) (*cdx.
 		Str("format", format).
 		Any("size", humanize.Bytes(uint64(len(stdout.String())))).
 		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).
-		Msg("CreateSbom() success")
+		Msg("CreateSbom() OK")
 
 	return &sbom, &data, nil
 }

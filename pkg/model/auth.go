@@ -9,6 +9,7 @@ import (
 // authentication for image repos
 type PharosRepoAuth struct {
 	Authority string `json:"authority"`
+	TlsCheck  bool   `json:"tlscheck"` // disable TLS cert check for authority
 	Username  string `json:"username"`
 	Password  string `json:"password"`
 	Token     string `json:"token"`
