@@ -24,12 +24,12 @@ spec:
       - name: pharos
         image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
         args: ["scanner", "--config", "/config/.pharos.yaml"]
-        env:
-          - name: DEVLAKE_DSN
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Values.devlake.dbSecet }}
-                key: {{ .Values.devlake.dbUrlVar }} 
+        # env:
+        #   - name: DEVLAKE_DSN
+        #     valueFrom:
+        #       secretKeyRef:
+        #         name: {{ .Values.devlake.dbSecet }}
+        #         key: {{ .Values.devlake.dbUrlVar }} 
         volumeMounts:
           - name: config-volume
             mountPath: /config/.pharos.yaml
