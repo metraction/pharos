@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "dora-badge.fullname" . }}
+  name: {{ include "pharos.fullname" . }}
   labels:
-    {{- include "dora-badge.labels" . | nindent 4 }}
+    {{- include "pharos.labels" . | nindent 4 }}
 spec:
   type: ClusterIP
   ports:

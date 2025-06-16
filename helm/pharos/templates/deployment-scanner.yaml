@@ -2,26 +2,26 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: dora-badge
-  name: dora-badge
+    app: pharos
+  name: pharos
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: dora-badge
+      app: pharos
   strategy: {}
   template:
     metadata:
       namespace: {{ .Release.Namespace }}
       labels:
-        app: dora-badge
+        app: pharos
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-      - name: dora-badge
+      - name: pharos
         image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
         args: ["scanner", "--config", "/config/.pharos.yaml"]
         env:
