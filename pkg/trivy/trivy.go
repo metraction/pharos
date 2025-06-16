@@ -16,7 +16,7 @@ import (
 
 // trivy vulnerability scanner
 type TrivyScanner struct {
-	Generator   string
+	Engine      string
 	HomeDir     string
 	ScannerBin  string
 	ScanTimeout time.Duration
@@ -43,7 +43,7 @@ func NewTrivyScanner(scanTimeout time.Duration, updateDb bool, logger *zerolog.L
 		return nil, err
 	}
 	scanner := TrivyScanner{
-		Generator:  "trivy",
+		Engine:     "trivy",
 		HomeDir:    homeDir,
 		ScannerBin: trivyBin,
 
