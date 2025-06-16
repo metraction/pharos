@@ -79,9 +79,9 @@ func (rx *TrivySbomCreator) CreateSbom(task model.PharosScanTask, format string)
 		return trivytype.TrivySbomType{}, nil, fmt.Errorf("no image provided")
 	}
 	// be explicit, set default in app and not here
-	if platform == "" {
-		return trivytype.TrivySbomType{}, nil, fmt.Errorf("no platform provided")
-	}
+	// if platform == "" {
+	// 	return trivytype.TrivySbomType{}, nil, fmt.Errorf("no platform provided")
+	// }
 
 	// auth
 	elapsed := utils.ElapsedFunc()
@@ -91,7 +91,7 @@ func (rx *TrivySbomCreator) CreateSbom(task model.PharosScanTask, format string)
 
 	// prepare environment
 	// Authentication
-	if auth.HasAuth() {
+	if auth.HasAuth(imageRef) {
 		if auth.Username != "" {
 			rx.logger.Info().
 				Str("authority", auth.Authority).

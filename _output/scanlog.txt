@@ -1,0 +1,10 @@
+2025-06-16 08:25:44	trivy 0.63.0	done	1.118382	145	97	150	docker.io/nginx:1.27
+2025-06-16 08:25:45	trivy 0.63.0	done	0.394192	1001	727	227	localhost:5000/dvwa:461b83a
+2025-06-16 08:25:45	trivy 0.63.0	done	0.159945	0	0	0	localhost:5000/busybox:1.37
+2025-06-16 08:25:45	trivy 0.63.0	done	0.159224	0	0	0	localhost:5000/busybox:1.35
+2025-06-16 08:25:45	trivy 0.63.0	done	0.174358	0	0	22	localhost:5000/redis:8.0.2-alpine
+2025-06-16 08:26:11	grype 0.92.2	done	2.333275	135	89	150	docker.io/nginx:1.27
+2025-06-16 08:26:14	grype 0.92.2	done	2.46242	397	125	240	localhost:5000/dvwa:461b83a
+2025-06-16 08:26:16	grype 0.92.2	done	0.433014	2	2	1	localhost:5000/busybox:1.37
+2025-06-16 08:26:17	grype 0.92.2	done	0.416246	5	5	1	localhost:5000/busybox:1.35
+2025-06-16 08:26:17	grype 0.92.2	done	1.01576	6	2	22	localhost:5000/redis:8.0.2-alpine

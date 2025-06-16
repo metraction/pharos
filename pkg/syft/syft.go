@@ -81,11 +81,7 @@ func (rx *SyftSbomCreator) CreateSbom(task model.PharosScanTask, format string) 
 	if imageRef == "" {
 		return syfttype.SyftSbomType{}, nil, fmt.Errorf("no image provided")
 	}
-	// be explicit, set default in app and not here
-	if platform == "" {
-		return syfttype.SyftSbomType{}, nil, fmt.Errorf("no platform provided")
-	}
-
+	// note: empty platform is OK
 	elapsed := utils.ElapsedFunc()
 	cmd := exec.Command(rx.SyftBin, "registry:"+imageRef, "--platform", platform, "-o", format)
 	cmd.Stdout = &stdout
@@ -97,7 +93,7 @@ func (rx *SyftSbomCreator) CreateSbom(task model.PharosScanTask, format string) 
 	cmd.Env = append(cmd.Env, "SYFT_PARALLELISM=5")
 
 	// Authentication
-	if auth.HasAuth() {
+	if auth.HasAuth(imageRef) {
 		cmd.Env = append(cmd.Env, "SYFT_REGISTRY_AUTH_AUTHORITY="+auth.Authority)
 		if auth.Username != "" {
 			rx.logger.Info().

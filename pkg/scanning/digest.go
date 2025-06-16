@@ -34,9 +34,10 @@ func GetImageDigests(task model.PharosScanTask) (string, string, error) {
 	var options []remote.Option
 
 	auth := task.Auth
+	imageRef := task.ImageSpec.Image
 	platform := task.ImageSpec.Platform
 
-	ref, err := name.ParseReference(task.ImageSpec.Image)
+	ref, err := name.ParseReference(imageRef)
 	if err != nil {
 		return "", "", err
 	}
@@ -55,7 +56,7 @@ func GetImageDigests(task model.PharosScanTask) (string, string, error) {
 	}
 
 	// prepare auth option
-	if auth.HasAuth() {
+	if auth.HasAuth(imageRef) {
 		options = append(options, remote.WithAuth(&authn.Basic{
 			Username: auth.Username,
 			Password: auth.Password,
