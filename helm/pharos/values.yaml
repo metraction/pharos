@@ -1,7 +1,3 @@
-devlake:
-  dbSecet: "devlake-mysql-auth"
-  dbUrlVar: "DB_URL"
-
 replicaCount: 1
 image:
   registry: ghcr.io
@@ -20,3 +16,7 @@ ingress:
 
 service:
   port: 8080
+
+redis-server: 
+  auth:
+    enabled: false

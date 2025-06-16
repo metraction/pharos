@@ -9,7 +9,3 @@ data:
     redis: 
       host: pharos-redis-server-master.pharos.svc.cluster.local
       port: 6379
-
-    redis-server: 
-      auth:
-        enabled: false
