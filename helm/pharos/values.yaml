@@ -13,7 +13,7 @@ imagePullSecrets:
 
 ingress: 
   enabled: true
-  host: "handler-badges.enpace.ch"
+  host: "pharos.enpace.ch"
   className: nginx
   tls: true
   tlsSecretName: "nextcloud-tls"
