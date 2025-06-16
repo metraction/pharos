@@ -3,7 +3,6 @@ package trivy
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/dustin/go-humanize"
 	"github.com/metraction/pharos/internal/services/cache"
@@ -16,7 +15,7 @@ import (
 )
 
 // execute scan with grype scanner
-func ScanImage(task model.PharosImageScanTask, scanEngine *TrivyScanner, kvc *cache.PharosCache, logger *zerolog.Logger) (model.PharosImageScanResult, []byte, []byte, error) {
+func ScanImage(task model.PharosScanTask, scanEngine *TrivyScanner, kvc *cache.PharosCache, logger *zerolog.Logger) (model.PharosScanResult, []byte, []byte, error) {
 
 	logger.Info().Msg("Trivy.ScanImage()")
 
@@ -26,20 +25,26 @@ func ScanImage(task model.PharosImageScanTask, scanEngine *TrivyScanner, kvc *ca
 	}
 
 	ctx := context.Background()
-	noResult := model.PharosImageScanResult{}
+
+	var scanData []byte
+	var scanProd trivytype.TrivyScanType
+	var sbomEngine *TrivySbomCreator
+
+	result := model.PharosScanResult{
+		ScanTask: task,
+	}
 
 	// get manifestDigest to have a platform unique key for caching
+	result.SetStatus("get-digest")
 	indexDigest, manifestDigest, err := scanning.GetImageDigests(task)
 	if err != nil {
-		return noResult, nil, nil, fmt.Errorf("get image digest: %v", err)
+		return result.SetError(err), nil, nil, err
 	}
 
 	logger.Info().
 		Str("digest.idx", utils.ShortDigest(indexDigest)).
 		Str("digest.man", utils.ShortDigest(manifestDigest)).
 		Msg("image digests")
-
-	var sbomEngine *TrivySbomCreator
 
 	// create sbom generator
 	if sbomEngine, err = NewTrivySbomCreator(task.Timeout, logger); err != nil {
@@ -55,50 +60,53 @@ func ScanImage(task model.PharosImageScanTask, scanEngine *TrivyScanner, kvc *ca
 	// try cache, else create
 	sbomData, err = kvc.GetExpire(ctx, key, task.Timeout)
 	if err != nil && !errors.Is(err, cache.ErrKeyNotFound) {
-		return noResult, nil, nil, err
+		return result.SetError(err), nil, nil, err
 	}
 
 	if errors.Is(err, cache.ErrKeyNotFound) {
 		// cache miss: generate sbom
 		cacheState = "cache miss"
+		result.SetStatus("cache-miss")
 		if sbomProd, sbomData, err = sbomEngine.CreateSbom(task, "cyclonedx"); err != nil {
-			return noResult, nil, nil, err
+			return result.SetError(err), nil, nil, err
 		}
 		// cache sbom
 		if err := kvc.SetExpire(ctx, key, sbomData, task.ImageSpec.CacheExpiry); err != nil {
-			return noResult, nil, nil, err
+			return result.SetError(err), nil, nil, err
 		}
 	} else {
 		// cache hit, parse []byte
 		cacheState = "cache hit"
+		result.SetStatus("cache-hit")
 		if err := sbomProd.FromBytes(sbomData); err != nil {
-			return noResult, nil, nil, err
+			return result.SetError(err), nil, nil, err
 		}
 	}
-	var scanResult model.PharosImageScanResult
-	var scanProd trivytype.TrivyScanType
-	var scanData []byte
 
-	// scan sbom
+	// scan sbom for vulns
+	result.SetStatus("scan")
 	if scanProd, scanData, err = scanEngine.VulnScanSbom(sbomData); err != nil {
 		logger.Fatal().Err(err).Msg("VulnScanSbom()")
 	}
-	if err = scanResult.LoadTrivyImageScan(sbomProd, scanProd); err != nil {
-		logger.Fatal().Err(err).Msg("scanResult.LoadTrivyScan()")
-	}
+	// map produce result to pharos result type
+	result.SetStatus("parse-scan")
+	if err = result.LoadTrivyImageScan(sbomProd, scanProd); err != nil {
+		return result.SetError(err), nil, nil, err
 
+	}
+	result.SetStatus("done")
 	logger.Info().
 		Str("key", key).
 		Str("cache", cacheState).
 		Any("time.scan_timeout", task.Timeout.String()).
 		Any("time.cache_expiry", task.ImageSpec.CacheExpiry.String()).
-		Any("img.distro", scanResult.Image.DistroName+" "+scanResult.Image.DistroVersion).
-		Any("img.size", humanize.Bytes(scanResult.Image.Size)).
-		Any("scan.findings", len(scanResult.Findings)).
-		Any("scan.vulns", len(scanResult.Vulnerabilities)).
-		Any("scan.packages", len(scanResult.Packages)).
+		Any("img.distro", result.Image.DistroName+" "+result.Image.DistroVersion).
+		Any("img.size", humanize.Bytes(result.Image.Size)).
+		Any("scan.findings", len(result.Findings)).
+		Any("scan.vulns", len(result.Vulnerabilities)).
+		Any("scan.packages", len(result.Packages)).
 		Msg("")
 
-	return scanResult, sbomData, scanData, nil
+	return result, sbomData, scanData, nil
 
 }

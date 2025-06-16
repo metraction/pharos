@@ -15,6 +15,16 @@ type PharosRepoAuth struct {
 	Token     string `json:"token"`
 }
 
+func NewPharosRepoAuth(authDsn string, tlsCheck bool) (PharosRepoAuth, error) {
+	auth := PharosRepoAuth{
+		TlsCheck: tlsCheck,
+	}
+	if err := auth.FromDsn(authDsn); err != nil {
+		return PharosRepoAuth{}, err
+	}
+	return auth, nil
+}
+
 // return true if auth is not empty
 func (rx PharosRepoAuth) HasAuth() bool {
 	return rx.Authority != "" && (rx.Username != "" || rx.Token != "")

@@ -11,7 +11,7 @@ import (
 )
 
 // populate model from grype scan
-func (rx *PharosImageScanResult) LoadGrypeImageScan(sbom syfttype.SyftSbomType, scan grypetype.GrypeScanType) error {
+func (rx *PharosScanResult) LoadGrypeImageScan(sbom syfttype.SyftSbomType, scan grypetype.GrypeScanType) error {
 
 	// scan engine
 	rx.Version = "1.0"

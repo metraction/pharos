@@ -10,7 +10,7 @@ import (
 )
 
 // populate model from trivy scan
-func (rx *PharosImageScanResult) LoadTrivyImageScan(sbom trivytype.TrivySbomType, scan trivytype.TrivyScanType) error {
+func (rx *PharosScanResult) LoadTrivyImageScan(sbom trivytype.TrivySbomType, scan trivytype.TrivyScanType) error {
 
 	// unique
 	vulnsList := map[string]int{}
