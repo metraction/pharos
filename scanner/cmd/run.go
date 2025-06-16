@@ -176,18 +176,24 @@ func ExecuteRunScan(engine, tasksFile, repoAuth string, tlsCheck bool, scanTimeo
 
 		// loop simulates arrival of tasks from worker queue
 		for k, imageRef := range images {
+
 			logger.Info().Any("#", k).Str("image", imageRef).Msg("-----< new task >-----")
 
 			// make scantask (scantasks would be received from worker queue, here we build it)
 			if task, err = model.NewPharosScanTask("", imageRef, "", auth, cacheExpiry, scanTimeout); err != nil {
 				logger.Fatal().Err(err).Msg("invalid scan task definition")
 			}
+
+			// BEGIN WORKER
 			// scan image, use cache
 			result, sbomData, scanData, err = grype.ScanImage(task, scanEngine, kvc, logger)
 			if err != nil {
 				logger.Error().Err(err).Msg("grype.ScanImage()")
 			}
 			saveResults(outDir, k, "grype", sbomData, scanData, result)
+
+			// call scanEngine.UpdateDatabase() every hour
+			// END WORKER
 		}
 
 	} else if engine == "trivy" {
