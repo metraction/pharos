@@ -19,4 +19,4 @@ service:
 
 redis-server: 
   auth:
-    enabled: false
+    enabled: false    
