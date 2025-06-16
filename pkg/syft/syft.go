@@ -58,7 +58,7 @@ func NewSyftSbomCreator(timeout time.Duration, logger *zerolog.Logger) (*SyftSbo
 
 // download image, create sbom in chosen format, e.g. "syft-json", "cyclonedx-json"
 // func (rx *SyftSbomCreator) CreateSbom(imageRef, platform string, auth model.PharosRepoAuth, tlsCheck bool, format string) (syfttype.SyftSbomType, []byte, error) {
-func (rx *SyftSbomCreator) CreateSbom(task model.PharosImageScanTask, format string) (syfttype.SyftSbomType, []byte, error) {
+func (rx *SyftSbomCreator) CreateSbom(task model.PharosScanTask, format string) (syfttype.SyftSbomType, []byte, error) {
 
 	auth := task.Auth
 	imageRef := task.ImageSpec.Image

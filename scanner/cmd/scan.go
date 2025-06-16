@@ -9,6 +9,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/dustin/go-humanize"
 	"github.com/metraction/pharos/internal/services/cache"
 	"github.com/metraction/pharos/pkg/grype"
 	"github.com/metraction/pharos/pkg/model"
@@ -21,6 +22,7 @@ import (
 )
 
 // command line arguments of root command
+// implemented as type to facilitate testing of command main routine
 type ScanArgsType = struct {
 	ScanEngine  string // scan engine to use
 	Image       string
@@ -53,11 +55,11 @@ func init() {
 	scanCmd.MarkFlagRequired("image")
 }
 
-// dump scan results to files (for debug)
-func WriteResults(prefix string, sbomData []byte, scanData []byte, result model.PharosImageScanResult) {
+// dump scan results to files (for debugging)
+func WriteResults(prefix string, sbomData []byte, scanData []byte, result model.PharosScanResult) {
 	os.WriteFile(fmt.Sprintf("%s-sbom.json", prefix), sbomData, 0644)
 	os.WriteFile(fmt.Sprintf("%s-scan.json", prefix), scanData, 0644)
-	os.WriteFile(fmt.Sprintf("%sgrype-model.json", prefix), result.ToBytes(), 0644)
+	os.WriteFile(fmt.Sprintf("%s-model.json", prefix), result.ToBytes(), 0644)
 	return
 }
 
@@ -91,29 +93,21 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, tlsCheck bool, sca
 		Msg("")
 
 	var err error
-	var pharosScanResult model.PharosImageScanResult
+	var sbomData []byte // sbom raw result
+	var scanData []byte // scan raw result
+	var task model.PharosScanTask
+	var auth model.PharosRepoAuth
+	var result model.PharosScanResult // Pharos scan result type
 
 	ctx := context.Background()
 
 	// build scantask from arguments
-	auth := model.PharosRepoAuth{}
-	if err := auth.FromDsn(repoAuth); err != nil {
-		logger.Fatal().Err(err).Msg("PharosRepoAuth.FromDsn()")
+	if auth, err = model.NewPharosRepoAuth(repoAuth, tlsCheck); err != nil {
+		logger.Fatal().Err(err).Msg("invalid repo auth definition")
 	}
-	auth.TlsCheck = tlsCheck
-
-	task := model.PharosImageScanTask{
-		JobId: "",
-		Auth:  auth,
-		ImageSpec: model.PharosImageSpec{
-			Image:       imageRef,
-			Platform:    platform,
-			CacheExpiry: cacheExpiry,
-		},
-		Timeout: scanTimeout,
+	if task, err = model.NewPharosScanTask("", imageRef, platform, auth, cacheExpiry, scanTimeout); err != nil {
+		logger.Fatal().Err(err).Msg("invalid scan task definition")
 	}
-
-	logger.Info().Any("task", task).Msg("ScanTask")
 
 	// connect redis for key value cache
 	kvc, err := cache.NewPharosCache(cacheEndpoint, logger)
@@ -122,15 +116,15 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, tlsCheck bool, sca
 	}
 	defer kvc.Close()
 
-	err = kvc.Connect(ctx)
-	if err != nil {
+	if err = kvc.Connect(ctx); err != nil {
 		logger.Fatal().Err(err).Msg("Redis cache connect")
 	}
 
 	logger.Info().Str("redis_version", kvc.Version(ctx)).Msg("PharosCache.Connect() OK")
 
+	// execute scan with respective scanner engine
+
 	if engine == "grype" {
-		// Grype Scanner
 		var scanEngine *grype.GrypeScanner
 
 		// create scanner & update database
@@ -138,14 +132,13 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, tlsCheck bool, sca
 			logger.Fatal().Err(err).Msg("NewGrypeScanner()")
 		}
 		// scan image, use cache
-		result, sbomData, scanData, err := grype.ScanImage(task, scanEngine, kvc, logger)
+		result, sbomData, scanData, err = grype.ScanImage(task, scanEngine, kvc, logger)
 		if err != nil {
 			logger.Fatal().Err(err).Msg("grype.ScanImage()")
 		}
 		WriteResults("grype", sbomData, scanData, result)
 
 	} else if engine == "trivy" {
-		// Trivy Scanner
 		var scanEngine *trivy.TrivyScanner
 
 		// create scanner & update database
@@ -153,7 +146,7 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, tlsCheck bool, sca
 			logger.Fatal().Err(err).Msg("NewTrivyScanner()")
 		}
 		// scan image, use cache
-		result, sbomData, scanData, err := trivy.ScanImage(task, scanEngine, kvc, logger)
+		result, sbomData, scanData, err = trivy.ScanImage(task, scanEngine, kvc, logger)
 		if err != nil {
 			logger.Fatal().Err(err).Msg("trivy.ScanImage()")
 		}
@@ -167,11 +160,14 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, tlsCheck bool, sca
 		Str("engine", engine).
 		Str("image", imageRef).
 		Str("platform", platform).
-		Any("x.findings", len(pharosScanResult.Findings)).
-		Any("x.vulns", len(pharosScanResult.Vulnerabilities)).
-		Any("x.packages", len(pharosScanResult.Packages)).
-		Msg("success")
+		Any("img.distro", result.Image.DistroName+" "+result.Image.DistroVersion).
+		Any("img.size", humanize.Bytes(result.Image.Size)).
+		Any("scan.findings", len(result.Findings)).
+		Any("scan.vulns", len(result.Vulnerabilities)).
+		Any("scan.packages", len(result.Packages)).
+		Msg("scan completed")
 
-	logger.Info().Msg("done")
+	logger.Info().
+		Msg("done")
 
 }

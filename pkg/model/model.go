@@ -6,9 +6,10 @@ import (
 )
 
 // hold results if images scans returned from a variety of scanner engines
-type PharosImageScanResult struct {
+type PharosScanResult struct {
 	Version    string           `json:"Version"`
-	ScanEngine PharosScanEngine `json:"Scan"` // scanner & scan metadata
+	ScanTask   PharosScanTask   `json:"ScanTask"`
+	ScanEngine PharosScanEngine `json:"ScanEngine"` // scanner & scan metadata
 	// Add Scantask
 
 	Image           PharosImageMeta       `json:"Image"`
@@ -18,13 +19,21 @@ type PharosImageScanResult struct {
 	// Context
 }
 
+func (rx *PharosScanResult) SetStatus(status string) PharosScanResult {
+	rx.ScanTask.SetStatus(status)
+	return *rx
+}
+func (rx *PharosScanResult) SetError(err error) PharosScanResult {
+	rx.ScanTask.Error = err.Error()
+	return *rx
+}
+
 // scan metadata to identify scanner tool and versions
 // (this is importan once we have a variety of scanners)
 type PharosScanEngine struct {
 	Name     string    `json:"Name"`
 	Version  string    `json:"Version"`
 	ScanTime time.Time `json:"ScanTime"`
-	Status   string    `json:"Status"`
 }
 
 // metadata about the asset (image, code, vm, ..)
@@ -87,7 +96,7 @@ type PharosPackage struct {
 }
 
 // return model as []byte
-func (rx *PharosImageScanResult) ToBytes() []byte {
+func (rx *PharosScanResult) ToBytes() []byte {
 	data, err := json.Marshal(rx)
 	if err != nil {
 		return []byte{}

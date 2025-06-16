@@ -56,7 +56,7 @@ func NewTrivySbomCreator(timeout time.Duration, logger *zerolog.Logger) (*TrivyS
 }
 
 // download image, create sbom in chosen format, e.g. "cyclonedx"
-func (rx *TrivySbomCreator) CreateSbom(task model.PharosImageScanTask, format string) (trivytype.TrivySbomType, []byte, error) {
+func (rx *TrivySbomCreator) CreateSbom(task model.PharosScanTask, format string) (trivytype.TrivySbomType, []byte, error) {
 
 	auth := task.Auth
 	imageRef := task.ImageSpec.Image
