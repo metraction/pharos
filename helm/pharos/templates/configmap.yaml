@@ -6,4 +6,7 @@ metadata:
     app: pharos
 data:
   .pharos.yaml: |
-    devlake_dsn: $DEVLAKE_DSN
+    redis: 
+      server: pharos-redis-master.pharos.svc.cluster.local
+      port: 6379
+      

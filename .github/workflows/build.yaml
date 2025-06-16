@@ -26,6 +26,7 @@ jobs:
     
   push-helm-chart:
     uses: metraction/github-actions/.github/workflows/helm-push.yaml@SA-2/branch-distance
+    needs: [ko-build]
     with:
       chart_dir: helm/pharos
       chart_name: pharos

@@ -2,26 +2,26 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: pharos
-  name: pharos
+    app: pharos-scanner
+  name: pharos-scanner
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: pharos
+      app: pharos-scanner
   strategy: {}
   template:
     metadata:
       namespace: {{ .Release.Namespace }}
       labels:
-        app: pharos
+        app: pharos-scanner
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-      - name: pharos
+      - name: pharos-scanner
         image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
         args: ["scanner", "--config", "/config/.pharos.yaml"]
         # env:
