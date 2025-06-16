@@ -22,8 +22,6 @@ jobs:
     # Run this job only on push events, not when manually triggered just for tests
     if: github.event_name == 'push'
     uses: metraction/github-actions/.github/workflows/ko-build.yaml@SA-2/branch-distance
-    with:
-      cgo_enabled: '1'
     secrets: inherit
     
   push-helm-chart:
