@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/metraction/pharos/model"
+	"github.com/metraction/pharos/pkg/model"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"

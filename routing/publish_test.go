@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/metraction/pharos/model"
+	"github.com/metraction/pharos/pkg/model"
 )
 
 // BenchmarkSubmit1000Images benchmarks the submission of 1000 DockerImage objects
@@ -32,9 +32,11 @@ func BenchmarkSubmit1000Images(b *testing.B) {
 	const imagesToSubmit = 1000
 	dockerImages := make([]model.DockerImage, imagesToSubmit)
 	for i := 0; i < imagesToSubmit; i++ {
+		name := fmt.Sprintf("benchmark-image-%d", i)
+		digest := fmt.Sprintf("sha256-benchmark-%d-%d", i, time.Now().UnixNano())
 		dockerImages[i] = model.DockerImage{
-			Name: fmt.Sprintf("benchmark-image-%d", i),
-			SHA:  fmt.Sprintf("sha256-benchmark-%d-%d", i, time.Now().UnixNano()),
+			Name:   &name,
+			Digest: &digest,
 		}
 	}
 

@@ -8,7 +8,7 @@ import (
 	"net/http"
 
 	"github.com/metraction/pharos/integrations"
-	"github.com/metraction/pharos/model"
+	"github.com/metraction/pharos/pkg/model"
 	"github.com/reugn/go-streams/extension"
 	"github.com/reugn/go-streams/flow"
 )
@@ -26,7 +26,7 @@ func NewPublisherFlow(ctx context.Context, cfg *model.Config) (chan<- any, error
 			image, _ := msg.(model.DockerImage)
 			return map[string]interface{}{
 				"name": image.Name,
-				"sha":  image.SHA,
+				"sha":  image.Digest,
 			}
 		}, 1)).
 		To(redisSink)
@@ -48,7 +48,7 @@ func SubmitImageHandler(ch chan<- any, cfg *model.Config) http.HandlerFunc {
 		}
 		defer r.Body.Close()
 
-		if dockerImage.Name == "" || dockerImage.SHA == "" {
+		if dockerImage.Name != nil || dockerImage.Digest != nil {
 			http.Error(w, "Image name and SHA must be provided", http.StatusBadRequest)
 			return
 		}
@@ -62,9 +62,9 @@ func SubmitImageHandler(ch chan<- any, cfg *model.Config) http.HandlerFunc {
 		}
 		ch <- dockerImage
 
-		log.Printf("Successfully sent image %s:%s to stream %s\n", dockerImage.Name, dockerImage.SHA, cfg.Publisher.StreamName)
+		log.Printf("Successfully sent image %s:%s to stream %s\n", dockerImage.Name, dockerImage.Digest, cfg.Publisher.StreamName)
 		w.WriteHeader(http.StatusAccepted)
-		fmt.Fprintf(w, "Image %s:%s accepted for scanning\n", dockerImage.Name, dockerImage.SHA)
+		fmt.Fprintf(w, "Image %s:%s accepted for scanning\n", dockerImage.Name, dockerImage.Digest)
 		return
 
 		// Note: AwaitCompletion is not called here as this is a fire-and-forget handler.
