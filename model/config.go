@@ -27,7 +27,6 @@ type Redis struct {
 type DatabaseDriver string
 
 const (
-	DatabaseDriverSqlite   DatabaseDriver = "sqlite"
 	DatabaseDriverPostgres DatabaseDriver = "postgres"
 )
 

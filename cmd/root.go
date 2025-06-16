@@ -133,7 +133,7 @@ func init() {
 	rootCmd.PersistentFlags().String("redis.host", "localhost", "Redis host")                                   // Use dot-notation for Viper key compatibility with nested structs.
 	rootCmd.PersistentFlags().Int("redis.port", 6379, "Redis port")                                             // Use dot-notation for Viper key compatibility with nested structs.
 	rootCmd.PersistentFlags().String("publisher.stream-name", "scanner", "Redis stream name for the publisher") // Publisher specific config
-	rootCmd.PersistentFlags().String("database.driver", "sqlite", "Database driver for the scanner, can be 'sqlite' or 'postgres', `sqlite` is default.")
+	rootCmd.PersistentFlags().String("database.driver", "postgres", "Database driver for the scanner, can be 'sqlite' or 'postgres', `sqlite` is default.")
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		log.Fatalf("Unable to determine home directory: %v", err)
