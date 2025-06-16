@@ -6,9 +6,9 @@ metadata:
     app: pharos
 data:
   .pharos.yaml: |
-    {{- if .Values.redisServer.enabled }}
+    {{- if .Values.redis_server.enabled }}
     redis: 
-      host: pharos-redisServer-master.{{ .Release.Namespace }}.svc.cluster.local
+      host: pharos-redis_server-master.{{ .Release.Namespace }}.svc.cluster.local
       port: 6379
     {{- else }}
     redis: 
