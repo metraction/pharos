@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   ko-build:
-    # Only run this job on push events, not when manually triggered just for tests
+    # Run this job only on push events, not when manually triggered just for tests
     if: github.event_name == 'push'
     uses: metraction/github-actions/.github/workflows/ko-build.yaml@SA-2/branch-distance
     secrets: inherit
