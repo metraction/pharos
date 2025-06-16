@@ -4,10 +4,10 @@ version: 0.0.1
 description: Helm chart for pharos
 dependencies:
   - name: redis
-    alias: redis_server
+    alias: redis
     version: ~17.0.0
     repository: https://charts.bitnami.com/bitnami
-    condition: redis_server.enabled
+    condition: redis.enabled
   - name: postgresql
     alias: postgres
     version: ~12.5.7
