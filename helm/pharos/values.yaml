@@ -20,3 +20,13 @@ service:
 redis-server: 
   auth:
     enabled: false    
+
+postgres:
+  auth:
+    username: pharos
+    password: pharos
+    database: pharos
+  primary:
+    persistence:
+      enabled: true
+      size: 1Gi

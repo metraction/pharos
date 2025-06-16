@@ -7,3 +7,7 @@ dependencies:
     alias: redis-server
     version: ~17.0.0
     repository: https://charts.bitnami.com/bitnami
+  - name: postgresql
+    alias: postgres
+    version: ~12.5.7
+    repository: https://charts.bitnami.com/bitnami

@@ -9,3 +9,6 @@ data:
     redis: 
       host: pharos-redis-server-master.pharos.svc.cluster.local
       port: 6379
+    database:
+      driver: postgres
+      dsn: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@pharos-postgres.pharos.svc.cluster.local:5432/$(POSTGRES_DB)?sslmode=disable

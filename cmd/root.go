@@ -134,11 +134,7 @@ func init() {
 	rootCmd.PersistentFlags().Int("redis.port", 6379, "Redis port")                                             // Use dot-notation for Viper key compatibility with nested structs.
 	rootCmd.PersistentFlags().String("publisher.stream-name", "scanner", "Redis stream name for the publisher") // Publisher specific config
 	rootCmd.PersistentFlags().String("database.driver", "postgres", "Database driver for the scanner, can be 'sqlite' or 'postgres', `sqlite` is default.")
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		log.Fatalf("Unable to determine home directory: %v", err)
-	}
-	defaultDSN := fmt.Sprintf("%s/%s", homeDir, "pharos.db") // run `brew install db-browser-for-sqlite` to view the database.
+	defaultDSN := fmt.Sprintf("postgres://postgres:postgres@localhost:5432/pharos?sslmode=disable") // run `brew install db-browser-for-sqlite` to view the database.
 	rootCmd.PersistentFlags().String("database.dsn", defaultDSN, "Database DSN for the scanner, for sqlite it is the file name (default is $HOME/.pharos.db, can be 'file::memory:?cache=shared'), for postgres it is the connection string.")
 	rootCmd.AddCommand(scannerCmd)
 }

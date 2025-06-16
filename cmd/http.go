@@ -30,7 +30,6 @@ These submissions are then published to a Redis stream for further processing by
 			log.Fatal("Failed to create publisher flow:", err)
 			return
 		}
-		model.NewDatabaseContext(&currentConfig.Database).Migrate()
 		http.HandleFunc("/submit/image", routing.SubmitImageHandler(ch, currentConfig))
 		serverAddr := fmt.Sprintf(":%d", httpPort)
 		log.Printf("Starting HTTP server on %s\n", serverAddr)
