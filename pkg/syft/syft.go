@@ -19,7 +19,7 @@ import (
 // Create cyclonedx from artifact
 
 type SyftSbomCreator struct {
-	Generator string
+	Engine string
 
 	HomeDir string
 	SyftBin string
@@ -43,11 +43,11 @@ func NewSyftSbomCreator(timeout time.Duration, logger *zerolog.Logger) (*SyftSbo
 	}
 
 	generator := SyftSbomCreator{
-		Generator: "syft",
-		HomeDir:   homeDir,
-		SyftBin:   syftBin,
-		Timeout:   timeout,
-		logger:    logger,
+		Engine:  "syft",
+		HomeDir: homeDir,
+		SyftBin: syftBin,
+		Timeout: timeout,
+		logger:  logger,
 	}
 
 	logger.Info().

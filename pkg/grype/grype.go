@@ -25,7 +25,7 @@ func TranslateMessage(msg string) string {
 
 // grype vulnerability scanner
 type GrypeScanner struct {
-	Generator   string
+	Engine      string
 	HomeDir     string
 	DatabaseDir string
 	ScannerBin  string
@@ -53,7 +53,7 @@ func NewGrypeScanner(scanTimeout time.Duration, updateDb bool, logger *zerolog.L
 	}
 
 	scanner := GrypeScanner{
-		Generator:   "grype",
+		Engine:      "grype",
 		HomeDir:     homeDir,
 		DatabaseDir: filepath.Join(homeDir, ".cache", "grype", "db"), //
 		ScannerBin:  grypeBin,

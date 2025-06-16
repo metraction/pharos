@@ -3,14 +3,16 @@ package model
 import "time"
 
 type PharosScanTask struct {
-	JobId     string          `json:"jobId"` // jobid for batch jobs tracking
-	Auth      PharosRepoAuth  `json:"auth"`
-	ImageSpec PharosImageSpec `json:"imageSpec"`
-	Timeout   time.Duration   `json:"timeout"` // scan timeout in sec
-	Created   time.Time       `json:"created"`
-	Updated   time.Time       `json:"updated"`
-	Status    string          `json:"status"`
-	Error     string          `json:"error"`
+	JobId      string          `json:"jobId"` // jobid for batch jobs tracking
+	Auth       PharosRepoAuth  `json:"auth"`
+	ImageSpec  PharosImageSpec `json:"imageSpec"`
+	Timeout    time.Duration   `json:"timeout"` // scan timeout in sec
+	Created    time.Time       `json:"created"`
+	Updated    time.Time       `json:"updated"`
+	SbomEngine string          `json:"sbomEngine"` // SBOM generator tool
+	ScanEngine string          `json:"scanEngine"` // Scan generator tool
+	Status     string          `json:"status"`
+	Error      string          `json:"error"`
 }
 
 func NewPharosScanTask(jobId, imageRef, platform string, auth PharosRepoAuth, cacheExpiry, scanTimeout time.Duration) (PharosScanTask, error) {

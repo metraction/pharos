@@ -67,9 +67,11 @@ func saveResults(outdir string, id int, prefix string, sbomData []byte, scanData
 		// logging
 		delta := result.ScanTask.Updated.Sub(result.ScanTask.Created)
 		msg := fmt.Sprintf(
-			"%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n",
+			"%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n",
+			id,
 			result.ScanTask.Created.Format("2006-01-02 15:04:05"),
-			result.ScanEngine.Name+" "+result.ScanEngine.Version,
+			result.ScanTask.SbomEngine,
+			result.ScanTask.ScanEngine,
 			result.ScanTask.Status,
 			delta.Seconds(),
 			len(result.Findings),
@@ -184,7 +186,6 @@ func ExecuteRunScan(engine, tasksFile, repoAuth string, tlsCheck bool, scanTimeo
 			result, sbomData, scanData, err = grype.ScanImage(task, scanEngine, kvc, logger)
 			if err != nil {
 				logger.Error().Err(err).Msg("grype.ScanImage()")
-				continue
 			}
 			saveResults(outDir, k, "grype", sbomData, scanData, result)
 		}
@@ -210,7 +211,6 @@ func ExecuteRunScan(engine, tasksFile, repoAuth string, tlsCheck bool, scanTimeo
 			result, sbomData, scanData, err = trivy.ScanImage(task, scanEngine, kvc, logger)
 			if err != nil {
 				logger.Error().Err(err).Msg("trivy.ScanImage()")
-				continue
 			}
 			saveResults(outDir, k, "trivy", sbomData, scanData, result)
 		}

@@ -30,6 +30,9 @@ func ScanImage(task model.PharosScanTask, scanEngine *TrivyScanner, kvc *cache.P
 	var scanProd trivytype.TrivyScanType
 	var sbomEngine *TrivySbomCreator
 
+	task.SbomEngine = "trivy"
+	task.ScanEngine = scanEngine.Engine + " " + scanEngine.ScannerVersion
+
 	result := model.PharosScanResult{
 		ScanTask: task,
 	}

@@ -31,6 +31,9 @@ func ScanImage(task model.PharosScanTask, scanEngine *GrypeScanner, kvc *cache.P
 	var scanProd grypetype.GrypeScanType
 	var sbomEngine *syft.SyftSbomCreator
 
+	task.SbomEngine = "syft"
+	task.ScanEngine = scanEngine.Engine + " " + scanEngine.ScannerVersion
+
 	result := model.PharosScanResult{
 		ScanTask: task,
 	}

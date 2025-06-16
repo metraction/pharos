@@ -1,10 +1,9 @@
-2025-06-16 08:25:44	trivy 0.63.0	done	1.118382	145	97	150	docker.io/nginx:1.27
-2025-06-16 08:25:45	trivy 0.63.0	done	0.394192	1001	727	227	localhost:5000/dvwa:461b83a
-2025-06-16 08:25:45	trivy 0.63.0	done	0.159945	0	0	0	localhost:5000/busybox:1.37
-2025-06-16 08:25:45	trivy 0.63.0	done	0.159224	0	0	0	localhost:5000/busybox:1.35
-2025-06-16 08:25:45	trivy 0.63.0	done	0.174358	0	0	22	localhost:5000/redis:8.0.2-alpine
-2025-06-16 08:26:11	grype 0.92.2	done	2.333275	135	89	150	docker.io/nginx:1.27
-2025-06-16 08:26:14	grype 0.92.2	done	2.46242	397	125	240	localhost:5000/dvwa:461b83a
-2025-06-16 08:26:16	grype 0.92.2	done	0.433014	2	2	1	localhost:5000/busybox:1.37
-2025-06-16 08:26:17	grype 0.92.2	done	0.416246	5	5	1	localhost:5000/busybox:1.35
-2025-06-16 08:26:17	grype 0.92.2	done	1.01576	6	2	22	localhost:5000/redis:8.0.2-alpine
+0	2025-06-16 11:08:03	syft	grype 0.92.2	get-digest	1.7e-05	0	0	0	docker.me/nginx:1.23
+1	2025-06-16 11:08:03	syft	grype 0.92.2	done	2.5222189999999998	321	257	317	quay.io/minio/minio:RELEASE.2022-08-13T21-54-44Z
+2	2025-06-16 11:08:06	syft	grype 0.92.2	done	2.451709	644	390	341	quay.io/openshift/origin-oauth-proxy:4.14.0
+0	2025-06-16 11:08:15	trivy	trivy 0.63.0	get-digest	1.1e-05	0	0	0	docker.me/nginx:1.23
+1	2025-06-16 11:08:15	trivy	trivy 0.63.0	done	2.70667	327	259	318	quay.io/minio/minio:RELEASE.2022-08-13T21-54-44Z
+2	2025-06-16 11:08:18	trivy	trivy 0.63.0	done	2.26873	47	44	319	quay.io/openshift/origin-oauth-proxy:4.14.0
+0	2025-06-16 11:08:46	trivy	trivy 0.63.0	get-digest	1e-05	0	0	0	docker.me/nginx:1.23
+1	2025-06-16 11:08:46	trivy	trivy 0.63.0	done	1.021562	327	259	318	quay.io/minio/minio:RELEASE.2022-08-13T21-54-44Z
+2	2025-06-16 11:08:48	trivy	trivy 0.63.0	done	1.016531	47	44	319	quay.io/openshift/origin-oauth-proxy:4.14.0
