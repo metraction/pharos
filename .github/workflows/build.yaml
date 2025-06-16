@@ -47,7 +47,7 @@ jobs:
       - name: Get version from semver.sh
         id: version
         run: |
-          VERSION=$(curl -sSL "https://raw.githubusercontent.com/Tiktai/helm-publish/refs/heads/main/scripts/semver.sh" | bash)
+          VERSION=$(curl -sSL "https://raw.githubusercontent.com/Tiktai/helm-publish/refs/heads/SA-2/branch-distance/scripts/semver.sh" | bash)
           VERSION=$(echo "$VERSION" | sed 's/+/_/g')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Using version: $VERSION"
