@@ -24,6 +24,15 @@ jobs:
     uses: metraction/github-actions/.github/workflows/ko-build.yaml@main
     secrets: inherit
     
+  push-helm-chart:
+    uses: metraction/github-actions/.github/workflows/helm-push.yaml@main
+    with:
+      chart_dir: helm/pharos
+      chart_name: pharos
+      destination: .
+      registry: oci://ghcr.io/metraction/charts
+    secrets: inherit
+  
   get-version:
     if: github.event.inputs.run_integration_tests == 'true'
     runs-on: ubuntu-latest
