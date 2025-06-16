@@ -7,7 +7,7 @@ metadata:
 data:
   .pharos.yaml: |
     redis: 
-      host: pharos-redis-master.pharos.svc.cluster.local
+      host: pharos-redis-server-master.pharos.svc.cluster.local
       port: 6379
 
     redis-server: 
