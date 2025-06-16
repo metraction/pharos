@@ -37,6 +37,6 @@ const (
 )
 
 type Database struct {
-	Driver DatabaseDriver `mapstructure:"driver"` // e.g., "sqlite" or "postgres"
+	Driver DatabaseDriver `mapstructure:"driver"` // "postgres"
 	Dsn    string         `mapstructure:"dsn"`
 }
