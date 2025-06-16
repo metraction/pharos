@@ -4,5 +4,6 @@ version: 0.0.1
 description: Helm chart for pharos
 dependencies:
   - name: redis
+    alias: redis-server
     version: ~17.0.0
     repository: https://charts.bitnami.com/bitnami
