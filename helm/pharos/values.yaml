@@ -17,7 +17,7 @@ ingress:
 service:
   port: 8080
 
-redis-server:
+redisServer:
   enabled: true
   auth:
     enabled: false
@@ -33,7 +33,7 @@ postgres:
       enabled: true
       size: 1Gi
 
-# External Redis configuration (used when redis-server.enabled=false)
+# External Redis configuration (used when redisServer.enabled=false)
 externalRedis:
   host: "localhost"
   port: 6379
