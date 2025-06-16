@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: dora-badge
+  name: dora-badge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dora-badge
+  strategy: {}
+  template:
+    metadata:
+      namespace: {{ .Release.Namespace }}
+      labels:
+        app: dora-badge
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: dora-badge
+        image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        args: ["scanner", "--config", "/config/.pharos.yaml"]
+        env:
+          - name: DEVLAKE_DSN
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.devlake.dbSecet }}
+                key: {{ .Values.devlake.dbUrlVar }} 
+        volumeMounts:
+          - name: config-volume
+            mountPath: /config/.pharos.yaml
+            subPath: .pharos.yaml
+      volumes:
+        - name: config-volume
+          configMap:
+            name: pharos-config
+

@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pharos-config
+  labels:
+    app: pharos
+data:
+  .pharos.yaml: |
+    devlake_dsn: $DEVLAKE_DSN

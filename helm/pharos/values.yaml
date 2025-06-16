@@ -1,0 +1,22 @@
+devlake:
+  dbSecet: "devlake-mysql-auth"
+  dbUrlVar: "DB_URL"
+
+replicaCount: 1
+image:
+  registry: ghcr.io
+  repository: metraction/dora-badge/dora-badge-e666386c378212100ddf37486e4162a2
+  pullPolicy: Always
+
+imagePullSecrets: 
+  - name: github-registry
+
+ingress: 
+  enabled: true
+  host: "handler-badges.enpace.ch"
+  className: nginx
+  tls: true
+  tlsSecretName: "nextcloud-tls"
+
+service:
+  port: 8080
