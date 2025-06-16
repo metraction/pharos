@@ -21,11 +21,11 @@ jobs:
   ko-build:
     # Only run this job on push events, not when manually triggered just for tests
     if: github.event_name == 'push'
-    uses: metraction/github-actions/.github/workflows/ko-build.yaml@main
+    uses: metraction/github-actions/.github/workflows/ko-build.yaml@SA-1/private-repos
     secrets: inherit
     
   push-helm-chart:
-    uses: metraction/github-actions/.github/workflows/helm-push.yaml@main
+    uses: metraction/github-actions/.github/workflows/helm-push.yaml@SA-1/private-repos
     with:
       chart_dir: helm/pharos
       chart_name: pharos
