@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/kos-v/dsnparser"
 )
@@ -25,9 +26,15 @@ func NewPharosRepoAuth(authDsn string, tlsCheck bool) (PharosRepoAuth, error) {
 	return auth, nil
 }
 
-// return true if auth is not empty
-func (rx PharosRepoAuth) HasAuth() bool {
-	return rx.Authority != "" && (rx.Username != "" || rx.Token != "")
+// return true if auth is not empty and matchies imageRef repo
+func (rx PharosRepoAuth) HasAuth(imageRef string) bool {
+	if rx.Authority != "" && (rx.Username != "" || rx.Token != "") {
+		if strings.HasPrefix(imageRef, rx.Authority) {
+			return true
+		}
+	}
+
+	return false
 }
 
 // return DSN without password
