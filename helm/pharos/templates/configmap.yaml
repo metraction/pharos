@@ -6,9 +6,21 @@ metadata:
     app: pharos
 data:
   .pharos.yaml: |
+    {{- if .Values.redis-server.enabled }}
     redis: 
-      host: pharos-redis-server-master.pharos.svc.cluster.local
+      host: pharos-redis-server-master.{{ .Release.Namespace }}.svc.cluster.local
       port: 6379
+    {{- else }}
+    redis: 
+      host: {{ .Values.externalRedis.host | default "localhost" }}
+      port: {{ .Values.externalRedis.port | default 6379 }}
+    {{- end }}
+    {{- if .Values.postgres.enabled }}
     database:
       driver: postgres
-      dsn: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@pharos-postgres.pharos.svc.cluster.local:5432/$(POSTGRES_DB)?sslmode=disable
+      dsn: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@pharos-postgres.{{ .Release.Namespace }}.svc.cluster.local:5432/$(POSTGRES_DB)?sslmode=disable
+    {{- else }}
+    database:
+      driver: postgres
+      dsn: {{ .Values.externalPostgres.dsn | default "postgres://postgres:postgres@localhost:5432/pharos?sslmode=disable" }}
+    {{- end }}

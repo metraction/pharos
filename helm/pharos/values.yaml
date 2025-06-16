@@ -17,11 +17,13 @@ ingress:
 service:
   port: 8080
 
-redis-server: 
+redis-server:
+  enabled: true
   auth:
-    enabled: false    
+    enabled: false
 
 postgres:
+  enabled: true
   auth:
     username: pharos
     password: pharos
@@ -30,3 +32,12 @@ postgres:
     persistence:
       enabled: true
       size: 1Gi
+
+# External Redis configuration (used when redis-server.enabled=false)
+externalRedis:
+  host: "localhost"
+  port: 6379
+
+# External PostgreSQL configuration (used when postgres.enabled=false)
+externalPostgres:
+  dsn: "postgres://postgres:postgres@localhost:5432/pharos?sslmode=disable"
