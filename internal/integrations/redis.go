@@ -156,7 +156,7 @@ type RedisGtrsServer[T any, R any] struct {
 	replyQueue   string
 }
 
-func (c *RedisGtrsServer[T, R]) ProcessRequest(ctx context.Context, rdb *redis.Client, handler func(T) R) (T, error) {
+func (c *RedisGtrsServer[T, R]) ProcessRequest(ctx context.Context, rdb *redis.Client, handler func(T) R) {
 	consumer := gtrs.NewGroupConsumer[T](ctx, rdb, "g1", "c1", c.requestQueue, "0-0", gtrs.GroupConsumerConfig{
 		StreamConsumerConfig: gtrs.StreamConsumerConfig{
 			Block:      0,   // milliseconds to block before timing out. 0 means infinite
@@ -177,17 +177,3 @@ func (c *RedisGtrsServer[T, R]) ProcessRequest(ctx context.Context, rdb *redis.C
 		consumer.Ack(msg)
 	}
 }
-
-/*
-func sendRequest(ctx context.Context, client *redis.Client, payload map[string]interface{}, streamName string) (error, string) {
-	corrID := uuid.New().String()
-	err := client.XAdd(ctx, &redis.XAddArgs{
-		Stream: streamName,
-		Values: map[string]interface{}{
-			"corr_id": corrID,
-			"payload": payload,
-		},
-	}).Err()
-	return err, corrID
-}
-*/
