@@ -1,0 +1,69 @@
+name: Integration Tests
+
+on: workflow_dispatch
+
+jobs:
+  calculate-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required for git describe to work correctly
+
+      - name: Calculate version
+        id: version
+        run: |
+          VERSION=$(curl -sSL "https://raw.githubusercontent.com/Tiktai/helm-publish/refs/heads/main/scripts/semver.sh" | bash)
+          VERSION=$(echo "$VERSION" | sed 's/+/_/g')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Calculated version is $VERSION"
+
+  integration-test:
+    needs: calculate-version
+    runs-on: ubuntu-latest
+    permissions:
+      packages: read # Required to pull images from GHCR
+
+    services:
+      redis:
+        image: redis:6.2-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      scanner:
+        image: ghcr.io/metraction/pharos/pharos-c52785725d1132c2f91e01422b7f40ba:${{ needs.calculate-version.outputs.version }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21' # Or your project's Go version
+
+      - name: Wait for services to be healthy
+        run: |
+          echo "Waiting for services to initialize..."
+          sleep 15 # Adjust as needed, or implement a more robust health check for the scanner
+
+      - name: Run benchmark tests
+        run: |
+          # These tests should publish to Redis, and the scanner service should consume.
+          # The benchmark test (routing/publish_test.go) is configured to use localhost:6379 for Redis.
+          go test ./routing -bench=. -benchmem
+
+      - name: Check scanner service logs on failure
+        if: failure()
+        run: |
+          echo "Tests failed. Scanner logs are available in the 'scanner' service logs in the GitHub Actions UI."
+          # The logs for services are automatically collected by the runner and displayed in the UI.
+          # This step is just a pointer for easier debugging.
