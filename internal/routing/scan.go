@@ -31,6 +31,7 @@ func NewScannerFlow(ctx context.Context, cfg *model.Config) error {
 	var scanEngine *grype.GrypeScanner
 
 	go server.ProcessRequest(ctx, func(task model.PharosScanTask) model.PharosScanResult {
+		logger.Debug().Msg("Processing scan request: " + task.ImageSpec.Image)
 		result, _, _, err := grype.ScanImage(task, scanEngine, kvc, logger)
 		if err != nil {
 			logger.Fatal().Err(err).Msg("grype.ScanImage()")
