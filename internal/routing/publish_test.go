@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/metraction/pharos/model"
+	"github.com/metraction/pharos/pkg/model"
 )
 
 // BenchmarkSubmit1000Images benchmarks the submission of 1000 DockerImage objects

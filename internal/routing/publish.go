@@ -7,8 +7,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/metraction/pharos/integrations"
-	"github.com/metraction/pharos/model"
+	"github.com/metraction/pharos/internal/integrations"
+	"github.com/metraction/pharos/pkg/model"
 	"github.com/reugn/go-streams/extension"
 	"github.com/reugn/go-streams/flow"
 )

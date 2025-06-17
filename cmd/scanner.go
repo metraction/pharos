@@ -7,8 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/metraction/pharos/model"
-	"github.com/metraction/pharos/routing"
+	"github.com/metraction/pharos/internal/routing"
+	"github.com/metraction/pharos/pkg/model"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
