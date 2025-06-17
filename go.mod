@@ -58,6 +58,7 @@ require (
 )
 
 require (
+	github.com/dranikpg/gtrs v0.6.1
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
 	github.com/google/uuid v1.6.0

@@ -20,6 +20,7 @@ type Config struct {
 
 // Redis holds Redis-specific configuration.
 type Redis struct {
+	DSN  string `mapstructure:"dsn"`
 	Host string `mapstructure:"host"`
 	Port int    `mapstructure:"port"`
 }
