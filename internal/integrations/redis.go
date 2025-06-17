@@ -156,6 +156,19 @@ type RedisGtrsServer[T any, R any] struct {
 	replyQueue   string
 }
 
+func NewRedisGtrsServer[T any, R any](ctx context.Context, redisCfg model.Redis, requestQueue string, replyQueue string) (*RedisGtrsServer[T, R], error) {
+	rdb := redis.NewClient(&redis.Options{
+		Addr: redisCfg.DSN,
+	})
+
+	if err := rdb.Ping(ctx).Err(); err != nil {
+		rdb.Close()
+		return nil, fmt.Errorf("failed to connect to Redis at %s for sink: %w", redisCfg.DSN, err)
+	}
+	stream := gtrs.NewStream[T](rdb, requestQueue, nil)
+	return &RedisGtrsServer[T, R]{rdb: rdb, stream: &stream, requestQueue: requestQueue, replyQueue: replyQueue}, nil
+}
+
 func (c *RedisGtrsServer[T, R]) ProcessRequest(ctx context.Context, rdb *redis.Client, handler func(T) R) {
 	consumer := gtrs.NewGroupConsumer[T](ctx, rdb, "g1", "c1", c.requestQueue, "0-0", gtrs.GroupConsumerConfig{
 		StreamConsumerConfig: gtrs.StreamConsumerConfig{
