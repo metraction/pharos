@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/metraction/pharos/model"
+	"github.com/metraction/pharos/pkg/model"
 	"github.com/redis/go-redis/v9"
 	"github.com/reugn/go-streams"
 	rg_redis "github.com/reugn/go-streams/redis"

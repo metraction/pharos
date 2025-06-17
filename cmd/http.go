@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/metraction/pharos/model"
-	"github.com/metraction/pharos/routing"
+	"github.com/metraction/pharos/internal/routing"
+	"github.com/metraction/pharos/pkg/model"
 	"github.com/spf13/cobra"
 )
 
