@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/redis/go-redis/v9"
 	"github.com/reugn/go-streams"
@@ -91,4 +92,20 @@ func NewRedisStreamSink(ctx context.Context, redisCfg model.Redis, streamName st
 	streamSink := rg_redis.NewStreamSink(ctx, rdb, streamName, slog.Default())
 
 	return streamSink, nil
+}
+
+func NewRedisRemoteMap() {
+
+}
+
+func sendRequest(ctx context.Context, client *redis.Client, payload map[string]interface{}, streamName string) (error, string) {
+	corrID := uuid.New().String()
+	err := client.XAdd(ctx, &redis.XAddArgs{
+		Stream: streamName,
+		Values: map[string]interface{}{
+			"corr_id": corrID,
+			"payload": payload,
+		},
+	}).Err()
+	return err, corrID
 }
