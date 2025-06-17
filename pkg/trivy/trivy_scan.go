@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/dustin/go-humanize"
-	"github.com/metraction/pharos/internal/services/cache"
+	"github.com/metraction/pharos/internal/integrations/cache"
 	"github.com/metraction/pharos/internal/utils"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/metraction/pharos/pkg/scanning"

@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/metraction/pharos/internal/services/cache"
+	"github.com/metraction/pharos/internal/integrations/cache"
 	"github.com/metraction/pharos/internal/utils"
 	"github.com/metraction/pharos/pkg/grype"
 	"github.com/metraction/pharos/pkg/model"
