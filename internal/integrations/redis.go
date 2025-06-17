@@ -98,6 +98,9 @@ func NewRedisRemoteMap() {
 
 }
 
+type RedisGtrsClient struct {
+}
+
 func sendRequest(ctx context.Context, client *redis.Client, payload map[string]interface{}, streamName string) (error, string) {
 	corrID := uuid.New().String()
 	err := client.XAdd(ctx, &redis.XAddArgs{
