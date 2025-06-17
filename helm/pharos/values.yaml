@@ -1,0 +1,43 @@
+replicaCount: 1
+image:
+  registry: ghcr.io
+  repository: metraction/pharos/pharos-c52785725d1132c2f91e01422b7f40ba
+  pullPolicy: Always
+
+imagePullSecrets: 
+  - name: github-registry
+
+ingress: 
+  enabled: true
+  host: "pharos.enpace.ch"
+  className: nginx
+  tls: true
+  tlsSecretName: "nextcloud-tls"
+
+service:
+  port: 8080
+
+redis:
+  enabled: true
+  auth:
+    enabled: false
+
+postgres:
+  enabled: true
+  auth:
+    username: pharos
+    password: pharos
+    database: pharos
+  primary:
+    persistence:
+      enabled: true
+      size: 1Gi
+
+# External Redis configuration (used when redis.enabled=false)
+externalRedis:
+  host: "localhost"
+  port: 6379
+
+# External PostgreSQL configuration (used when postgres.enabled=false)
+externalPostgres:
+  dsn: "postgres://postgres:postgres@localhost:5432/pharos?sslmode=disable"

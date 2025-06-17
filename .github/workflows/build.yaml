@@ -1,9 +1,41 @@
-name: Integration Tests
+name: Build
+on:
+  push:
+    branches: 
+    - main
+    - PH-4/*
+    tags:
+    - 'v*'
+  workflow_dispatch:
+    inputs:
+      run_integration_tests:
+        description: 'Run integration tests?'
+        default: 'false'
+        required: false
 
-on: workflow_dispatch
+permissions:
+  contents: read
+  packages: write
 
 jobs:
-  calculate-version:
+  ko-build:
+    # Run this job only on push events, not when manually triggered just for tests
+    if: github.event_name == 'push'
+    uses: metraction/github-actions/.github/workflows/ko-build.yaml@SA-2/branch-distance
+    secrets: inherit
+    
+  push-helm-chart:
+    uses: metraction/github-actions/.github/workflows/helm-push.yaml@SA-2/branch-distance
+    needs: [ko-build]
+    with:
+      chart_dir: helm/pharos
+      chart_name: pharos
+      destination: .
+      registry: oci://ghcr.io/metraction/charts
+    secrets: inherit
+  
+  get-version:
+    if: github.event.inputs.run_integration_tests == 'true'
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
@@ -11,22 +43,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Required for git describe to work correctly
+          fetch-depth: 0
 
-      - name: Calculate version
+      - name: Get version from semver.sh
         id: version
         run: |
-          VERSION=$(curl -sSL "https://raw.githubusercontent.com/Tiktai/helm-publish/refs/heads/main/scripts/semver.sh" | bash)
+          VERSION=$(curl -sSL "https://raw.githubusercontent.com/metraction/github-actions/refs/heads/main/scripts/semver.sh" | bash)
           VERSION=$(echo "$VERSION" | sed 's/+/_/g')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Calculated version is $VERSION"
-
+          echo "Using version: $VERSION"
+        
   integration-test:
-    needs: calculate-version
+    if: github.event.inputs.run_integration_tests == 'true'
+    needs: [get-version, ko-build]
     runs-on: ubuntu-latest
     permissions:
+      contents: read # Required for checkout
       packages: read # Required to pull images from GHCR
-
     services:
       redis:
         image: redis:6.2-alpine
@@ -39,16 +72,19 @@ jobs:
           --health-retries 5
 
       scanner:
-        image: ghcr.io/metraction/pharos/pharos-c52785725d1132c2f91e01422b7f40ba:${{ needs.calculate-version.outputs.version }}
+        # The image is tagged with the version from semver.sh
+        image: ghcr.io/metraction/pharos/pharos-c52785725d1132c2f91e01422b7f40ba:${{ needs.get-version.outputs.version }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.21' # Or your project's Go version
+          go-version: '1.23' # Or your project's Go version
 
       - name: Wait for services to be healthy
         run: |
@@ -66,4 +102,4 @@ jobs:
         run: |
           echo "Tests failed. Scanner logs are available in the 'scanner' service logs in the GitHub Actions UI."
           # The logs for services are automatically collected by the runner and displayed in the UI.
-          # This step is just a pointer for easier debugging.
+          # This step is just a pointer for easier debugging.    

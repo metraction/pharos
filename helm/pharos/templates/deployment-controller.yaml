@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: pharos-controller
+  name: pharos-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pharos-controller
+  strategy: {}
+  template:
+    metadata:
+      namespace: {{ .Release.Namespace }}
+      labels:
+        app: pharos-controller
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: pharos-controller
+        image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        args: ["http", "--config", "/config/.pharos.yaml"]
+        ports:
+          - containerPort: 8080
+        volumeMounts:
+          - name: config-volume
+            mountPath: /config/.pharos.yaml
+            subPath: .pharos.yaml
+      volumes:
+        - name: config-volume
+          configMap:
+            name: pharos-config
+

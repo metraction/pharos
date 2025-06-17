@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"gorm.io/driver/postgres"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -29,8 +28,8 @@ func NewDatabaseContext(config *Database) *DatabaseContext {
 	dsn := config.Dsn
 	var dialector gorm.Dialector
 	switch config.Driver {
-	case DatabaseDriverSqlite:
-		dialector = sqlite.Open(dsn)
+	// case DatabaseDriverSqlite:
+	// 	dialector = sqlite.Open(dsn)
 	case DatabaseDriverPostgres:
 		dialector = postgres.Open(dsn)
 	default:
