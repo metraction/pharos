@@ -1,0 +1,3 @@
+docker.me/nginx:1.23
+quay.io/minio/minio:RELEASE.2022-08-13T21-54-44Z
+quay.io/openshift/origin-oauth-proxy:4.14.0

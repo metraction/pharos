@@ -3,18 +3,92 @@
 version: '3'
 
 vars:
-  PORT: 1337
+  REGISTRY_USER: pharos
+  REGISTRY_PASSWORD: reg707
+  PODEXE:
+    sh: |
+      if command -v docker >/dev/null 2>&1; then
+        echo docker
+      else
+        echo podman
+      fi
+
+dotenv:
+  - .env
 
 silent: true
 
 tasks:
+
+  pod-up:
+    desc: App start (compose)
+    cmds:
+      - echo "App up"
+      - podman-compose -f docker-compose.yaml up
+
+  pod-down:
+    desc: App stop (compose)
+    cmds:
+      - echo "App down"
+      - podman-compose -f docker-compose.yaml down
+
   grype-db:
     desc: Show Grype db
     cmds:
       - grype db list
 
+
+  registry-init:
+    desc: Populate local registry with images
+    preconditions:
+      - sh: command -v podman
+        msg: "Podman is not installed or not in your PATH."
+      - export PODEXE=runner
+    vars:
+      devdir: _runtest
+    cmds:
+      - echo "-----< Initialize local test deployment >-----"
+      - 'echo "- devdir:  {{.devdir}}"'
+      - 'echo "- podexe:  {{.PODEXE}}"'
+      - mkdir -p {{.devdir}}
+      - mkdir -p {{.devdir}}/certs
+      - mkdir -p _registry
+
+      # create stuff for local registry
+      - echo "Generate htpasswd for registry .."
+      - '{{.PODEXE}} run --rm --entrypoint htpasswd httpd:2 -Bbn {{.REGISTRY_USER}} {{.REGISTRY_PASSWORD}} > {{.devdir}}/htpasswd'
+      - echo "Generate certificats for registry .."
+      - openssl req -newkey rsa:4096 -nodes -sha256 -addext "subjectAltName=DNS:localhost" -keyout {{.devdir}}/certs/domain.key -x509 -days 365 -out {{.devdir}}/certs/domain.crt -subj "/CN=localhost" 2>/dev/null
+
+      # trust certificate for docker/podman client
+      - echo "**** copy domain.crt to {{.PODEXE}} certificate to the client trust it ****"
+      - echo "podman             cp {{.devdir}}/certs/domain.crt /etc/containers/certs.d/localhost:5000/ca.crt"
+      - echo "podman (rootless)  cp {{.devdir}}/certs/domain.crt ~/.config/containers/certs.d/localhost:5000/ca.crt"
+
+  registry-seed:
+    desc: Seed local registry with images
+    vars:
+      images:
+        # ghcr.io/digininja/dvwa:461b83a
+        - dvwa:461b83a
+        # docker.io/library/redis:8.0.2-alpine
+        - redis:8.0.2-alpine
+        # docker.io/library/busybox:1.35
+        - busybox:1.35
+        - busybox:1.37
+
+    cmds:
+      - podman login localhost:5000 -u {{.REGISTRY_USER}} -p {{.REGISTRY_PASSWORD}}
+      - echo "load.."
+      - for:
+          var: images
+        cmd: |
+          {{.PODEXE}} tag {{.ITEM}} localhost:5000/{{.ITEM}}
+          {{.PODEXE}} push --tls-verify=false localhost:5000/{{.ITEM}}
+
+
   scan:
-    desc: Scan image [name], [tag] with grype and trivy
+    desc: Scan image [name], [tag] with grype, trivy, cdxgen
     requires:
       vars: [name,tag]
     vars:
@@ -27,9 +101,11 @@ tasks:
       - mkdir -p _scans
       - mkdir -p _scans/{{.name}}
 
-      # Create cyclonedx SBOM with grype and trivy
-      - trivy image {{.image}} --scanners vuln -f cyclonedx     -o {{.sbomfile}}.trivy.sbom-cyclonedx.json
+      # Create cyclonedx SBOM with grype, trivy, cdxgetn
+      - cdxgen --type docker {{.image}}                         -o {{.sbomfile}}.cdxgetn.sbom-cyclonedx.json
+      - trivy image {{.image}}                 -f cyclonedx     -o {{.sbomfile}}.trivy.sbom-cyclonedx.json
       - syft {{.image}}                        -o cyclonedx-json > {{.sbomfile}}.syft.sbom-cyclonedx.json
+      - syft {{.image}}                        -o syft-json      > {{.sbomfile}}.syft.sbom-syft.json
 
       # Scan sbom with Trivy
       - trivy sbom {{.sbomfile}}.trivy.sbom-cyclonedx.json --scanners vuln -f json -o {{.scanfile}}.trivy.scan-cyclonedx.json

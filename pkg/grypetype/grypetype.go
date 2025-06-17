@@ -1,4 +1,4 @@
-package grype
+package grypetype
 
 import (
 	"encoding/json"
@@ -86,11 +86,13 @@ type GrypeMatch struct {
 	Artifact      GrypeArtifact      `json:"artifact"`
 }
 type GrypeVulnerability struct {
-	Id          string `json:"id"`
-	Severity    string `json:"severity"`
-	Description string `json:"description"`
-	// cvss
-	// epss
+	Id             string                `json:"id"`
+	Severity       string                `json:"severity"`
+	Description    string                `json:"description"`
+	Namespace      string                `json:"namespace"`
+	Cvss           []GrypeCvss           `json:"cvss"`
+	Epss           []GrypeEpss           `json:"epss"`
+	KnownExplpited []GrypeKnownExploited `json:"knownExploited"`
 
 	Fix        GrypeFix        `json:"fix"`
 	Advisories []GrypeAdvisory `json:"advisories"`
@@ -118,6 +120,34 @@ type GrypeFix struct {
 	State    string   `json:"state"`
 }
 
+type GrypeCvss struct {
+	Source  string `json:"source"`
+	Type    string `json:"type"`
+	Version string `json:"version"`
+	Vector  string `json:"vector"`
+	Metrics struct {
+		BaseScore   float64 `json:"baseScore"`
+		ExpoitScore float64 `json:"exploitabilityScore"`
+		ImpactScore float64 `json:"impactScore"`
+	} `json:"metrics"`
+}
+
+type GrypeEpss struct {
+	Cve        string  `json:"cve"`
+	Epss       float64 `json:"epss"`
+	Percentile float64 `json:"percentile"`
+	Date       string  `json:"date"`
+}
+
+type GrypeKnownExploited struct {
+	Cve            string   `json:"cve"`
+	Vendor         string   `json:"vendor"`
+	Product        string   `json:"product"`
+	DateAdded      string   `json:"dateAdded"`
+	Action         string   `json:"requiredAction"`
+	RansomwareUsed string   `json:"knownRansomwareCampaignUse"`
+	Urls           []string `json:"urls"`
+}
 type GrypeTarget struct {
 	UserInput      string       `json:"userInput"`
 	ImageId        string       `json:"imageId"`
