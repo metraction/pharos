@@ -14,28 +14,18 @@ import (
 	rg_redis "github.com/reugn/go-streams/redis"
 )
 
-// NewRedisStreamSource creates a new Redis client and returns a streams.Source
-// that emits messages from the specified Redis Stream using a consumer group.
-// The context.Context can be used to cancel the operation.
-// streamName: The name of the Redis stream (e.g., "mystream").
-// groupName: The name of the consumer group.
-// consumerName: A unique name for this consumer instance within the group.
-// groupStartID: Where the group should start reading if it's created for the first time (e.g., "0" or "$").
-// blockTimeout: How long to block for new messages (e.g., 1 * time.Second). Use 0 for non-blocking.
-// messageCount: Number of messages to fetch per XREADGROUP command.
 func NewRedisStreamSource(ctx context.Context, redisCfg model.Redis, streamName string, groupName string, consumerName string, groupStartID string, blockTimeout time.Duration, messageCount int64) (streams.Source, error) {
 	// 1. Create Redis client (using go-redis/redis v6)
-	redisAddr := fmt.Sprintf("%s:%d", redisCfg.Host, redisCfg.Port)
-	fmt.Println("Connecting to Redis at:", redisAddr)
+	fmt.Println("Connecting to Redis at:", redisCfg.DSN)
 	rdb := redis.NewClient(&redis.Options{
-		Addr: redisAddr,
+		Addr: redisCfg.DSN,
 		// Other v6 options if needed (e.g., Password, DB)
 	})
 
 	// Ping the Redis server to ensure connectivity (context-aware ping for v6)
 	if err := rdb.Ping(ctx).Err(); err != nil { // v6 Ping doesn't take context directly, but underlying operations are ctx aware via client
 		rdb.Close()
-		return nil, fmt.Errorf("failed to connect to Redis at %s: %w", redisAddr, err)
+		return nil, fmt.Errorf("failed to connect to Redis at %s: %w", redisCfg.DSN, err)
 	}
 
 	// 2. Create Consumer Group (if it doesn't exist) using v6 client
@@ -76,14 +66,13 @@ func NewRedisStreamSource(ctx context.Context, redisCfg model.Redis, streamName 
 // The context.Context can be used for cancellation during sink setup.
 // streamName: The name of the Redis stream to publish to (e.g., "images_to_scan").
 func NewRedisStreamSink(ctx context.Context, redisCfg model.Redis, streamName string) (streams.Sink, error) {
-	redisAddr := fmt.Sprintf("%s:%d", redisCfg.Host, redisCfg.Port)
 	rdb := redis.NewClient(&redis.Options{
-		Addr: redisAddr,
+		Addr: redisCfg.DSN,
 	})
 
 	if err := rdb.Ping(ctx).Err(); err != nil {
 		rdb.Close()
-		return nil, fmt.Errorf("failed to connect to Redis at %s for sink: %w", redisAddr, err)
+		return nil, fmt.Errorf("failed to connect to Redis at %s for sink: %w", redisCfg.DSN, err)
 	}
 
 	// The rg_redis.NewStreamSink expects a *redis.Client from go-redis/v9,
@@ -94,15 +83,12 @@ func NewRedisStreamSink(ctx context.Context, redisCfg model.Redis, streamName st
 	return streamSink, nil
 }
 
-func NewRedisRemoteMap() {
-
-}
-
 type RedisGtrsClient[T any, R any] struct {
 	rdb          *redis.Client
 	stream       *gtrs.Stream[T]
 	requestQueue string
 	replyQueue   string
+	zeroValue    R
 }
 
 func NewRedisGtrsClient[T any, R any](ctx context.Context, redisCfg model.Redis, requestQueue string, replyQueue string) (*RedisGtrsClient[T, R], error) {
@@ -118,12 +104,25 @@ func NewRedisGtrsClient[T any, R any](ctx context.Context, redisCfg model.Redis,
 	return &RedisGtrsClient[T, R]{rdb: rdb, stream: &stream, requestQueue: requestQueue, replyQueue: replyQueue}, nil
 }
 
+/*
+TODO: As simple consumer doesn't do ACK reply queue might fillup and cause long read on client side.
+It should start waiting for response and read only new messages
+*/
+func (c *RedisGtrsClient[T, R]) RequestReply(ctx context.Context, payload T) (R, error) {
+	err, corrID := c.SendRequest(ctx, payload)
+	if err != nil {
+		return c.zeroValue, err
+	}
+	return c.ReceiveResponse(ctx, corrID, 10*time.Second)
+}
+
 func (c *RedisGtrsClient[T, R]) SendRequest(ctx context.Context, payload T) (error, string) {
 	corrID, err := c.stream.Add(ctx, payload)
 	return err, corrID
 }
 
 func (c *RedisGtrsClient[T, R]) ReceiveResponse(ctx context.Context, corrID string, timeout time.Duration) (R, error) {
+	// Read reply queue from the begining
 	replyConsumer := gtrs.NewConsumer[R](ctx, c.rdb, gtrs.StreamIDs{c.replyQueue: "0"}, gtrs.StreamConsumerConfig{
 		Block:      timeout,
 		Count:      0,
@@ -137,19 +136,15 @@ func (c *RedisGtrsClient[T, R]) ReceiveResponse(ctx context.Context, corrID stri
 		var reply R = msg.Data
 		if msg.ID == corrID {
 			// This is the reply for our request
-			fmt.Println("Got reply:", reply)
-
 			return reply, nil
 		}
 	}
-	// Create a zero value for type T
-	var zeroValue R
-	return zeroValue, fmt.Errorf("timeout waiting for reply")
+	// Create a zero value for type R in case of error
+	return c.zeroValue, fmt.Errorf("timeout waiting for reply")
 }
 
 type RedisGtrsServer[T any, R any] struct {
 	rdb          *redis.Client
-	stream       *gtrs.Stream[T]
 	requestQueue string
 	replyQueue   string
 }
@@ -163,14 +158,14 @@ func NewRedisGtrsServer[T any, R any](ctx context.Context, redisCfg model.Redis,
 		rdb.Close()
 		return nil, fmt.Errorf("failed to connect to Redis at %s for sink: %w", redisCfg.DSN, err)
 	}
-	stream := gtrs.NewStream[T](rdb, requestQueue, nil)
-	return &RedisGtrsServer[T, R]{rdb: rdb, stream: &stream, requestQueue: requestQueue, replyQueue: replyQueue}, nil
+	fmt.Println("Connected to Redis at:", redisCfg.DSN, requestQueue, replyQueue)
+	return &RedisGtrsServer[T, R]{rdb: rdb, requestQueue: requestQueue, replyQueue: replyQueue}, nil
 }
 
-func (c *RedisGtrsServer[T, R]) ProcessRequest(ctx context.Context, rdb *redis.Client, handler func(T) R) {
-	consumer := gtrs.NewGroupConsumer[T](ctx, rdb, "g1", "c1", c.requestQueue, "0-0", gtrs.GroupConsumerConfig{
+func (c *RedisGtrsServer[T, R]) ProcessRequest(ctx context.Context, handler func(T) R) {
+	consumer := gtrs.NewGroupConsumer[T](ctx, c.rdb, "g1", "c1", c.requestQueue, "0-0", gtrs.GroupConsumerConfig{
 		StreamConsumerConfig: gtrs.StreamConsumerConfig{
-			Block:      0,   // milliseconds to block before timing out. 0 means infinite
+			Block:      0,   // 0 means infinite
 			Count:      100, // maximum number of entries per request
 			BufferSize: 20,  // how many entries to prefetch at most
 		},
@@ -183,8 +178,9 @@ func (c *RedisGtrsServer[T, R]) ProcessRequest(ctx context.Context, rdb *redis.C
 		}
 		req := msg.Data
 		// Process the request and produce a reply
-		replyStream := gtrs.NewStream[R](rdb, c.replyQueue, nil)
+		replyStream := gtrs.NewStream[R](c.rdb, c.replyQueue, nil)
 		replyStream.Add(ctx, handler(req), msg.ID)
+		// Once it is in response queue, take it out of request queue
 		consumer.Ack(msg)
 	}
 }

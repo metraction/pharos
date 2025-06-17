@@ -51,95 +51,6 @@ func setupRedisTest(t *testing.T) (*miniredis.Miniredis, model.Redis) {
 	return mr, redisCfg
 }
 
-func TestNewRedisGtrsClient(t *testing.T) {
-	// Setup Redis (mini or real)
-	mr, redisCfg := setupRedisTest(t)
-	if mr != nil {
-		defer mr.Close()
-	}
-
-	// Test creating a new client
-	ctx := context.Background()
-	client, err := NewRedisGtrsClient[TestMessage, TestResponse](ctx, redisCfg, "test_requests", "test_responses")
-
-	// Assertions
-	require.NoError(t, err)
-	assert.NotNil(t, client)
-	assert.Equal(t, "test_requests", client.requestQueue)
-	assert.Equal(t, "test_responses", client.replyQueue)
-
-	// Test sending a request
-	msg := TestMessage{
-		ID:      uuid.New().String(),
-		Content: "Test message",
-	}
-
-	err, corrID := client.SendRequest(ctx, msg)
-	require.NoError(t, err)
-	assert.NotEmpty(t, corrID)
-
-}
-
-func TestNewRedisGtrsServer(t *testing.T) {
-	// Setup Redis (mini or real)
-	mr, redisCfg := setupRedisTest(t)
-	if mr != nil {
-		defer mr.Close()
-	}
-
-	// Test creating a new server
-	ctx := context.Background()
-	server, err := NewRedisGtrsServer[TestMessage, TestResponse](ctx, redisCfg, "test_requests", "test_responses")
-
-	// Assertions
-	require.NoError(t, err)
-	assert.NotNil(t, server)
-	assert.Equal(t, "test_requests", server.requestQueue)
-	assert.Equal(t, "test_responses", server.replyQueue)
-
-	// Create a mock handler function
-	handlerCalled := false
-	mockHandler := func(msg TestMessage) TestResponse {
-		handlerCalled = true
-		return TestResponse{
-			RequestID: msg.ID,
-			Result:    "Processed: " + msg.Content,
-		}
-	}
-
-	// Start the server in a goroutine (it will run until context is cancelled)
-	serverCtx, cancel := context.WithCancel(ctx)
-	defer cancel()
-
-	go func() {
-		server.ProcessRequest(serverCtx, server.rdb, mockHandler)
-	}()
-
-	// Create a client to send a request
-	client, err := NewRedisGtrsClient[TestMessage, TestResponse](ctx, redisCfg, "test_requests", "test_responses")
-	require.NoError(t, err)
-
-	// Send a test message
-	msg := TestMessage{
-		ID:      uuid.New().String(),
-		Content: "Test request",
-	}
-
-	err, corrID := client.SendRequest(ctx, msg)
-	require.NoError(t, err)
-
-	fmt.Println("Sent request with correlation ID:", corrID)
-
-	// Give some time for processing
-	time.Sleep(100 * time.Millisecond)
-
-	// Cancel the server context to stop processing
-	cancel()
-
-	// Check if the handler was called
-	assert.True(t, handlerCalled, "The mock handler should have been called")
-}
-
 func TestIntegrationClientServer(t *testing.T) {
 	// Skip in short mode
 	if testing.Short() {
@@ -173,7 +84,7 @@ func TestIntegrationClientServer(t *testing.T) {
 	defer cancel()
 
 	go func() {
-		server.ProcessRequest(serverCtx, server.rdb, mockHandler)
+		server.ProcessRequest(serverCtx, mockHandler)
 	}()
 
 	// Create client

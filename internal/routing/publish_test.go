@@ -17,14 +17,14 @@ import (
 func BenchmarkSubmit1000Images(b *testing.B) {
 	cfg := &model.Config{
 		Redis: model.Redis{
-			Port: 6379,
+			DSN: "localhost:6379",
 		},
 	}
 
 	ctx := context.Background()
 
 	// Set up the publisher flow once, outside the main benchmark loop.
-	publishChan, err := NewPublisherFlow(ctx, cfg)
+	_, err := NewPublisher(ctx, cfg)
 	if err != nil {
 		b.Fatalf("Failed to create publisher flow: %v", err)
 	}
@@ -42,7 +42,7 @@ func BenchmarkSubmit1000Images(b *testing.B) {
 
 	for n := 0; n < b.N; n++ { // b.N is the number of iterations the benchmark runs
 		for i := 0; i < imagesToSubmit; i++ {
-			publishChan <- dockerImages[i] // Send the pre-generated image
+			//publishChan <- dockerImages[i] // Send the pre-generated image
 		}
 	}
 

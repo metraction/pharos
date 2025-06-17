@@ -2,12 +2,18 @@ package model
 
 // ScannerConfig holds scanner-specific configuration.
 type ScannerConfig struct {
-	StreamName string `mapstructure:"stream-name"`
+	RequestQueue  string `mapstructure:"requestQueue"`
+	ResponseQueue string `mapstructure:"responseQueue"`
+	Timeout       string `mapstructure:"timeout"`
+	CacheExpiry   string `mapstructure:"cache-expiry"`
+	CacheEndpoint string `mapstructure:"cache-endpoint"`
+	Engine        string `mapstructure:"engine"`
 }
 
 // PublisherConfig holds publisher-specific configuration.
 type PublisherConfig struct {
-	StreamName string `mapstructure:"stream-name"`
+	RequestQueue  string `mapstructure:"requestQueue"`
+	ResponseQueue string `mapstructure:"responseQueue"`
 }
 
 // Config holds the application configuration.
@@ -20,9 +26,7 @@ type Config struct {
 
 // Redis holds Redis-specific configuration.
 type Redis struct {
-	DSN  string `mapstructure:"dsn"`
-	Host string `mapstructure:"host"`
-	Port int    `mapstructure:"port"`
+	DSN string `mapstructure:"dsn"`
 }
 
 type DatabaseDriver string

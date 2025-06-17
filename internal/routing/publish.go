@@ -9,63 +9,54 @@ import (
 
 	"github.com/metraction/pharos/internal/integrations"
 	"github.com/metraction/pharos/pkg/model"
-	"github.com/reugn/go-streams/extension"
-	"github.com/reugn/go-streams/flow"
 )
 
-func NewPublisherFlow(ctx context.Context, cfg *model.Config) (chan<- any, error) {
-	redisSink, err := integrations.NewRedisStreamSink(ctx, cfg.Redis, cfg.Publisher.StreamName)
-	if err != nil {
-		log.Printf("Error creating Redis sink: %v\n", err)
-		return nil, err
-	}
-	ch := make(chan any)
-	go extension.NewChanSource(ch).
-		Via(flow.NewMap(func(msg any) map[string]interface{} {
-			// Map to redis message format
-			image, _ := msg.(model.DockerImage)
-			return map[string]interface{}{
-				"name": image.Name,
-				"sha":  image.SHA,
-			}
-		}, 1)).
-		To(redisSink)
-	return ch, nil
+func NewPublisher(ctx context.Context, cfg *model.Config) (*integrations.RedisGtrsClient[model.PharosScanTask, model.PharosScanResult], error) {
+	client, err := integrations.NewRedisGtrsClient[model.PharosScanTask, model.PharosScanResult](ctx, cfg.Redis, cfg.Publisher.RequestQueue, cfg.Publisher.ResponseQueue)
+	return client, err
 }
 
 // SubmitImageHandler handles HTTP requests for submitting Docker image information.
-func SubmitImageHandler(ch chan<- any, cfg *model.Config) http.HandlerFunc {
+func SubmitImageHandler(client *integrations.RedisGtrsClient[model.PharosScanTask, model.PharosScanResult], cfg *model.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
 			return
 		}
 
-		var dockerImage model.DockerImage
-		if err := json.NewDecoder(r.Body).Decode(&dockerImage); err != nil {
+		var request model.PharosScanTask
+		if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 			http.Error(w, "Invalid request body", http.StatusBadRequest)
 			return
 		}
 		defer r.Body.Close()
-
-		if dockerImage.Name == "" || dockerImage.SHA == "" {
-			http.Error(w, "Image name and SHA must be provided", http.StatusBadRequest)
+		fmt.Println("Sending image scan request:", request, " to ", cfg.Publisher.RequestQueue)
+		response, err := client.RequestReply(r.Context(), request)
+		if err != nil {
+			log.Printf("Failed to send image %s to stream %s: %v\n", request.ImageSpec, cfg.Publisher.RequestQueue, err)
+			http.Error(w, "Failed to send image to stream", http.StatusInternalServerError)
 			return
 		}
 
-		// this db context should be initialized in a middleware later, for now we just create it here
-		db := model.NewDatabaseContext(&cfg.Database)
-		tx := db.DB.Save(&dockerImage)
-		if tx.Error != nil {
-			http.Error(w, tx.Error.Error(), http.StatusInternalServerError)
-			return
-		}
-		ch <- dockerImage
+		log.Printf("Successfully sent image %s to stream %s\n", request.ImageSpec, cfg.Publisher.RequestQueue)
 
-		log.Printf("Successfully sent image %s:%s to stream %s\n", dockerImage.Name, dockerImage.SHA, cfg.Publisher.StreamName)
+		// Set content type to JSON
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusAccepted)
-		fmt.Fprintf(w, "Image %s:%s accepted for scanning\n", dockerImage.Name, dockerImage.SHA)
-		return
+
+		// Create response object
+		jsonResponse := map[string]interface{}{
+			"status":      "accepted",
+			"message":     fmt.Sprintf("Image %s accepted for scanning", request.ImageSpec),
+			"scan_result": response,
+		}
+
+		// Encode and send JSON response
+		if err := json.NewEncoder(w).Encode(jsonResponse); err != nil {
+			log.Printf("Error encoding JSON response: %v\n", err)
+			http.Error(w, "Error encoding response", http.StatusInternalServerError)
+			return
+		}
 
 		// Note: AwaitCompletion is not called here as this is a fire-and-forget handler.
 		// The sink will process messages asynchronously.
