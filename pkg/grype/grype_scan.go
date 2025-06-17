@@ -1,0 +1,116 @@
+package grype
+
+import (
+	"context"
+	"errors"
+
+	"github.com/dustin/go-humanize"
+	"github.com/metraction/pharos/internal/services/cache"
+	"github.com/metraction/pharos/internal/utils"
+	"github.com/metraction/pharos/pkg/grypetype"
+	"github.com/metraction/pharos/pkg/model"
+	"github.com/metraction/pharos/pkg/scanning"
+	"github.com/metraction/pharos/pkg/syft"
+	"github.com/metraction/pharos/pkg/syfttype"
+	"github.com/rs/zerolog"
+	"github.com/samber/lo"
+)
+
+// execute scan with grype scanner
+func ScanImage(task model.PharosScanTask, scanEngine *GrypeScanner, kvc *cache.PharosCache, logger *zerolog.Logger) (model.PharosScanResult, []byte, []byte, error) {
+
+	logger.Info().Msg("Grype.ScanImage()")
+
+	// return sbom cache key for given digest
+	CacheKey := func(digest string) string {
+		return lo.Substring(digest, 0, 39) + ".grype.sbom"
+	}
+
+	ctx := context.Background()
+	var scanData []byte
+	var scanProd grypetype.GrypeScanType
+	var sbomEngine *syft.SyftSbomCreator
+
+	task.SbomEngine = "syft"
+	task.ScanEngine = scanEngine.Engine + " " + scanEngine.ScannerVersion
+
+	result := model.PharosScanResult{
+		ScanTask: task,
+	}
+
+	// get manifestDigest to have a platform unique key for caching
+	result.SetStatus("get-digest")
+	indexDigest, manifestDigest, err := scanning.GetImageDigests(task)
+	if err != nil {
+		return result.SetError(err), nil, nil, err
+	}
+
+	logger.Info().
+		Str("digest.idx", utils.ShortDigest(indexDigest)).
+		Str("digest.man", utils.ShortDigest(manifestDigest)).
+		Msg("image digests")
+
+	// create sbom generator
+	if sbomEngine, err = syft.NewSyftSbomCreator(task.Timeout, logger); err != nil {
+		logger.Fatal().Err(err).Msg("NewSyftSbomCreator()")
+	}
+
+	var sbomData []byte                // raw data
+	var sbomProd syfttype.SyftSbomType // syft sbom struct
+
+	cacheState := "n/a"
+	key := CacheKey(manifestDigest)
+
+	// try cache, else create
+	sbomData, err = kvc.GetExpire(ctx, key, task.Timeout)
+	if err != nil && !errors.Is(err, cache.ErrKeyNotFound) {
+		return result.SetError(err), nil, nil, err
+	}
+
+	if errors.Is(err, cache.ErrKeyNotFound) {
+		// cache miss: generate sbom
+		cacheState = "cache miss"
+		result.SetStatus("cache-miss")
+		if sbomProd, sbomData, err = sbomEngine.CreateSbom(task, "syft-json"); err != nil {
+			return result.SetError(err), nil, nil, err
+		}
+		// cache sbom
+		if err := kvc.SetExpire(ctx, key, sbomData, task.ImageSpec.CacheExpiry); err != nil {
+			return result.SetError(err), nil, nil, err
+		}
+	} else {
+		// cache hit, parse []byte
+		cacheState = "cache hit"
+		result.SetStatus("cache-hit")
+		if err := sbomProd.FromBytes(sbomData); err != nil {
+			return result.SetError(err), nil, nil, err
+		}
+	}
+
+	// scan sbom for vulns
+	result.SetStatus("parse-scan")
+	if scanProd, scanData, err = scanEngine.VulnScanSbom(sbomData); err != nil {
+		logger.Fatal().Err(err).Msg("VulnScanSbom()")
+	}
+	// map produce result to pharos result type
+	result.SetStatus("parse-scan")
+	if err = result.LoadGrypeImageScan(sbomProd, scanProd); err != nil {
+		return result.SetError(err), nil, nil, err
+	}
+
+	result.SetStatus("done")
+	logger.Info().
+		Str("key", key).
+		Str("cache", cacheState).
+		Any("time.scan_timeout", task.Timeout.String()).
+		Any("time.cache_expiry", task.ImageSpec.CacheExpiry.String()).
+		Any("img.distro", result.Image.DistroName+" "+result.Image.DistroVersion).
+		Any("img.size", humanize.Bytes(result.Image.Size)).
+		Any("scan.findings", len(result.Findings)).
+		Any("scan.vulns", len(result.Vulnerabilities)).
+		Any("scan.packages", len(result.Packages)).
+		Msg("")
+
+	return result, sbomData, scanData, nil
+
+}
