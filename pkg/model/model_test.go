@@ -17,7 +17,7 @@ func TestDSN(t *testing.T) {
 		"registry://user:pwd@docker.io",
 	}
 
-	auth := RepoAuth{}
+	auth := PharosRepoAuth{}
 
 	sample := "registry://user:pwd@docker.io/?type=password"
 	err := auth.FromDsn(sample)
