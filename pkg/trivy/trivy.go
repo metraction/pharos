@@ -80,7 +80,7 @@ func (rx *TrivyScanner) GetVersion() error {
 
 	err := cmd.Run()
 	if err != nil {
-		return fmt.Errorf(utils.NoColorCodes(stderr.String()))
+		return fmt.Errorf("%s", utils.NoColorCodes(stderr.String()))
 	}
 	result := TrivyVersion{}
 	err = result.FromBytes(stdout.Bytes())
@@ -108,7 +108,7 @@ func (rx *TrivyScanner) UpdateDatabase() error {
 
 	err := cmd.Run()
 	if err != nil {
-		return fmt.Errorf(utils.NoColorCodes(stderr.String()))
+		return fmt.Errorf("%s", utils.NoColorCodes(stderr.String()))
 	}
 	result := utils.NoColorCodes(stdout.String())
 	if result == "" {
@@ -167,7 +167,7 @@ func (rx *TrivyScanner) VulnScanSbom(sbom []byte) (trivytype.TrivyScanType, []by
 	if ctx.Err() == context.DeadlineExceeded {
 		return trivytype.TrivyScanType{}, nil, fmt.Errorf("scan sbom: timeout after %s", rx.ScanTimeout.String())
 	} else if err != nil {
-		return trivytype.TrivyScanType{}, nil, fmt.Errorf(utils.NoColorCodes(stderr.String()))
+		return trivytype.TrivyScanType{}, nil, fmt.Errorf("%s", utils.NoColorCodes(stderr.String()))
 	}
 
 	// parse into grype scan model
