@@ -36,5 +36,6 @@ go.work.sum
 # Dev/Test data
 _scans/
 _registry/
+_runtest
 _output/
 *.json

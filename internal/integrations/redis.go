@@ -92,6 +92,65 @@ type RedisGtrsClient[T any, R any] struct {
 	timeout       time.Duration
 }
 
+// NEW: Stefan
+func NewRedisGtrsClientStefan[T any, R any](ctx context.Context, redisEndpoint, queueName string) (*RedisGtrsClient[T, R], error) {
+
+	options, err := redis.ParseURL(redisEndpoint)
+	if err != nil {
+		return nil, err
+	}
+	rdb := redis.NewClient(options)
+
+	timeout := 60 * time.Second
+	stream := gtrs.NewStream[T](rdb, queueName, nil)
+
+	return &RedisGtrsClient[T, R]{
+		rdb:           rdb,
+		requestStream: &stream,
+		requestQueue:  queueName,
+		replyQueue:    "none",
+		timeout:       timeout}, nil
+}
+
+// NEW: Stefan
+func (rx *RedisGtrsClient[T, R]) Connect(ctx context.Context) error {
+	if err := rx.rdb.Ping(ctx).Err(); err != nil {
+		return fmt.Errorf("redis connect (ping): %v", err)
+	}
+	return nil
+}
+
+// NEW: Stefan
+func (rx *RedisGtrsClient[T, R]) Close() {
+	if rx.rdb != nil {
+		rx.rdb.Close()
+	}
+}
+
+// NEW: Stefan
+func (rx *RedisGtrsClient[T, R]) ReceiveResponseStefan(ctx context.Context, handlerFunc func(gtrs.Message[T]) error) error {
+	// Read reply queue from the begining
+	replyConsumer := gtrs.NewConsumer[T](ctx, rx.rdb, gtrs.StreamIDs{rx.requestQueue: "0"}, gtrs.StreamConsumerConfig{
+		Block:      0,
+		Count:      0,
+		BufferSize: 50,
+	})
+	defer replyConsumer.Close()
+	fmt.Println("Waiting for reply on:", rx.replyQueue)
+	for msg := range replyConsumer.Chan() {
+		if msg.Err != nil {
+			fmt.Println("listener[1]: msg.err", msg.Err)
+			continue
+		}
+		err := handlerFunc(msg)
+		if err != nil {
+			fmt.Println("listener[2]: handler.err", err)
+		}
+		// act on handler error, like terminate loop
+	}
+	return fmt.Errorf("timeout waiting for reply")
+}
+
 func NewRedisGtrsClient[T any, R any](ctx context.Context, redisCfg *model.Config, requestQueue string, replyQueue string) (*RedisGtrsClient[T, R], error) {
 	rdb := redis.NewClient(&redis.Options{
 		Addr: redisCfg.Redis.DSN,
