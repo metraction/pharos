@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/metraction/pharos/internal/integrations"
+	"github.com/metraction/pharos/internal/integrations/cache"
 	"github.com/metraction/pharos/internal/logging"
-	"github.com/metraction/pharos/internal/services/cache"
 	"github.com/metraction/pharos/pkg/grype"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/rs/zerolog"
@@ -54,7 +54,7 @@ func NewScannerFlow(ctx context.Context, cfg *model.Config) error {
 
 		// Log the number of findings, vulnerabilities, and packages before sending
 		logger.Info().Int("findings", len(result.Findings)).Int("vulns", len(result.Vulnerabilities)).Int("pkgs", len(result.Packages)).Msg("Sending scan results")
-		
+
 		// Now we can return the original result since we've fixed the serialization at the model level
 		return result
 	})
