@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/dranikpg/gtrs"
+	"github.com/metraction/pharos/internal/integrations"
 	"github.com/metraction/pharos/internal/integrations/cache"
 	"github.com/metraction/pharos/internal/utils"
 	"github.com/metraction/pharos/pkg/grype"
@@ -32,6 +34,7 @@ type RunArgsType = struct {
 	//
 	CacheExpiry   string // how log to cache sboms in redis
 	CacheEndpoint string // redis://user:pwd@localhost:6379/0
+	MqEndpoint    string // redis://user:pwd@localhost:6379/1
 
 }
 
@@ -48,6 +51,7 @@ func init() {
 	runCmd.Flags().StringVar(&RunArgs.ScanTimeout, "scan_timeout", EnvOrDefault("scan_timeout", "180s"), "Scan timeout")
 	runCmd.Flags().StringVar(&RunArgs.CacheExpiry, "cache_expiry", EnvOrDefault("cache_expiry", "90s"), "Redis sbom cache expiry")
 	runCmd.Flags().StringVar(&RunArgs.CacheEndpoint, "cache_endpoint", EnvOrDefault("cache_endpoint", ""), "Redis cache, e.g. redis://user:pwd@localhost:6379/0")
+	runCmd.Flags().StringVar(&RunArgs.MqEndpoint, "mq_endpoint", EnvOrDefault("mq_endpoint", ""), "Redis message queue, e.g. redis://user:pwd@localhost:6379/1")
 
 	runCmd.MarkFlagRequired("engine")
 	runCmd.MarkFlagRequired("image")
@@ -98,12 +102,12 @@ var runCmd = &cobra.Command{
 		scanTimeout := utils.DurationOr(ScanArgs.ScanTimeout, 90*time.Second)
 		cacheExpiry := utils.DurationOr(ScanArgs.CacheExpiry, 90*time.Second)
 
-		ExecuteRunScan(RunArgs.ScanEngine, RunArgs.TasksFile, RunArgs.RepoAuth, scanTimeout, cacheExpiry, RunArgs.OutDir, RunArgs.CacheEndpoint, logger)
+		ExecuteRunScan(RunArgs.ScanEngine, RunArgs.TasksFile, RunArgs.RepoAuth, scanTimeout, cacheExpiry, RunArgs.OutDir, RunArgs.CacheEndpoint, RunArgs.MqEndpoint, logger)
 
 	},
 }
 
-func ExecuteRunScan(engine, tasksFile, repoAuth string, scanTimeout, cacheExpiry time.Duration, outDir string, cacheEndpoint string, logger *zerolog.Logger) {
+func ExecuteRunScan(engine, tasksFile, repoAuth string, scanTimeout, cacheExpiry time.Duration, outDir string, cacheEndpoint, mqEndpoint string, logger *zerolog.Logger) {
 
 	logger.Info().Msg("-----< Scanner Run/queue processing >-----")
 	logger.Info().
@@ -114,6 +118,7 @@ func ExecuteRunScan(engine, tasksFile, repoAuth string, scanTimeout, cacheExpiry
 		Any("scan_timeout", scanTimeout.String()).
 		Any("cache_expiry", cacheExpiry.String()).
 		Str("cache_endpoint", utils.MaskDsn(cacheEndpoint)).
+		Str("mq_endpoint", utils.MaskDsn(mqEndpoint)).
 		Msg("")
 
 	// initialize
@@ -126,21 +131,53 @@ func ExecuteRunScan(engine, tasksFile, repoAuth string, scanTimeout, cacheExpiry
 
 	ctx := context.Background()
 
-	// connect redis for key value cache
-	kvc, err := cache.NewPharosCache(cacheEndpoint, logger)
-	if err != nil {
+	var kvc *cache.PharosCache                                                          // redis cache
+	var tmq *integrations.RedisGtrsClient[model.PharosScanTask, model.PharosScanResult] // redis task queue
+
+	// create redis KV cache
+	if kvc, err = cache.NewPharosCache(cacheEndpoint, logger); err != nil {
 		logger.Fatal().Err(err).Msg("Redis cache create")
 	}
 	defer kvc.Close()
 
-	if err = kvc.Connect(ctx); err != nil {
-		logger.Fatal().Err(err).Msg("Redis cache connect")
+	// create mq queue
+	if tmq, err = integrations.NewRedisGtrsClientStefan[model.PharosScanTask, model.PharosScanResult](ctx, mqEndpoint, "scan_task", "scan_result"); err != nil {
+		logger.Fatal().Err(err).Msg("NewRedisGtrsClientStefan()")
 	}
-	logger.Info().Str("redis_version", kvc.Version(ctx)).Msg("PharosCache.Connect() OK")
+	defer tmq.Close()
+
+	// try connect: account for starupt delay of required pods/services
+	// TODO Stefan: refactor with loop over servies (with interface for Connect(), CheckConnect(), .. )
+	maxAttempts := 3
+	var err1 error
+	var err2 error
+
+	for connectCount := 1; connectCount < maxAttempts+1; connectCount++ {
+		logger.Info().Any("attempt", connectCount).Any("max", maxAttempts).Msg("service connect ..")
+		err1 = kvc.Connect(ctx)
+		err2 = tmq.Connect(ctx)
+		if err1 == nil && err2 == nil {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
+	if err1 != nil || err2 != nil {
+		logger.Fatal().Err(err1).Err(err2).Msg("service connect errors")
+	}
+	logger.Info().Msg("service connect OK")
 
 	// prepare auth (same for all images for testing)
 	if auth, err = model.NewPharosRepoAuth(repoAuth); err != nil {
 		logger.Fatal().Err(err).Msg("invalid repo auth definition")
+	}
+
+	err = tmq.ReceiveResponseStefan(ctx, func(msg gtrs.Message[model.PharosScanTask]) error {
+		fmt.Println("execute", msg.ID, msg.Data.ImageSpec.Image)
+		time.Sleep(1 * time.Second)
+		return nil
+	})
+	if err != nil {
+		logger.Fatal().Err(err).Msg("ReceiveResponseStefan()")
 	}
 
 	// get images to scan as []
