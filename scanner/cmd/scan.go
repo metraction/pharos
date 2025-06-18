@@ -29,7 +29,6 @@ type ScanArgsType = struct {
 	Platform    string
 	RepoAuth    string // Registry authority dsn
 	ScanTimeout string // sbom & scan execution timeout
-	TlsCheck    string // Skop TLS cert check when pulling images
 	//
 	CacheExpiry   string // how log to cache sboms in redis
 	CacheEndpoint string // redis://user:pwd@localhost:6379/0
@@ -45,7 +44,6 @@ func init() {
 	scanCmd.Flags().StringVar(&ScanArgs.Image, "image", EnvOrDefault("image", ""), "Image to scan, e.g. docker.io/alpine:3.16")
 	scanCmd.Flags().StringVar(&ScanArgs.Platform, "platform", EnvOrDefault("platform", "linux/amd64"), "Image platform")
 	scanCmd.Flags().StringVar(&ScanArgs.RepoAuth, "repo_auth", EnvOrDefault("repo_auth", ""), "Registry auth, e.g. registry://user:pwd@docker.io/?type=password")
-	scanCmd.Flags().StringVar(&ScanArgs.TlsCheck, "tlscheck", EnvOrDefault("tlscheck", "on"), "Check TLS cert (on), skip check (off)")
 
 	scanCmd.Flags().StringVar(&ScanArgs.ScanTimeout, "scan_timeout", EnvOrDefault("scan_timeout", "180s"), "Scan timeout")
 	scanCmd.Flags().StringVar(&ScanArgs.CacheExpiry, "cache_expiry", EnvOrDefault("cache_expiry", "90s"), "Redis sbom cache expiry")
@@ -70,15 +68,14 @@ var scanCmd = &cobra.Command{
 	Long:  `Scan one asset then exit`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		tlsCheck := utils.ToBool(ScanArgs.TlsCheck)
 		scanTimeout := utils.DurationOr(ScanArgs.ScanTimeout, 90*time.Second)
 		cacheExpiry := utils.DurationOr(ScanArgs.CacheExpiry, 90*time.Second)
 
-		ExecuteScan(ScanArgs.ScanEngine, ScanArgs.Image, ScanArgs.Platform, ScanArgs.RepoAuth, tlsCheck, scanTimeout, cacheExpiry, ScanArgs.CacheEndpoint, logger)
+		ExecuteScan(ScanArgs.ScanEngine, ScanArgs.Image, ScanArgs.Platform, ScanArgs.RepoAuth, scanTimeout, cacheExpiry, ScanArgs.CacheEndpoint, logger)
 	},
 }
 
-func ExecuteScan(engine, imageRef, platform, repoAuth string, tlsCheck bool, scanTimeout, cacheExpiry time.Duration, cacheEndpoint string, logger *zerolog.Logger) {
+func ExecuteScan(engine, imageRef, platform, repoAuth string, scanTimeout, cacheExpiry time.Duration, cacheEndpoint string, logger *zerolog.Logger) {
 
 	logger.Info().Msg("-----< Scanner Scan >-----")
 	logger.Info().
@@ -86,7 +83,6 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, tlsCheck bool, sca
 		Str("image", imageRef).
 		Str("platform", platform).
 		Str("repo_auth", utils.MaskDsn(repoAuth)).
-		Bool("tlscheck", tlsCheck).
 		Any("scan_timeout", scanTimeout.String()).
 		Any("cache_expiry", cacheExpiry.String()).
 		Str("cache_endpoint", utils.MaskDsn(cacheEndpoint)).
@@ -102,7 +98,7 @@ func ExecuteScan(engine, imageRef, platform, repoAuth string, tlsCheck bool, sca
 	ctx := context.Background()
 
 	// build scantask from arguments
-	if auth, err = model.NewPharosRepoAuth(repoAuth, tlsCheck); err != nil {
+	if auth, err = model.NewPharosRepoAuth(repoAuth); err != nil {
 		logger.Fatal().Err(err).Msg("invalid repo auth definition")
 	}
 	if task, err = model.NewPharosScanTask("", imageRef, platform, auth, cacheExpiry, scanTimeout); err != nil {
