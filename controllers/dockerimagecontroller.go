@@ -1,3 +1,5 @@
+// WIP - Not used yet. Will show how to imiplement CRUD actions
+
 package controllers
 
 import (
@@ -29,49 +31,29 @@ type DockerImageDigestInput struct {
 }
 
 func NewDockerImageController(group *huma.API) *DockerImageController {
-	controller := &DockerImageController{
+	dc := &DockerImageController{
 		Path: "/dockerimage",
 		Api:  group,
 	}
-	return controller
+	return dc
 }
 
-// func (c *DockerImageController) bindIdQuery(ctx *gin.Context) (interface{}, error) {
-// 	var query model.DockerImage
-// 	if _, ok := interface{}(query.SHA).(string); ok {
-// 		var idQuery IdQuery
-// 		err := ctx.ShouldBind(&idQuery)
-// 		if err != nil {
-// 			ctx.JSON(406, gin.H{"error": err.Error()})
-// 			return nil, err
-// 		}
-// 		return &idQuery, nil
-// 	} else {
-// 		err := ctx.ShouldBind(&query)
-// 		if err != nil {
-// 			ctx.JSON(406, gin.H{"error": err.Error()})
-// 			return nil, err
-// 		}
-// 		return &query, nil
-// 	}
-// }
-
-func (c *DockerImageController) AddRoutes() {
+func (dc *DockerImageController) AddRoutes() {
 	{
-		op, handler := c.Get()
-		huma.Register(*c.Api, op, handler)
+		op, handler := dc.Get()
+		huma.Register(*dc.Api, op, handler)
 	}
 	{
-		op, handler := c.GetAll()
-		huma.Register(*c.Api, op, handler)
+		op, handler := dc.GetAll()
+		huma.Register(*dc.Api, op, handler)
 	}
 }
 
-func (c *DockerImageController) Get() (huma.Operation, func(ctx context.Context, input *DockerImageDigestInput) (*DockerImageSingleOutput, error)) {
+func (dc *DockerImageController) Get() (huma.Operation, func(ctx context.Context, input *DockerImageDigestInput) (*DockerImageSingleOutput, error)) {
 	return huma.Operation{
 			OperationID: "GetDockerImage",
 			Method:      "GET",
-			Path:        c.Path + "/{digest}",
+			Path:        dc.Path + "/{digest}",
 			Summary:     "Get one Docker image by digest",
 			Description: "Retrieves a Docker image by its digest (SHA).",
 			Tags:        []string{"DockerImage"},
@@ -112,11 +94,11 @@ func (c *DockerImageController) Get() (huma.Operation, func(ctx context.Context,
 		}
 }
 
-func (c *DockerImageController) GetAll() (huma.Operation, func(ctx context.Context, input *struct{}) (*DockerImageMultipleOutput, error)) {
+func (dc *DockerImageController) GetAll() (huma.Operation, func(ctx context.Context, input *struct{}) (*DockerImageMultipleOutput, error)) {
 	return huma.Operation{
 			OperationID: "GetAllDockerImages",
 			Method:      "GET",
-			Path:        c.Path,
+			Path:        dc.Path,
 			Summary:     "Get all Docker images",
 			Description: "Retrieves all Docker images stored in the database.",
 			Tags:        []string{"DockerImage"},
@@ -147,11 +129,11 @@ func (c *DockerImageController) GetAll() (huma.Operation, func(ctx context.Conte
 		}
 }
 
-func (c *DockerImageController) CreateOrUpdate() (huma.Operation, func(ctx context.Context, input *model.DockerImage) (*DockerImageSingleOutput, error)) {
+func (dc *DockerImageController) CreateOrUpdate() (huma.Operation, func(ctx context.Context, input *model.DockerImage) (*DockerImageSingleOutput, error)) {
 	return huma.Operation{
 			OperationID: "GetDockerImage",
 			Method:      "POST",
-			Path:        c.Path + "/{digest}",
+			Path:        dc.Path + "/{digest}",
 			Summary:     "Get one Docker image by digest",
 			Description: "Retrieves a Docker image by its digest (SHA).",
 			Tags:        []string{"DockerImage"},
@@ -194,93 +176,3 @@ func (c *DockerImageController) CreateOrUpdate() (huma.Operation, func(ctx conte
 			}, nil
 		}
 }
-
-// func (c *DockerImageController) GetAll() []model.DockerImage {
-// 	handler := func(ctx *gin.Context) {
-// 		var values []model.DockerImage
-// 		databaseContext := ctx.MustGet("databaseContext").(*model.DatabaseContext)
-// 		databaseContext.DB.Find(&values)
-// 		ctx.JSON(200, values)
-// 	}
-// 	return handler
-// }
-
-// func (c *DockerImageController) GetById() gin.HandlerFunc {
-// 	handler := func(ctx *gin.Context) {
-// 		var values model.DockerImage
-// 		databaseContext := ctx.MustGet("databaseContext").(*model.DatabaseContext)
-// 		query, err := c.bindIdQuery(ctx)
-// 		if err != nil {
-// 			return
-// 		}
-// 		result := databaseContext.DB.First(&values, query)
-// 		if result.Error != nil {
-// 			ctx.JSON(404, gin.H{"error": result.Error.Error()})
-// 			return
-// 		}
-// 		ctx.JSON(200, values)
-// 	}
-// 	return gin.HandlerFunc(handler)
-// }
-
-// func (c *DockerImageController) Create() gin.HandlerFunc {
-// 	handler := func(ctx *gin.Context) {
-// 		databaseContext := ctx.MustGet("databaseContext").(*model.DatabaseContext)
-// 		var newEntry model.DockerImage
-// 		err := ctx.ShouldBind(&newEntry)
-// 		if err != nil {
-// 			ctx.JSON(406, gin.H{"error": err.Error()})
-// 			return
-// 		}
-// 		result := databaseContext.DB.Create(&newEntry)
-// 		if result.Error != nil {
-// 			ctx.JSON(404, gin.H{"error": result.Error.Error()})
-// 			return
-// 		}
-// 		ctx.JSON(200, newEntry)
-// 	}
-// 	return gin.HandlerFunc(handler)
-// }
-
-// func (c *DockerImageController) Update() gin.HandlerFunc {
-// 	handler := func(ctx *gin.Context) {
-// 		var values model.DockerImage
-// 		databaseContext := ctx.MustGet("databaseContext").(*model.DatabaseContext)
-// 		var updatedEntry model.DockerImage
-// 		err := ctx.ShouldBind(&updatedEntry)
-// 		if err != nil {
-// 			ctx.JSON(406, gin.H{"error": err.Error()})
-// 			return
-// 		}
-// 		result := databaseContext.DB.First(&values, updatedEntry.SHA)
-// 		if result.Error != nil {
-// 			ctx.JSON(404, gin.H{"error": result.Error.Error()})
-// 			return
-// 		}
-// 		result = databaseContext.DB.Save(&updatedEntry)
-// 		if result.Error != nil {
-// 			ctx.JSON(500, gin.H{"error": result.Error.Error()})
-// 			return
-// 		}
-// 		ctx.JSON(200, updatedEntry)
-// 	}
-// 	return gin.HandlerFunc(handler)
-// }
-
-// func (c *DockerImageController) Delete() gin.HandlerFunc {
-// 	handler := func(ctx *gin.Context) {
-// 		var values model.DockerImage
-// 		databaseContext := ctx.MustGet("databaseContext").(*model.DatabaseContext)
-// 		query, err := c.bindIdQuery(ctx)
-// 		if err != nil {
-// 			return
-// 		}
-// 		result := databaseContext.DB.Delete(&values, query)
-// 		if result.Error != nil {
-// 			ctx.JSON(500, gin.H{"error": result.Error.Error()})
-// 			return
-// 		}
-// 		ctx.JSON(200, gin.H{"success": "deleted"})
-// 	}
-// 	return gin.HandlerFunc(handler)
-//}
