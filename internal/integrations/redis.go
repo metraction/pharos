@@ -199,7 +199,6 @@ func (c *RedisGtrsServer[T, R]) ProcessRequest(ctx context.Context, handler func
 		req := msg.Data
 		// Process the request and produce a reply
 		result := handler(req)
-		fmt.Println("Replying to:", msg.ID, c.replyQueue)
 
 		// Try to add the response to the reply stream
 		replyID, err := c.replyStream.Add(ctx, result, msg.ID)
