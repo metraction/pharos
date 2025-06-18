@@ -1,9 +1,0 @@
-0	2025-06-16 11:08:03	syft	grype 0.92.2	get-digest	1.7e-05	0	0	0	docker.me/nginx:1.23
-1	2025-06-16 11:08:03	syft	grype 0.92.2	done	2.5222189999999998	321	257	317	quay.io/minio/minio:RELEASE.2022-08-13T21-54-44Z
-2	2025-06-16 11:08:06	syft	grype 0.92.2	done	2.451709	644	390	341	quay.io/openshift/origin-oauth-proxy:4.14.0
-0	2025-06-16 11:08:15	trivy	trivy 0.63.0	get-digest	1.1e-05	0	0	0	docker.me/nginx:1.23
-1	2025-06-16 11:08:15	trivy	trivy 0.63.0	done	2.70667	327	259	318	quay.io/minio/minio:RELEASE.2022-08-13T21-54-44Z
-2	2025-06-16 11:08:18	trivy	trivy 0.63.0	done	2.26873	47	44	319	quay.io/openshift/origin-oauth-proxy:4.14.0
-0	2025-06-16 11:08:46	trivy	trivy 0.63.0	get-digest	1e-05	0	0	0	docker.me/nginx:1.23
-1	2025-06-16 11:08:46	trivy	trivy 0.63.0	done	1.021562	327	259	318	quay.io/minio/minio:RELEASE.2022-08-13T21-54-44Z
-2	2025-06-16 11:08:48	trivy	trivy 0.63.0	done	1.016531	47	44	319	quay.io/openshift/origin-oauth-proxy:4.14.0
