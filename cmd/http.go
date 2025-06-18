@@ -25,12 +25,12 @@ These submissions are then published to a Redis stream for further processing by
 			return
 		}
 
-		ch, err := routing.NewPublisherFlow(cmd.Context(), currentConfig)
+		client, err := routing.NewPublisher(cmd.Context(), currentConfig)
 		if err != nil {
 			log.Fatal("Failed to create publisher flow:", err)
 			return
 		}
-		http.HandleFunc("/submit/image", routing.SubmitImageHandler(ch, currentConfig))
+		http.HandleFunc("/submit/image", routing.SubmitImageHandler(client, currentConfig))
 		serverAddr := fmt.Sprintf(":%d", httpPort)
 		log.Printf("Starting HTTP server on %s\n", serverAddr)
 		log.Printf("Listening for POST requests on /submit/image\n")
