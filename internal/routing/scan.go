@@ -2,6 +2,7 @@ package routing
 
 import (
 	"context"
+	"time"
 
 	"github.com/metraction/pharos/internal/integrations"
 	"github.com/metraction/pharos/internal/logging"
@@ -26,9 +27,22 @@ func NewScannerFlow(ctx context.Context, cfg *model.Config) error {
 	if err != nil {
 		logger.Fatal().Err(err).Msg("Redis cache create")
 	}
-	defer kvc.Close()
+	// TODO close cache connection on shutdown
+	// defer kvc.Close()
+	if err = kvc.Connect(ctx); err != nil {
+		logger.Fatal().Err(err).Msg("Redis cache connect")
+	}
+	logger.Info().Str("redis_version", kvc.Version(ctx)).Msg("PharosCache.Connect() OK")
 
 	var scanEngine *grype.GrypeScanner
+	// create scanner & update database
+	scanTimeout, err := time.ParseDuration(cfg.Scanner.Timeout)
+	if err != nil {
+		logger.Fatal().Err(err).Msg("time.ParseDuration()")
+	}
+	if scanEngine, err = grype.NewGrypeScanner(scanTimeout, true, logger); err != nil {
+		logger.Fatal().Err(err).Msg("NewGrypeScanner()")
+	}
 
 	go server.ProcessRequest(ctx, func(task model.PharosScanTask) model.PharosScanResult {
 		logger.Debug().Msg("Processing scan request: " + task.ImageSpec.Image)

@@ -22,8 +22,8 @@ var scannerCmd = &cobra.Command{
 	Long:  `Run the vulnerability scanner against specified targets or configurations.`, // You can customize this more
 	Run: func(cmd *cobra.Command, args []string) {
 		config := cmd.Context().Value("config").(*model.Config)
-		fmt.Println("Using config:", config)
 		// Create a new context that can be cancelled.
+		fmt.Println("Starting scanner...", config.Scanner)
 		ctx, cancel := context.WithCancel(cmd.Context())
 		defer cancel() // Ensure cancel is called on exit to clean up resources
 

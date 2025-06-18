@@ -5,8 +5,8 @@ type ScannerConfig struct {
 	RequestQueue  string `mapstructure:"requestQueue"`
 	ResponseQueue string `mapstructure:"responseQueue"`
 	Timeout       string `mapstructure:"timeout"`
-	CacheExpiry   string `mapstructure:"cache-expiry"`
-	CacheEndpoint string `mapstructure:"cache-endpoint"`
+	CacheExpiry   string `mapstructure:"cacheExpiry"`
+	CacheEndpoint string `mapstructure:"cacheEndpoint"`
 	Engine        string `mapstructure:"engine"`
 }
 
@@ -14,6 +14,7 @@ type ScannerConfig struct {
 type PublisherConfig struct {
 	RequestQueue  string `mapstructure:"requestQueue"`
 	ResponseQueue string `mapstructure:"responseQueue"`
+	Timeout       string `mapstructure:"timeout"`
 }
 
 // Config holds the application configuration.

@@ -131,10 +131,16 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.pharos.yaml)") // cfgFile is handled specially for file loading, so direct binding is fine.
 	rootCmd.PersistentFlags().String("redis.dsn", "localhost:6379", "Redis address")                           // Use dot-notation for Viper key compatibility with nested structs.
+
 	rootCmd.PersistentFlags().String("publisher.requestQueue", "scantasks", "Redis stream for requests")
-	rootCmd.PersistentFlags().String("scanner.requestQueue", "scantasks", "Redis stream for requests")
 	rootCmd.PersistentFlags().String("publisher.responseQueue", "scanresult", "Redis stream for responses")
+	rootCmd.PersistentFlags().String("publisher.timeout", "30s", "Publisher timeout")
+
+	rootCmd.PersistentFlags().String("scanner.requestQueue", "scantasks", "Redis stream for requests")
 	rootCmd.PersistentFlags().String("scanner.responseQueue", "scanresult", "Redis stream for responses")
+	rootCmd.PersistentFlags().String("scanner.timeout", "30s", "Scanner timeout")
+	rootCmd.PersistentFlags().String("scanner.cacheEndpoint", "redis://localhost:6379", "Scanner cache endpoint")
+
 	rootCmd.PersistentFlags().String("database.driver", "postgres", "Database driver for the scanner, can be 'sqlite' or 'postgres', `sqlite` is default.")
 	defaultDSN := fmt.Sprintf("postgres://postgres:postgres@localhost:5432/pharos?sslmode=disable") // run `brew install db-browser-for-sqlite` to view the database.
 	rootCmd.PersistentFlags().String("database.dsn", defaultDSN, "Database DSN for the scanner, for sqlite it is the file name (default is $HOME/.pharos.db, can be 'file::memory:?cache=shared'), for postgres it is the connection string.")

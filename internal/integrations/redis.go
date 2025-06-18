@@ -89,19 +89,30 @@ type RedisGtrsClient[T any, R any] struct {
 	requestQueue string
 	replyQueue   string
 	zeroValue    R
+	timeout      time.Duration
 }
 
-func NewRedisGtrsClient[T any, R any](ctx context.Context, redisCfg model.Redis, requestQueue string, replyQueue string) (*RedisGtrsClient[T, R], error) {
+func NewRedisGtrsClient[T any, R any](ctx context.Context, redisCfg *model.Config, requestQueue string, replyQueue string) (*RedisGtrsClient[T, R], error) {
 	rdb := redis.NewClient(&redis.Options{
-		Addr: redisCfg.DSN,
+		Addr: redisCfg.Redis.DSN,
 	})
+
+	timeout, err := time.ParseDuration(redisCfg.Publisher.Timeout)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse timeout: %w", err)
+	}
 
 	if err := rdb.Ping(ctx).Err(); err != nil {
 		rdb.Close()
-		return nil, fmt.Errorf("failed to connect to Redis at %s for sink: %w", redisCfg.DSN, err)
+		return nil, fmt.Errorf("failed to connect to Redis at %s for sink: %w", redisCfg.Redis.DSN, err)
 	}
 	stream := gtrs.NewStream[T](rdb, requestQueue, nil)
-	return &RedisGtrsClient[T, R]{rdb: rdb, stream: &stream, requestQueue: requestQueue, replyQueue: replyQueue}, nil
+	return &RedisGtrsClient[T, R]{
+		rdb:          rdb,
+		stream:       &stream,
+		requestQueue: requestQueue,
+		replyQueue:   replyQueue,
+		timeout:      timeout}, nil
 }
 
 /*
@@ -113,7 +124,7 @@ func (c *RedisGtrsClient[T, R]) RequestReply(ctx context.Context, payload T) (R,
 	if err != nil {
 		return c.zeroValue, err
 	}
-	return c.ReceiveResponse(ctx, corrID, 10*time.Second)
+	return c.ReceiveResponse(ctx, corrID, c.timeout)
 }
 
 func (c *RedisGtrsClient[T, R]) SendRequest(ctx context.Context, payload T) (error, string) {

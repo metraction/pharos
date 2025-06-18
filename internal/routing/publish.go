@@ -12,7 +12,7 @@ import (
 )
 
 func NewPublisher(ctx context.Context, cfg *model.Config) (*integrations.RedisGtrsClient[model.PharosScanTask, model.PharosScanResult], error) {
-	client, err := integrations.NewRedisGtrsClient[model.PharosScanTask, model.PharosScanResult](ctx, cfg.Redis, cfg.Publisher.RequestQueue, cfg.Publisher.ResponseQueue)
+	client, err := integrations.NewRedisGtrsClient[model.PharosScanTask, model.PharosScanResult](ctx, cfg, cfg.Publisher.RequestQueue, cfg.Publisher.ResponseQueue)
 	return client, err
 }
 
@@ -33,8 +33,8 @@ func SubmitImageHandler(client *integrations.RedisGtrsClient[model.PharosScanTas
 		fmt.Println("Sending image scan request:", request, " to ", cfg.Publisher.RequestQueue)
 		response, err := client.RequestReply(r.Context(), request)
 		if err != nil {
-			log.Printf("Failed to send image %s to stream %s: %v\n", request.ImageSpec, cfg.Publisher.RequestQueue, err)
-			http.Error(w, "Failed to send image to stream", http.StatusInternalServerError)
+			log.Printf("Failed to get result for %s %v\n", request.ImageSpec, err)
+			http.Error(w, "Failed to get result", http.StatusInternalServerError)
 			return
 		}
 
