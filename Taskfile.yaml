@@ -54,13 +54,15 @@ tasks:
       - mkdir -p {{.devdir}}/certs
       - mkdir -p _registry
 
-      # create stuff for local registry
-      - echo "Generate htpasswd for registry .."
+      # create registry htpasswd
+      - echo "Generate registry htpasswd registry .."
       - '{{.PODEXE}} run --rm --entrypoint htpasswd httpd:2 -Bbn {{.REGISTRY_USER}} {{.REGISTRY_PASSWORD}} > {{.devdir}}/htpasswd'
-      - echo "Generate certificats for registry .."
+      
+      # create registry certificates
+      - echo "Generate registry certificats .."
       - openssl req -newkey rsa:4096 -nodes -sha256 -addext "subjectAltName=DNS:localhost" -keyout {{.devdir}}/certs/domain.key -x509 -days 365 -out {{.devdir}}/certs/domain.crt -subj "/CN=localhost" 2>/dev/null
 
-      # trust certificate for docker/podman client
+      # create registry certificates
       - echo "**** copy domain.crt to {{.PODEXE}} certificate to the client trust it ****"
       - echo "podman             cp {{.devdir}}/certs/domain.crt /etc/containers/certs.d/localhost:5000/ca.crt"
       - echo "podman (rootless)  cp {{.devdir}}/certs/domain.crt ~/.config/containers/certs.d/localhost:5000/ca.crt"

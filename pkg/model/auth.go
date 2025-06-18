@@ -5,20 +5,22 @@ import (
 	"strings"
 
 	"github.com/kos-v/dsnparser"
+	"github.com/metraction/pharos/internal/utils"
 )
 
 // authentication for image repos
 type PharosRepoAuth struct {
 	Authority string `json:"authority"`
-	TlsCheck  bool   `json:"tlscheck"` // disable TLS cert check for authority
 	Username  string `json:"username"`
 	Password  string `json:"password"`
 	Token     string `json:"token"`
+	//
+	TlsCheck bool `json:"tlscheck"` // disable TLS cert check for authority
 }
 
-func NewPharosRepoAuth(authDsn string, tlsCheck bool) (PharosRepoAuth, error) {
+func NewPharosRepoAuth(authDsn string) (PharosRepoAuth, error) {
 	auth := PharosRepoAuth{
-		TlsCheck: tlsCheck,
+		TlsCheck: true,
 	}
 	if err := auth.FromDsn(authDsn); err != nil {
 		return PharosRepoAuth{}, err
@@ -42,11 +44,16 @@ func (rx PharosRepoAuth) HasAuth(imageRef string) bool {
 
 // return DSN without password
 func (rx PharosRepoAuth) ToMaskedDsn(mask string) string {
-	if rx.Password != "" {
-		return fmt.Sprintf("registry://%s:%s@%s", rx.Username, mask, rx.Authority)
-	}
+
 	if rx.Token != "" {
-		return fmt.Sprintf("registry://%s:%s@%s", rx.Token, "", rx.Authority)
+		return fmt.Sprintf("registry://%s:%s@%s/?tlscheck=%v", rx.Token, "", rx.Authority, rx.TlsCheck)
+	}
+
+	if rx.Password != "" {
+		return fmt.Sprintf("registry://%s:%s@%s/?tlscheck=%v", rx.Username, mask, rx.Authority, rx.TlsCheck)
+	}
+	if rx.Authority != "" {
+		return fmt.Sprintf("registry://%s/?tlscheck=%v", rx.Authority, rx.TlsCheck)
 	}
 	return ""
 }
@@ -61,6 +68,7 @@ func (rx *PharosRepoAuth) FromDsn(input string) error {
 	rx.Username = ""
 	rx.Password = ""
 	rx.Token = ""
+	rx.TlsCheck = true
 
 	// no input is avlid to streamline code flow in calls
 	if input == "" {
@@ -75,15 +83,21 @@ func (rx *PharosRepoAuth) FromDsn(input string) error {
 	if dsn.GetPort() != "" {
 		rx.Authority = dsn.GetHost() + ":" + dsn.GetPort()
 	}
-	fmt.Printf("auth u=%s, p=%s, h=%s, p=%s\n", dsn.GetUser(), dsn.GetPassword(), dsn.GetHost(), dsn.GetPort())
-
-	if dsn.GetUser() != "" && dsn.GetPassword() != "" {
-		rx.Username = dsn.GetUser()
-		rx.Password = dsn.GetPassword()
-		return nil
+	// only set tlscheck if given:
+	if dsn.GetParam("tlscheck") != "" {
+		rx.TlsCheck = utils.ToBool(dsn.GetParam("tlscheck"))
 	}
-	if dsn.GetUser() != "" {
-		rx.Token = dsn.GetUser()
+
+	if rx.Authority != "" {
+		if dsn.GetUser() != "" && dsn.GetPassword() != "" {
+			rx.Username = dsn.GetUser()
+			rx.Password = dsn.GetPassword()
+			return nil
+		}
+		if dsn.GetUser() != "" {
+			rx.Token = dsn.GetUser()
+			return nil
+		}
 		return nil
 	}
 	return fmt.Errorf("invalid auth dsn: %s", input)
