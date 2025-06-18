@@ -114,7 +114,7 @@ func (rx *TrivySbomCreator) CreateSbom(task model.PharosScanTask, format string)
 	if ctx.Err() == context.DeadlineExceeded {
 		return trivytype.TrivySbomType{}, nil, fmt.Errorf("create sbom: timeout after %s", rx.Timeout.String())
 	} else if err != nil {
-		return trivytype.TrivySbomType{}, nil, fmt.Errorf(utils.NoColorCodes(stderr.String()))
+		return trivytype.TrivySbomType{}, nil, fmt.Errorf("%s", utils.NoColorCodes(stderr.String()))
 	}
 
 	// get and parse sbom

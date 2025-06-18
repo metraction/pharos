@@ -96,7 +96,7 @@ func (rx *GrypeScanner) GetVersion() error {
 	err = result.FromBytes(stdout.Bytes())
 
 	if err != nil {
-		return fmt.Errorf(utils.NoColorCodes(stderr.String()))
+		return fmt.Errorf("%s", utils.NoColorCodes(stderr.String()))
 	}
 	rx.ScannerVersion = result.GrypeVersion
 
@@ -117,13 +117,13 @@ func (rx *GrypeScanner) GetDatabaseState() error {
 
 	err := cmd.Run()
 	if err != nil {
-		return fmt.Errorf(utils.NoColorCodes(stderr.String()))
+		return fmt.Errorf("%s", utils.NoColorCodes(stderr.String()))
 	}
 
 	result := GrypeLocalDbState{}
 	if err := result.FromBytes(stdout.Bytes()); err != nil {
 		msg := TranslateMessage(stderr.String())
-		return fmt.Errorf(utils.NoColorCodes(msg))
+		return fmt.Errorf("%s", utils.NoColorCodes(msg))
 	}
 	rx.DatabaseVersion = result.SchemaVersion
 	rx.DatabaseUpdated = result.Built
@@ -149,7 +149,7 @@ func (rx *GrypeScanner) UpdateDatabase() error {
 
 	err := cmd.Run()
 	if err != nil {
-		return fmt.Errorf(utils.NoColorCodes(stderr.String()))
+		return fmt.Errorf("%s", utils.NoColorCodes(stderr.String()))
 	}
 	if err := rx.GetDatabaseState(); err != nil {
 		return err
@@ -202,7 +202,7 @@ func (rx *GrypeScanner) VulnScanSbom(sbom []byte) (grypetype.GrypeScanType, []by
 	if ctx.Err() == context.DeadlineExceeded {
 		return grypetype.GrypeScanType{}, nil, fmt.Errorf("scan sbom: timeout after %s", rx.ScanTimeout.String())
 	} else if err != nil {
-		return grypetype.GrypeScanType{}, nil, fmt.Errorf(utils.NoColorCodes(stderr.String()))
+		return grypetype.GrypeScanType{}, nil, fmt.Errorf("%s", utils.NoColorCodes(stderr.String()))
 	}
 
 	// parse into grype scan model

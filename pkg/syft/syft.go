@@ -124,7 +124,7 @@ func (rx *SyftSbomCreator) CreateSbom(task model.PharosScanTask, format string) 
 	if ctx.Err() == context.DeadlineExceeded {
 		return syfttype.SyftSbomType{}, nil, fmt.Errorf("create sbom: timeout after %s", rx.Timeout.String())
 	} else if err != nil {
-		return syfttype.SyftSbomType{}, nil, fmt.Errorf(utils.NoColorCodes(stderr.String()))
+		return syfttype.SyftSbomType{}, nil, fmt.Errorf("%s", utils.NoColorCodes(stderr.String()))
 	}
 
 	// get and parse sbom
