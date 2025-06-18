@@ -17,7 +17,8 @@ var logger *zerolog.Logger
 func NewScannerFlow(ctx context.Context, cfg *model.Config) error {
 	logger = logging.NewLogger("info")
 
-	server, err := integrations.NewRedisGtrsServer[model.PharosScanTask, model.PharosScanResult](ctx, cfg.Redis, cfg.Scanner.RequestQueue, cfg.Scanner.ResponseQueue)
+	server, err := integrations.NewRedisGtrsServer[model.PharosScanTask, model.PharosScanResult](
+		ctx, cfg.Redis, cfg.Scanner.RequestQueue, cfg.Scanner.ResponseQueue)
 	if err != nil {
 		return err
 	}
@@ -50,6 +51,11 @@ func NewScannerFlow(ctx context.Context, cfg *model.Config) error {
 		if err != nil {
 			logger.Fatal().Err(err).Msg("grype.ScanImage()")
 		}
+
+		// Log the number of findings, vulnerabilities, and packages before sending
+		logger.Info().Int("findings", len(result.Findings)).Int("vulns", len(result.Vulnerabilities)).Int("pkgs", len(result.Packages)).Msg("Sending scan results")
+		
+		// Now we can return the original result since we've fixed the serialization at the model level
 		return result
 	})
 	return nil

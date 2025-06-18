@@ -4,9 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/metraction/pharos/internal/integrations"
 	"github.com/metraction/pharos/pkg/model"
 )
@@ -24,16 +27,60 @@ func SubmitImageHandler(client *integrations.RedisGtrsClient[model.PharosScanTas
 			return
 		}
 
-		var request model.PharosScanTask
-		if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-			http.Error(w, "Invalid request body", http.StatusBadRequest)
+		// Try to parse as a simple image request first
+		var simpleRequest struct {
+			Image string `json:"image"`
+		}
+
+		bodyBytes, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Error reading request body", http.StatusBadRequest)
 			return
 		}
-		defer r.Body.Close()
+		r.Body.Close()
+
+		// First try to parse as a simple image request
+		var request model.PharosScanTask
+
+		if err := json.Unmarshal(bodyBytes, &simpleRequest); err == nil && simpleRequest.Image != "" {
+			// Successfully parsed simple request with image field
+			timeout, err := time.ParseDuration(cfg.Publisher.Timeout)
+			if err != nil {
+				timeout = 30 * time.Second
+			}
+
+			// Create a full scan task from the simple image name
+			request, err = model.NewPharosScanTask(
+				uuid.New().String(),            // jobId
+				simpleRequest.Image,           // imageRef
+				"linux/amd64",                // platform
+				model.PharosRepoAuth{},       // auth
+				24*time.Hour,                // cacheExpiry
+				timeout,                     // scanTimeout
+			)
+			if err != nil {
+				log.Printf("Error creating scan task: %v\n", err)
+				http.Error(w, "Error creating scan task", http.StatusInternalServerError)
+				return
+			}
+		} else {
+			// Try parsing as a full PharosScanTask
+			if err := json.Unmarshal(bodyBytes, &request); err != nil {
+				http.Error(w, "Invalid request format", http.StatusBadRequest)
+				return
+			}
+		}
+
+		// Make sure we have an image to scan
+		if request.ImageSpec.Image == "" {
+			http.Error(w, "Missing image specification", http.StatusBadRequest)
+			return
+		}
+
 		fmt.Println("Sending image scan request:", request, " to ", cfg.Publisher.RequestQueue)
 		response, err := client.RequestReply(r.Context(), request)
 		if err != nil {
-			log.Printf("Failed to get result for %s %v\n", request.ImageSpec, err)
+			log.Printf("Failed to get result for %s: %v\n", request.ImageSpec.Image, err)
 			http.Error(w, "Failed to get result", http.StatusInternalServerError)
 			return
 		}

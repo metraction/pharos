@@ -15,17 +15,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestMessage is a simple message type for testing
-type TestMessage struct {
-	ID      string `json:"id"`
-	Content string `json:"content"`
-}
-
-// TestResponse is a simple response type for testing
-type TestResponse struct {
-	RequestID string `json:"request_id"`
-	Result    string `json:"result"`
-}
+// We'll use the actual model types for testing
+// PharosScanTask and PharosScanResult are defined in pkg/model
 
 func setupRedisTest(t *testing.T) (*miniredis.Miniredis, model.Redis) {
 	// Check if REDIS_DSN environment variable is set
@@ -62,20 +53,40 @@ func TestIntegrationClientServer(t *testing.T) {
 	if mr != nil {
 		defer mr.Close()
 	}
+	config := &model.Config{
+		Redis: redisCfg,
+		Publisher: model.PublisherConfig{
+			Timeout: "5s",
+		},
+	}
 
 	ctx := context.Background()
 
 	// Create server
-	server, err := NewRedisGtrsServer[TestMessage, TestResponse](ctx, redisCfg, "test_requests", "test_responses")
+	server, err := NewRedisGtrsServer[model.PharosScanTask, model.PharosScanResult](ctx, redisCfg, "test_requests", "test_responses")
 	require.NoError(t, err)
 
 	// Create a mock handler function
-	mockHandler := func(msg TestMessage) TestResponse {
+	mockHandler := func(task model.PharosScanTask) model.PharosScanResult {
 		// Simulate some processing time to test concurrency
 		time.Sleep(50 * time.Millisecond)
-		return TestResponse{
-			RequestID: msg.ID,
-			Result:    "Processed: " + msg.Content,
+
+		// Create a simple scan result
+		return model.PharosScanResult{
+			Version:  "1.0",
+			ScanTask: task,
+			ScanEngine: model.PharosScanEngine{
+				Name:    "test-engine",
+				Version: "1.0",
+			},
+			Image: model.PharosImageMeta{
+				ImageSpec: task.ImageSpec.Image,
+				ImageId:   "test-image-id",
+				Digest:    "sha256:test",
+			},
+			Findings:        []model.PharosScanFinding{},
+			Vulnerabilities: []model.PharosVulnerability{},
+			Packages:        []model.PharosPackage{},
 		}
 	}
 
@@ -88,7 +99,7 @@ func TestIntegrationClientServer(t *testing.T) {
 	}()
 
 	// Create client
-	client, err := NewRedisGtrsClient[TestMessage, TestResponse](ctx, redisCfg, "test_requests", "test_responses")
+	client, err := NewRedisGtrsClient[model.PharosScanTask, model.PharosScanResult](ctx, config, "test_requests", "test_responses")
 	require.NoError(t, err)
 
 	// Number of concurrent requests to send
@@ -100,7 +111,7 @@ func TestIntegrationClientServer(t *testing.T) {
 
 	// Create a mutex to protect access to the results map
 	resultsMutex := sync.Mutex{}
-	results := make(map[string]TestResponse)
+	results := make(map[string]model.PharosScanResult)
 	errors := make([]error, 0)
 
 	// Send multiple requests in parallel
@@ -108,15 +119,27 @@ func TestIntegrationClientServer(t *testing.T) {
 		go func(index int) {
 			defer wg.Done()
 
-			// Create a unique message
-			msgID := uuid.New().String()
-			msg := TestMessage{
-				ID:      msgID,
-				Content: fmt.Sprintf("Test parallel request %d", index),
+			// Create a unique task ID
+			taskID := uuid.New().String()
+
+			// Create a scan task
+			task, err := model.NewPharosScanTask(
+				taskID,
+				fmt.Sprintf("test-image-%d", index),
+				"",                     // platform
+				model.PharosRepoAuth{}, // auth
+				1*time.Hour,            // cache expiry
+				30*time.Second,         // scan timeout
+			)
+			if err != nil {
+				resultsMutex.Lock()
+				errors = append(errors, fmt.Errorf("failed to create task %d: %w", index, err))
+				resultsMutex.Unlock()
+				return
 			}
 
 			// Send the request
-			err, corrID := client.SendRequest(ctx, msg)
+			response, err := client.RequestReply(ctx, task)
 			if err != nil {
 				resultsMutex.Lock()
 				errors = append(errors, fmt.Errorf("request %d failed: %w", index, err))
@@ -124,18 +147,9 @@ func TestIntegrationClientServer(t *testing.T) {
 				return
 			}
 
-			// Wait for response with timeout
-			response, err := client.ReceiveResponse(ctx, corrID, 5*time.Second)
-			if err != nil {
-				resultsMutex.Lock()
-				errors = append(errors, fmt.Errorf("response %d failed: %w", index, err))
-				resultsMutex.Unlock()
-				return
-			}
-
 			// Store the result
 			resultsMutex.Lock()
-			results[msgID] = response
+			results[taskID] = response
 			resultsMutex.Unlock()
 		}(i)
 	}
@@ -150,8 +164,8 @@ func TestIntegrationClientServer(t *testing.T) {
 	assert.Equal(t, numRequests, len(results), "Should receive exactly %d responses", numRequests)
 
 	// Verify each response matches its request
-	for msgID, response := range results {
-		assert.Equal(t, msgID, response.RequestID, "Response ID should match request ID")
-		assert.Contains(t, response.Result, "Processed: Test parallel request", "Response should contain expected content")
+	for taskID, response := range results {
+		assert.Equal(t, taskID, response.ScanTask.JobId, "Response task ID should match request ID")
+		assert.Equal(t, "test-engine", response.ScanEngine.Name, "Response should contain expected engine name")
 	}
 }

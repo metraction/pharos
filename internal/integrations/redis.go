@@ -3,9 +3,10 @@ package integrations
 import (
 	"context"
 	"fmt"
-	"log/slog" // Added for slog.Default()
 	"strings"
 	"time"
+
+	"log/slog" // Added for slog.Default()
 
 	"github.com/dranikpg/gtrs"
 	"github.com/metraction/pharos/pkg/model"
@@ -84,12 +85,12 @@ func NewRedisStreamSink(ctx context.Context, redisCfg model.Redis, streamName st
 }
 
 type RedisGtrsClient[T any, R any] struct {
-	rdb          *redis.Client
-	stream       *gtrs.Stream[T]
-	requestQueue string
-	replyQueue   string
-	zeroValue    R
-	timeout      time.Duration
+	rdb           *redis.Client
+	requestStream *gtrs.Stream[T]
+	requestQueue  string
+	replyQueue    string
+	zeroValue     R
+	timeout       time.Duration
 }
 
 func NewRedisGtrsClient[T any, R any](ctx context.Context, redisCfg *model.Config, requestQueue string, replyQueue string) (*RedisGtrsClient[T, R], error) {
@@ -108,11 +109,11 @@ func NewRedisGtrsClient[T any, R any](ctx context.Context, redisCfg *model.Confi
 	}
 	stream := gtrs.NewStream[T](rdb, requestQueue, nil)
 	return &RedisGtrsClient[T, R]{
-		rdb:          rdb,
-		stream:       &stream,
-		requestQueue: requestQueue,
-		replyQueue:   replyQueue,
-		timeout:      timeout}, nil
+		rdb:           rdb,
+		requestStream: &stream,
+		requestQueue:  requestQueue,
+		replyQueue:    replyQueue,
+		timeout:       timeout}, nil
 }
 
 /*
@@ -128,7 +129,7 @@ func (c *RedisGtrsClient[T, R]) RequestReply(ctx context.Context, payload T) (R,
 }
 
 func (c *RedisGtrsClient[T, R]) SendRequest(ctx context.Context, payload T) (error, string) {
-	corrID, err := c.stream.Add(ctx, payload)
+	corrID, err := c.requestStream.Add(ctx, payload)
 	return err, corrID
 }
 
@@ -140,6 +141,7 @@ func (c *RedisGtrsClient[T, R]) ReceiveResponse(ctx context.Context, corrID stri
 		BufferSize: 50,
 	})
 	defer replyConsumer.Close()
+	fmt.Println("Waiting for reply on:", c.replyQueue, corrID)
 	for msg := range replyConsumer.Chan() {
 		if msg.Err != nil {
 			continue
@@ -158,6 +160,7 @@ type RedisGtrsServer[T any, R any] struct {
 	rdb          *redis.Client
 	requestQueue string
 	replyQueue   string
+	replyStream  *gtrs.Stream[R]
 }
 
 func NewRedisGtrsServer[T any, R any](ctx context.Context, redisCfg model.Redis, requestQueue string, replyQueue string) (*RedisGtrsServer[T, R], error) {
@@ -170,7 +173,13 @@ func NewRedisGtrsServer[T any, R any](ctx context.Context, redisCfg model.Redis,
 		return nil, fmt.Errorf("failed to connect to Redis at %s for sink: %w", redisCfg.DSN, err)
 	}
 	fmt.Println("Connected to Redis at:", redisCfg.DSN, requestQueue, replyQueue)
-	return &RedisGtrsServer[T, R]{rdb: rdb, requestQueue: requestQueue, replyQueue: replyQueue}, nil
+	replyStream := gtrs.NewStream[R](rdb, replyQueue, nil)
+
+	return &RedisGtrsServer[T, R]{
+		rdb:          rdb,
+		requestQueue: requestQueue,
+		replyQueue:   replyQueue,
+		replyStream:  &replyStream}, nil
 }
 
 func (c *RedisGtrsServer[T, R]) ProcessRequest(ctx context.Context, handler func(T) R) {
@@ -189,8 +198,17 @@ func (c *RedisGtrsServer[T, R]) ProcessRequest(ctx context.Context, handler func
 		}
 		req := msg.Data
 		// Process the request and produce a reply
-		replyStream := gtrs.NewStream[R](c.rdb, c.replyQueue, nil)
-		replyStream.Add(ctx, handler(req), msg.ID)
+		result := handler(req)
+		fmt.Println("Replying to:", msg.ID, c.replyQueue)
+
+		// Try to add the response to the reply stream
+		replyID, err := c.replyStream.Add(ctx, result, msg.ID)
+		if err != nil {
+			fmt.Printf("ERROR sending reply: %v\n", err)
+		} else {
+			fmt.Printf("Successfully sent reply with ID: %s\n", replyID)
+		}
+
 		// Once it is in response queue, take it out of request queue
 		consumer.Ack(msg)
 	}
