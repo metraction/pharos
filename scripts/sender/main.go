@@ -6,6 +6,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"os"
 	"time"
 
@@ -24,6 +25,7 @@ type CityType struct {
 	Id      int
 	Created time.Time
 	Name    string
+	Trigger int
 }
 type DummyType int
 
@@ -43,6 +45,7 @@ func main() {
 	sleep := flag.Duration("sleep", 500*time.Millisecond, "sleep duration")
 	action := flag.String("action", "", "action [tx,rx]")
 	samples := flag.Int("samples", 3, "number of samples to send")
+	errors := flag.Int("errors", 0, "trigger error in handler for every N tasks (0=no errors)")
 	consumerName := flag.String("consumer", "", "consumer name for reading")
 	redisEndpoint := flag.String("endpoint", "redis://:pwd@localhost:6379/0", "Redis endpoint")
 
@@ -60,11 +63,12 @@ func main() {
 		Str("consumerName", *consumerName).
 		Str("action", *action).
 		Any("samples", *samples).
+		Any("errors", *errors).
 		Str("redisEndpoint", *redisEndpoint).
 		Msg("")
 
 	// create and connect
-	maxlen := int64(2000)
+	maxlen := int64(50)
 	tmq, err := mq.NewRedisGtrsQueue[CityType](ctx, *redisEndpoint, streamName, maxlen)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("NewRedisGtrsClientStefan()")
@@ -74,7 +78,34 @@ func main() {
 	}
 	defer tmq.Close()
 
-	if *action == "tx" {
+	if *action == "rm" {
+		logger.Info().Msg("-----< Action:remove stale [rm] >-----")
+
+		total, queued, stale, err := tmq.GetState(ctx)
+		if err != nil {
+			logger.Fatal().Err(err).Msg("tmq.GetState()")
+		}
+		logger.Info().
+			Any("s.tot", total).
+			Any("s.queued", queued).
+			Any("s.stale", stale).
+			Msg("before")
+
+		deleted, err := tmq.DeleteStale(ctx, groupName, int64(*samples), 5*time.Minute)
+		if err != nil {
+			logger.Fatal().Err(err).Msg("tmq.DeleteStale()")
+		}
+		total, queued, stale, err = tmq.GetState(ctx)
+		if err != nil {
+			logger.Fatal().Err(err).Msg("tmq.GetState()")
+		}
+		logger.Info().
+			Any("s.tot", total).
+			Any("s.queued", queued).
+			Any("s.stale", stale).
+			Any("x.deleted", deleted).
+			Msg("after ")
+	} else if *action == "tx" {
 		logger.Info().Msg("-----< Action:send [tx] >-----")
 
 		batch := 0
@@ -92,16 +123,29 @@ func main() {
 				}
 				city := CityType{Id: k, Created: time.Now(), Name: name}
 
+				// trigger errors
+				if *errors > 0 {
+					if k%*errors == 0 {
+						city.Trigger = 1
+					}
+				}
+
 				// send
 				id, err := tmq.Publish(ctx, city)
 				if err != nil {
-					logger.Fatal().Err(err).Msg("mqScanTasks.SendRequest()")
+					logger.Fatal().Err(err).Msg("tmq.Publish()")
 				}
-
+				// get state
+				total, queued, unconfirmed, err := tmq.GetState(ctx)
+				if err != nil {
+					logger.Fatal().Err(err).Msg("tmq.GetState()")
+				}
 				logger.Info().
 					Any("sleep[ms]", *sleep/1e6).
-					Any("b", batch).
-					Any("k", k).
+					Str("item", fmt.Sprintf("%v.%v", batch, k)).
+					Any("s.tot", total).
+					Any("s.queued", queued).
+					Any("s.unconf", unconfirmed).
 					Any("m.id", id).
 					Any("c.id", city.Id).
 					Str("c.name", city.Name).Msg("")
@@ -123,13 +167,22 @@ func main() {
 				city := msg.Data
 				delta := time.Since(city.Created)
 				count += 1
+
 				logger.Info().
 					Any("sleep[ms]", *sleep/1e6).
 					Any("count", count).
 					Any("msg.id", msg.ID).
 					Any("city.id", city.Id).
 					Any("ago", delta.String()).
+					Any("trigger", city.Trigger).
 					Str("name", city.Name).Msg("")
+
+				if city.Trigger > 0 {
+					err := fmt.Errorf("error in in %s", city.Name)
+					logger.Error().Err(err).Msg("FAIL")
+					return err
+				}
+
 				time.Sleep(*sleep)
 				return nil
 			})
