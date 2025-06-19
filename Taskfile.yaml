@@ -20,6 +20,23 @@ silent: true
 
 tasks:
 
+  alfa:
+    cmds: 
+      - go run scripts/sender/main.go -endpoint $PHAROS_MQ_ENDPOINT -action rx -consumer alfa -sleep 50ms
+
+  bravo:
+    cmds: 
+      - go run scripts/sender/main.go -endpoint $PHAROS_MQ_ENDPOINT -action rx -consumer bravo -sleep 150ms
+
+  charlie:
+    cmds: 
+      - go run scripts/sender/main.go -endpoint $PHAROS_MQ_ENDPOINT -action rx -consumer charlie -sleep 300ms
+
+  delta:
+    cmds: 
+      - go run scripts/sender/main.go -endpoint $PHAROS_MQ_ENDPOINT -action rx -consumer delta -sleep 500ms
+
+
   pod-up:
     desc: App start (compose)
     cmds:
