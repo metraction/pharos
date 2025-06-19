@@ -39,25 +39,29 @@ func init() {
 
 func main() {
 
-	action := flag.String("action", "", "action [tx,rx]")
 	sleep := flag.Duration("sleep", 500*time.Millisecond, "sleep duration")
+	action := flag.String("action", "", "action [tx,rx]")
+	consumerName := flag.String("consumer", "", "consumer name for reading")
 	redisEndpoint := flag.String("endpoint", "redis://:pwd@localhost:6379/0", "Redis endpoint")
 
 	flag.Parse()
 
 	ctx := context.Background()
 
-	queueName := "test_queue"
+	streamName := "test_queue"
+	groupName := "scan"
 
 	logger.Info().Msg("-----< Message Queue Testing >-----")
 	logger.Info().
+		Str("groupName", groupName).
+		Str("streamName", streamName).
+		Str("consumerName", *consumerName).
 		Str("action", *action).
 		Str("redisEndpoint", *redisEndpoint).
-		Str("queueName", queueName).
 		Msg("")
 
 	// create and connect
-	tmq, err := integrations.NewRedisGtrsClientStefan[CityType, DummyType](ctx, *redisEndpoint, queueName)
+	tmq, err := integrations.NewRedisGtrsClientStefan[CityType, DummyType](ctx, *redisEndpoint, streamName)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("NewRedisGtrsClientStefan()")
 	}
@@ -93,24 +97,28 @@ func main() {
 	} else if *action == "rx" {
 		logger.Info().Msg("-----< Action:receive [rx] >-----")
 
-		err = tmq.ReceiveResponseStefan(ctx, func(msg gtrs.Message[CityType]) error {
-
-			city := msg.Data
-			delta := time.Since(city.Created)
-			logger.Info().
-				Any("sleep[ms]", *sleep/1e6).
-				Any("msg.id", msg.ID).
-				Any("city.id", city.Id).
-				Any("created(ago)", delta.String()).
-				Str("name", city.Name).Msg("")
-
-			time.Sleep(*sleep)
-			return nil
-		})
-		if err != nil {
-			logger.Fatal().Err(err).Msg("ReceiveResponseStefan()")
+		if *consumerName == "" {
+			logger.Fatal().Msg("missing consumerName")
 		}
 
+		for _, mode := range []string{"0", ">"} {
+			logger.Info().Str("mode", mode).Msg("stream read mode")
+			err = tmq.ReceiveStefan(ctx, groupName, *consumerName, mode, func(msg gtrs.Message[CityType]) error {
+				city := msg.Data
+				delta := time.Since(city.Created)
+				logger.Info().
+					Any("sleep[ms]", *sleep/1e6).
+					Any("msg.id", msg.ID).
+					Any("city.id", city.Id).
+					Any("created(ago)", delta.String()).
+					Str("name", city.Name).Msg("")
+				time.Sleep(*sleep)
+				return nil
+			})
+			if err != nil {
+				logger.Fatal().Err(err).Msg("ReceiveResponseStefan()")
+			}
+		}
 	} else {
 		logger.Fatal().Msg("invalid action")
 	}
