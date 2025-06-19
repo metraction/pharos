@@ -41,6 +41,7 @@ func main() {
 
 	sleep := flag.Duration("sleep", 500*time.Millisecond, "sleep duration")
 	action := flag.String("action", "", "action [tx,rx]")
+	samples := flag.Int("samples", 3, "number of samples to send")
 	consumerName := flag.String("consumer", "", "consumer name for reading")
 	redisEndpoint := flag.String("endpoint", "redis://:pwd@localhost:6379/0", "Redis endpoint")
 
@@ -57,6 +58,7 @@ func main() {
 		Str("streamName", streamName).
 		Str("consumerName", *consumerName).
 		Str("action", *action).
+		Any("samples", *samples).
 		Str("redisEndpoint", *redisEndpoint).
 		Msg("")
 
@@ -74,7 +76,7 @@ func main() {
 		logger.Info().Msg("-----< Action:send [tx] >-----")
 
 		for k, name := range cityList {
-			if k > 2 {
+			if k >= *samples {
 				break
 			}
 			city := CityType{Id: k, Created: time.Now(), Name: name}
@@ -101,16 +103,19 @@ func main() {
 			logger.Fatal().Msg("missing consumerName")
 		}
 
-		for _, mode := range []string{"0", ">"} {
+		for _, mode := range []string{">"} {
 			logger.Info().Str("mode", mode).Msg("stream read mode")
+			count := 0
 			err = tmq.ReceiveStefan(ctx, groupName, *consumerName, mode, func(msg gtrs.Message[CityType]) error {
 				city := msg.Data
 				delta := time.Since(city.Created)
+				count += 1
 				logger.Info().
 					Any("sleep[ms]", *sleep/1e6).
+					Any("count", count).
 					Any("msg.id", msg.ID).
 					Any("city.id", city.Id).
-					Any("created(ago)", delta.String()).
+					Any("ago", delta.String()).
 					Str("name", city.Name).Msg("")
 				time.Sleep(*sleep)
 				return nil
