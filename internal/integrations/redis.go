@@ -140,7 +140,19 @@ func (rx *RedisGtrsClient[T, R]) ReceiveStefan(ctx context.Context, groupName, c
 	// })
 
 	// mode "0" all history, ">" new entries
-	groupConfig := gtrs.GroupConsumerConfig{}
+	block := 0 * time.Second
+	if mode == "0" {
+		block = 10 * time.Second
+	}
+
+	groupConfig := gtrs.GroupConsumerConfig{
+		StreamConsumerConfig: gtrs.StreamConsumerConfig{
+			Block:      block, // 0 means infinite
+			Count:      1,     // maximum number of entries per request
+			BufferSize: 1,     // how many entries to prefetch at most
+		},
+		AckBufferSize: 1, // size of the acknowledgement buffer
+	}
 	group := gtrs.NewGroupConsumer[T](ctx, rx.rdb, groupName, consumerName, rx.streamName, mode, groupConfig)
 	defer group.Close()
 

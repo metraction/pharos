@@ -1,0 +1,19 @@
+# Userful redis-cli commands
+
+# login with password
+credis-cli -a <password>
+
+# select database 1
+select 1    
+
+# list keys
+keys *
+
+# return length of stream alfa
+xlen alfa
+
+# list all items in stream
+xrange alfa - +
+
+# read 2 items each from multiple streams
+xread count 2 streams alfa bravo 0-0 0-0
