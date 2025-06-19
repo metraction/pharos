@@ -5,6 +5,9 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/danielgtaylor/huma/v2"
+	"github.com/danielgtaylor/huma/v2/adapters/humago"
+	"github.com/metraction/pharos/internal/controllers"
 	"github.com/metraction/pharos/internal/routing"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/spf13/cobra"
@@ -24,17 +27,27 @@ These submissions are then published to a Redis stream for further processing by
 			log.Fatal("Configuration not found in context. Ensure rootCmd PersistentPreRun is setting it.")
 			return
 		}
-
+		databaseContext := model.NewDatabaseContext(&currentConfig.Database)
+		databaseContext.Migrate()
+		router := http.NewServeMux()
+		apiConfig := huma.DefaultConfig("Pharos API", "1.0.0")
+		apiConfig.Servers = []*huma.Server{
+			{URL: "/api", Description: "Pharos API server"},
+		}
+		apiConfig.OpenAPIPath = "/openapi"
+		api := humago.NewWithPrefix(router, "/api", apiConfig)
+		api.UseMiddleware(databaseContext.DatabaseMiddleware())
 		client, err := routing.NewPublisher(cmd.Context(), currentConfig)
 		if err != nil {
 			log.Fatal("Failed to create publisher flow:", err)
 			return
 		}
-		http.HandleFunc("/submit/image", routing.SubmitImageHandler(client, currentConfig))
+		controllers.NewDockerImageController(&api, currentConfig).WithPublisher(client).AddRoutes()
+
+		router.HandleFunc("/submit/image", routing.SubmitImageHandler(client, currentConfig))
 		serverAddr := fmt.Sprintf(":%d", httpPort)
 		log.Printf("Starting HTTP server on %s\n", serverAddr)
-		log.Printf("Listening for POST requests on /submit/image\n")
-		if err := http.ListenAndServe(serverAddr, nil); err != nil {
+		if err := http.ListenAndServe(serverAddr, router); err != nil {
 			log.Fatalf("Failed to start HTTP server: %v\n", err)
 		}
 	},

@@ -33,8 +33,8 @@ func BenchmarkSubmit1000Images(b *testing.B) {
 	dockerImages := make([]model.DockerImage, imagesToSubmit)
 	for i := 0; i < imagesToSubmit; i++ {
 		dockerImages[i] = model.DockerImage{
-			Name: fmt.Sprintf("benchmark-image-%d", i),
-			SHA:  fmt.Sprintf("sha256-benchmark-%d-%d", i, time.Now().UnixNano()),
+			Name:   fmt.Sprintf("benchmark-image-%d", i),
+			Digest: fmt.Sprintf("sha256-benchmark-%d-%d", i, time.Now().UnixNano()),
 		}
 	}
 

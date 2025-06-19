@@ -21,7 +21,7 @@ require (
 	github.com/klauspost/compress v1.18.0
 	github.com/kos-v/dsnparser v1.1.0
 	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.19 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.1 // indirect
@@ -44,6 +44,8 @@ require (
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.30.0
 )
+
+require github.com/danielgtaylor/huma/v2 v2.32.0
 
 require (
 	github.com/jackc/pgpassfile v1.0.0 // indirect

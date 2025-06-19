@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/danielgtaylor/huma/v2"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -56,4 +57,11 @@ func (dc *DatabaseContext) Migrate() error {
 		fmt.Printf("Migrated model: %T\n", model)
 	}
 	return nil
+}
+
+func (databaseContext *DatabaseContext) DatabaseMiddleware() func(ctx huma.Context, next func(huma.Context)) {
+	return func(ctx huma.Context, next func(huma.Context)) {
+		ctx = huma.WithValue(ctx, "databaseContext", databaseContext)
+		next(ctx)
+	}
 }
