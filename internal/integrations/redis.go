@@ -13,9 +13,18 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+<<<<<<< HEAD
 func NewRedis(ctx context.Context, cfg *model.Config) *redis.Client {
 	return redis.NewClient(&redis.Options{
 		Addr: cfg.Redis.DSN,
+=======
+func NewRedisStreamSource(ctx context.Context, redisCfg model.Redis, streamName string, groupName string, consumerName, groupStartID string, blockTimeout time.Duration, messageCount int64) (streams.Source, error) {
+	// 1. Create Redis client (using go-redis/redis v6)
+	fmt.Println("Connecting to Redis at:", redisCfg.DSN)
+	rdb := redis.NewClient(&redis.Options{
+		Addr: redisCfg.DSN,
+		// Other v6 options if needed (e.g., Password, DB)
+>>>>>>> c81c0c6 (add stream groups to distribute work to consumers)
 	})
 }
 
@@ -88,12 +97,13 @@ type RedisGtrsClient[T any, R any] struct {
 	requestStream *gtrs.Stream[T]
 	requestQueue  string
 	replyQueue    string
+	streamName    string // NEW Stefan
 	zeroValue     R
 	timeout       time.Duration
 }
 
 // NEW: Stefan
-func NewRedisGtrsClientStefan[T any, R any](ctx context.Context, redisEndpoint, queueName string) (*RedisGtrsClient[T, R], error) {
+func NewRedisGtrsClientStefan[T any, R any](ctx context.Context, redisEndpoint, streamName string) (*RedisGtrsClient[T, R], error) {
 
 	options, err := redis.ParseURL(redisEndpoint)
 	if err != nil {
@@ -102,12 +112,13 @@ func NewRedisGtrsClientStefan[T any, R any](ctx context.Context, redisEndpoint, 
 	rdb := redis.NewClient(options)
 
 	timeout := 60 * time.Second
-	stream := gtrs.NewStream[T](rdb, queueName, nil)
+	stream := gtrs.NewStream[T](rdb, streamName, nil)
 
 	return &RedisGtrsClient[T, R]{
 		rdb:           rdb,
 		requestStream: &stream,
-		requestQueue:  queueName,
+		requestQueue:  "none",
+		streamName:    streamName,
 		replyQueue:    "none",
 		timeout:       timeout}, nil
 }
@@ -128,21 +139,30 @@ func (rx *RedisGtrsClient[T, R]) Close() {
 }
 
 // NEW: Stefan
-func (rx *RedisGtrsClient[T, R]) ReceiveResponseStefan(ctx context.Context, handlerFunc func(gtrs.Message[T]) error) error {
-	// Read reply queue from the begining
-	replyConsumer := gtrs.NewConsumer[T](ctx, rx.rdb, gtrs.StreamIDs{rx.requestQueue: "0"}, gtrs.StreamConsumerConfig{
-		Block:      0,
-		Count:      0,
-		BufferSize: 50,
-	})
-	defer replyConsumer.Close()
-	fmt.Println("Waiting for reply on:", rx.replyQueue)
-	for msg := range replyConsumer.Chan() {
+func (rx *RedisGtrsClient[T, R]) ReceiveStefan(ctx context.Context, groupName, consumerName, mode string, handlerFunc func(gtrs.Message[T]) error) error {
+	// source: https://github.com/dranikpg/gtrs
+	// consumer := gtrs.NewConsumer[T](ctx, rx.rdb, gtrs.StreamIDs{rx.requestQueue: "0"}, gtrs.StreamConsumerConfig{
+	// 	Block:      0,
+	// 	Count:      0,
+	// 	BufferSize: 50,
+	// })
+
+	// mode "0" all history, ">" new entries
+	groupConfig := gtrs.GroupConsumerConfig{}
+	group := gtrs.NewGroupConsumer[T](ctx, rx.rdb, groupName, consumerName, rx.streamName, mode, groupConfig)
+	defer group.Close()
+
+	fmt.Printf("Waiting for stream:%s group:%s consumer:%s\n", rx.streamName, groupName, consumerName)
+	for msg := range group.Chan() {
 		if msg.Err != nil {
 			fmt.Println("listener[1]: msg.err", msg.Err)
 			continue
 		}
+		// call handler, acknowledge when no error is thrown
 		err := handlerFunc(msg)
+		if err == nil {
+			group.Ack(msg)
+		}
 		if err != nil {
 			fmt.Println("listener[2]: handler.err", err)
 		}
