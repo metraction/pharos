@@ -141,7 +141,7 @@ func (c *RedisGtrsClient[T, R]) ReceiveResponse(ctx context.Context, corrID stri
 		BufferSize: 50,
 	})
 	defer replyConsumer.Close()
-	fmt.Println("Waiting for reply on:", c.replyQueue, corrID)
+	//fmt.Println("Waiting for reply on:", c.replyQueue, corrID)
 	for msg := range replyConsumer.Chan() {
 		if msg.Err != nil {
 			continue
@@ -172,7 +172,7 @@ func NewRedisGtrsServer[T any, R any](ctx context.Context, redisCfg model.Redis,
 		rdb.Close()
 		return nil, fmt.Errorf("failed to connect to Redis at %s for sink: %w", redisCfg.DSN, err)
 	}
-	fmt.Println("Connected to Redis at:", redisCfg.DSN, requestQueue, replyQueue)
+	//fmt.Println("Connected to Redis at:", redisCfg.DSN, requestQueue, replyQueue)
 	replyStream := gtrs.NewStream[R](rdb, replyQueue, nil)
 
 	return &RedisGtrsServer[T, R]{
@@ -203,9 +203,9 @@ func (c *RedisGtrsServer[T, R]) ProcessRequest(ctx context.Context, handler func
 		// Try to add the response to the reply stream
 		replyID, err := c.replyStream.Add(ctx, result, msg.ID)
 		if err != nil {
-			fmt.Printf("ERROR sending reply: %v\n", err)
+			fmt.Printf("ERROR sending reply with ID: %s: %v\n", replyID, err)
 		} else {
-			fmt.Printf("Successfully sent reply with ID: %s\n", replyID)
+			//fmt.Printf("Successfully sent reply with ID: %s\n", replyID)
 		}
 
 		// Once it is in response queue, take it out of request queue
