@@ -11,7 +11,8 @@ import (
 
 	"github.com/dranikpg/gtrs"
 	"github.com/joho/godotenv"
-	"github.com/metraction/pharos/internal/integrations"
+	"github.com/metraction/pharos/scripts/sender/mq"
+
 	"github.com/rs/zerolog"
 )
 
@@ -49,7 +50,7 @@ func main() {
 
 	ctx := context.Background()
 
-	streamName := "test_queue"
+	streamName := "mq"
 	groupName := "scan"
 
 	logger.Info().Msg("-----< Message Queue Testing >-----")
@@ -63,7 +64,8 @@ func main() {
 		Msg("")
 
 	// create and connect
-	tmq, err := integrations.NewRedisGtrsClientStefan[CityType, DummyType](ctx, *redisEndpoint, streamName)
+	maxlen := int64(2000)
+	tmq, err := mq.NewRedisGtrsQueue[CityType](ctx, *redisEndpoint, streamName, maxlen)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("NewRedisGtrsClientStefan()")
 	}
@@ -75,27 +77,38 @@ func main() {
 	if *action == "tx" {
 		logger.Info().Msg("-----< Action:send [tx] >-----")
 
-		for k, name := range cityList {
+		batch := 0
+		k := 0
+		for {
+			batch += 1
 			if k >= *samples {
 				break
 			}
-			city := CityType{Id: k, Created: time.Now(), Name: name}
 
-			// send
-			err, id := tmq.SendRequest(ctx, city)
-			if err != nil {
-				logger.Fatal().Err(err).Msg("mqScanTasks.SendRequest()")
+			for _, name := range cityList {
+				k += 1
+				if k > *samples {
+					break
+				}
+				city := CityType{Id: k, Created: time.Now(), Name: name}
+
+				// send
+				id, err := tmq.Publish(ctx, city)
+				if err != nil {
+					logger.Fatal().Err(err).Msg("mqScanTasks.SendRequest()")
+				}
+
+				logger.Info().
+					Any("sleep[ms]", *sleep/1e6).
+					Any("b", batch).
+					Any("k", k).
+					Any("m.id", id).
+					Any("c.id", city.Id).
+					Str("c.name", city.Name).Msg("")
+
+				time.Sleep(*sleep)
 			}
-
-			logger.Info().
-				Any("sleep[ms]", *sleep/1e6).
-				Any("msg.id", id).
-				Any("city.id", city.Id).
-				Str("name", city.Name).Msg("")
-
-			time.Sleep(*sleep)
 		}
-
 	} else if *action == "rx" {
 		logger.Info().Msg("-----< Action:receive [rx] >-----")
 
@@ -106,7 +119,7 @@ func main() {
 		for _, mode := range []string{">"} {
 			logger.Info().Str("mode", mode).Msg("stream read mode")
 			count := 0
-			err = tmq.ReceiveStefan(ctx, groupName, *consumerName, mode, func(msg gtrs.Message[CityType]) error {
+			err = tmq.Subscribe(ctx, groupName, *consumerName, mode, func(msg gtrs.Message[CityType]) error {
 				city := msg.Data
 				delta := time.Since(city.Created)
 				count += 1
@@ -127,5 +140,7 @@ func main() {
 	} else {
 		logger.Fatal().Msg("invalid action")
 	}
-
+	logger.Info().
+		Str("time", time.Now().String()).
+		Msg("done")
 }
