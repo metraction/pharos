@@ -54,7 +54,7 @@ jobs:
           echo "Using version: $VERSION"
         
   integration-test:
-    if: github.event.inputs.run_integration_tests == 'true'
+    if: github.event.inputs.run_integration_tests == 'true' || startsWith(github.ref, 'refs/heads/PH-4')
     needs: [get-version, ko-build]
     runs-on: ubuntu-latest
     permissions:
@@ -95,7 +95,7 @@ jobs:
         run: |
           # These tests should publish to Redis, and the scanner service should consume.
           # The benchmark test (routing/publish_test.go) is configured to use localhost:6379 for Redis.
-          go test ./routing -bench=. -benchmem
+          go test ./internal/routing -bench=. -benchmem
 
       - name: Check scanner service logs on failure
         if: failure()

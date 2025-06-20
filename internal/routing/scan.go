@@ -52,7 +52,7 @@ func NewScannerFlow(ctx context.Context, cfg *model.Config) error {
 		logger.Debug().Msg("Processing scan request: " + task.ImageSpec.Image)
 		result, _, _, err := grype.ScanImage(task, scanEngine, kvc, logger)
 		if err != nil {
-			logger.Fatal().Err(err).Msg("grype.ScanImage()")
+			logger.Error().Err(err).Msg("grype.ScanImage()")
 		}
 
 		// Log the number of findings, vulnerabilities, and packages before sending
