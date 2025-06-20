@@ -134,11 +134,11 @@ func init() {
 
 	rootCmd.PersistentFlags().String("publisher.requestQueue", "scantasks", "Redis stream for requests")
 	rootCmd.PersistentFlags().String("publisher.responseQueue", "scanresult", "Redis stream for responses")
-	rootCmd.PersistentFlags().String("publisher.timeout", "30s", "Publisher timeout")
+	rootCmd.PersistentFlags().String("publisher.timeout", "300s", "Publisher timeout")
 
 	rootCmd.PersistentFlags().String("scanner.requestQueue", "scantasks", "Redis stream for requests")
 	rootCmd.PersistentFlags().String("scanner.responseQueue", "scanresult", "Redis stream for responses")
-	rootCmd.PersistentFlags().String("scanner.timeout", "30s", "Scanner timeout")
+	rootCmd.PersistentFlags().String("scanner.timeout", "300s", "Scanner timeout")
 	rootCmd.PersistentFlags().String("scanner.cacheEndpoint", "redis://localhost:6379", "Scanner cache endpoint")
 
 	rootCmd.PersistentFlags().String("database.driver", "postgres", "Database driver for the scanner, can be 'sqlite' or 'postgres', `sqlite` is default.")
