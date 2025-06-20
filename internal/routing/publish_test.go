@@ -98,7 +98,7 @@ func BenchmarkSubmit1000Images(b *testing.B) {
 			if err != nil {
 				b.Fatalf("Error sending request: %v", err)
 			}
-			b.Log("Recieved: ", r.Image.ImageSpec)
+			b.Log("Recieved: ", r.Image.ImageSpec, r.ScanTask.Error)
 		}
 	}
 }
