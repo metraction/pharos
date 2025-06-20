@@ -58,9 +58,6 @@ func BenchmarkSubmit1000Images(b *testing.B) {
 			ResponseQueue: "scanresult",
 			Timeout:       "300s",
 		},
-		Scanner: model.ScannerConfig{
-			Timeout: "300s",
-		},
 	}
 
 	ctx := context.Background()
@@ -71,14 +68,6 @@ func BenchmarkSubmit1000Images(b *testing.B) {
 		b.Fatalf("Failed to create Redis client: %v", err)
 	}
 
-<<<<<<< HEAD
-	const imagesToSubmit = 1000
-	dockerImages := make([]model.DockerImage, imagesToSubmit)
-	for i := 0; i < imagesToSubmit; i++ {
-		dockerImages[i] = model.DockerImage{
-			Name:   fmt.Sprintf("benchmark-image-%d", i),
-			Digest: fmt.Sprintf("sha256-benchmark-%d-%d", i, time.Now().UnixNano()),
-=======
 	tasks := make([]model.PharosScanTask, 0, len(images))
 
 	for i, img := range images {
@@ -93,7 +82,6 @@ func BenchmarkSubmit1000Images(b *testing.B) {
 		)
 		if err != nil {
 			b.Fatalf("Failed to create scan task: %v", err)
->>>>>>> b71a642 (Refine tests)
 		}
 		tasks = append(tasks, task)
 	}
@@ -103,18 +91,14 @@ func BenchmarkSubmit1000Images(b *testing.B) {
 	for n := 0; n < b.N; n++ {
 		b.StopTimer() // Stop timer during setup
 
-		// Create a WaitGroup to wait for all responses
 		b.StartTimer() // Resume timing for the actual test
 
-		// Submit all tasks - just send requests without waiting for responses
-		// This is more realistic for a benchmark as we don't have a real scanner service running
 		for _, task := range tasks {
-			// Use SendRequest instead of RequestReply to avoid waiting for responses
 			r, err := client.RequestReply(ctx, task)
 			if err != nil {
 				b.Fatalf("Error sending request: %v", err)
 			}
-			b.Log("Response: ", r)
+			b.Log("Recieved: ", r.Image.ImageSpec)
 		}
 	}
 }
