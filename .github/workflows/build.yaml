@@ -107,6 +107,8 @@ jobs:
           sleep 15 # Adjust as needed, or implement a more robust health check for the scanner
 
       - name: Run benchmark tests
+        env:
+          DOCKER_REGISTRIES_AUTH: "registry://spastai\\@gmail.com:${{ secrets.GITHUB_TOKEN }}@ghcr.io/metraction"
         run: |
           # These tests should publish to Redis, and the scanner service should consume.
           # The benchmark test (routing/publish_test.go) is configured to use localhost:6379 for Redis.

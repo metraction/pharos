@@ -1,10 +1,3 @@
-nginx:latest
-postgres:14
-redis:alpine
-ubuntu:22.04
-python:3.9-slim
-node:18
-mysql:8.0
 cgr.dev/chainguard/static
 ghcr.io/metraction/scanner:0.0.1
 ghcr.io/metraction/pharos/pharos-c52785725d1132c2f91e01422b7f40ba

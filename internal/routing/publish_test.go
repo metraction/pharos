@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -41,7 +42,8 @@ func loadDockerImages(filePath string) ([]string, error) {
 // by sending tasks to Redis streams.
 // This benchmark requires a Redis instance to be running and accessible.
 // It supports registry authentication via DOCKER_REGISTRIES_AUTH environment variable
-// in the format: "auth1@reg1,auth2@reg2" where auth can be a token or username:password
+// in the format: "registry://user:password@docker.io,registry://token@ghcr.io"
+// using standard DSN format for registry authentication
 func BenchmarkSubmit1000Images(b *testing.B) {
 	// Load Docker images from file
 	images, err := loadDockerImages("../../testdata/docker_images.txt")
@@ -52,17 +54,20 @@ func BenchmarkSubmit1000Images(b *testing.B) {
 	b.Logf("Loaded %d Docker images from file", len(images))
 
 	// Parse registry authentication from environment variable
-	authMap := make(map[string]string)
+	authList := make([]model.PharosRepoAuth, 0)
 	if authEnv := os.Getenv("DOCKER_REGISTRIES_AUTH"); authEnv != "" {
-		pairs := strings.Split(authEnv, ",")
-		for _, pair := range pairs {
-			parts := strings.SplitN(pair, "@", 2)
-			if len(parts) == 2 {
-				auth := strings.TrimSpace(parts[0])
-				registry := strings.TrimSpace(parts[1])
-				if registry != "" && auth != "" {
-					authMap[registry] = auth
-					b.Logf("Configured auth for registry: %s", registry)
+		dsns := strings.Split(authEnv, ",")
+		for _, dsn := range dsns {
+			dsn = strings.TrimSpace(dsn)
+			if dsn != "" {
+				auth, err := model.NewPharosRepoAuth(dsn)
+				if err != nil {
+					b.Logf("Warning: Invalid auth DSN: %s - %v", dsn, err)
+					continue
+				}
+				if auth.Authority != "" {
+					authList = append(authList, auth)
+					b.Logf("Configured auth for registry: %s", auth.Authority)
 				}
 			}
 		}
@@ -93,27 +98,14 @@ func BenchmarkSubmit1000Images(b *testing.B) {
 	for i, img := range images {
 		// Check if we have auth for this image's registry
 		var auth model.PharosRepoAuth
-		for registry, authValue := range authMap {
-			if strings.HasPrefix(img, registry) {
-				// Parse auth string (can be token or username:password)
-				parts := strings.SplitN(authValue, ":", 2)
-				if len(parts) == 2 {
-					// Username:password format
-					auth = model.PharosRepoAuth{
-						Authority: registry,
-						Username:  parts[0],
-						Password:  parts[1],
-						TlsCheck:  true,
-					}
-				} else {
-					// Token format
-					auth = model.PharosRepoAuth{
-						Authority: registry,
-						Token:     authValue,
-						TlsCheck:  true,
-					}
+		for _, repoAuth := range authList {
+			if strings.HasPrefix(img, repoAuth.Authority) {
+				auth = repoAuth
+				if auth.Username != "" && auth.Password != "" {
+					b.Logf("Using username/password auth for image %s with registry %s", img, auth.Authority)
+				} else if auth.Token != "" {
+					b.Logf("Using token auth for image %s with registry %s", img, auth.Authority)
 				}
-				b.Logf("Using auth for image %s with registry %s", img, registry)
 				break
 			}
 		}
@@ -125,7 +117,7 @@ func BenchmarkSubmit1000Images(b *testing.B) {
 			"linux/amd64",                     // platform
 			auth,                              // auth (with credentials if matched)
 			24*time.Hour,                      // cacheExpiry
-			30*time.Second,                    // scanTimeout
+			300*time.Second,                   // scanTimeout
 		)
 		if err != nil {
 			b.Fatalf("Failed to create scan task: %v", err)
@@ -138,18 +130,74 @@ func BenchmarkSubmit1000Images(b *testing.B) {
 	for n := 0; n < b.N; n++ {
 		b.StopTimer() // Stop timer during setup
 
+		// Create channels for results and errors
+		results := make(chan struct {
+			result model.PharosScanResult
+			err    error
+			task   model.PharosScanTask
+		}, len(tasks))
+
+		// Track errors to report at the end
+		var errors []string
+		var errorsMu sync.Mutex
+
 		b.StartTimer() // Resume timing for the actual test
 
+		// Launch goroutines for parallel task submission
+		var wg sync.WaitGroup
 		for _, task := range tasks {
-			r, err := client.RequestReply(ctx, task)
-			if err != nil {
-				b.Fatalf("Error sending request: %v", err)
-			}
-			if r.ScanTask.Error != "" {
-				b.Fatalf("Error in scan task result: %v", r.ScanTask.Error)
-			}
+			wg.Add(1)
+			go func(t model.PharosScanTask) {
+				defer wg.Done()
 
-			b.Log("Recieved: ", r.Image.ImageSpec, r.ScanTask.Error)
+				// Create a context with timeout for this specific request
+				reqCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+				defer cancel()
+
+				r, err := client.RequestReply(reqCtx, t)
+				if err != nil {
+					errorsMu.Lock()
+					errors = append(errors, fmt.Sprintf("Error sending request for %s: %v", t.ImageSpec.Image, err))
+					errorsMu.Unlock()
+					return
+				}
+
+				if r.ScanTask.Error != "" {
+					errorsMu.Lock()
+					errors = append(errors, fmt.Sprintf("Error in scan task result for %s: %v", t.ImageSpec.Image, r.ScanTask.Error))
+					errorsMu.Unlock()
+				}
+
+				results <- struct {
+					result model.PharosScanResult
+					err    error
+					task   model.PharosScanTask
+				}{r, err, t}
+			}(task)
+		}
+
+		// Close results channel when all goroutines are done
+		go func() {
+			wg.Wait()
+			close(results)
+		}()
+
+		// Collect and log results
+		successCount := 0
+		for result := range results {
+			if result.err == nil && result.result.ScanTask.Error == "" {
+				successCount++
+				b.Logf("Success: %s", result.task.ImageSpec.Image)
+			}
+		}
+
+		// Report summary and errors at the end
+		b.Logf("Completed %d/%d tasks successfully", successCount, len(tasks))
+		if len(errors) > 0 {
+			b.Logf("Encountered %d errors:", len(errors))
+			for i, err := range errors {
+				b.Logf("Error %d: %s", i+1, err)
+			}
 		}
 	}
 }

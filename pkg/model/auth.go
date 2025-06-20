@@ -26,6 +26,7 @@ func NewPharosRepoAuth(authDsn string) (PharosRepoAuth, error) {
 	if err := auth.FromDsn(authDsn); err != nil {
 		return PharosRepoAuth{}, err
 	}
+	fmt.Println(auth)
 	return auth, nil
 }
 
