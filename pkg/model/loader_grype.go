@@ -1,6 +1,7 @@
 package model
 
 import (
+	"regexp"
 	"time"
 
 	"github.com/metraction/pharos/internal/utils"
@@ -28,7 +29,16 @@ func (rx *PharosScanResult) LoadGrypeImageScan(sbom syfttype.SyftSbomType, scan 
 	// (1) load image metadata
 	rx.Image.ImageSpec = target.UserInput
 	rx.Image.ImageId = target.ImageId
-	rx.Image.ManigestDigest = target.ManifestDigest
+	rx.Image.ManifestDigest = target.ManifestDigest
+	if len(target.RepoDigests) > 0 {
+		re := regexp.MustCompile(`@(.+)$`)
+		matches := re.FindStringSubmatch(target.RepoDigests[0])
+		if len(matches) == 2 {
+			rx.Image.IndexDigest = matches[1]
+		} else {
+			rx.Image.IndexDigest = ""
+		}
+	} // TODO: check if this is correct, but we use this for now.
 	rx.Image.RepoDigests = lo.Map(target.RepoDigests, func(x string, k int) string { return ParseDigest(x) })
 
 	rx.Image.ArchName = target.Architecture

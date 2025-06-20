@@ -42,7 +42,7 @@ These submissions are then published to a Redis stream for further processing by
 			log.Fatal("Failed to create publisher flow:", err)
 			return
 		}
-		controllers.NewDockerImageController(&api, currentConfig).WithPublisher(client).AddRoutes()
+		controllers.NewimageController(&api, currentConfig).WithPublisher(client).AddRoutes()
 
 		router.HandleFunc("/submit/image", routing.SubmitImageHandler(client, currentConfig))
 		serverAddr := fmt.Sprintf(":%d", httpPort)

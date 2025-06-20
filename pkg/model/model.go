@@ -1,7 +1,10 @@
 package model
 
 import (
+	"database/sql/driver"
 	"encoding/json"
+	"errors"
+	"strings"
 	"time"
 )
 
@@ -28,6 +31,23 @@ func (rx *PharosScanResult) SetError(err error) PharosScanResult {
 	return *rx
 }
 
+type StringSlice []string
+
+func (ss *StringSlice) Scan(src any) error {
+	str, ok := src.(string)
+	if !ok {
+		return errors.New("src value cannot cast to string")
+	}
+	*ss = strings.Split(str, ",")
+	return nil
+}
+func (ss StringSlice) Value() (driver.Value, error) {
+	if len(ss) == 0 {
+		return nil, nil
+	}
+	return strings.Join(ss, ","), nil
+}
+
 // scan metadata to identify scanner tool and versions
 // (this is importan once we have a variety of scanners)
 type PharosScanEngine struct {
@@ -38,18 +58,18 @@ type PharosScanEngine struct {
 
 // metadata about the asset (image, code, vm, ..)
 type PharosImageMeta struct {
-	ImageSpec      string   `json:"ImageSpec"` // scan input / image uri
-	ImageId        string   `json:"ImageId"`
-	Digest         string   `json:"Digest"` // internal ID for cache
-	ManigestDigest string   `json:"ManifestDigest"`
-	RepoDigests    []string `json:"RepoDigests"`
-	ArchName       string   `json:"ArchName"` // image platform architecture amd64/..
-	ArchOS         string   `json:"ArchOS"`   // image platform OS
-	DistroName     string   `json:"DistroName"`
-	DistroVersion  string   `json:"DistroVersion"`
-	Size           uint64   `json:"Size"`
-	Tags           []string `json:"Tags"`
-	Layers         []string `json:"Layers"`
+	ImageSpec      string      `json:"ImageSpec" required:"true" doc:"image url, e.g. docker.io/nginx:latest"` // scan input / image uri
+	ImageId        string      `json:"ImageId" gorm:"primaryKey" hidden:"true" doc:"internal image ID, e.g. sha256:1234.."`
+	IndexDigest    string      `json:"IndexDigest" required:"true"` // internal ID for cache
+	ManifestDigest string      `json:"ManifestDigest" required:"false"`
+	RepoDigests    StringSlice `json:"RepoDigests" required:"false" gorm:"type:VARCHAR"`
+	ArchName       string      `json:"ArchName" required:"false" doc:"image platform architecture default: amd64"` // image platform architecture amd64/..
+	ArchOS         string      `json:"ArchOS" required:"false" doc:"image platform OS default: linux"`             // image platform OS
+	DistroName     string      `json:"DistroName" required:"false"`
+	DistroVersion  string      `json:"DistroVersion" required:"false"`
+	Size           uint64      `json:"Size" required:"false"`
+	Tags           StringSlice `json:"Tags" gorm:"type:VARCHAR" required:"false"`
+	Layers         StringSlice `json:"Layers" gorm:"type:VARCHAR" required:"false"`
 }
 
 // a finding is an instantiation of a vulnerability in an asset/package (scan result)
