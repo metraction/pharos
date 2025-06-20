@@ -23,7 +23,7 @@ var config *model.Config = &model.Config{}
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "scanner",
+	Use:   "pharos",
 	Short: "Pharos scanner",
 	Long:  `Pharos scanner (using grype)`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
@@ -31,13 +31,17 @@ var rootCmd = &cobra.Command{
 		cmd.SetContext(ctx)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("This is the root command that does nothing.\n  Run go run . scanner")
+		// Execute scanner subcommand by default
+		_ = cmd.Help()
+		fmt.Println("\nExecuting scanner subcommand by default:")
+		scannerCmd.Run(scannerCmd, args)
 	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
+	// If no command is specified, the root command will run the scanner by default
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
