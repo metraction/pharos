@@ -80,6 +80,8 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
 
       scanner:
         # The image is tagged with the version from semver.sh
