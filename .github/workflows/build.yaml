@@ -112,11 +112,16 @@ jobs:
         run: |
           # These tests should publish to Redis, and the scanner service should consume.
           # The benchmark test (routing/publish_test.go) is configured to use localhost:6379 for Redis.
-          go test ./internal/routing -bench=. -benchmem
+          go test ./internal/routing -bench=. -benchmem -timeout=5m
+
+      - name: Show scanner service logs
+        run: |
+          echo "Scanner service logs:"
+          docker logs ${{ job.services.scanner.id }}
 
       - name: Check scanner service logs on failure
         if: failure()
         run: |
           echo "Tests failed. Scanner logs are available in the 'scanner' service logs in the GitHub Actions UI."
           # The logs for services are automatically collected by the runner and displayed in the UI.
-          # This step is just a pointer for easier debugging.    
+          # This step is just a pointer for easier debugging.
