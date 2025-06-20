@@ -88,7 +88,7 @@ jobs:
         image: ghcr.io/metraction/pharos/pharos-c52785725d1132c2f91e01422b7f40ba:${{ needs.get-version.outputs.version }}
         env:
           PHAROS_REDIS_DSN: redis:6379
-          PHAROS_SCANNER_CACHE_ENDPOINT: redis://redis:6379
+          PHAROS_SCANNER_CACHEENDPOINT: redis://redis:6379
 
     steps:
       - name: Checkout code
