@@ -2,6 +2,7 @@ package routing
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/metraction/pharos/internal/integrations"
@@ -42,6 +43,8 @@ func NewScannerFlow(ctx context.Context, cfg *model.Config) error {
 		logger.Fatal().Err(err).Msg("time.ParseDuration()")
 	}
 	if scanEngine, err = grype.NewGrypeScanner(scanTimeout, true, logger); err != nil {
+		dbCacheDir := os.Getenv("GRYPE_DB_CACHE_DIR")
+		logger.Debug().Str("GRYPE_DB_CACHE_DIR", dbCacheDir).Msg("Grype settings: ")
 		logger.Fatal().Err(err).Msg("NewGrypeScanner()")
 	}
 
