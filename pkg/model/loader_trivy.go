@@ -28,7 +28,7 @@ func (rx *PharosScanResult) LoadTrivyImageScan(sbom trivytype.TrivySbomType, sca
 	// (1) load image metadata
 	rx.Image.ImageSpec = sbom.Metadata.Component.Name
 	rx.Image.ImageId = cdxFilterPropertyFirstOr("aquasecurity:trivy:ImageID", "", *properties)
-	rx.Image.ManigestDigest = ParseDigest(component.BOMRef)
+	rx.Image.ManifestDigest = ParseDigest(component.BOMRef)
 	rx.Image.RepoDigests = scan.Metadata.RepoDigests
 
 	rx.Image.ArchName = scan.Metadata.ImageConfig.Architecture

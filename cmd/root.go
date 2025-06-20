@@ -141,8 +141,8 @@ func init() {
 	rootCmd.PersistentFlags().String("scanner.timeout", "30s", "Scanner timeout")
 	rootCmd.PersistentFlags().String("scanner.cacheEndpoint", "redis://localhost:6379", "Scanner cache endpoint")
 
-	rootCmd.PersistentFlags().String("database.driver", "postgres", "Database driver for the scanner, can be 'sqlite' or 'postgres', `sqlite` is default.")
+	rootCmd.PersistentFlags().String("database.driver", "postgres", "Database driver for the scanner, righ now, only 'postgres' is implemented.")
 	defaultDSN := fmt.Sprintf("postgres://postgres:postgres@localhost:5432/pharos?sslmode=disable") // run `brew install db-browser-for-sqlite` to view the database.
-	rootCmd.PersistentFlags().String("database.dsn", defaultDSN, "Database DSN for the scanner, for sqlite it is the file name (default is $HOME/.pharos.db, can be 'file::memory:?cache=shared'), for postgres it is the connection string.")
+	rootCmd.PersistentFlags().String("database.dsn", defaultDSN, "Database DSN for the scanner, for postgres it is the connection string.")
 	rootCmd.AddCommand(scannerCmd)
 }

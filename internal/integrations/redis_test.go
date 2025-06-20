@@ -74,9 +74,9 @@ func newTestScanResult(task model.PharosScanTask, engineName string) model.Pharo
 			Version: "1.0",
 		},
 		Image: model.PharosImageMeta{
-			ImageSpec: task.ImageSpec.Image,
-			ImageId:   "test-image-id",
-			Digest:    "sha256:test",
+			ImageSpec:   task.ImageSpec.Image,
+			ImageId:     "test-image-id",
+			IndexDigest: "sha256:test",
 		},
 		Findings:        []model.PharosScanFinding{},
 		Vulnerabilities: []model.PharosVulnerability{},
