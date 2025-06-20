@@ -35,7 +35,7 @@ jobs:
     secrets: inherit
   
   get-version:
-    if: github.event.inputs.run_integration_tests == 'true'
+    if: github.event.inputs.run_integration_tests == 'true' || startsWith(github.ref, 'refs/heads/PH-4')
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
