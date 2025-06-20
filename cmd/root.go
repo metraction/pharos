@@ -9,9 +9,12 @@ import (
 	"io"
 	"log"
 	"os"
+	"os/signal"
 	"strconv"
 	"strings"
+	"syscall"
 
+	"github.com/metraction/pharos/internal/routing"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -23,7 +26,7 @@ var config *model.Config = &model.Config{}
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "pharos",
+	Use:   "scanner",
 	Short: "Pharos scanner",
 	Long:  `Pharos scanner (using grype)`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
@@ -31,17 +34,31 @@ var rootCmd = &cobra.Command{
 		cmd.SetContext(ctx)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		// Execute scanner subcommand by default
-		_ = cmd.Help()
-		fmt.Println("\nExecuting scanner subcommand by default:")
-		scannerCmd.Run(scannerCmd, args)
+		fmt.Println("This is the root command that does nothing.\n  Run go run . scanner")
+		// TODO: this is duplicate code of scanner.go
+		// Create a new context that can be cancelled.
+		ctx, cancel := context.WithCancel(cmd.Context())
+		defer cancel() // Ensure cancel is called on exit to clean up resources
+
+		err := routing.NewScannerFlow(ctx, config)
+		if err != nil {
+			fmt.Printf("Error creating scanner flow: %v\n", err)
+			return
+		}
+		fmt.Println("Scanner started successfully. Press Ctrl+C to exit.")
+
+		// Wait for interrupt signal to gracefully shut down.
+		quit := make(chan os.Signal, 1)
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+		<-quit
+
+		fmt.Println("Shutting down scanner...")
 	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-	// If no command is specified, the root command will run the scanner by default
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
@@ -77,13 +94,7 @@ func initConfig() {
 		// Bind the pflag to Viper. If the flag is set on the command line,
 		// its value will take precedence over environment variables, config files, and Viper defaults.
 		viper.BindPFlag(f.Name, f)
-
-		// Debug output (optional)
-		// envVarKey := "PHAROS_" + strings.ToUpper(strings.ReplaceAll(f.Name, "-", "_"))
-		// fmt.Printf("Viper key '%s': CLI (via BindPFlag), Env ('%s'), Default ('%v')\n", f.Name, envVarKey, f.DefValue)
 	})
-	// Note: viper.AutomaticEnv() with SetEnvPrefix and SetEnvKeyReplacer handles binding environment variables.
-	// Explicit viper.BindEnv calls are not strictly necessary if keys align.
 
 	var cfgFilePath string
 
