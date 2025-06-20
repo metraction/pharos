@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -40,7 +41,7 @@ func loadDockerImages(filePath string) ([]string, error) {
 // by sending tasks to Redis streams.
 // This benchmark requires a Redis instance to be running and accessible.
 // It supports registry authentication via DOCKER_REGISTRIES_AUTH environment variable
-// in the format: "registry1:auth1,registry2:auth2"
+// in the format: "auth1@reg1,auth2@reg2" where auth can be a token or username:password
 func BenchmarkSubmit1000Images(b *testing.B) {
 	// Load Docker images from file
 	images, err := loadDockerImages("../../testdata/docker_images.txt")
@@ -50,15 +51,15 @@ func BenchmarkSubmit1000Images(b *testing.B) {
 
 	b.Logf("Loaded %d Docker images from file", len(images))
 
-	// Parse registry authentication from environment
+	// Parse registry authentication from environment variable
 	authMap := make(map[string]string)
 	if authEnv := os.Getenv("DOCKER_REGISTRIES_AUTH"); authEnv != "" {
 		pairs := strings.Split(authEnv, ",")
 		for _, pair := range pairs {
-			parts := strings.SplitN(pair, ":", 2)
+			parts := strings.SplitN(pair, "@", 2)
 			if len(parts) == 2 {
-				registry := strings.TrimSpace(parts[0])
-				auth := strings.TrimSpace(parts[1])
+				auth := strings.TrimSpace(parts[0])
+				registry := strings.TrimSpace(parts[1])
 				if registry != "" && auth != "" {
 					authMap[registry] = auth
 					b.Logf("Configured auth for registry: %s", registry)
@@ -75,15 +76,13 @@ func BenchmarkSubmit1000Images(b *testing.B) {
 		Publisher: model.PublisherConfig{
 			RequestQueue:  "scantasks",
 			ResponseQueue: "scanresult",
-			Timeout:       300 * time.Second, // Increased timeout
+			Timeout:       "300s",
 		},
 	}
 
-	// Create a context with timeout
-	ctx, cancel := context.WithTimeout(context.Background(), cfg.Publisher.Timeout)
-	defer cancel()
+	ctx := context.Background()
 
-	// Initialize Redis client
+	// Create Redis client for request-reply
 	client, err := integrations.NewRedisGtrsClient[model.PharosScanTask, model.PharosScanResult](ctx, cfg, cfg.Publisher.RequestQueue, cfg.Publisher.ResponseQueue)
 	if err != nil {
 		b.Fatalf("Failed to create Redis client: %v", err)
@@ -92,25 +91,29 @@ func BenchmarkSubmit1000Images(b *testing.B) {
 	tasks := make([]model.PharosScanTask, 0, len(images))
 
 	for i, img := range images {
-		// Create auth based on image registry
+		// Check if we have auth for this image's registry
 		var auth model.PharosRepoAuth
-		for registry, authStr := range authMap {
+		for registry, authValue := range authMap {
 			if strings.HasPrefix(img, registry) {
-				// Parse auth string (format: username:password or token)
-				parts := strings.SplitN(authStr, ":", 2)
+				// Parse auth string (can be token or username:password)
+				parts := strings.SplitN(authValue, ":", 2)
 				if len(parts) == 2 {
+					// Username:password format
 					auth = model.PharosRepoAuth{
 						Authority: registry,
 						Username:  parts[0],
 						Password:  parts[1],
+						TlsCheck:  true,
 					}
 				} else {
+					// Token format
 					auth = model.PharosRepoAuth{
 						Authority: registry,
-						Token:     authStr,
+						Token:     authValue,
+						TlsCheck:  true,
 					}
 				}
-				b.Logf("Using auth for image: %s", img)
+				b.Logf("Using auth for image %s with registry %s", img, registry)
 				break
 			}
 		}
@@ -120,7 +123,7 @@ func BenchmarkSubmit1000Images(b *testing.B) {
 			fmt.Sprintf("task-%d-%s", i, img), // jobId
 			img,                               // imageRef
 			"linux/amd64",                     // platform
-			auth,                              // auth (empty if no match found)
+			auth,                              // auth (with credentials if matched)
 			24*time.Hour,                      // cacheExpiry
 			30*time.Second,                    // scanTimeout
 		)
