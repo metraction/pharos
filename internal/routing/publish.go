@@ -46,17 +46,17 @@ func SubmitImageHandler(client *integrations.RedisGtrsClient[model.PharosScanTas
 			// Successfully parsed simple request with image field
 			timeout, err := time.ParseDuration(cfg.Publisher.Timeout)
 			if err != nil {
-				timeout = 30 * time.Second
+				timeout = 300 * time.Second
 			}
 
 			// Create a full scan task from the simple image name
 			request, err = model.NewPharosScanTask(
-				uuid.New().String(),            // jobId
-				simpleRequest.Image,           // imageRef
-				"linux/amd64",                // platform
-				model.PharosRepoAuth{},       // auth
-				24*time.Hour,                // cacheExpiry
-				timeout,                     // scanTimeout
+				uuid.New().String(),    // jobId
+				simpleRequest.Image,    // imageRef
+				"linux/amd64",          // platform
+				model.PharosRepoAuth{}, // auth
+				24*time.Hour,           // cacheExpiry
+				timeout,                // scanTimeout
 			)
 			if err != nil {
 				log.Printf("Error creating scan task: %v\n", err)
