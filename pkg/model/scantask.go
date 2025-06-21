@@ -3,16 +3,16 @@ package model
 import "time"
 
 type PharosScanTask struct {
-	JobId      string          `json:"jobId"` // jobid for batch jobs tracking
-	Auth       PharosRepoAuth  `json:"auth"`
-	ImageSpec  PharosImageSpec `json:"imageSpec"`
-	Timeout    time.Duration   `json:"timeout"` // scan timeout in sec
-	Created    time.Time       `json:"created"`
-	Updated    time.Time       `json:"updated"`
-	SbomEngine string          `json:"sbomEngine"` // SBOM generator tool
-	ScanEngine string          `json:"scanEngine"` // Scan generator tool
-	Status     string          `json:"status"`
-	Error      string          `json:"error"`
+	JobId      string          `json:"jobId" required:"false"` // jobid for batch jobs tracking
+	Auth       PharosRepoAuth  `json:"auth" required:"false"`
+	ImageSpec  PharosImageSpec `json:"imageSpec" required:"true"`
+	Timeout    time.Duration   `json:"timeout" required:"false"` // scan timeout in sec
+	Created    time.Time       `json:"created" required:"false"`
+	Updated    time.Time       `json:"updated" required:"false"`
+	SbomEngine string          `json:"sbomEngine" required:"false"` // SBOM generator tool
+	ScanEngine string          `json:"scanEngine" required:"false"` // Scan generator tool
+	Status     string          `json:"status" required:"false"`
+	Error      string          `json:"error" required:"false"`
 }
 
 func NewPharosScanTask(jobId, imageRef, platform string, auth PharosRepoAuth, cacheExpiry, scanTimeout time.Duration) (PharosScanTask, error) {
@@ -40,8 +40,8 @@ func (rx *PharosScanTask) SetStatus(status string) {
 }
 
 type PharosImageSpec struct {
-	Image       string         `json:"image"`
-	Platform    string         `json:"platform"`
-	CacheExpiry time.Duration  `json:"cacheExpiry"` // cache expiry in sec
-	Context     map[string]any `json:"context"`
+	Image       string         `json:"image" required:"true"`
+	Platform    string         `json:"platform" required:"false"`
+	CacheExpiry time.Duration  `json:"cacheExpiry" required:"false"` // cache expiry in sec
+	Context     map[string]any `json:"context" required:"false"`
 }

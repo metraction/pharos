@@ -8,6 +8,7 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
 	"github.com/metraction/pharos/internal/controllers"
+	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/internal/routing"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/spf13/cobra"
@@ -22,10 +23,10 @@ var httpCmd = &cobra.Command{
 	Long: `Starts an HTTP server that listens for Docker image submissions (name and SHA) via a POST request.
 These submissions are then published to a Redis stream for further processing by the scanner.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		logger := logging.NewLogger("info")
 		currentConfig := cmd.Context().Value("config").(*model.Config)
 		if currentConfig == nil {
-			log.Fatal("Configuration not found in context. Ensure rootCmd PersistentPreRun is setting it.")
-			return
+			logger.Fatal().Msg("Configuration not found in context. Ensure rootCmd PersistentPreRun is setting it.")
 		}
 		databaseContext := model.NewDatabaseContext(&currentConfig.Database)
 		databaseContext.Migrate()
@@ -40,15 +41,18 @@ These submissions are then published to a Redis stream for further processing by
 		client, err := routing.NewPublisher(cmd.Context(), currentConfig)
 		if err != nil {
 			log.Fatal("Failed to create publisher flow:", err)
+			logger.Fatal().Err(err).Msg("Failed to create publisher flow")
 			return
 		}
+		// Add routes for the API
 		controllers.NewimageController(&api, currentConfig).WithPublisher(client).AddRoutes()
+		controllers.NewPharosScanTaskController(&api, currentConfig).WithPublisher(client).AddRoutes()
 
 		router.HandleFunc("/submit/image", routing.SubmitImageHandler(client, currentConfig))
 		serverAddr := fmt.Sprintf(":%d", httpPort)
-		log.Printf("Starting HTTP server on %s\n", serverAddr)
+		logger.Info().Str("address", serverAddr).Msg("Starting HTTP server")
 		if err := http.ListenAndServe(serverAddr, router); err != nil {
-			log.Fatalf("Failed to start HTTP server: %v\n", err)
+			logger.Fatal().Err(err).Msg("Failed to start HTTP server")
 		}
 	},
 }
