@@ -65,7 +65,7 @@ func (pc *PharosImageMetaController) Get() (huma.Operation, func(ctx context.Con
 			OperationID: "Getimage",
 			Method:      "GET",
 			Path:        pc.Path + "/{imageid}",
-			Summary:     "Get one Docker image by digest",
+			Summary:     "Get one image by ImageId",
 			Description: "Retrieves a Docker image by its ImageId. Returns related objects such as vulnerabilities, packages and findings.",
 			Tags:        []string{"PharosImageMeta"},
 
