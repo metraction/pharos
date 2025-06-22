@@ -19,6 +19,11 @@ func NewPublisher(ctx context.Context, cfg *model.Config) (*integrations.RedisGt
 	return client, err
 }
 
+func NewPriorityPublisher(ctx context.Context, cfg *model.Config) (*integrations.RedisGtrsClient[model.PharosScanTask, model.PharosScanResult], error) {
+	client, err := integrations.NewRedisGtrsClient[model.PharosScanTask, model.PharosScanResult](ctx, cfg, cfg.Publisher.PriorityRequestQueue, cfg.Publisher.PriorityResponseQueue)
+	return client, err
+}
+
 // SubmitImageHandler handles HTTP requests for submitting Docker image information.
 func SubmitImageHandler(client *integrations.RedisGtrsClient[model.PharosScanTask, model.PharosScanResult], cfg *model.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -51,12 +56,12 @@ func SubmitImageHandler(client *integrations.RedisGtrsClient[model.PharosScanTas
 
 			// Create a full scan task from the simple image name
 			request, err = model.NewPharosScanTask(
-				uuid.New().String(),            // jobId
-				simpleRequest.Image,           // imageRef
-				"linux/amd64",                // platform
-				model.PharosRepoAuth{},       // auth
-				24*time.Hour,                // cacheExpiry
-				timeout,                     // scanTimeout
+				uuid.New().String(),    // jobId
+				simpleRequest.Image,    // imageRef
+				"linux/amd64",          // platform
+				model.PharosRepoAuth{}, // auth
+				24*time.Hour,           // cacheExpiry
+				timeout,                // scanTimeout
 			)
 			if err != nil {
 				log.Printf("Error creating scan task: %v\n", err)

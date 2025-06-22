@@ -6,7 +6,6 @@ import (
 	"context"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/metraction/pharos/internal/integrations"
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/rs/zerolog"
@@ -15,11 +14,10 @@ import (
 )
 
 type PharosImageMetaController struct {
-	Path      string
-	Api       *huma.API
-	Publisher *integrations.RedisGtrsClient[model.PharosScanTask, model.PharosScanResult]
-	Config    *model.Config
-	Logger    *zerolog.Logger
+	Path   string
+	Api    *huma.API
+	Config *model.Config
+	Logger *zerolog.Logger
 }
 
 type Images struct {
@@ -53,11 +51,6 @@ func (pc *PharosImageMetaController) AddRoutes() {
 		op, handler := pc.GetAll()
 		huma.Register(*pc.Api, op, handler)
 	}
-}
-
-func (pc *PharosImageMetaController) WithPublisher(publisher *integrations.RedisGtrsClient[model.PharosScanTask, model.PharosScanResult]) *PharosImageMetaController {
-	pc.Publisher = publisher
-	return pc
 }
 
 func (pc *PharosImageMetaController) Get() (huma.Operation, func(ctx context.Context, input *ImageDigestInput) (*Image, error)) {

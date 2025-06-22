@@ -38,15 +38,16 @@ These submissions are then published to a Redis stream for further processing by
 		apiConfig.OpenAPIPath = "/openapi"
 		api := humago.NewWithPrefix(router, "/api", apiConfig)
 		api.UseMiddleware(databaseContext.DatabaseMiddleware())
-		client, err := routing.NewPublisher(cmd.Context(), currentConfig)
+		publisher, err := routing.NewPublisher(cmd.Context(), currentConfig)
+		priorityPublisher, err := routing.NewPriorityPublisher(cmd.Context(), currentConfig)
 		if err != nil {
 			log.Fatal("Failed to create publisher flow:", err)
 			logger.Fatal().Err(err).Msg("Failed to create publisher flow")
 			return
 		}
 		// Add routes for the API
-		controllers.NewimageController(&api, currentConfig).WithPublisher(client).AddRoutes()
-		controllers.NewPharosScanTaskController(&api, currentConfig).WithPublisher(client).AddRoutes()
+		controllers.NewimageController(&api, currentConfig).AddRoutes()
+		controllers.NewPharosScanTaskController(&api, currentConfig).WithPublisher(publisher, priorityPublisher).AddRoutes()
 
 		// I love swagger
 
@@ -76,7 +77,7 @@ These submissions are then published to a Redis stream for further processing by
 </html>`))
 		})
 
-		router.HandleFunc("/submit/image", routing.SubmitImageHandler(client, currentConfig))
+		router.HandleFunc("/submit/image", routing.SubmitImageHandler(publisher, currentConfig))
 		serverAddr := fmt.Sprintf(":%d", httpPort)
 		logger.Info().Str("address", serverAddr).Msg("Starting HTTP server")
 		if err := http.ListenAndServe(serverAddr, router); err != nil {
