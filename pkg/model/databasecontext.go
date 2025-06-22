@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/metraction/pharos/internal/logging"
+	"github.com/rs/zerolog"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -12,11 +14,15 @@ import (
 type DatabaseContext struct {
 	DB     *gorm.DB
 	Config *Database
+	Logger *zerolog.Logger
 }
 
 var Models = []interface{}{
 	DockerImage{},
 	PharosImageMeta{},
+	PharosVulnerability{},
+	PharosScanFinding{},
+	PharosPackage{},
 }
 
 // DefaultGormModel provides a base model with common fields for GORM models, removing the DeletedAt field.
@@ -28,6 +34,7 @@ type DefaultGormModel struct {
 
 func NewDatabaseContext(config *Database) *DatabaseContext {
 	dsn := config.Dsn
+	logger := logging.NewLogger("info")
 	var dialector gorm.Dialector
 	switch config.Driver {
 	// case DatabaseDriverSqlite:
@@ -35,17 +42,18 @@ func NewDatabaseContext(config *Database) *DatabaseContext {
 	case DatabaseDriverPostgres:
 		dialector = postgres.Open(dsn)
 	default:
-		panic(fmt.Sprintf("Unsupported database driver: %s", config.Driver))
+		logger.Panic().Any("driver", config.Driver).Msg("Unsupported database driver")
 	}
 	db, err := gorm.Open(dialector, &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: false,
 	})
 	if err != nil {
-		panic(fmt.Sprintf("Failed to connect to database: %v", err))
+		logger.Panic().Err(err).Msg("Failed to connect to database")
 	}
 	return &DatabaseContext{
 		DB:     db,
 		Config: config,
+		Logger: logger,
 	}
 }
 
@@ -55,7 +63,7 @@ func (dc *DatabaseContext) Migrate() error {
 		if err != nil {
 			return err
 		}
-		fmt.Printf("Migrated model: %T\n", model)
+		dc.Logger.Info().Str("model", fmt.Sprintf("%T", model)).Msg("Migrated model")
 	}
 	return nil
 }

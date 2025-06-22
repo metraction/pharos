@@ -2,19 +2,23 @@ package model
 
 // ScannerConfig holds scanner-specific configuration.
 type ScannerConfig struct {
-	RequestQueue  string `mapstructure:"requestQueue"`
-	ResponseQueue string `mapstructure:"responseQueue"`
-	Timeout       string `mapstructure:"timeout"`
-	CacheExpiry   string `mapstructure:"cacheExpiry"`
-	CacheEndpoint string `mapstructure:"cacheEndpoint"`
-	Engine        string `mapstructure:"engine"`
+	RequestQueue          string `mapstructure:"requestQueue"`
+	PriorityRequestQueue  string `mapstructure:"priorityRequestQueue"`
+	ResponseQueue         string `mapstructure:"responseQueue"`
+	PriorityResponseQueue string `mapstructure:"priorityResponseQueue"`
+	Timeout               string `mapstructure:"timeout"`
+	CacheExpiry           string `mapstructure:"cacheExpiry"`
+	CacheEndpoint         string `mapstructure:"cacheEndpoint"`
+	Engine                string `mapstructure:"engine"`
 }
 
 // PublisherConfig holds publisher-specific configuration.
 type PublisherConfig struct {
-	RequestQueue  string `mapstructure:"requestQueue"`
-	ResponseQueue string `mapstructure:"responseQueue"`
-	Timeout       string `mapstructure:"timeout"`
+	RequestQueue          string `mapstructure:"requestQueue"`
+	PriorityRequestQueue  string `mapstructure:"priorityRequestQueue"`
+	ResponseQueue         string `mapstructure:"responseQueue"`
+	PriorityResponseQueue string `mapstructure:"priorityResponseQueue"`
+	Timeout               string `mapstructure:"timeout"`
 }
 
 // Config holds the application configuration.

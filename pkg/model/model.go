@@ -58,61 +58,64 @@ type PharosScanEngine struct {
 
 // metadata about the asset (image, code, vm, ..)
 type PharosImageMeta struct {
-	ImageSpec      string      `json:"ImageSpec" required:"true" doc:"image url, e.g. docker.io/nginx:latest"` // scan input / image uri
-	ImageId        string      `json:"ImageId" gorm:"primaryKey" hidden:"true" doc:"internal image ID, e.g. sha256:1234.."`
-	IndexDigest    string      `json:"IndexDigest" required:"true"` // internal ID for cache
-	ManifestDigest string      `json:"ManifestDigest" required:"false"`
-	RepoDigests    StringSlice `json:"RepoDigests" required:"false" gorm:"type:VARCHAR"`
-	ArchName       string      `json:"ArchName" required:"false" doc:"image platform architecture default: amd64"` // image platform architecture amd64/..
-	ArchOS         string      `json:"ArchOS" required:"false" doc:"image platform OS default: linux"`             // image platform OS
-	DistroName     string      `json:"DistroName" required:"false"`
-	DistroVersion  string      `json:"DistroVersion" required:"false"`
-	Size           uint64      `json:"Size" required:"false"`
-	Tags           StringSlice `json:"Tags" gorm:"type:VARCHAR" required:"false"`
-	Layers         StringSlice `json:"Layers" gorm:"type:VARCHAR" required:"false"`
+	ImageSpec       string                `json:"ImageSpec" required:"true" doc:"image url, e.g. docker.io/nginx:latest"` // scan input / image uri
+	ImageId         string                `json:"ImageId" gorm:"primaryKey" hidden:"true" doc:"internal image ID, e.g. sha256:1234.."`
+	IndexDigest     string                `json:"IndexDigest" required:"true"` // internal ID for cache
+	ManifestDigest  string                `json:"ManifestDigest" required:"false"`
+	RepoDigests     StringSlice           `json:"RepoDigests" required:"false" gorm:"type:VARCHAR"`
+	ArchName        string                `json:"ArchName" required:"false" doc:"image platform architecture default: amd64"` // image platform architecture amd64/..
+	ArchOS          string                `json:"ArchOS" required:"false" doc:"image platform OS default: linux"`             // image platform OS
+	DistroName      string                `json:"DistroName" required:"false"`
+	DistroVersion   string                `json:"DistroVersion" required:"false"`
+	Size            uint64                `json:"Size" required:"false"`
+	Tags            StringSlice           `json:"Tags" gorm:"type:VARCHAR" required:"false"`
+	Layers          StringSlice           `json:"Layers" gorm:"type:VARCHAR" required:"false"`
+	Vulnerabilities []PharosVulnerability `json:"Vulnerabilities" required:"false" gorm:"many2many:join_pharos_vulnerability_with_pharos_image_meta;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Findings        []PharosScanFinding   `json:"Findings" required:"false" gorm:"many2many:join_pharos_scan_finding_with_pharos_image_meta;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Packages        []PharosPackage       `json:"Packages" required:"false" gorm:"many2many:join_pharos_package_with_pharos_image_meta;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 // a finding is an instantiation of a vulnerability in an asset/package (scan result)
 type PharosScanFinding struct {
-	AdvId       string    `json:"AdvId"`      // finding CVE, GHSA, ..
-	AdvSource   string    `json:"AdvSource"`  // advisory source, like NVD, GItHub, Uuntu
-	ScanDate    time.Time `json:"ScanDate"`   // finding first found
-	UpdateDate  time.Time `json:"UpdateDate"` // finding updated/last scan
-	Severity    string    `json:"Severity"`
-	DueDate     time.Time `json:"DueDate"` // needs to be fixed by
-	FixState    string    `json:"FixState"`
-	FixVersions []string  `json:"FixVersions"`
-	FoundIn     []string  `json:"FoundIn"` // Paths of vulnerable artifacts
+	AdvId       string      `json:"AdvId" gorm:"primaryKey"`     // finding CVE, GHSA, ..
+	AdvSource   string      `json:"AdvSource" gorm:"primaryKey"` // advisory source, like NVD, GItHub, Uuntu
+	ScanDate    time.Time   `json:"ScanDate"`                    // finding first found
+	UpdateDate  time.Time   `json:"UpdateDate"`                  // finding updated/last scan
+	Severity    string      `json:"Severity"`
+	DueDate     time.Time   `json:"DueDate"` // needs to be fixed by
+	FixState    string      `json:"FixState"`
+	FixVersions StringSlice `json:"FixVersions" gorm:"type:VARCHAR"`
+	FoundIn     StringSlice `json:"FoundIn" gorm:"type:VARCHAR"` // Paths of vulnerable artifacts
 }
 
 // a vulnerability is generic description of a weakness, a scan finds vulns in packages
 type PharosVulnerability struct {
-	AdvId          string    `json:"AdvId"`     // finding CVE, GHSA, ..
-	AdvSource      string    `json:"AdvSource"` // advisory source, like NVD, GItHub, Ubuntu
-	AdvAliases     string    `json:"Aliases"`
-	CreateDate     time.Time `json:"CreateDate"` // finding first found
-	PubDate        time.Time `json:"PubDate"`    // vuln publication
-	ModDate        time.Time `json:"ModDate"`    // last modified
-	KevDate        time.Time `json:"KevDate"`    // known exploited in wild pubdate)
-	Severity       string    `json:"Severity"`
-	CvssVectors    []string  `json:"CvssVectors"`
-	CvssBase       float64   `json:"CvssBase"`       // max cvss score
-	RiskScoce      float64   `json:"RiskScore"`      // from grype
-	Cpes           []string  `json:"Cpes"`           // Mitre CPEs
-	Cwes           []string  `json:"Cwes"`           // Mitre CWEs
-	References     []string  `json:"References"`     // external references
-	RansomwareUsed string    `json:"RansomwareUsed"` // Exploit used in ransomware
-	Description    string    `json:"Description"`
+	AdvId          string      `json:"AdvId" gorm:"primaryKey"`     // finding CVE, GHSA, ..
+	AdvSource      string      `json:"AdvSource" gorm:"primaryKey"` // advisory source, like NVD, GItHub, Ubuntu
+	AdvAliases     string      `json:"Aliases"`
+	CreateDate     time.Time   `json:"CreateDate"` // finding first found
+	PubDate        time.Time   `json:"PubDate"`    // vuln publication
+	ModDate        time.Time   `json:"ModDate"`    // last modified
+	KevDate        time.Time   `json:"KevDate"`    // known exploited in wild pubdate)
+	Severity       string      `json:"Severity"`
+	CvssVectors    StringSlice `json:"CvssVectors" gorm:"type:VARCHAR"`
+	CvssBase       float64     `json:"CvssBase"`                       // max cvss score
+	RiskScoce      float64     `json:"RiskScore"`                      // from grype
+	Cpes           StringSlice `json:"Cpes" gorm:"type:VARCHAR"`       // Mitre CPEs
+	Cwes           StringSlice `json:"Cwes" gorm:"type:VARCHAR"`       // Mitre CWEs
+	References     StringSlice `json:"References" gorm:"type:VARCHAR"` // external references
+	RansomwareUsed string      `json:"RansomwareUsed"`                 // Exploit used in ransomware
+	Description    string      `json:"Description"`
 }
 
 // sbom packages
 type PharosPackage struct {
-	Key     string   `json:"Key"` // unique key to deduplicate packages
-	Name    string   `json:"Name"`
-	Version string   `json:"Version"`
-	Type    string   `json:"Type"`
-	Purl    string   `json:"Purl"`
-	Cpes    []string `json:"Cpes"`
+	Key     string      `json:"Key" gorm:"primaryKey"` // unique key to deduplicate packages
+	Name    string      `json:"Name"`
+	Version string      `json:"Version"`
+	Type    string      `json:"Type"`
+	Purl    string      `json:"Purl"`
+	Cpes    StringSlice `json:"Cpes" gorm:"type:VARCHAR"`
 }
 
 // return model as []byte
