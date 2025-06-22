@@ -2,7 +2,8 @@ name: Build
 on:
   push:
     branches: 
-    - '*'
+      - 'main'
+      - 'PH-22/*'
     tags:
     - 'v*'
   workflow_dispatch:
