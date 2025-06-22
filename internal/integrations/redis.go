@@ -13,18 +13,18 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-<<<<<<< HEAD
 func NewRedis(ctx context.Context, cfg *model.Config) *redis.Client {
 	return redis.NewClient(&redis.Options{
 		Addr: cfg.Redis.DSN,
-=======
+	})
+}
+
 func NewRedisStreamSource(ctx context.Context, redisCfg model.Redis, streamName string, groupName string, consumerName, groupStartID string, blockTimeout time.Duration, messageCount int64) (streams.Source, error) {
 	// 1. Create Redis client (using go-redis/redis v6)
 	fmt.Println("Connecting to Redis at:", redisCfg.DSN)
 	rdb := redis.NewClient(&redis.Options{
 		Addr: redisCfg.DSN,
 		// Other v6 options if needed (e.g., Password, DB)
->>>>>>> c81c0c6 (add stream groups to distribute work to consumers)
 	})
 }
 

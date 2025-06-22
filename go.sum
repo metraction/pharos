@@ -155,8 +155,6 @@ github.com/redis/go-redis/v9 v9.10.0 h1:FxwK3eV8p/CQa0Ch276C7u2d0eNC9kCmAYQ7mCXC
 github.com/redis/go-redis/v9 v9.10.0/go.mod h1:huWgSWd8mW6+m0VPhJjSSQ+d6Nh1VICQ6Q5lHuCH/Iw=
 github.com/reugn/go-streams v0.13.0 h1:v0qMO0/9hxy5OwDGH56SGjp9wfG8xnFgPc3iW90kXj0=
 github.com/reugn/go-streams v0.13.0/go.mod h1:dnXv6QgVTW62gEpILoLHRjI95Es7ECK2/+j9h17aIN8=
-github.com/reugn/go-streams/redis v0.1.3-0.20250510062123-d43ee10d8177 h1:arhG9mNtxaIHDPXcpZMcgB06G+03lH7Ving7aivNJi4=
-github.com/reugn/go-streams/redis v0.1.3-0.20250510062123-d43ee10d8177/go.mod h1:hm8R0PZfWw4RuACBuvX2ECRIWtNd9ga+ICgYXluD9DU=
 github.com/rogpeppe/go-internal v1.13.1 h1:KvO1DLK/DRN07sQ1LQKScxyZJuNnedQ5/wKSR38lUII=
 github.com/rogpeppe/go-internal v1.13.1/go.mod h1:uMEvuHeurkdAXX61udpOXGD/AzZDWNMNyH2VO9fmH0o=
 github.com/rs/xid v1.6.0/go.mod h1:7XoLgs4eV+QndskICGsho+ADou8ySMSjJKDIan90Nz0=

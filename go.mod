@@ -30,7 +30,6 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/redis/go-redis/v9 v9.10.0
 	github.com/reugn/go-streams v0.13.0
-	github.com/reugn/go-streams/redis v0.1.3-0.20250510062123-d43ee10d8177
 	github.com/rs/zerolog v1.34.0
 	github.com/samber/lo v1.50.0
 	github.com/sirupsen/logrus v1.9.3 // indirect
