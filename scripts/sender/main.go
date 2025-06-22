@@ -27,7 +27,6 @@ type CityType struct {
 	Created time.Time
 	Trigger int
 }
-type DummyType int
 
 func init() {
 	consoleWriter := zerolog.ConsoleWriter{Out: os.Stdout}
@@ -42,6 +41,10 @@ func init() {
 
 // handler to process cities
 func cityHandlerFunc(x mq.TaskMessage[CityType]) error {
+
+	k := x.Data.Id%10 + 1
+	delay := time.Duration(100*k) * time.Millisecond
+
 	logger.Info().
 		Str("m.id", x.Id).
 		Any("m.retry", x.RetryCount).
@@ -49,28 +52,41 @@ func cityHandlerFunc(x mq.TaskMessage[CityType]) error {
 		Any("city.id", x.Data.Id).
 		Any("city.tr", x.Data.Trigger).
 		Any("city.name", x.Data.Name).
+		Any("t.sleep", delay.Seconds()).
 		Msg("received")
+
+	time.Sleep(delay)
+	if x.Data.Id%10 == 0 {
+		return fmt.Errorf("scan failed (systematic)")
+	}
+
 	if x.Data.Trigger > 0 {
 		return nil
 	}
 	if x.RetryCount > 2 {
 		return nil
 	}
-	return fmt.Errorf("scan failed")
+	return fmt.Errorf("scan failed (sporadic)")
 }
 
 func main() {
 
 	action := flag.String("action", "", "action [tx,rx]")
 	redisEndpoint := flag.String("endpoint", "redis://:pwd@localhost:6379/0", "Redis endpoint")
+	consumer := flag.String("consumer", "", "Consumer name")
+	samples := flag.Int("samples", 5, "number of samples")
 
 	flag.Parse()
 
 	ctx := context.Background()
 
+	for k := 1; k <= 10; k++ {
+		cityList = append(cityList, cityList...)
+	}
+
 	streamName := "mx"
 	groupName := "gx"
-	consumerName := "alfa"
+	consumerName := *consumer
 
 	logger.Info().Msg("-----< Message Queue Testing >-----")
 	logger.Info().
@@ -78,18 +94,29 @@ func main() {
 		Str("streamName", streamName).
 		Str("consumerName", consumerName).
 		Str("action", *action).
+		Any("sanokes", *samples).
 		Str("redisEndpoint", *redisEndpoint).
 		Msg("")
 
-	// create and connect
-	maxTTL := 20 * time.Second
-	maxlen := int64(50)
-	maxRetry := int64(3)
+	// stream dimension
+	maxStreamLen := int64(100000) // max # messages in stream
+
+	// message limitations
+	maxMsgRetry := int64(4)       // delete tasks after this may retries
+	maxMsgTTL := 45 * time.Second // tasks idle longer than this are deleted
+
+	// cleanup process
+	cleanupInterval := 15 * time.Second  // intervall to execute stale/expired/cleanup check
+	reclaimOlderThan := 30 * time.Second // get and reclaim messages with idleTime > this
+	deleteOlderThan := 60 * time.Second  // get and delete messages with idleTime > this
+	var reclaimStaleBlock int64 = 20     // reclaim buffer (number of messages) to reclaim per call
+	var removeStaleBlock int64 = 20      // delete buffer (number of messages) to delete per call
+
 	var err error
-	var tmq *mq.RedisGtrsQueue[CityType]
+	var tmq *mq.RedisTaskQueue[CityType]
 
 	// setup redis task queue
-	if tmq, err = mq.NewRedisGtrsQueue[CityType](ctx, *redisEndpoint, streamName, maxlen, maxRetry, maxTTL); err != nil {
+	if tmq, err = mq.NewRedisGtrsQueue[CityType](ctx, *redisEndpoint, streamName, maxStreamLen, maxMsgRetry, maxMsgTTL); err != nil {
 		logger.Fatal().Err(err).Msg("NewRedisGtrsClientStefan()")
 	}
 	if err = tmq.Connect(ctx); err != nil {
@@ -97,33 +124,35 @@ func main() {
 	}
 	defer tmq.Close()
 
+	// ensure the stream is created with defined settings if it not exists
 	if err = tmq.CreateGroup(ctx, groupName, "$"); err != nil {
 		logger.Fatal().Err(err).Msg("tmq.CreateGroup()")
 	}
 
-	// check and remove stale every 10 seconds
-	ticker := time.NewTicker(3 * time.Second)
+	// check stale and reclaim every 10 seconds
+	ticker := time.NewTicker(cleanupInterval)
 	defer ticker.Stop()
 
-	// ctx context.Context, tmq *mq.RedisGtrsQueue[CityType]
+	// TODO: Ensure short ticker time does not start task before previous task finished
+	// TODO: Enforce timeouts
 	go func() {
 		logger.Info().Msg("Start RemoveStale Checker")
 		for range ticker.C {
 			logger.Info().Str("time", time.Now().Format("15:04:05")).Msg("Ticker")
-			if _, err = tmq.ReclaimStale(ctx, groupName, consumerName, 3, 10*time.Second, cityHandlerFunc); err != nil {
+			if _, err = tmq.ReclaimStale(ctx, groupName, consumerName, reclaimStaleBlock, reclaimOlderThan, cityHandlerFunc); err != nil {
 				logger.Error().Err(err).Msg("ReclaimStale")
 			}
-			// if _, err = tmq.RemoveStale(ctx, groupName, 3, 10*time.Second); err != nil {
-			// 	logger.Error().Err(err).Msg("RemoveStale")
-			// }
-
+			if _, err = tmq.RemoveStale(ctx, groupName, removeStaleBlock, deleteOlderThan); err != nil {
+				logger.Error().Err(err).Msg("RemoveStale")
+			}
 		}
 	}()
 
 	// action TX
 	if *action == "tx" || *action == "trx" {
 		logger.Info().Msg("-----< Action:send [tx] >-----")
-		for k, name := range lo.Slice(cityList, 0, 5) {
+
+		for k, name := range lo.Slice(cityList, 0, *samples) {
 			city := CityType{Id: k, Name: name, Created: time.Now(), Trigger: k % 3}
 
 			id, err := tmq.AddMessage(ctx, 1, city)
