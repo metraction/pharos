@@ -7,15 +7,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dranikpg/gtrs"
 	"github.com/metraction/pharos/internal/gtrsconvert"
 	"github.com/redis/go-redis/v9"
-	"github.com/samber/lo"
 )
 
 var ErrTaskqueueTimeout = errors.New("taskqueue timeout")
 
-func ValuesToStruct[T any](values map[string]interface{}) (T, error) {
+// convert msg values map back to structure
+func valuesToStruct[T any](values map[string]interface{}) (T, error) {
 	var result T
 	if err := gtrsconvert.MapToStruct(&result, values); err != nil {
 		return result, err
@@ -24,16 +23,16 @@ func ValuesToStruct[T any](values map[string]interface{}) (T, error) {
 }
 
 type TaskMessage[T any] struct {
-	RetryCount int64         // Redis msg retry count
-	IdleTime   time.Duration // Redis msg idle time
-	Id         string        // Redis msg id
+	RetryCount int64         // redis msg retry count
+	IdleTime   time.Duration // redis msg idle time
+	Id         string        // redis msg id
 	Data       T
 }
 
 // return task message given redis message
 func NewTaskMessage[T any](retryCount int64, idleTime time.Duration, msg redis.XMessage) (TaskMessage[T], error) {
 
-	payload, err := ValuesToStruct[T](msg.Values)
+	payload, err := valuesToStruct[T](msg.Values)
 	if err != nil {
 		return TaskMessage[T]{}, err
 	}
@@ -45,18 +44,18 @@ func NewTaskMessage[T any](retryCount int64, idleTime time.Duration, msg redis.X
 	}, nil
 }
 
-type RedisGtrsQueue[T any] struct {
+// main task queue object
+type RedisTaskQueue[T any] struct {
 	StreamName string
 	MaxRetry   int64         // delete message with retryCount > maxRetry
 	MaxLen     int64         // stream max length
 	MaxTTL     time.Duration // delete messages with idleTime > maxTTL
 
-	stream1 *gtrs.Stream[T]
-
 	rdb *redis.Client
 }
 
-func NewRedisGtrsQueue[T any](ctx context.Context, redisEndpoint, streamName string, maxStreamLen, maxRetry int64, maxTTL time.Duration) (*RedisGtrsQueue[T], error) {
+// return new task queue object with arguments set
+func NewRedisGtrsQueue[T any](ctx context.Context, redisEndpoint, streamName string, maxStreamLen, maxRetry int64, maxTTL time.Duration) (*RedisTaskQueue[T], error) {
 
 	options, err := redis.ParseURL(redisEndpoint)
 	if err != nil {
@@ -64,9 +63,9 @@ func NewRedisGtrsQueue[T any](ctx context.Context, redisEndpoint, streamName str
 	}
 	rdb := redis.NewClient(options)
 
-	// NOTE: The stream is created with eiter automatically with XAdd or with the ConsumerGroup using rx.CreateGroup()
+	// NOTE: The stream is created with either automatically with XAdd or with the ConsumerGroup using rx.CreateGroup()
 
-	result := RedisGtrsQueue[T]{
+	result := RedisTaskQueue[T]{
 		StreamName: streamName,
 		MaxLen:     maxStreamLen, // max number of messages in stream (REdis trims to this automatically)
 		MaxRetry:   maxRetry,     // delete messageas after maxRetry
@@ -77,9 +76,35 @@ func NewRedisGtrsQueue[T any](ctx context.Context, redisEndpoint, streamName str
 	return &result, nil
 }
 
+// delete stream
+func (rx *RedisTaskQueue[T]) DeleteStream(ctx context.Context, steamName string) error {
+	if _, err := rx.rdb.Del(ctx, steamName).Result(); err != nil {
+		return err
+	}
+	return nil
+}
+
+// connect
+func (rx *RedisTaskQueue[T]) Connect(ctx context.Context) error {
+	if err := rx.rdb.Ping(ctx).Err(); err != nil {
+		return fmt.Errorf("redis connect (ping): %v", err)
+	}
+	return nil
+}
+
+// safely close connection
+func (rx *RedisTaskQueue[T]) Close() {
+	if rx.rdb != nil {
+		rx.rdb.Close()
+	}
+}
+
 // create stream and consumer group
-func (rx *RedisGtrsQueue[T]) CreateGroup(ctx context.Context, groupName, mode string) error {
-	// mode: "$" read from last, "0" read from start
+func (rx *RedisTaskQueue[T]) CreateGroup(ctx context.Context, groupName, mode string) error {
+
+	// mode: "$" read from last processed message
+	// mode: "0" read from start of queue
+
 	if err := rx.rdb.XGroupCreateMkStream(ctx, rx.StreamName, groupName, mode).Err(); err != nil {
 		// don't thorow error if stream/group already exists
 		if !strings.Contains(err.Error(), "BUSYGROUP") {
@@ -92,13 +117,15 @@ func (rx *RedisGtrsQueue[T]) CreateGroup(ctx context.Context, groupName, mode st
 // delete messages left unacknowleged or failed for longer than timeout
 // call this method on scheduled intervals to cleanup the taskqueue
 // https://redis.io/docs/latest/commands/xpending/
-func (rx *RedisGtrsQueue[T]) RemoveStale(ctx context.Context, groupName string, batch int64, idleTime time.Duration) (int64, error) {
+
+func (rx *RedisTaskQueue[T]) RemoveStale(ctx context.Context, groupName string, batch int64, idleTime time.Duration) (int64, error) {
 
 	var err error
 	var staleIds = []string{}
 
 	fmt.Println("- exec:RemoveStale() ...")
-	// return list of pending tasks (not ACKED, msg.idle > idleTime)
+
+	// return list of pending tasks (pending: message not acknowledged  or  msg.idle > idleTime)
 	pending, err := rx.rdb.XPendingExt(ctx, &redis.XPendingExtArgs{
 		Stream: rx.StreamName,
 		Group:  groupName,
@@ -112,18 +139,20 @@ func (rx *RedisGtrsQueue[T]) RemoveStale(ctx context.Context, groupName string, 
 	}
 
 	// collect messages to delete
+	fmt.Printf("- exec:RemoveStale() %v messages\n", len(pending))
 	for _, msg := range pending {
 		// delete if retry or TTL exceeded
 		if msg.RetryCount > rx.MaxRetry || msg.Idle > rx.MaxTTL {
 			staleIds = append(staleIds, msg.ID)
 			fmt.Printf("remove.stale[%s] retry:%v, idle:%v\n", msg.ID, msg.RetryCount, msg.Idle.Seconds())
-			// ACK needed to remove stale
+
+			// ATTN: ACK needed to remove stale
 			rx.rdb.XAck(ctx, rx.StreamName, groupName, msg.ID)
 			continue
 		}
 	}
 
-	// delete in one go
+	// now delete collected messages in one go
 	if len(staleIds) > 0 {
 		num, err := rx.rdb.XDel(ctx, rx.StreamName, staleIds...).Result()
 		if err != nil {
@@ -135,14 +164,57 @@ func (rx *RedisGtrsQueue[T]) RemoveStale(ctx context.Context, groupName string, 
 	return int64(len(staleIds)), nil
 }
 
-// reclaim messages left in PEL for longer than timeout
-func (rx *RedisGtrsQueue[T]) ReclaimStale(ctx context.Context, groupName, consumerName string, batch int64, minIdle time.Duration, handlerFunc func(TaskMessage[T]) error) (int64, error) {
+// helper function to get retryCount and idleTime for given message
+func (rx *RedisTaskQueue[T]) getMessageState(ctx context.Context, msgId, groupName string) (int64, time.Duration, bool, error) {
 
-	var task TaskMessage[T]
+	pending, err := rx.rdb.XPendingExt(ctx, &redis.XPendingExtArgs{
+		Stream: rx.StreamName,
+		Group:  groupName,
+		Start:  msgId,
+		End:    msgId,
+		Count:  1,
+	}).Result()
+
+	if err != nil {
+		return 0, 0, false, err
+	}
 	var retryCount int64
 	var idleTime time.Duration
 
-	fmt.Println("- exec:ReclaimStale() ...")
+	if len(pending) > 0 {
+		idleTime = pending[0].Idle
+		retryCount = pending[0].RetryCount
+	}
+
+	// return true if message is expired, only do this check if either MaxRetry or MaxTTL is set
+	if rx.MaxRetry > 0 && rx.MaxTTL > 0 {
+		if retryCount > rx.MaxRetry || idleTime > rx.MaxTTL {
+			return retryCount, idleTime, true, nil
+		}
+	}
+	return retryCount, idleTime, false, nil
+}
+
+// helper function to delete message when it exceeds maxRetry or maxIdel time
+func (rx *RedisTaskQueue[T]) DeleteMessage(ctx context.Context, groupName string, msgId string) error {
+
+	rx.rdb.XAck(ctx, rx.StreamName, groupName, msgId)
+	if _, err := rx.rdb.XDel(ctx, rx.StreamName, msgId).Result(); err != nil {
+		return err
+	}
+	return nil
+}
+
+// reclaim messages left in PEL for longer than timeout
+func (rx *RedisTaskQueue[T]) ReclaimStale(ctx context.Context, groupName, consumerName string, batch int64, minIdle time.Duration, handlerFunc func(TaskMessage[T]) error) (int64, error) {
+
+	var err error
+	var expired bool
+	var retryCount int64
+	var idleTime time.Duration
+	var task TaskMessage[T]
+
+	fmt.Printf("- exec:ReclaimStale() for %s...\n", consumerName)
 	x, _, err := rx.rdb.XAutoClaim(ctx, &redis.XAutoClaimArgs{
 		Stream:   rx.StreamName,
 		Group:    groupName,
@@ -157,34 +229,35 @@ func (rx *RedisGtrsQueue[T]) ReclaimStale(ctx context.Context, groupName, consum
 
 	fmt.Printf("- reclaim m: %v\n", len(x))
 	for id, msg := range x {
-		fmt.Printf("- reclaim %v: %v\n", id, msg)
+		fmt.Printf("- reclaim %v\n", id)
 
-		retryCount, idleTime, err = rx.GetMessageMeta(ctx, msg.ID, groupName)
-		if err != nil {
+		// check and enforce maxRetry and maxTTL exceeded
+		if retryCount, idleTime, expired, err = rx.getMessageState(ctx, msg.ID, groupName); err != nil {
 			return 0, err
 		}
+		if expired {
+			if err = rx.DeleteMessage(ctx, groupName, msg.ID); err != nil {
+				return 0, err
+			}
+			continue
+		}
 
-		// call handler, acknowledge when no error is thrown
-		task, err = NewTaskMessage[T](retryCount, idleTime, msg)
-		if err != nil {
+		// parse and process message
+		if task, err = NewTaskMessage[T](retryCount, idleTime, msg); err != nil {
 			return 0, err
 		}
 		err = handlerFunc(task)
 		if err == nil {
-			if err := rx.rdb.XAck(ctx, rx.StreamName, groupName, msg.ID).Err(); err != nil {
-				return 0, err
-			}
-		} else {
-			fmt.Println("Sub [handler:err] ", err)
+			rx.rdb.XAck(ctx, rx.StreamName, groupName, msg.ID) // Acknowledge the message if no error returned
 		}
-	}
 
+	}
 	return int64(len(x)), nil
 }
 
 // add message to stream
 // TODO: implement priority
-func (rx *RedisGtrsQueue[T]) AddMessage(ctx context.Context, priority int, payload T) (string, error) {
+func (rx *RedisTaskQueue[T]) AddMessage(ctx context.Context, priority int, payload T) (string, error) {
 
 	var err error
 	var values map[string]any
@@ -204,30 +277,13 @@ func (rx *RedisGtrsQueue[T]) AddMessage(ctx context.Context, priority int, paylo
 	return id, nil
 }
 
-// return retryCount, idleTime for given message
-func (rx *RedisGtrsQueue[T]) GetMessageMeta(ctx context.Context, msgId, groupName string) (int64, time.Duration, error) {
+// subscribe to messages from consumer group, execute handler for each message, timeout after blockTime
+func (rx *RedisTaskQueue[T]) GroupSubscribe(ctx context.Context, mode, groupName, consumerName string, blockTime time.Duration, handlerFunc func(x TaskMessage[T]) error) error {
 
-	pending, err := rx.rdb.XPendingExt(ctx, &redis.XPendingExtArgs{
-		Stream: rx.StreamName,
-		Group:  groupName,
-		Start:  msgId,
-		End:    msgId,
-		Count:  1,
-	}).Result()
-	if err != nil {
-		return 0, 0, err
-	}
-	idleTime := lo.Ternary(len(pending) > 0, pending[0].Idle, 0)
-	retryCount := lo.Ternary(len(pending) > 0, pending[0].RetryCount, 0)
-	return retryCount, idleTime, nil
-}
-
-// subscribe to messages from consumer group, execute handler for each message
-func (rx *RedisGtrsQueue[T]) GroupSubscribe(ctx context.Context, mode, groupName, consumerName string, blockTime time.Duration, handlerFunc func(x TaskMessage[T]) error) error {
-
-	var task TaskMessage[T]
+	var expired bool
 	var retryCount int64
 	var idleTime time.Duration
+	var task TaskMessage[T]
 
 	for {
 		// wait for messages
@@ -247,75 +303,34 @@ func (rx *RedisGtrsQueue[T]) GroupSubscribe(ctx context.Context, mode, groupName
 
 		// process received messages
 		for _, stream := range res {
+			fmt.Printf("loop:GroupSubscribe %v msgs\n", len(stream.Messages))
 			for _, msg := range stream.Messages {
 
-				// if payload, err = ValuesToStruct[T](msg.Values); err != nil {
-				// 	return err
-				// }
-
-				// check and enforce maxRetry and maxTTL
-				retryCount, idleTime, err = rx.GetMessageMeta(ctx, msg.ID, groupName)
-				if err != nil {
+				// check and enforce maxRetry and maxTTL exceeded
+				if retryCount, idleTime, expired, err = rx.getMessageState(ctx, msg.ID, groupName); err != nil {
 					return err
 				}
-				if rx.MaxRetry > 0 && rx.MaxTTL > 0 {
-					if retryCount > rx.MaxRetry || idleTime > rx.MaxTTL {
-						fmt.Printf("del[%s] retry:%v, idle:%v\n", msg.ID, retryCount, idleTime.Seconds())
-						if _, err := rx.rdb.XDel(ctx, rx.StreamName, msg.ID).Result(); err != nil {
-							return err
-						}
-						continue
+				if expired {
+					if err = rx.DeleteMessage(ctx, groupName, msg.ID); err != nil {
+						return err
 					}
+					continue
 				}
-				// parse message
-				task, err = NewTaskMessage[T](retryCount, idleTime, msg)
-				if err != nil {
+				// parse and process message
+				if task, err = NewTaskMessage[T](retryCount, idleTime, msg); err != nil {
 					return err
 				}
 				err = handlerFunc(task)
 				if err == nil {
-					// Acknowledge the message
-					rx.rdb.XAck(ctx, rx.StreamName, groupName, msg.ID)
+					rx.rdb.XAck(ctx, rx.StreamName, groupName, msg.ID) // Acknowledge the message if no error returned
 				}
 			}
 		}
 	}
-
-}
-
-func (rx *RedisGtrsQueue[T]) Publish(ctx context.Context, payload T) (string, error) {
-	id, err := rx.stream1.Add(ctx, payload)
-	if err != nil {
-		return "", err
-	}
-	return id, nil
-}
-
-// delete and recreate stream
-func (rx *RedisGtrsQueue[T]) DeleteStream(ctx context.Context, steamName string) error {
-	_, err := rx.rdb.Del(ctx, steamName).Result()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (rx *RedisGtrsQueue[T]) Connect(ctx context.Context) error {
-	if err := rx.rdb.Ping(ctx).Err(); err != nil {
-		return fmt.Errorf("redis connect (ping): %v", err)
-	}
-	return nil
-}
-
-// NEW: Stefan
-func (rx *RedisGtrsQueue[T]) Close() {
-	if rx.rdb != nil {
-		rx.rdb.Close()
-	}
 }
 
 // return stream length, queued, unconfirmed messages
-func (rx *RedisGtrsQueue[T]) GetState(ctx context.Context) (int64, int64, int64, error) {
+func (rx *RedisTaskQueue[T]) GetState(ctx context.Context) (int64, int64, int64, error) {
 	var unprocessed int64
 	var unconfirmed int64
 
@@ -342,7 +357,7 @@ func (rx *RedisGtrsQueue[T]) GetState(ctx context.Context) (int64, int64, int64,
 	return length, unprocessed, unconfirmed, err
 }
 
-func (rx *RedisGtrsQueue[T]) XLen(ctx context.Context, streamName string) (int64, error) {
+func (rx *RedisTaskQueue[T]) XLen(ctx context.Context, streamName string) (int64, error) {
 	length, err := rx.rdb.XLen(ctx, streamName).Result()
 	if err != nil {
 		return 0, err
@@ -351,7 +366,7 @@ func (rx *RedisGtrsQueue[T]) XLen(ctx context.Context, streamName string) (int64
 	return length, nil
 }
 
-func (rx *RedisGtrsQueue[T]) XPending(ctx context.Context, streamName, groupName string) (*redis.XPending, error) {
+func (rx *RedisTaskQueue[T]) XPending(ctx context.Context, streamName, groupName string) (*redis.XPending, error) {
 	// Get number of pending entries for the group
 	pending, err := rx.rdb.XPending(ctx, streamName, groupName).Result()
 	if err != nil {
