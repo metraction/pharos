@@ -13,6 +13,5 @@ data:
     redis: 
       dsn: {{ .Values.externalRedis.host | default "localhost" }}:{{ .Values.externalRedis.port | default 6379 }}
     {{- end }}
-    {{- if .Values.postgres.enabled }}
     scanner:
       cacheEndpoint: redis://pharos-redis-master.{{ .Release.Namespace }}.svc.cluster.local:6379
