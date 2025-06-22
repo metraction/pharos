@@ -1,0 +1,40 @@
+{{- if .Values.priorityScannerPod.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: pharos-priority-scanner
+  name: pharos-priority-scanner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pharos-priority-scanner
+  strategy: {}
+  template:
+    metadata:
+      namespace: {{ .Release.Namespace }}
+      labels:
+        app: pharos-priority-scanner
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: pharos-priority-scanner
+        image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        args: ["scanner", "--config", "/config/.pharos.yaml"]
+        volumeMounts:
+          - name: config-volume
+            mountPath: /config/.pharos.yaml
+            subPath: .pharos.yaml
+        env:
+          - name: PHAROS_SCANNER_REQUESTQUEUE
+            value: "priorityScantasks"
+      volumes:
+        - name: config-volume
+          configMap:
+            name: pharos-config
+{{- end }}
+

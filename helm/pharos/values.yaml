@@ -22,6 +22,9 @@ redis:
   auth:
     enabled: false
 
+priorityScannerPod:
+  enabled: true
+
 postgres:
   enabled: true
   auth:
