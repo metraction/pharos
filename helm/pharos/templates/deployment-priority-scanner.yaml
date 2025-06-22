@@ -32,6 +32,8 @@ spec:
         env:
           - name: PHAROS_SCANNER_REQUESTQUEUE
             value: "priorityScantasks"
+          - name: PHAROS_SCANNER_RESPONSEQUEUE
+            value: "priorityScanresult"
       volumes:
         - name: config-volume
           configMap:
