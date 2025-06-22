@@ -185,7 +185,7 @@ func TestWorkerQueue(t *testing.T) {
 		fmt.Println("process reclaimed")
 		timeout := 1 * time.Second
 		_ = tmq.Subscribe(ctx, groupName, consumer, "0", timeout, func(msg TaskMessage[CityType]) error {
-			fmt.Printf("call: retry:%v idle:%v, id:%v\n", msg.RetryCount, msg.IdleTime.Seconds(), msg.MsgId)
+			fmt.Printf("call: retry:%v idle:%v, id:%v\n", msg.RetryCount, msg.IdleTime.Seconds(), msg.Id)
 			return nil
 		})
 		println("reclaim+subscribe done for 1", consumer)
