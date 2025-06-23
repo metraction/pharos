@@ -89,11 +89,6 @@ func (pc *PharosScanTaskController) sendScanRequest(ctx context.Context, publish
 		pc.Logger.Error().Err(err).Msg("Failed to send request to scanner")
 		return "", nil, huma.Error500InternalServerError("Failed to send request to scanner: " + err.Error())
 	}
-	go func() {
-		pc.Logger.Info().Str("corrId", corrId).Msg("Waiting for result from asyns scan")
-		time.Sleep(10 * time.Second)
-		pc.Logger.Info().Str("corrId", corrId).Msg("Received result from asyns scan")
-	}()
 	return corrId, pharosScanTask, nil
 }
 
@@ -177,7 +172,12 @@ func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx contex
 					pc.Logger.Error().Err(err).Str("corrId", corrId).Msg("Failed to receive scan result")
 					return
 				}
-				pc.saveScanResult(databaseContext, &pharosScanResult)
+				if pharosScanResult.ScanTask.Error != "" {
+					pc.Logger.Warn().Str("corrId", corrId).Str("error", pharosScanResult.ScanTask.Error).Msg("Scan task failed")
+				} else {
+					pc.saveScanResult(databaseContext, &pharosScanResult)
+				}
+
 				//time.Sleep(10 * time.Second) // Simulate waiting for the scan to complete
 				pc.Logger.Info().Str("image", pharosScanTask.ImageSpec.Image).Msg("Async scan completed")
 			}(databaseContext, corrId)
@@ -228,7 +228,12 @@ func (pc *PharosScanTaskController) SyncScan() (huma.Operation, func(ctx context
 				return nil, err
 			}
 			pharosScanResult, err := pc.PriorityPublisher.ReceiveResponse(ctx, corrId, timeout)
-			err = pc.saveScanResult(databaseContext, &pharosScanResult)
+			if pharosScanResult.ScanTask.Error != "" {
+				pc.Logger.Warn().Str("corrId", corrId).Str("error", pharosScanResult.ScanTask.Error).Msg("Scan task failed")
+				return nil, huma.Error500InternalServerError("Error during scan: " + pharosScanResult.ScanTask.Error)
+			} else {
+				pc.saveScanResult(databaseContext, &pharosScanResult)
+			}
 			if err != nil {
 				return nil, err
 			}
