@@ -22,12 +22,13 @@ redis:
   auth:
     enabled: false
 
+priorityScannerPod:
+  enabled: true
+
 postgres:
   enabled: true
   auth:
-    username: pharos
-    password: pharos
-    database: pharos
+    existingSecret: "postgres-connection"
   primary:
     persistence:
       enabled: true
