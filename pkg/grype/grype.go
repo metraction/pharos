@@ -123,8 +123,8 @@ func (rx *GrypeScanner) UpdateDatabase() error {
 		return err
 	}
 	rx.logger.Info().
-		Any("prod", updProd).
-		Any("staged", updStage).
+		Any("db(prod)", dbNiceState(updProd)).
+		Any("db(staged)", dbNiceState(updStage)).
 		Str("version", rx.DatabaseVersion).
 		Str("built", rx.DatabaseUpdated.Format("2006-01-02 15:04:05")).
 		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).
@@ -158,10 +158,6 @@ func (rx *GrypeScanner) VulnScanSbom(sbom []byte) (grypetype.GrypeScanType, []by
 	cmd.Env = append(cmd.Env, "GRYPE_CHECK_FOR_APP_UPDATE=false")
 	cmd.Env = append(cmd.Env, "GRYPE_ADD_CPES_IF_NONE=true")
 	cmd.Env = append(cmd.Env, "GRYPE_DB_CACHE_DIR="+rx.DbProdDir)
-	//cmd.Env = append(cmd.Env, "GRYPE_DB_REQUIRE_UPDATE_CHECK=true")
-	//cmd.Env = append(cmd.Env, "GRYPE_DB_AUTO_UPDATE=false") // don't auto update db
-	//cmd.Env = append(cmd.Env, "GRYPE_DB_VALIDATE_AGE=false") // we ensure db is up-to-date
-	// GRYPE_ADD_CPES_IF_NONE
 
 	err := cmd.Run()
 	data := stdout.Bytes() // results as []byte

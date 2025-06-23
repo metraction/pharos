@@ -14,6 +14,15 @@ import (
 )
 
 // helper
+
+// return human readable vuln db status
+func dbNiceState(updateRequired bool) string {
+	if updateRequired {
+		return "expired"
+	}
+	return "up-to-data"
+}
+
 func TranslateMessage(msg string) string {
 	// translate as original messages that are missleading is missleading
 	msg = strings.Replace(msg, "No vulnerability database update available", "OK, no update required", 1)
