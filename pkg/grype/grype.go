@@ -7,27 +7,21 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/metraction/pharos/internal/utils"
 	"github.com/metraction/pharos/pkg/grypetype"
 	"github.com/rs/zerolog"
+	"github.com/samber/lo"
 )
-
-// helper
-func TranslateMessage(msg string) string {
-	// translate as original messages that are missleading is missleading
-	msg = strings.Replace(msg, "No vulnerability database update available", "OK, no update required", 1)
-	msg = strings.TrimSpace(msg)
-	return msg
-}
 
 // grype vulnerability scanner
 type GrypeScanner struct {
-	Engine      string
-	HomeDir     string
-	DatabaseDir string
+	Engine     string
+	HomeDir    string
+	DbProdDir  string // vuln db dir for production scanner
+	DbStageDir string // vuln db dir for staging new updates
+
 	ScannerBin  string
 	ScanTimeout time.Duration
 	// version / status
@@ -41,69 +35,80 @@ type GrypeScanner struct {
 // create grype scanner
 func NewGrypeScanner(scanTimeout time.Duration, updateDb bool, logger *zerolog.Logger) (*GrypeScanner, error) {
 
+	var err error
+	var grypeBin string
+	var homeDir string
+
 	// find grype path
-	grypeBin, err := utils.OsWhich("grype")
-	if err != nil {
+	if grypeBin, err = utils.OsWhich("grype"); err != nil {
 		return nil, fmt.Errorf("grype not installed")
 	}
 	// get homedir
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
+	if homeDir, err = os.UserHomeDir(); err != nil {
 		return nil, err
+	}
+	// get vuln db prod directory
+	dbProdDir := os.Getenv("GRYPE_DB_CACHE_DIR")
+	dbProdDir = lo.Ternary(dbProdDir != "", dbProdDir, filepath.Join(homeDir, ".cache", "grype", "db"))
+
+	// get vuln db staging directory (create if required to ensure all works at startup)
+	dbStageDir := filepath.Join(os.TempDir(), "grype-db-stage")
+	if err := os.Mkdir(dbStageDir, 0755); err != nil {
+		if !os.IsExist(err) {
+			return nil, fmt.Errorf("unable to create stage dir %v: %v", dbStageDir, err)
+		}
 	}
 
 	scanner := GrypeScanner{
 		Engine:      "grype",
 		HomeDir:     homeDir,
-		DatabaseDir: filepath.Join(homeDir, ".cache", "grype", "db"), //
+		DbProdDir:   dbProdDir,
+		DbStageDir:  dbStageDir,
 		ScannerBin:  grypeBin,
-
 		ScanTimeout: scanTimeout,
 		logger:      logger,
 	}
-	if err := scanner.GetVersion(); err != nil {
+
+	if scanner.ScannerVersion, err = GetVersion(scanner.ScannerBin); err != nil {
 		return nil, err
 	}
 	scanner.logger.Info().
 		Str("engine", scanner.ScannerBin).
-		Str("database_dir", scanner.DatabaseDir).
+		Str("db_prod_dir", scanner.DbProdDir).
+		Str("db_stage_dir", scanner.DbStageDir).
 		Str("scan_version", scanner.ScannerVersion).
 		Any("scan_timeout", scanner.ScanTimeout.String()).
 		Msg("NewGrypeScanner() OK")
 
-	// update database
+	// ensure valid vuln-db is present upon startup
+	updProd := GrypeUpdateRequired(scanner.ScannerBin, scanner.DbProdDir)   // check if prod update is required
+	updStage := GrypeUpdateRequired(scanner.ScannerBin, scanner.DbStageDir) // check if staging update required
+
+	elapsed := utils.ElapsedFunc()
 	if updateDb {
-		if err = scanner.UpdateDatabase(); err != nil {
-			logger.Fatal().Err(err).Msg("UpdateDatabase()")
+		scanner.logger.Info().Msg("update vulndb ..")
+		if updProd {
+			if updStage {
+				if err := GetGrypeUpdate(scanner.ScannerBin, scanner.DbStageDir); err != nil {
+					return nil, err
+				}
+			}
+			// copy staged to production (fast)
+			if err := DeployStagedUpdate(scanner.DbStageDir, scanner.DbProdDir); err != nil {
+				return nil, err
+			}
 		}
+		updStage = GrypeUpdateRequired(scanner.ScannerBin, scanner.DbStageDir)
+		updProd = GrypeUpdateRequired(scanner.ScannerBin, scanner.DbProdDir)
+
+		scanner.logger.Info().
+			Any("stage db", updStage).
+			Any("prod db", updProd).
+			Any("elapsed", utils.HumanDeltaMilisec(elapsed())).
+			Msg("update vulndb OK")
 	}
 
 	return &scanner, nil
-}
-
-// check grype local database status, update DbState
-func (rx *GrypeScanner) GetVersion() error {
-
-	var stdout, stderr bytes.Buffer
-
-	cmd := exec.Command(rx.ScannerBin, "version", "-o", "json")
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-
-	err := cmd.Run()
-
-	result := GrypeVersion{}
-	err = result.FromBytes(stdout.Bytes())
-
-	if err != nil {
-		return fmt.Errorf("%s", utils.NoColorCodes(stderr.String()))
-	}
-	rx.ScannerVersion = result.GrypeVersion
-
-	if err := rx.GetDatabaseState(); err != nil {
-		return err
-	}
-	return nil
 }
 
 // check grype local database status, update DbState
@@ -140,7 +145,7 @@ func (rx *GrypeScanner) UpdateDatabase() error {
 
 	elapsed := utils.ElapsedFunc()
 	cmd := exec.Command(rx.ScannerBin, "db", "update")
-	cmd.Env = append(cmd.Env, "GRYPE_DB_CACHE_DIR="+rx.DatabaseDir)
+	cmd.Env = append(cmd.Env, "GRYPE_DB_CACHE_DIR="+rx.DbProdDir)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 
@@ -189,7 +194,7 @@ func (rx *GrypeScanner) VulnScanSbom(sbom []byte) (grypetype.GrypeScanType, []by
 	// check https://github.com/anchore/grype
 	cmd.Env = append(cmd.Env, "GRYPE_CHECK_FOR_APP_UPDATE=false")
 	cmd.Env = append(cmd.Env, "GRYPE_ADD_CPES_IF_NONE=true")
-	cmd.Env = append(cmd.Env, "GRYPE_DB_CACHE_DIR="+rx.DatabaseDir)
+	cmd.Env = append(cmd.Env, "GRYPE_DB_CACHE_DIR="+rx.DbProdDir)
 
 	//cmd.Env = append(cmd.Env, "GRYPE_DB_REQUIRE_UPDATE_CHECK=true")
 	//cmd.Env = append(cmd.Env, "GRYPE_DB_AUTO_UPDATE=false") // don't auto update db
