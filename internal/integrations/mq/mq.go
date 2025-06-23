@@ -13,6 +13,8 @@ import (
 
 var ErrTaskqueueTimeout = errors.New("taskqueue timeout")
 
+type TaskHandlerFunc[T any] func(x TaskMessage[T]) error
+
 // convert msg values map back to structure
 func valuesToStruct[T any](values map[string]interface{}) (T, error) {
 	var result T
@@ -55,7 +57,7 @@ type RedisTaskQueue[T any] struct {
 }
 
 // return new task queue object with arguments set
-func NewRedisGtrsQueue[T any](ctx context.Context, redisEndpoint, streamName string, maxStreamLen, maxRetry int64, maxTTL time.Duration) (*RedisTaskQueue[T], error) {
+func NewRedisTaskQueue[T any](ctx context.Context, redisEndpoint, streamName string, maxStreamLen, maxRetry int64, maxTTL time.Duration) (*RedisTaskQueue[T], error) {
 
 	options, err := redis.ParseURL(redisEndpoint)
 	if err != nil {
@@ -141,15 +143,13 @@ func (rx *RedisTaskQueue[T]) RemoveStale(ctx context.Context, groupName string, 
 	// collect messages to delete
 	fmt.Printf("- exec:RemoveStale() %v messages\n", len(pending))
 	for _, msg := range pending {
-		// delete if retry or TTL exceeded
-		if msg.RetryCount > rx.MaxRetry || msg.Idle > rx.MaxTTL {
-			staleIds = append(staleIds, msg.ID)
-			fmt.Printf("remove.stale[%s] retry:%v, idle:%v\n", msg.ID, msg.RetryCount, msg.Idle.Seconds())
+		staleIds = append(staleIds, msg.ID)
+		//fmt.Printf("remove.stale[%s] retry:%v, idle:%v\n", msg.ID, msg.RetryCount, msg.Idle.Seconds())
 
-			// ATTN: ACK needed to remove stale
-			rx.rdb.XAck(ctx, rx.StreamName, groupName, msg.ID)
-			continue
-		}
+		// ATTN: ACK needed to remove stale
+		rx.rdb.XAck(ctx, rx.StreamName, groupName, msg.ID)
+		continue
+
 	}
 
 	// now delete collected messages in one go
@@ -214,7 +214,7 @@ func (rx *RedisTaskQueue[T]) ReclaimStale(ctx context.Context, groupName, consum
 	var idleTime time.Duration
 	var task TaskMessage[T]
 
-	fmt.Printf("- exec:ReclaimStale() for %s...\n", consumerName)
+	//fmt.Printf("- exec:ReclaimStale() for %s...\n", consumerName)
 	x, _, err := rx.rdb.XAutoClaim(ctx, &redis.XAutoClaimArgs{
 		Stream:   rx.StreamName,
 		Group:    groupName,
@@ -227,9 +227,9 @@ func (rx *RedisTaskQueue[T]) ReclaimStale(ctx context.Context, groupName, consum
 		return 0, err
 	}
 
-	fmt.Printf("- reclaim m: %v\n", len(x))
-	for id, msg := range x {
-		fmt.Printf("- reclaim %v\n", id)
+	//fmt.Printf("- reclaim m: %v\n", len(x))
+	for _, msg := range x {
+		//fmt.Printf("- reclaim %v\n", id)
 
 		// check and enforce maxRetry and maxTTL exceeded
 		if retryCount, idleTime, expired, err = rx.getMessageState(ctx, msg.ID, groupName); err != nil {
@@ -303,7 +303,7 @@ func (rx *RedisTaskQueue[T]) GroupSubscribe(ctx context.Context, mode, groupName
 
 		// process received messages
 		for _, stream := range res {
-			fmt.Printf("loop:GroupSubscribe %v msgs\n", len(stream.Messages))
+			//fmt.Printf("- loop:GroupSubscribe %v msgs, blockTimeout:%v sec\n", len(stream.Messages), blockTime.Seconds())
 			for _, msg := range stream.Messages {
 
 				// check and enforce maxRetry and maxTTL exceeded
