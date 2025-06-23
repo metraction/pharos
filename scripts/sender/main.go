@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
-	"github.com/metraction/pharos/scripts/sender/mq"
+	"github.com/metraction/pharos/internal/integrations/mq"
 	"github.com/samber/lo"
 
 	"github.com/rs/zerolog"
@@ -116,7 +116,7 @@ func main() {
 	var tmq *mq.RedisTaskQueue[CityType]
 
 	// setup redis task queue
-	if tmq, err = mq.NewRedisGtrsQueue[CityType](ctx, *redisEndpoint, streamName, maxStreamLen, maxMsgRetry, maxMsgTTL); err != nil {
+	if tmq, err = mq.NewRedisTaskQueue[CityType](ctx, *redisEndpoint, streamName, maxStreamLen, maxMsgRetry, maxMsgTTL); err != nil {
 		logger.Fatal().Err(err).Msg("NewRedisGtrsClientStefan()")
 	}
 	if err = tmq.Connect(ctx); err != nil {
