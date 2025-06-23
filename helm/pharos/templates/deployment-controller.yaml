@@ -26,6 +26,12 @@ spec:
         args: ["http", "--config", "/config/.pharos.yaml"]
         ports:
           - containerPort: 8080
+        env:
+          - name: PHAROS_DATABASE_DSN
+            valueFrom:
+              secretKeyRef:
+                name: postgres-connection
+                key: dsn
         volumeMounts:
           - name: config-volume
             mountPath: /config/.pharos.yaml

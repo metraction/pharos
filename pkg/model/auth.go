@@ -9,13 +9,14 @@ import (
 )
 
 // authentication for image repos
+// TODO: here, json tags have lowercase names, but other models use PascalCase names.
 type PharosRepoAuth struct {
-	Authority string `json:"authority"`
-	Username  string `json:"username"`
-	Password  string `json:"password"`
-	Token     string `json:"token"`
+	Authority string `json:"authority" required:"false"`
+	Username  string `json:"username" required:"false"`
+	Password  string `json:"password" required:"false"`
+	Token     string `json:"token" required:"false"`
 	//
-	TlsCheck bool `json:"tlscheck"` // disable TLS cert check for authority
+	TlsCheck bool `json:"tlscheck" required:"false"` // disable TLS cert check for authority
 }
 
 func NewPharosRepoAuth(authDsn string) (PharosRepoAuth, error) {
@@ -25,6 +26,7 @@ func NewPharosRepoAuth(authDsn string) (PharosRepoAuth, error) {
 	if err := auth.FromDsn(authDsn); err != nil {
 		return PharosRepoAuth{}, err
 	}
+	fmt.Println(auth)
 	return auth, nil
 }
 

@@ -9,9 +9,12 @@ import (
 	"io"
 	"log"
 	"os"
+	"os/signal"
 	"strconv"
 	"strings"
+	"syscall"
 
+	"github.com/metraction/pharos/internal/routing"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -32,6 +35,24 @@ var rootCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("This is the root command that does nothing.\n  Run go run . scanner")
+		// TODO: this is duplicate code of scanner.go
+		// Create a new context that can be cancelled.
+		ctx, cancel := context.WithCancel(cmd.Context())
+		defer cancel() // Ensure cancel is called on exit to clean up resources
+
+		err := routing.NewScannerFlow(ctx, config)
+		if err != nil {
+			fmt.Printf("Error creating scanner flow: %v\n", err)
+			return
+		}
+		fmt.Println("Scanner started successfully. Press Ctrl+C to exit.")
+
+		// Wait for interrupt signal to gracefully shut down.
+		quit := make(chan os.Signal, 1)
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+		<-quit
+
+		fmt.Println("Shutting down scanner...")
 	},
 }
 
@@ -73,13 +94,7 @@ func initConfig() {
 		// Bind the pflag to Viper. If the flag is set on the command line,
 		// its value will take precedence over environment variables, config files, and Viper defaults.
 		viper.BindPFlag(f.Name, f)
-
-		// Debug output (optional)
-		// envVarKey := "PHAROS_" + strings.ToUpper(strings.ReplaceAll(f.Name, "-", "_"))
-		// fmt.Printf("Viper key '%s': CLI (via BindPFlag), Env ('%s'), Default ('%v')\n", f.Name, envVarKey, f.DefValue)
 	})
-	// Note: viper.AutomaticEnv() with SetEnvPrefix and SetEnvKeyReplacer handles binding environment variables.
-	// Explicit viper.BindEnv calls are not strictly necessary if keys align.
 
 	var cfgFilePath string
 
@@ -132,17 +147,19 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.pharos.yaml)") // cfgFile is handled specially for file loading, so direct binding is fine.
 	rootCmd.PersistentFlags().String("redis.dsn", "localhost:6379", "Redis address")                           // Use dot-notation for Viper key compatibility with nested structs.
 
-	rootCmd.PersistentFlags().String("publisher.requestQueue", "scantasks", "Redis stream for requests")
-	rootCmd.PersistentFlags().String("publisher.responseQueue", "scanresult", "Redis stream for responses")
-	rootCmd.PersistentFlags().String("publisher.timeout", "30s", "Publisher timeout")
+	rootCmd.PersistentFlags().String("publisher.requestQueue", "scantasks", "Redis stream for async requests")
+	rootCmd.PersistentFlags().String("publisher.priorityRequestQueue", "priorityScantasks", "Redis stream for syncrequests")
+	rootCmd.PersistentFlags().String("publisher.responseQueue", "scanresult", "Redis stream for async responses")
+	rootCmd.PersistentFlags().String("publisher.priorityResponseQueue", "priorityScanresult", "Redis stream for sync responses")
+	rootCmd.PersistentFlags().String("publisher.timeout", "300s", "Publisher timeout")
 
 	rootCmd.PersistentFlags().String("scanner.requestQueue", "scantasks", "Redis stream for requests")
 	rootCmd.PersistentFlags().String("scanner.responseQueue", "scanresult", "Redis stream for responses")
-	rootCmd.PersistentFlags().String("scanner.timeout", "30s", "Scanner timeout")
+	rootCmd.PersistentFlags().String("scanner.timeout", "300s", "Scanner timeout")
 	rootCmd.PersistentFlags().String("scanner.cacheEndpoint", "redis://localhost:6379", "Scanner cache endpoint")
 
-	rootCmd.PersistentFlags().String("database.driver", "postgres", "Database driver for the scanner, can be 'sqlite' or 'postgres', `sqlite` is default.")
+	rootCmd.PersistentFlags().String("database.driver", "postgres", "Database driver for the scanner, righ now, only 'postgres' is implemented.")
 	defaultDSN := fmt.Sprintf("postgres://postgres:postgres@localhost:5432/pharos?sslmode=disable") // run `brew install db-browser-for-sqlite` to view the database.
-	rootCmd.PersistentFlags().String("database.dsn", defaultDSN, "Database DSN for the scanner, for sqlite it is the file name (default is $HOME/.pharos.db, can be 'file::memory:?cache=shared'), for postgres it is the connection string.")
+	rootCmd.PersistentFlags().String("database.dsn", defaultDSN, "Database DSN for the scanner, for postgres it is the connection string.")
 	rootCmd.AddCommand(scannerCmd)
 }

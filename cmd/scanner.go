@@ -23,7 +23,6 @@ var scannerCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		config := cmd.Context().Value("config").(*model.Config)
 		// Create a new context that can be cancelled.
-		fmt.Println("Starting scanner...", config.Scanner)
 		ctx, cancel := context.WithCancel(cmd.Context())
 		defer cancel() // Ensure cancel is called on exit to clean up resources
 

@@ -2,8 +2,8 @@ name: Build
 on:
   push:
     branches: 
-    - main
-    - PH-4/*
+      - 'main'
+      - 'PH-22/*'
     tags:
     - 'v*'
   workflow_dispatch:
@@ -21,11 +21,11 @@ jobs:
   ko-build:
     # Run this job only on push events, not when manually triggered just for tests
     if: github.event_name == 'push'
-    uses: metraction/github-actions/.github/workflows/ko-build.yaml@SA-2/branch-distance
+    uses: metraction/github-actions/.github/workflows/ko-build.yaml@main
     secrets: inherit
     
   push-helm-chart:
-    uses: metraction/github-actions/.github/workflows/helm-push.yaml@SA-2/branch-distance
+    uses: metraction/github-actions/.github/workflows/helm-push.yaml@main
     needs: [ko-build]
     with:
       chart_dir: helm/pharos
@@ -35,7 +35,7 @@ jobs:
     secrets: inherit
   
   get-version:
-    if: github.event.inputs.run_integration_tests == 'true'
+    if: github.event.inputs.run_integration_tests == 'true' || contains(github.event.head_commit.message, 'run_integration_tests')
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
@@ -54,7 +54,7 @@ jobs:
           echo "Using version: $VERSION"
         
   integration-test:
-    if: github.event.inputs.run_integration_tests == 'true'
+    if: github.event.inputs.run_integration_tests == 'true' || contains(github.event.head_commit.message, 'run_integration_tests')
     needs: [get-version, ko-build]
     runs-on: ubuntu-latest
     permissions:
@@ -71,9 +71,24 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+      postgres:
+        image: postgres:15-alpine
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+
       scanner:
         # The image is tagged with the version from semver.sh
         image: ghcr.io/metraction/pharos/pharos-c52785725d1132c2f91e01422b7f40ba:${{ needs.get-version.outputs.version }}
+        env:
+          PHAROS_REDIS_DSN: redis:6379
+          PHAROS_SCANNER_CACHEENDPOINT: redis://redis:6379
 
     steps:
       - name: Checkout code
@@ -92,14 +107,21 @@ jobs:
           sleep 15 # Adjust as needed, or implement a more robust health check for the scanner
 
       - name: Run benchmark tests
+        env:
+          DOCKER_REGISTRIES_AUTH: "registry://spastai\\@gmail.com:${{ secrets.GITHUB_TOKEN }}@ghcr.io/metraction"
         run: |
           # These tests should publish to Redis, and the scanner service should consume.
           # The benchmark test (routing/publish_test.go) is configured to use localhost:6379 for Redis.
-          go test ./routing -bench=. -benchmem
+          go test ./internal/routing -bench=. -benchmem -timeout=5m
+
+      - name: Show scanner service logs
+        run: |
+          echo "Scanner service logs:"
+          docker logs ${{ job.services.scanner.id }}
 
       - name: Check scanner service logs on failure
         if: failure()
         run: |
           echo "Tests failed. Scanner logs are available in the 'scanner' service logs in the GitHub Actions UI."
           # The logs for services are automatically collected by the runner and displayed in the UI.
-          # This step is just a pointer for easier debugging.    
+          # This step is just a pointer for easier debugging.
