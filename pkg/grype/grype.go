@@ -71,7 +71,7 @@ func NewGrypeScanner(scanTimeout time.Duration, updateDb bool, logger *zerolog.L
 		logger:      logger,
 	}
 
-	if scanner.ScannerVersion, err = GetVersion(scanner.ScannerBin); err != nil {
+	if scanner.ScannerVersion, err = GetScannerVersion(scanner.ScannerBin); err != nil {
 		return nil, err
 	}
 	if updateDb {
@@ -81,10 +81,10 @@ func NewGrypeScanner(scanTimeout time.Duration, updateDb bool, logger *zerolog.L
 	}
 	scanner.logger.Info().
 		Str("engine", scanner.ScannerBin).
-		Str("prod_dir", scanner.DbProdDir).
-		Str("tage_dir", scanner.DbStageDir).
-		Str("scan_version", scanner.ScannerVersion).
-		Any("scan_timeout", scanner.ScanTimeout.String()).
+		Str("dir(prod)", scanner.DbProdDir).
+		Str("dir(stage)", scanner.DbStageDir).
+		Str("scanner(ver)", scanner.ScannerVersion).
+		Any("scan(timeout)", scanner.ScanTimeout.String()).
 		Msg("NewGrypeScanner() OK")
 
 	return &scanner, nil
@@ -119,7 +119,7 @@ func (rx *GrypeScanner) UpdateDatabase() error {
 		updProd = GrypeUpdateRequired(rx.ScannerBin, rx.DbProdDir)
 	}
 
-	if rx.DatabaseVersion, rx.DatabaseUpdated, err = GetDatabaseState(rx.ScannerBin); err != nil {
+	if rx.DatabaseVersion, rx.DatabaseUpdated, err = GetDatabaseStatus(rx.ScannerBin); err != nil {
 		return err
 	}
 	rx.logger.Info().
