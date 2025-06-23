@@ -86,7 +86,7 @@ func (pst *PharosScanTaskCreator) WithImagePullSecrets() *PharosScanTaskCreator 
 func (pst *PharosScanTaskCreator) Result(metric hwmodel.ImageMetric) []model.PharosScanTask {
 	// Look for a matching DockerConfigJSON for the image
 
-	repo := ""
+	repo := "docker.io"
 	matches := regexp.MustCompile(`^([^/]+)/`).FindStringSubmatch(metric.Image_spec)
 	pharosRepoAuth := model.PharosRepoAuth{}
 	if len(matches) > 1 {

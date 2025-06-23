@@ -1,7 +1,6 @@
 package prometheus
 
 import (
-	"regexp"
 	"sync"
 	"time"
 
@@ -30,9 +29,9 @@ func (d *PharosScanTaskDedup) FilterDuplicates(task model.PharosScanTask) bool {
 	key := task.ImageSpec.Image
 	d.mu.Lock()
 	defer d.mu.Unlock()
-	if matched, _ := regexp.MatchString(`^ghcr.io`, key); !matched {
-		return false
-	}
+	// if matched, _ := regexp.MatchString(`^ghcr.io`, key); !matched {
+	// 	return false
+	// }
 	random := time.Now().UnixNano() % 15
 	if _, exists := d.seen[key]; exists {
 		oldTask := d.seen[key]
