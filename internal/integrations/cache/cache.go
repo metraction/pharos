@@ -34,9 +34,16 @@ func NewPharosCache(endpoint string, logger *zerolog.Logger) (*PharosCache, erro
 		return nil, err
 	}
 
+	// prepare client, does not connect
+	options, err := redis.ParseURL(endpoint)
+	if err != nil {
+		return nil, err
+	}
+	client := redis.NewClient(options)
 	return &PharosCache{
 		Endpoint: endpoint,
 		packer:   packer,
+		client:   client,
 		logger:   logger,
 	}, nil
 }
@@ -47,18 +54,7 @@ func (rx PharosCache) GetSecviceName() string {
 
 func (rx *PharosCache) Connect(ctx context.Context) error {
 
-	options, err := redis.ParseURL(rx.Endpoint)
-	if err != nil {
-		return err
-	}
-	rx.logger.Info().
-		Str("redis_endpoint", utils.MaskDsn(rx.Endpoint)).
-		Msg("PharosCache.Connect() ..")
-
-	rx.client = redis.NewClient(options)
-
-	err = rx.client.Ping(ctx).Err()
-	if err != nil {
+	if err := rx.client.Ping(ctx).Err(); err != nil {
 		return fmt.Errorf("redis connect (ping): %v", err)
 	}
 	return nil
