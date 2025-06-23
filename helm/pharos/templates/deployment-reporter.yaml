@@ -24,7 +24,7 @@ spec:
       containers:
       - name: pharos-reporter
         image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-        args: ["http", "--config", "/config/.pharos.yaml"]
+        args: ["prometheus-reporter", "--config", "/config/.pharos.yaml"]
         ports:
           - containerPort: 8080
         env:
