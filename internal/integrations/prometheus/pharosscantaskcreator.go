@@ -58,6 +58,7 @@ func (pst *PharosScanTaskCreator) WithImagePullSecrets() *PharosScanTaskCreator 
 	}
 	clientset, err := kubernetes.NewForConfig(config)
 	namespace := pst.Config.Prometheus.Namespace // Default namespace for Pharos, can be overridden by
+	pst.Logger.Info().Str("namespace", namespace).Msg("Using Kubernetes client to fetch image pull secrets")
 	secrets, err := clientset.CoreV1().Secrets(namespace).List(context.TODO(), metav1.ListOptions{
 		FieldSelector: "type=kubernetes.io/dockerconfigjson",
 	})
