@@ -21,7 +21,12 @@ func TranslateMessage(msg string) string {
 	return msg
 }
 
-// grype version
+// grype update check (from: grype db check -o json)
+type GrypeDbCheck struct {
+	UpdateAvailable bool `json:"updateAvailable"`
+}
+
+// grype version check (from: grype version -o json)
 type GrypeVersion struct {
 	Application  string    `json:"application"`
 	BuildDate    time.Time `json:"buildDate"`
@@ -31,14 +36,8 @@ type GrypeVersion struct {
 	//SupportedDbSchema int       `json:"supportedDbSchema"`
 }
 
-// grype update check
-type GrypeDbCheck struct {
-	UpdateAvailable bool `json:"updateAvailable"`
-}
-
-// local db state from: grype db check -o json
-// hint: remote db state: https://grype.anchore.io/databases/v6/latest.json
-type GrypeLocalDbState struct {
+// grype local database status (from: grype db status -o json)
+type GrypeDbStatus struct {
 	SchemaVersion string    `json:"schemaVersion"`
 	From          string    `json:"from"`
 	Built         time.Time `json:"built"`
@@ -47,16 +46,7 @@ type GrypeLocalDbState struct {
 	Error         string    `json:"error"`
 }
 
-// parse from stdout bytes
-func (rx *GrypeLocalDbState) FromBytes(input []byte) error {
-	err := json.Unmarshal(input, &rx)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// run grype, parse result from json into T
+// run grype executable, parse result from json into T
 func GrypeExeOutput[T any](cmd *exec.Cmd) (T, error) {
 
 	var result T
@@ -76,8 +66,8 @@ func GrypeExeOutput[T any](cmd *exec.Cmd) (T, error) {
 	return result, nil
 }
 
-// check grype local database status, update DbState
-func GetVersion(scannerBin string) (string, error) {
+// check grype binary version
+func GetScannerVersion(scannerBin string) (string, error) {
 
 	cmd := exec.Command(scannerBin, "version", "-o", "json")
 
@@ -89,11 +79,11 @@ func GetVersion(scannerBin string) (string, error) {
 }
 
 // check grype local database status, update DbState
-func GetDatabaseState(scannerBin string) (string, time.Time, error) {
+func GetDatabaseStatus(scannerBin string) (string, time.Time, error) {
 
-	cmd := exec.Command(scannerBin, "version", "-o", "json")
+	cmd := exec.Command(scannerBin, "db", "status", "-o", "json")
 
-	result, err := GrypeExeOutput[GrypeLocalDbState](cmd)
+	result, err := GrypeExeOutput[GrypeDbStatus](cmd)
 	if err != nil {
 		return "", time.Time{}, err
 	}

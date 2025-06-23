@@ -27,7 +27,7 @@ func TestGrype(t *testing.T) {
 	assert.Equal(t, "0.92.2", xver.GrypeVersion)
 
 	// grype db state
-	xstate := GrypeLocalDbState{}
+	xstate := GrypeDbStatus{}
 	err = xstate.FromBytes([]byte(dbstate))
 
 	assert.NoError(t, err)
