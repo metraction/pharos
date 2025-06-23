@@ -88,6 +88,18 @@ func GetVersion(scannerBin string) (string, error) {
 	return result.GrypeVersion, nil
 }
 
+// check grype local database status, update DbState
+func GetDatabaseState(scannerBin string) (string, time.Time, error) {
+
+	cmd := exec.Command(scannerBin, "version", "-o", "json")
+
+	result, err := GrypeExeOutput[GrypeLocalDbState](cmd)
+	if err != nil {
+		return "", time.Time{}, err
+	}
+	return result.SchemaVersion, result.Built, nil
+}
+
 // check if local db in targetDir requires an update
 func GrypeUpdateRequired(scannerBin, targetDir string) bool {
 
