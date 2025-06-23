@@ -8,7 +8,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: pharos-controller
+      app: pharos-reporter
   strategy: {}
   template:
     metadata:
