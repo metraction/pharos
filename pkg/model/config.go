@@ -1,9 +1,5 @@
 package model
 
-import (
-	hwmodel "github.com/metraction/handwheel/model"
-)
-
 // ScannerConfig holds scanner-specific configuration.
 type ScannerConfig struct {
 	RequestQueue          string `mapstructure:"requestQueue"`
@@ -31,12 +27,15 @@ type Config struct {
 	Scanner    ScannerConfig            `mapstructure:"scanner"`
 	Publisher  PublisherConfig          `mapstructure:"publisher"`
 	Database   Database                 `mapstructure:"database"`
-	Prometheus hwmodel.PrometheusConfig `mapstructure:"prometheus"`
+	Prometheus PrometheusReporterConfig `mapstructure:"prometheus"`
 }
 
-type PrometheusConfig struct {
-	hwmodel.PrometheusConfig
-	PharosURL string `mapstructure:"pharosUrl"` // URL of the Pharos server for Prometheus metrics
+type PrometheusReporterConfig struct {
+	URL       string `mapstructure:"url"`       // URL of the Prometheus server
+	Interval  string `mapstructure:"interval"`  // Interval for scraping Prometheus metrics
+	Platform  string `mapstructure:"platform"`  // Platform for which the metrics are collected, defaults to "linux/amd64"
+	Namespace string `mapstructure:"namespace"` // Namespace for the Prometheus metrics
+	PharosURL string `mapstructure:"pharosUrl"` // Root URL of the Pharos server for Prometheus metrics
 }
 
 // Redis holds Redis-specific configuration.

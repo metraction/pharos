@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: pharos-reporter
+  name: pharos-reporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pharos-controller
+  strategy: {}
+  template:
+    metadata:
+      namespace: {{ .Release.Namespace }}
+      labels:
+        app: pharos-reporter
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: pharos-reporter
+        image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        args: ["http", "--config", "/config/.pharos.yaml"]
+        ports:
+          - containerPort: 8080
+        env:
+          - name: PHAROS_PROMETHEUS_URL
+            value: {{ .Values.prometheus.url | quote }}
+          - name: PHAROS_PROMETHEUS_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: PHAROS_PROMETHEUS_PHAROSURL
+            value: http://{{ include "pharos.fullname" . }}:{{ .Values.service.port }}
+        volumeMounts:
+          - name: config-volume
+            mountPath: /config/.pharos.yaml
+            subPath: .pharos.yaml
+      volumes:
+        - name: config-volume
+          configMap:
+            name: pharos-config
+

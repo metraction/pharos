@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
@@ -50,11 +49,11 @@ These submissions are then published to a Redis stream for further processing by
 		// Add routes for the API
 		controllers.NewimageController(&api, currentConfig).AddRoutes()
 		controllers.NewPharosScanTaskController(&api, currentConfig).WithPublisher(publisher, priorityPublisher).AddRoutes()
-		b, _ := api.OpenAPI().DowngradeYAML()
-		err = os.WriteFile("openapi.yaml", b, 0644)
-		if err != nil {
-			logger.Error().Err(err).Msg("Failed to write openapi.yaml")
-		}
+		// b, _ := api.OpenAPI().DowngradeYAML()
+		// err = os.WriteFile("openapi.yaml", b, 0644)
+		// if err != nil {
+		// 	logger.Error().Err(err).Msg("Failed to write openapi.yaml")
+		// }
 		// I love swagger
 
 		router.HandleFunc("/api/swagger", func(w http.ResponseWriter, r *http.Request) {

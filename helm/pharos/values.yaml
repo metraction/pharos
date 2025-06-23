@@ -41,3 +41,6 @@ externalRedis:
 # External PostgreSQL configuration (used when postgres.enabled=false)
 externalPostgres:
   dsn: "postgres://postgres:postgres@localhost:5432/pharos?sslmode=disable"
+
+prometheus:
+  url: "http://rancher-monitoring-prometheus.cattle-monitoring-system.svc.cluster.local:9090"

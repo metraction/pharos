@@ -12,20 +12,26 @@ import (
 	ext "github.com/reugn/go-streams/extension"
 	"github.com/reugn/go-streams/flow"
 	"github.com/rs/zerolog"
+	v1 "k8s.io/api/core/v1"
 )
 
 type PrometheusReporter struct {
 	Context               *context.Context
 	Config                *model.Config
 	Logger                *zerolog.Logger
+	Secrets               *[]v1.Secret
 	PrometheusIntegration *hwintegrations.PrometheusIntegration
 }
 
 func NewPrometheusReporter(ctx *context.Context, config *model.Config) *PrometheusReporter {
 	logger := logging.NewLogger("info")
 	logger.Info().Str("test", "test").Msg("PrometheusReporter initialized")
+
 	hwModelConfig := hwmodel.Config{
-		Prometheus: config.Prometheus,
+		Prometheus: hwmodel.PrometheusConfig{
+			Interval: config.Prometheus.Interval,
+			URL:      config.Prometheus.URL,
+		},
 	}
 	return &PrometheusReporter{
 		Logger:                logger,
@@ -55,14 +61,14 @@ func (pr *PrometheusReporter) NewTicker() chan any {
 func (pr *PrometheusReporter) RunAsServer() error {
 	pr.Logger.Info().Msg("PrometheusReporter is running as a server")
 	source := ext.NewChanSource(pr.NewTicker())
-	sink := ext.NewStdoutSink()
-	pharosScanTaskCreator := prometheus.NewPharosScanTaskCreator()
+	pharosScanTaskCreator := prometheus.NewPharosScanTaskCreator(pr.Config).WithImagePullSecrets()
 	seenImages := prometheus.NewPharosScanTaskDeduplicator() // deduplication not working yet for some reason.
+	pharosTaskSink := prometheus.NewPharosTaskSink(pr.Config)
 	source.
 		Via(flow.NewMap(pr.PrometheusIntegration.FetchImageMetrics, 1)).
 		Via(flow.NewFlatMap(hwintegrations.PrometheusResult, 1)).
 		Via(flow.NewFlatMap(pharosScanTaskCreator.Result, 1)).
 		Via(flow.NewFilter(seenImages.FilterDuplicates, 1)).
-		To(sink)
+		To(pharosTaskSink)
 	return nil
 }
