@@ -148,9 +148,9 @@ func init() {
 	rootCmd.PersistentFlags().String("redis.dsn", "localhost:6379", "Redis address")                           // Use dot-notation for Viper key compatibility with nested structs.
 
 	rootCmd.PersistentFlags().String("publisher.requestQueue", "scantasks", "Redis stream for async requests")
-	rootCmd.PersistentFlags().String("publisher.priorityRequestQueue", "scantasks", "Redis stream for syncrequests")
+	rootCmd.PersistentFlags().String("publisher.priorityRequestQueue", "priorityScantasks", "Redis stream for syncrequests")
 	rootCmd.PersistentFlags().String("publisher.responseQueue", "scanresult", "Redis stream for async responses")
-	rootCmd.PersistentFlags().String("publisher.priorityResponseQueue", "scanresult", "Redis stream for sync responses")
+	rootCmd.PersistentFlags().String("publisher.priorityResponseQueue", "priorityScanresult", "Redis stream for sync responses")
 	rootCmd.PersistentFlags().String("publisher.timeout", "300s", "Publisher timeout")
 
 	rootCmd.PersistentFlags().String("scanner.requestQueue", "scantasks", "Redis stream for requests")
@@ -161,7 +161,7 @@ func init() {
 	rootCmd.PersistentFlags().String("prometheus.interval", "3600s", "Interval for scraping Prometheus metrics")
 	rootCmd.PersistentFlags().String("prometheus.pharosUrl", "http://localhost:8080", "Root URL of the Pharos server for submitting tasks")
 	rootCmd.PersistentFlags().String("prometheus.platform", "linux/amd64", "Platform for which the metrics are collected, defaults to 'linux/amd64'")
-	rootCmd.PersistentFlags().String("prometheus.namespace", "pharos", "Namespace for the Prometheus metrics")
+	prometheusReporterCmd.PersistentFlags().String("prometheus.namespace", "pharos", "Namespace for the Prometheus metrics")
 
 	rootCmd.PersistentFlags().String("database.driver", "postgres", "Database driver for the scanner, righ now, only 'postgres' is implemented.")
 	defaultDSN := fmt.Sprintf("postgres://postgres:postgres@localhost:5432/pharos?sslmode=disable") // run `brew install db-browser-for-sqlite` to view the database.
