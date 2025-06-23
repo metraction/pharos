@@ -8,10 +8,10 @@ data:
   .pharos.yaml: |
     {{- if .Values.redis.enabled }}
     redis: 
-      dsn: pharos-redis-master.{{ .Release.Namespace }}.svc.cluster.local:6379
+      dsn: {{ .Release.Namespace }}-redis-master.{{ .Release.Namespace }}.svc.cluster.local:6379
     {{- else }}
     redis: 
       dsn: {{ .Values.externalRedis.host | default "localhost" }}:{{ .Values.externalRedis.port | default 6379 }}
     {{- end }}
     scanner:
-      cacheEndpoint: redis://pharos-redis-master.{{ .Release.Namespace }}.svc.cluster.local:6379
+      cacheEndpoint: redis://{{ .Release.Namespace }}-redis-master.{{ .Release.Namespace }}.svc.cluster.local:6379
