@@ -1,0 +1,468 @@
+components:
+  schemas:
+    ErrorDetail:
+      additionalProperties: false
+      properties:
+        location:
+          description: Where the error occurred, e.g. 'body.items[3].tags' or 'path.thing-id'
+          type: string
+        message:
+          description: Error message text
+          type: string
+        value:
+          description: The value at the given location
+      type: object
+    ErrorModel:
+      additionalProperties: false
+      properties:
+        detail:
+          description: A human-readable explanation specific to this occurrence of the problem.
+          example: Property foo is required but is missing.
+          type: string
+        errors:
+          description: Optional list of individual error details
+          items:
+            $ref: "#/components/schemas/ErrorDetail"
+          nullable: true
+          type: array
+        instance:
+          description: A URI reference that identifies the specific occurrence of the problem.
+          example: https://example.com/error-log/abc123
+          format: uri
+          type: string
+        status:
+          description: HTTP status code
+          example: 400
+          format: int64
+          type: integer
+        title:
+          description: A short, human-readable summary of the problem type. This value should not change between occurrences of the error.
+          example: Bad Request
+          type: string
+        type:
+          default: about:blank
+          description: A URI reference to human-readable documentation for the error.
+          example: https://example.com/errors/example
+          format: uri
+          type: string
+      type: object
+    PharosImageMeta:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          example: /api/schemas/PharosImageMeta.json
+          format: uri
+          readOnly: true
+          type: string
+        ArchName:
+          description: "image platform architecture default: amd64"
+          type: string
+        ArchOS:
+          description: "image platform OS default: linux"
+          type: string
+        DistroName:
+          type: string
+        DistroVersion:
+          type: string
+        Findings:
+          items:
+            $ref: "#/components/schemas/PharosScanFinding"
+          nullable: true
+          type: array
+        ImageSpec:
+          description: image url, e.g. docker.io/nginx:latest
+          type: string
+        IndexDigest:
+          type: string
+        Layers:
+          items:
+            type: string
+          nullable: true
+          type: array
+        ManifestDigest:
+          type: string
+        Packages:
+          items:
+            $ref: "#/components/schemas/PharosPackage"
+          nullable: true
+          type: array
+        RepoDigests:
+          items:
+            type: string
+          nullable: true
+          type: array
+        Size:
+          format: int64
+          minimum: 0
+          type: integer
+        Tags:
+          items:
+            type: string
+          nullable: true
+          type: array
+        Vulnerabilities:
+          items:
+            $ref: "#/components/schemas/PharosVulnerability"
+          nullable: true
+          type: array
+      required:
+        - ImageSpec
+        - IndexDigest
+      type: object
+    PharosImageSpec:
+      additionalProperties: false
+      properties:
+        cacheExpiry:
+          format: int64
+          type: integer
+        context:
+          additionalProperties: {}
+          type: object
+        image:
+          type: string
+        platform:
+          type: string
+      required:
+        - image
+      type: object
+    PharosPackage:
+      additionalProperties: false
+      properties:
+        Cpes:
+          items:
+            type: string
+          nullable: true
+          type: array
+        Key:
+          type: string
+        Name:
+          type: string
+        Purl:
+          type: string
+        Type:
+          type: string
+        Version:
+          type: string
+      required:
+        - Key
+        - Name
+        - Version
+        - Type
+        - Purl
+        - Cpes
+      type: object
+    PharosRepoAuth:
+      additionalProperties: false
+      properties:
+        authority:
+          type: string
+        password:
+          type: string
+        tlscheck:
+          type: boolean
+        token:
+          type: string
+        username:
+          type: string
+      type: object
+    PharosScanEngine:
+      additionalProperties: false
+      properties:
+        Name:
+          type: string
+        ScanTime:
+          format: date-time
+          type: string
+        Version:
+          type: string
+      required:
+        - Name
+        - Version
+        - ScanTime
+      type: object
+    PharosScanFinding:
+      additionalProperties: false
+      properties:
+        AdvId:
+          type: string
+        AdvSource:
+          type: string
+        DueDate:
+          format: date-time
+          type: string
+        FixState:
+          type: string
+        FixVersions:
+          items:
+            type: string
+          nullable: true
+          type: array
+        FoundIn:
+          items:
+            type: string
+          nullable: true
+          type: array
+        ScanDate:
+          format: date-time
+          type: string
+        Severity:
+          type: string
+        UpdateDate:
+          format: date-time
+          type: string
+      required:
+        - AdvId
+        - AdvSource
+        - ScanDate
+        - UpdateDate
+        - Severity
+        - DueDate
+        - FixState
+        - FixVersions
+        - FoundIn
+      type: object
+    PharosScanResult:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          example: /api/schemas/PharosScanResult.json
+          format: uri
+          readOnly: true
+          type: string
+        Findings:
+          items:
+            $ref: "#/components/schemas/PharosScanFinding"
+          nullable: true
+          type: array
+        Image:
+          $ref: "#/components/schemas/PharosImageMeta"
+        Packages:
+          items:
+            $ref: "#/components/schemas/PharosPackage"
+          nullable: true
+          type: array
+        ScanEngine:
+          $ref: "#/components/schemas/PharosScanEngine"
+        ScanTask:
+          $ref: "#/components/schemas/PharosScanTask"
+        Version:
+          type: string
+        Vulnerabilities:
+          items:
+            $ref: "#/components/schemas/PharosVulnerability"
+          nullable: true
+          type: array
+      required:
+        - Version
+        - ScanTask
+        - ScanEngine
+        - Image
+        - Findings
+        - Vulnerabilities
+        - Packages
+      type: object
+    PharosScanTask:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          example: /api/schemas/PharosScanTask.json
+          format: uri
+          readOnly: true
+          type: string
+        auth:
+          $ref: "#/components/schemas/PharosRepoAuth"
+        created:
+          format: date-time
+          type: string
+        error:
+          type: string
+        imageSpec:
+          $ref: "#/components/schemas/PharosImageSpec"
+        jobId:
+          type: string
+        sbomEngine:
+          type: string
+        scanEngine:
+          type: string
+        status:
+          type: string
+        timeout:
+          format: int64
+          type: integer
+        updated:
+          format: date-time
+          type: string
+      required:
+        - imageSpec
+      type: object
+    PharosVulnerability:
+      additionalProperties: false
+      properties:
+        AdvId:
+          type: string
+        AdvSource:
+          type: string
+        Aliases:
+          type: string
+        Cpes:
+          items:
+            type: string
+          nullable: true
+          type: array
+        CreateDate:
+          format: date-time
+          type: string
+        CvssBase:
+          format: double
+          type: number
+        CvssVectors:
+          items:
+            type: string
+          nullable: true
+          type: array
+        Cwes:
+          items:
+            type: string
+          nullable: true
+          type: array
+        Description:
+          type: string
+        KevDate:
+          format: date-time
+          type: string
+        ModDate:
+          format: date-time
+          type: string
+        PubDate:
+          format: date-time
+          type: string
+        RansomwareUsed:
+          type: string
+        References:
+          items:
+            type: string
+          nullable: true
+          type: array
+        RiskScore:
+          format: double
+          type: number
+        Severity:
+          type: string
+      required:
+        - AdvId
+        - AdvSource
+        - Aliases
+        - CreateDate
+        - PubDate
+        - ModDate
+        - KevDate
+        - Severity
+        - CvssVectors
+        - CvssBase
+        - RiskScore
+        - Cpes
+        - Cwes
+        - References
+        - RansomwareUsed
+        - Description
+      type: object
+info:
+  title: Pharos API
+  version: 1.0.0
+openapi: 3.0.3
+paths:
+  /pharosimagemeta:
+    get:
+      description: Retrieves all  images stored in the database.
+      operationId: GetAllImages
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/PharosImageMeta"
+                nullable: true
+                type: array
+          description: A list of images
+        "500":
+          description: Internal server error
+      summary: Get all images
+      tags:
+        - PharosImageMeta
+  /pharosimagemeta/{imageid}:
+    get:
+      description: Retrieves a Docker image by its ImageId. Returns related objects such as vulnerabilities, packages and findings.
+      operationId: Getimage
+      parameters:
+        - description: Imageid of the Docker image to retrieve
+          in: path
+          name: imageid
+          required: true
+          schema:
+            description: Imageid of the Docker image to retrieve
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PharosImageMeta"
+          description: A single image
+        "404":
+          description: image not found
+        "500":
+          description: Internal server error
+      summary: Get one image by ImageId
+      tags:
+        - PharosImageMeta
+  /pharosscantask/asyncsyncscan:
+    post:
+      description: "\n\t\t\t\tSubmits an async scan of an image, and waits fo the scan to complete after returning the result.\n\t\t\t\tExample:\n\t\t\t\t  {\n\t\t\t\t    \"imageSpec\": {\n\t\t\t\t      \"image\": \"redis:latest\"\n\t\t\t\t    }\t\n\t\t\t\t  }\n\t\t\t\t"
+      operationId: AsyncScan
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PharosScanTask"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PharosScanTask"
+          description: A single image
+        "500":
+          description: Internal server error
+      summary: Do an async scan of an image
+      tags:
+        - PharosScanTask
+  /pharosscantask/syncscan:
+    post:
+      description: "\n\t\t\t\tSubmits a sync scan of an image, adds the image to the database and returns the scan result.\n\t\t\t\tExample:\n\t\t\t\t  {\n\t\t\t\t    \"imageSpec\": {\n\t\t\t\t      \"image\": \"redis:latest\"\n\t\t\t\t    }\t\n\t\t\t\t  }\n\t\t\t\t"
+      operationId: SyncScan
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PharosScanTask"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PharosScanResult"
+          description: A single image
+        "500":
+          description: Internal server error
+      summary: Do a sync scan of an image
+      tags:
+        - PharosScanTask
+servers:
+  - description: Pharos API server
+    url: /api

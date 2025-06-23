@@ -45,7 +45,10 @@ require (
 	gorm.io/gorm v1.30.0
 )
 
-require github.com/danielgtaylor/huma/v2 v2.32.0
+require (
+	github.com/danielgtaylor/huma/v2 v2.32.0
+	github.com/metraction/handwheel v0.0.2-0.20250622145352-05d70e27d53e
+)
 
 require (
 	github.com/jackc/pgpassfile v1.0.0 // indirect

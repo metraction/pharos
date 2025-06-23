@@ -158,6 +158,9 @@ func init() {
 	rootCmd.PersistentFlags().String("scanner.timeout", "300s", "Scanner timeout")
 	rootCmd.PersistentFlags().String("scanner.cacheEndpoint", "redis://localhost:6379", "Scanner cache endpoint")
 
+	rootCmd.PersistentFlags().String("prometheus.url", "http://prometheus.prometheus.svc.cluster.local:9090", "URL of the Prometheus server")
+	rootCmd.PersistentFlags().String("prometheus.interval", "30s", "Interval for scraping Prometheus metrics")
+
 	rootCmd.PersistentFlags().String("database.driver", "postgres", "Database driver for the scanner, righ now, only 'postgres' is implemented.")
 	defaultDSN := fmt.Sprintf("postgres://postgres:postgres@localhost:5432/pharos?sslmode=disable") // run `brew install db-browser-for-sqlite` to view the database.
 	rootCmd.PersistentFlags().String("database.dsn", defaultDSN, "Database DSN for the scanner, for postgres it is the connection string.")
