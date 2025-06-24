@@ -30,7 +30,7 @@ func NewMetricsController(api *huma.API, config *model.Config) *MetricsControlle
 	var vulnerabilities = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "pharos_vulnerabilities",
 		Help: "Vulnerabilites for images",
-	}, []string{"image", "digest", "platform", "severity"})
+	}, []string{"image", "digest", "imageid", "platform", "severity"})
 
 	prometheus.MustRegister(vulnerabilities)
 	mc := &MetricsController{
@@ -93,7 +93,7 @@ func (mc *MetricsController) Metrics() (huma.Operation, func(ctx context.Context
 					summary := fullImage.GetSummary()
 					mc.Logger.Info().Str("imageId", image.ImageId).Any("summary", summary).Msg("Found image in database")
 					for level, count := range summary.Severities {
-						mc.Vulnerabilities.WithLabelValues(fullImage.ImageSpec, fullImage.IndexDigest, fullImage.ArchOS+"/"+fullImage.ArchName, level).Set(float64(count))
+						mc.Vulnerabilities.WithLabelValues(fullImage.ImageSpec, fullImage.IndexDigest, fullImage.ImageId, fullImage.ArchOS+"/"+fullImage.ArchName, level).Set(float64(count))
 					}
 				}
 			}
