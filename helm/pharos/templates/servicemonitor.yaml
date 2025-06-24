@@ -6,7 +6,7 @@ metadata:
 spec:
   endpoints:
     - path: /api/metrics
-      targetPort: 8080
+      port: http
   namespaceSelector:
     matchNames:
       - {{ .Release.Namespace }}
