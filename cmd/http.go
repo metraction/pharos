@@ -49,6 +49,7 @@ These submissions are then published to a Redis stream for further processing by
 		// Add routes for the API
 		controllers.NewimageController(&api, currentConfig).AddRoutes()
 		controllers.NewPharosScanTaskController(&api, currentConfig).WithPublisher(publisher, priorityPublisher).AddRoutes()
+		controllers.NewMetricsController(&api, currentConfig).AddRoutes()
 		// b, _ := api.OpenAPI().DowngradeYAML()
 		// err = os.WriteFile("openapi.yaml", b, 0644)
 		// if err != nil {
