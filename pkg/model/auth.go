@@ -8,6 +8,22 @@ import (
 	"github.com/metraction/pharos/internal/utils"
 )
 
+func GetMatchingAuth(imageSpec string, auths []PharosRepoAuth) PharosRepoAuth {
+
+	parts := strings.Split(imageSpec, "/")
+	if len(parts) == 0 {
+		return PharosRepoAuth{}
+	}
+	repoHost := parts[0]
+	for _, auth := range auths {
+
+		if strings.HasPrefix(auth.Authority+"/", repoHost+"/") {
+			return auth
+		}
+	}
+	return PharosRepoAuth{}
+}
+
 // authentication for image repos
 // TODO: here, json tags have lowercase names, but other models use PascalCase names.
 type PharosRepoAuth struct {
@@ -26,7 +42,6 @@ func NewPharosRepoAuth(authDsn string) (PharosRepoAuth, error) {
 	if err := auth.FromDsn(authDsn); err != nil {
 		return PharosRepoAuth{}, err
 	}
-	fmt.Println(auth)
 	return auth, nil
 }
 

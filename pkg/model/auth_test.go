@@ -1,10 +1,36 @@
 package model
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func TestGetMatchingAuth(t *testing.T) {
+
+	repos := []string{
+		"registry://me:secret@docker.io",
+		"registry://me:secret@artifactory.internal",
+		"registry://me:secret@exploit.nsa",
+	}
+
+	auths := []PharosRepoAuth{}
+
+	for _, dsn := range repos {
+		auth, err := NewPharosRepoAuth(dsn)
+		assert.NoError(t, err)
+		auths = append(auths, auth)
+	}
+	assert.Equal(t, len(repos), len(auths))
+
+	for k, host := range []string{"exploit.nsa", "artifactory.internal", "docker.io"} {
+		repo := fmt.Sprintf("%s/internal/nginx:1.%v", host, k)
+		auth := GetMatchingAuth(repo, auths)
+		assert.Equal(t, host, auth.Authority)
+	}
+
+}
 
 func TestDSN(t *testing.T) {
 

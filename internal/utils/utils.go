@@ -13,7 +13,6 @@ import (
 
 	"github.com/acarl005/stripansi"
 	"github.com/joho/godotenv"
-	"github.com/kos-v/dsnparser"
 	"github.com/package-url/packageurl-go"
 	"github.com/samber/lo"
 )
@@ -32,32 +31,6 @@ func ToBool(input string) bool {
 		return true
 	}
 	return false
-}
-
-// return service, user, password, host from
-//
-//		redis://pwd@localhost:6379/0
-//	 registry://usr:pwd@docker.io/?type=password
-func ParseDsn(input string) (string, string, string, string, error) {
-
-	dsn := dsnparser.Parse(input)
-	if dsn == nil {
-		return "", "", "", "", fmt.Errorf("invalid DSN '%s'", input)
-	}
-	hostPort := dsn.GetHost()
-	if dsn.GetPort() != "" {
-		hostPort = dsn.GetHost() + ":" + dsn.GetPort()
-	}
-	return dsn.GetScheme(), dsn.GetUser(), dsn.GetPassword(), hostPort, nil
-}
-
-// return DSN with password masked as ***
-func MaskDsn(input string) string {
-	_, _, password, _, _ := ParseDsn(input)
-	if password == "" {
-		return input
-	}
-	return strings.Replace(input, ":"+password+"@", ":***@", 1)
 }
 
 // return function (closure) thats returns the <prefix>_<name> envvar if it exists, else the default value

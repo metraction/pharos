@@ -99,8 +99,17 @@ func (rx *GrypeScanner) UpdateDatabase() error {
 	updProd := GrypeUpdateRequired(rx.ScannerBin, rx.DbProdDir)   // check if prod update is required
 	updStage := GrypeUpdateRequired(rx.ScannerBin, rx.DbStageDir) // check if staging update required
 
-	rx.logger.Info().Any("prod", updProd).Any("staged", updStage).Msg("update vulndb ..")
+	rx.logger.Info().
+		Any("db(prod)", dbNiceState(updProd)).
+		Any("db(staged)", dbNiceState(updStage)).
+		Msg("update vulndb ..")
+
 	if updProd {
+		rx.logger.Info().
+			Str("stage", rx.DbStageDir).
+			Str("prod", rx.DbProdDir).
+			Msg("update vulndb .. downloading")
+
 		if updStage {
 			if err := GetGrypeUpdate(rx.ScannerBin, rx.DbStageDir); err != nil {
 				return err
