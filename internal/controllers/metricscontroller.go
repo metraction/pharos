@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/danielgtaylor/huma/v2/adapters/humago"
 	"github.com/metraction/pharos/internal/integrations"
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/pkg/model"
@@ -78,6 +79,7 @@ func (mc *MetricsController) Metrics() (huma.Operation, func(ctx context.Context
 			if err != nil {
 				return nil, huma.Error500InternalServerError("Database context not found in request context")
 			}
+			mc.Vulnerabilities.Reset()
 			mc.Logger.Info().Msg("Serving metrics")
 			writer := ctx.Value("writer").(http.ResponseWriter)
 			request := ctx.Value("request").(*http.Request)
@@ -100,4 +102,15 @@ func (mc *MetricsController) Metrics() (huma.Operation, func(ctx context.Context
 			h.ServeHTTP(writer, request)
 			return nil, nil
 		}
+}
+
+// We have to ingject the request and writer into the context, so we can use them in the Metrics handler.
+
+func (mc *MetricsController) MetricsMiddleware() func(ctx huma.Context, next func(huma.Context)) {
+	return func(ctx huma.Context, next func(huma.Context)) {
+		r, w := humago.Unwrap(ctx)
+		ctx = huma.WithValue(ctx, "request", r)
+		ctx = huma.WithValue(ctx, "writer", w)
+		next(ctx)
+	}
 }
