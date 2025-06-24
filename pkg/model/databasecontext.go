@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/danielgtaylor/huma/v2/adapters/humago"
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/rs/zerolog"
 	"gorm.io/driver/postgres"
@@ -71,9 +70,7 @@ func (dc *DatabaseContext) Migrate() error {
 
 func (databaseContext *DatabaseContext) DatabaseMiddleware() func(ctx huma.Context, next func(huma.Context)) {
 	return func(ctx huma.Context, next func(huma.Context)) {
-		r, w := humago.Unwrap(ctx)
-		ctx = huma.WithValue(ctx, "request", r)
-		ctx = huma.WithValue(ctx, "writer", w)
+
 		ctx = huma.WithValue(ctx, "databaseContext", databaseContext)
 		next(ctx)
 	}
