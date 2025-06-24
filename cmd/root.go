@@ -157,6 +157,11 @@ func init() {
 	rootCmd.PersistentFlags().String("scanner.responseQueue", "scanresult", "Redis stream for responses")
 	rootCmd.PersistentFlags().String("scanner.timeout", "300s", "Scanner timeout")
 	rootCmd.PersistentFlags().String("scanner.cacheEndpoint", "redis://localhost:6379", "Scanner cache endpoint")
+	rootCmd.PersistentFlags().String("prometheus.url", "http://prometheus.prometheus.svc.cluster.local:9090", "URL of the Prometheus server")
+	rootCmd.PersistentFlags().String("prometheus.interval", "3600s", "Interval for scraping Prometheus metrics")
+	rootCmd.PersistentFlags().String("prometheus.pharosUrl", "http://localhost:8080", "Root URL of the Pharos server for submitting tasks")
+	rootCmd.PersistentFlags().String("prometheus.platform", "linux/amd64", "Platform for which the metrics are collected, defaults to 'linux/amd64'")
+	rootCmd.PersistentFlags().String("prometheus.namespace", "pharos", "Namespace for the Prometheus metrics")
 
 	rootCmd.PersistentFlags().String("database.driver", "postgres", "Database driver for the scanner, righ now, only 'postgres' is implemented.")
 	defaultDSN := fmt.Sprintf("postgres://postgres:postgres@localhost:5432/pharos?sslmode=disable") // run `brew install db-browser-for-sqlite` to view the database.

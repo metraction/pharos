@@ -1,0 +1,16 @@
+{{- if and .Values.serviceAccount.create .Values.role.create -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "pharos.fullname" . }}-read-secrets
+  labels:
+    {{- include "pharos.labels" . | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "pharos.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: Role
+  name: {{ include "pharos.fullname" . }}-read-secrets
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

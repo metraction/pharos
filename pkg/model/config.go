@@ -23,10 +23,19 @@ type PublisherConfig struct {
 
 // Config holds the application configuration.
 type Config struct {
-	Redis     Redis           `mapstructure:"redis"`
-	Scanner   ScannerConfig   `mapstructure:"scanner"`
-	Publisher PublisherConfig `mapstructure:"publisher"`
-	Database  Database        `mapstructure:"database"`
+	Redis      Redis                    `mapstructure:"redis"`
+	Scanner    ScannerConfig            `mapstructure:"scanner"`
+	Publisher  PublisherConfig          `mapstructure:"publisher"`
+	Database   Database                 `mapstructure:"database"`
+	Prometheus PrometheusReporterConfig `mapstructure:"prometheus"`
+}
+
+type PrometheusReporterConfig struct {
+	URL       string `mapstructure:"url"`       // URL of the Prometheus server
+	Interval  string `mapstructure:"interval"`  // Interval for scraping Prometheus metrics
+	Platform  string `mapstructure:"platform"`  // Platform for which the metrics are collected, defaults to "linux/amd64"
+	Namespace string `mapstructure:"namespace"` // Namespace for the Prometheus metrics
+	PharosURL string `mapstructure:"pharosUrl"` // Root URL of the Pharos server for Prometheus metrics
 }
 
 // Redis holds Redis-specific configuration.
