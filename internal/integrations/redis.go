@@ -3,70 +3,17 @@ package integrations
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
-
-	"log/slog" // Added for slog.Default()
 
 	"github.com/dranikpg/gtrs"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/redis/go-redis/v9"
 	"github.com/reugn/go-streams"
-	rg_redis "github.com/reugn/go-streams/redis"
+	"github.com/reugn/go-streams/extension"
 )
 
-func NewRedisStreamSource(ctx context.Context, redisCfg model.Redis, streamName string, groupName string, consumerName string, groupStartID string, blockTimeout time.Duration, messageCount int64) (streams.Source, error) {
+func NewRedisConsumerGroupSource[T any](ctx context.Context, redisCfg model.Redis, streamName string, groupName string, consumerName string, groupStartID string, blockTimeout time.Duration, messageCount int64) (streams.Source, error) {
 	// 1. Create Redis client (using go-redis/redis v6)
-	fmt.Println("Connecting to Redis at:", redisCfg.DSN)
-	rdb := redis.NewClient(&redis.Options{
-		Addr: redisCfg.DSN,
-		// Other v6 options if needed (e.g., Password, DB)
-	})
-
-	// Ping the Redis server to ensure connectivity (context-aware ping for v6)
-	if err := rdb.Ping(ctx).Err(); err != nil { // v6 Ping doesn't take context directly, but underlying operations are ctx aware via client
-		rdb.Close()
-		return nil, fmt.Errorf("failed to connect to Redis at %s: %w", redisCfg.DSN, err)
-	}
-
-	// 2. Create Consumer Group (if it doesn't exist) using v6 client
-	// XGroupCreateMkStream creates the stream if it doesn't exist, then the group.
-	// If the group already exists, Redis returns a BUSYGROUP error, which we can ignore.
-	// For v6, XGroupCreateMkStream is called directly on the client.
-	cmd := rdb.XGroupCreateMkStream(ctx, streamName, groupName, groupStartID)
-	if err := cmd.Err(); err != nil && !strings.HasPrefix(err.Error(), "BUSYGROUP") {
-		rdb.Close()
-		return nil, fmt.Errorf("failed to create consumer group '%s' for stream '%s': %w", groupName, streamName, err)
-	}
-
-	// 3. Define XReadGroupArgs for reading from the stream as part of a consumer group (using v6 types)
-	xReadGroupArgs := &redis.XReadGroupArgs{
-		Group:    groupName,
-		Consumer: consumerName,
-		Streams:  []string{streamName, ">"}, // ">" means only new messages not yet delivered to other consumers
-		Count:    messageCount,              // Number of messages to fetch per command
-		Block:    blockTimeout,
-		NoAck:    true, // Default is false, meaning messages need to be acknowledged (XACK)
-	}
-
-	// 4. Create and return the Redis Stream source from go-streams/redis.
-	// This source will use XREADGROUP to consume messages.
-	// The NewRedisSource function handles closing the Redis client (rdb) when the context is done.
-	// It expects a redis.UniversalClient from the v6 library.
-	redisSource, err := rg_redis.NewStreamSource(ctx, rdb, xReadGroupArgs, nil, slog.Default())
-	if err != nil {
-		// rdb.Close() is typically handled by NewRedisSource's cleanup on context done or internal error.
-		return nil, fmt.Errorf("failed to create Redis Stream consumer group source for stream '%s', group '%s': %w", streamName, groupName, err)
-	}
-
-	return redisSource, nil
-}
-
-// NewRedisStreamSink creates a new Redis client and returns a streams.Sink
-// that publishes messages to the specified Redis Stream.
-// The context.Context can be used for cancellation during sink setup.
-// streamName: The name of the Redis stream to publish to (e.g., "images_to_scan").
-func NewRedisStreamSink(ctx context.Context, redisCfg model.Redis, streamName string) (streams.Sink, error) {
 	rdb := redis.NewClient(&redis.Options{
 		Addr: redisCfg.DSN,
 	})
@@ -76,12 +23,58 @@ func NewRedisStreamSink(ctx context.Context, redisCfg model.Redis, streamName st
 		return nil, fmt.Errorf("failed to connect to Redis at %s for sink: %w", redisCfg.DSN, err)
 	}
 
-	// The rg_redis.NewStreamSink expects a *redis.Client from go-redis/v9,
-	// the target stream name, and an *slog.Logger.
-	// The sink itself handles closing the Redis client when its processing is done or context is cancelled.
-	streamSink := rg_redis.NewStreamSink(ctx, rdb, streamName, slog.Default())
+	consumer := gtrs.NewGroupConsumer[T](ctx, rdb, groupName, consumerName, streamName, "0-0", gtrs.GroupConsumerConfig{
+		StreamConsumerConfig: gtrs.StreamConsumerConfig{
+			Block:      0,   // 0 means infinite
+			Count:      100, // maximum number of entries per request
+			BufferSize: 20,  // how many entries to prefetch at most
+		},
+		AckBufferSize: 10, // size of the acknowledgement buffer
+	})
 
-	return streamSink, nil
+	// Create an adapter channel that adapts <-chan gtrs.Message[T] to chan any
+	adapterChan := make(chan interface{})
+	go func() {
+		defer close(adapterChan)
+
+		// Read from consumer.Chan() and send to adapterChan
+		for msg := range consumer.Chan() {
+			// Extract the data from the Message wrapper
+			adapterChan <- msg.Data
+
+			// Acknowledge the message
+			consumer.Ack(msg)
+		}
+	}()
+
+	redisSource := extension.NewChanSource(adapterChan)
+
+	return redisSource, nil
+}
+
+func NewRedisStreamSink[T any](ctx context.Context, redisCfg model.Redis, streamName string) (streams.Sink, error) {
+	rdb := redis.NewClient(&redis.Options{
+		Addr: redisCfg.DSN,
+	})
+
+	if err := rdb.Ping(ctx).Err(); err != nil {
+		rdb.Close()
+		return nil, fmt.Errorf("failed to connect to Redis at %s for sink: %w", redisCfg.DSN, err)
+	}
+
+	stream := gtrs.NewStream[T](rdb, streamName, nil)
+
+	// Create an adapter channel that adapts <-chan gtrs.Message[T] to chan any
+	adapterChan := make(chan any, 100)
+	go func() {
+		// Read from consumer.Chan() and send to adapterChan
+		for msg := range adapterChan {
+			// Extract the data from the Message wrapper
+			stream.Add(ctx, msg.(T))
+		}
+	}()
+
+	return extension.NewChanSink(adapterChan), nil
 }
 
 type RedisGtrsClient[T any, R any] struct {
