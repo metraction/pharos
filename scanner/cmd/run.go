@@ -57,7 +57,7 @@ func init() {
 }
 
 // dump scan results to files (for debugging)
-func saveResults(outdir string, id int, prefix string, sbomData []byte, scanData []byte, result model.PharosScanResult) {
+func saveResults(outdir, id, prefix string, sbomData []byte, scanData []byte, result model.PharosScanResult) {
 
 	if utils.DirExists(outdir) {
 		os.WriteFile(filepath.Join(outdir, fmt.Sprintf("%v-%s-sbom.json", id, prefix)), sbomData, 0644)
@@ -205,7 +205,7 @@ func ExecuteRunScan(engine, tasksFile, repoAuth string, scanTimeout, cacheExpiry
 			if err != nil {
 				logger.Error().Err(err).Msg("grype.ScanImage()")
 			}
-			saveResults(outDir, k, "grype", sbomData, scanData, result)
+			saveResults(outDir, string(k), "grype", sbomData, scanData, result)
 
 			// call scanEngine.UpdateDatabase() every hour
 			// END WORKER
@@ -233,7 +233,7 @@ func ExecuteRunScan(engine, tasksFile, repoAuth string, scanTimeout, cacheExpiry
 			if err != nil {
 				logger.Error().Err(err).Msg("trivy.ScanImage()")
 			}
-			saveResults(outDir, k, "trivy", sbomData, scanData, result)
+			saveResults(outDir, string(k), "trivy", sbomData, scanData, result)
 		}
 	} else {
 		logger.Fatal().Str("engine", engine).Msg("unknown engine")

@@ -1,12 +1,15 @@
 package scanning
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestHelper(t *testing.T) {
+
+	fmt.Println("DDDD")
 
 	var os, arch, variant string
 
