@@ -10,10 +10,10 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/reugn/go-streams"
 	"github.com/reugn/go-streams/extension"
+	"github.com/rs/zerolog/log"
 )
 
-func NewRedisConsumerGroupSource[T any](ctx context.Context, rdb *redis.Client, streamName string, groupName string, consumerName string, groupStartID string, blockTimeout time.Duration, messageCount int64) (streams.Source, error) {
-
+func NewRedisConsumerGroupSource[T any](ctx context.Context, rdb *redis.Client, streamName string, groupName string, consumerName string, groupStartID string, blockTimeout time.Duration, messageCount int64) streams.Source {
 	consumer := gtrs.NewGroupConsumer[T](ctx, rdb, groupName, consumerName, streamName, "0-0", gtrs.GroupConsumerConfig{
 		StreamConsumerConfig: gtrs.StreamConsumerConfig{
 			Block:      0,   // 0 means infinite
@@ -40,11 +40,10 @@ func NewRedisConsumerGroupSource[T any](ctx context.Context, rdb *redis.Client, 
 
 	redisSource := extension.NewChanSource(adapterChan)
 
-	return redisSource, nil
+	return redisSource
 }
 
-func NewRedisStreamSink[T any](ctx context.Context, rdb *redis.Client, streamName string) (streams.Sink, error) {
-
+func NewRedisStreamSink[T any](ctx context.Context, rdb *redis.Client, streamName string) streams.Sink {
 	stream := gtrs.NewStream[T](rdb, streamName, nil)
 
 	// Create an adapter channel that adapts <-chan gtrs.Message[T] to chan any
@@ -57,12 +56,24 @@ func NewRedisStreamSink[T any](ctx context.Context, rdb *redis.Client, streamNam
 		}
 	}()
 
-	return extension.NewChanSink(adapterChan), nil
+	return extension.NewChanSink(adapterChan)
 }
 
-func NewQueueLimit(ctx context.Context, rdb *redis.Client, queueName string, limit int64) func() bool {
-	return func() bool {
-		return rdb.XLen(ctx, queueName).Val() > limit
+func NewQueueLimit(ctx context.Context, rdb *redis.Client, queueName string, limit int64, cb ...func(in any)) func(in any) bool {
+	return func(in any) bool {
+		queueSize, err := rdb.XLen(ctx, queueName).Result()
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to get queue length")
+			return false
+		}
+		//fmt.Println("Queue limit check for:", in, queueSize)
+		if queueSize >= limit {
+			if len(cb) > 0 {
+				cb[0](in)
+			}
+			return false
+		}
+		return true
 	}
 }
 

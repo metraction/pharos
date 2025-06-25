@@ -351,8 +351,7 @@ func TestRedisConsumerGroupSource(t *testing.T) {
 	consumerStats := make(map[string]int)        // consumer name -> count of messages processed
 
 	// Step 1: Create a Redis stream sink to publish messages
-	streamSink, err := NewRedisStreamSink[model.PharosScanTask](testCtx, rdb, streamName)
-	require.NoError(t, err)
+	streamSink := NewRedisStreamSink[model.PharosScanTask](testCtx, rdb, streamName)
 
 	// Step 2: Create a channel source to feed messages to the sink
 	messageChan := make(chan any, numMessages)
@@ -373,7 +372,7 @@ func TestRedisConsumerGroupSource(t *testing.T) {
 		consumerName := fmt.Sprintf("consumer-%d", i)
 
 		// Create a consumer group source with separate Redis context
-		source, err := NewRedisConsumerGroupSource[model.PharosScanTask](
+		source := NewRedisConsumerGroupSource[model.PharosScanTask](
 			testCtx,
 			rdb,
 			streamName,
@@ -383,7 +382,6 @@ func TestRedisConsumerGroupSource(t *testing.T) {
 			100*time.Millisecond, // Block timeout
 			1,                    // Process one message at a time
 		)
-		require.NoError(t, err)
 		consumers[i] = source
 
 		// Start a goroutine to process messages from this consumer
@@ -479,20 +477,51 @@ func TestRedisConsumerGroupSource(t *testing.T) {
 }
 
 func TestRedisQueueLimit(t *testing.T) {
+	limit := 5
 
-	// Setup Redis (mini or real)
+	// Create redis for test
 	mr, rdb, _ := setupRedisTest(t)
 	if mr != nil {
 		defer mr.Close()
 	}
 
-	// Test the queue limit function
 	ctx := context.Background()
 	queueName := "test_queue_" + uuid.New().String()[:8]
+	wg := sync.WaitGroup{}
+	wg.Add(limit) // We expect each message to be processed exactly once
 
-	// Create a limit function
-	limitFn := NewQueueLimit(ctx, rdb, queueName, 5)
+	rejectedCounter := func(in any) {
+		fmt.Println("Rejected message:", in.(model.PharosScanTask).JobId)
+		wg.Done()
+	}
 
-	// Initially the queue should be empty
-	assert.False(t, limitFn())
+	// Setup steams to write to redis
+	messageChan := make(chan any)
+	go extension.NewChanSource(messageChan).
+		Via(flow.NewFilter(NewQueueLimit(ctx, rdb, queueName, int64(limit), rejectedCounter), 1)).
+		To(NewRedisStreamSink[model.PharosScanTask](ctx, rdb, queueName))
+
+	// Send messages to the channel
+	for i := 0; i < 10; i++ {
+		taskID := fmt.Sprintf("%d", i)
+		task := newTestScanTask(t, taskID, fmt.Sprintf("test-image-%d", i))
+		fmt.Println("Sending message:", task.JobId)
+		time.Sleep(50 * time.Millisecond)
+		messageChan <- task
+	}
+	// Close the channel to signal no more messages
+
+	close(messageChan)
+
+	queueLen := rdb.XLen(ctx, queueName).Val()
+	assert.Equal(t, int64(limit), queueLen)
+
+	go NewRedisConsumerGroupSource[model.PharosScanResult](ctx, rdb, queueName, "g1", "c1", "0", 100*time.Millisecond, 1).
+		Via(flow.NewMap(func(msg any) any {
+			return msg
+		}, 1)).
+		To(extension.NewStdoutSink())
+
+	wg.Wait()
+
 }
