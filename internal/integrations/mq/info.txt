@@ -1,0 +1,37 @@
+# Design and usage
+
+redisEndpoint := "redis://:pwd@localhost:6379/0"
+
+redis := NewRedisConnection(redisEndpoint)
+redis.Connect()
+defer redis.Close()
+
+groupMode    := "$"
+maxSize      := 1000
+
+// Create two consumer groups for 1) send tasks, 2) send results
+
+taskQueue := "scan:task?maxlen=1000"
+resultQueue := "scan:result?maxlen=1000"
+
+scanGroup   := NewTaskGroup[ScanTaskType](redis, mode, "scan:task", maxSize)
+resultGroup := NewTaskGroup[ScanResultType](redis, mode, "scan:result", maxSize)
+
+maxExpireTTL := "60m"
+maxReclaimTTL := "30m"
+batchSize := 10
+
+// Cleanup Actions
+scanGroup.DeleteExpired(batchSize, maxExpireTTL)              // Delete pending with TTL > max
+scanGroup.ReclaimStale(batchSize, maxReclaimTTL, consumerName) // Reclaim N messages for consumer
+
+
+// Publish
+scanGroup.Publish(priority, payload)
+
+// Subscribe
+mode :' ">" // only new messages
+scanGroup.Subscribe(mode, blockTime, consumerName, handlerFunc())
+
+
+# Send scan tasks
