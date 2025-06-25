@@ -5,8 +5,19 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/metraction/pharos/internal/gtrsconvert"
 	"github.com/metraction/pharos/internal/utils"
 )
+
+// convert Redis message values back to original structure
+
+func ValuesToStruct[T any](values map[string]interface{}) (T, error) {
+	var result T
+	if err := gtrsconvert.MapToStruct(&result, values); err != nil {
+		return result, err
+	}
+	return result, nil
+}
 
 // return parts from task queue DSN "queue://stream:group/?maxlen=1000&maxretry=2&maxttl=1h"
 func ParseTaskQueueDsn(input string) (string, string, int64, int64, time.Duration, error) {
