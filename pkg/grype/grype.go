@@ -41,6 +41,8 @@ func NewGrypeScanner(scanTimeout time.Duration, updateDb bool, logger *zerolog.L
 	var grypeBin string
 	var homeDir string
 
+	logger.Info().Msg("NewGrypeScanner() ..")
+
 	// find grype path
 	if grypeBin, err = utils.OsWhich("grype"); err != nil {
 		return nil, fmt.Errorf("grype not installed")
@@ -74,12 +76,30 @@ func NewGrypeScanner(scanTimeout time.Duration, updateDb bool, logger *zerolog.L
 	if scanner.ScannerVersion, err = GetScannerVersion(scanner.ScannerBin); err != nil {
 		return nil, err
 	}
+
+	// check if vuln database is healty with test scan. If not delete db folter to remive invalid db and trigger update
+	logger.Info().Msg("NewGrypeScanner() verify vuln db")
+	for _, dbdir := range []string{scanner.DbProdDir, scanner.DbStageDir} {
+		if err = GrypeTestScan(scanner.ScannerBin, dbdir); err != nil {
+			logger.Error().Str("dbdir", dbdir).Msg("reset vuln db")
+			os.RemoveAll(dbdir)
+			if err := os.MkdirAll(dbdir, 0755); err != nil {
+				if !os.IsExist(err) {
+					logger.Fatal().Err(err).Str("dbdir", dbdir).Msg("vuln database dir")
+					return nil, fmt.Errorf("unable to create dbdir %v: %v", dbdir, err)
+				}
+			}
+			updateDb = true
+		}
+	}
+	logger.Info().Any("update", updateDb).Msg("NewGrypeScanner() verify vuln db")
 	if updateDb {
 		if err := scanner.UpdateDatabase(); err != nil {
 			return nil, err
 		}
 	}
-	scanner.logger.Info().
+
+	logger.Info().
 		Str("engine", scanner.ScannerBin).
 		Str("dir(prod)", scanner.DbProdDir).
 		Str("dir(stage)", scanner.DbStageDir).
@@ -128,7 +148,7 @@ func (rx *GrypeScanner) UpdateDatabase() error {
 		updProd = GrypeUpdateRequired(rx.ScannerBin, rx.DbProdDir)
 	}
 
-	if rx.DatabaseVersion, rx.DatabaseUpdated, err = GetDatabaseStatus(rx.ScannerBin); err != nil {
+	if rx.DatabaseVersion, rx.DatabaseUpdated, err = GetDatabaseStatus(rx.ScannerBin, rx.DbProdDir); err != nil {
 		return err
 	}
 	rx.logger.Info().
@@ -158,7 +178,6 @@ func (rx *GrypeScanner) VulnScanSbom(sbom []byte) (grypetype.GrypeScanType, []by
 
 	elapsed := utils.ElapsedFunc()
 	cmd := exec.Command(rx.ScannerBin, "-o", "json") // cyclonedx-json has no "fixed" state ;-(
-	//cmd.Stdin = bytes.NewReader([]byte(sbom))
 	cmd.Stdin = bytes.NewReader(sbom)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
@@ -166,6 +185,7 @@ func (rx *GrypeScanner) VulnScanSbom(sbom []byte) (grypetype.GrypeScanType, []by
 	// check https://github.com/anchore/grype
 	cmd.Env = append(cmd.Env, "GRYPE_CHECK_FOR_APP_UPDATE=false")
 	cmd.Env = append(cmd.Env, "GRYPE_ADD_CPES_IF_NONE=true")
+	cmd.Env = append(cmd.Env, "GRYPE_DB_AUTO_UPDATE=false")
 	cmd.Env = append(cmd.Env, "GRYPE_DB_CACHE_DIR="+rx.DbProdDir)
 
 	err := cmd.Run()
