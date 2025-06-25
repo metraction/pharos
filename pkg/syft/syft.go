@@ -69,7 +69,7 @@ func (rx *SyftSbomCreator) CreateSbom(task model.PharosScanTask, format string) 
 		Str("platform", platform).
 		Bool("tlsCheck", auth.TlsCheck).
 		Str("format", format).
-		Msg("SyftSbomCreator.CreateSbom() ..")
+		Msg("CreateSbom() ..")
 
 	var err error
 	var stdout, stderr bytes.Buffer
@@ -99,7 +99,7 @@ func (rx *SyftSbomCreator) CreateSbom(task model.PharosScanTask, format string) 
 			rx.logger.Info().
 				Str("authority", auth.Authority).
 				Str("user", auth.Username).
-				Msg("Add user authenication")
+				Msg("CreateSbom() user auth")
 
 			cmd.Env = append(cmd.Env, "SYFT_REGISTRY_AUTH_USERNAME="+auth.Username)
 			cmd.Env = append(cmd.Env, "SYFT_REGISTRY_AUTH_PASSWORD="+auth.Password)
@@ -107,7 +107,7 @@ func (rx *SyftSbomCreator) CreateSbom(task model.PharosScanTask, format string) 
 			rx.logger.Info().
 				Str("authority", auth.Authority).
 				Str("token", auth.Token).
-				Msg("Add token authenication")
+				Msg("CreateSbom() token auth")
 			cmd.Env = append(cmd.Env, "SYFT_REGISTRY_AUTH_TOKEN="+auth.Token)
 		}
 	}

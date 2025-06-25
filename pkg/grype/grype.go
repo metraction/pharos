@@ -122,13 +122,13 @@ func (rx *GrypeScanner) UpdateDatabase() error {
 	rx.logger.Info().
 		Any("db(prod)", dbNiceState(updProd)).
 		Any("db(staged)", dbNiceState(updStage)).
-		Msg("update vulndb ..")
+		Msg("UpdateDatabase() ..")
 
 	if updProd {
 		rx.logger.Info().
 			Str("stage", rx.DbStageDir).
 			Str("prod", rx.DbProdDir).
-			Msg("update vulndb .. downloading")
+			Msg("UpdateDatabase() downloading..")
 
 		if updStage {
 			if err := GetGrypeUpdate(rx.ScannerBin, rx.DbStageDir); err != nil {
@@ -157,7 +157,7 @@ func (rx *GrypeScanner) UpdateDatabase() error {
 		Str("version", rx.DatabaseVersion).
 		Str("built", rx.DatabaseUpdated.Format("2006-01-02 15:04:05")).
 		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).
-		Msg("update vulndb OK")
+		Msg("UpdateDatabase() OK")
 
 	return nil
 }
