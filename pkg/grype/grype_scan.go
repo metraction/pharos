@@ -19,7 +19,7 @@ import (
 // execute scan with grype scanner
 func ScanImage(task model.PharosScanTask, scanEngine *GrypeScanner, kvc *cache.PharosCache, logger *zerolog.Logger) (model.PharosScanResult, []byte, []byte, error) {
 
-	logger.Info().Msg("Grype.ScanImage()")
+	logger.Info().Msg("ScanImage() ..")
 
 	// return sbom cache key for given digest
 	CacheKey := func(digest string) string {
@@ -48,7 +48,7 @@ func ScanImage(task model.PharosScanTask, scanEngine *GrypeScanner, kvc *cache.P
 	logger.Info().
 		Str("digest.idx", utils.ShortDigest(indexDigest)).
 		Str("digest.man", utils.ShortDigest(manifestDigest)).
-		Msg("image digests")
+		Msg("ScanImage() digests OK")
 
 	// create sbom generator
 	if sbomEngine, err = syft.NewSyftSbomCreator(task.Timeout, logger); err != nil {
@@ -62,7 +62,7 @@ func ScanImage(task model.PharosScanTask, scanEngine *GrypeScanner, kvc *cache.P
 	key := CacheKey(manifestDigest)
 
 	// try cache, else create
-	sbomData, err = kvc.GetExpire(ctx, key, task.Timeout)
+	sbomData, err = kvc.GetExpireUnpack(ctx, key, task.Timeout)
 	if err != nil && !errors.Is(err, cache.ErrKeyNotFound) {
 		return result.SetError(err), nil, nil, err
 	}
@@ -75,7 +75,7 @@ func ScanImage(task model.PharosScanTask, scanEngine *GrypeScanner, kvc *cache.P
 			return result.SetError(err), nil, nil, err
 		}
 		// cache sbom
-		if err := kvc.SetExpire(ctx, key, sbomData, task.ImageSpec.CacheExpiry); err != nil {
+		if err := kvc.SetExpirePack(ctx, key, sbomData, task.ImageSpec.CacheExpiry); err != nil {
 			return result.SetError(err), nil, nil, err
 		}
 	} else {
@@ -109,7 +109,7 @@ func ScanImage(task model.PharosScanTask, scanEngine *GrypeScanner, kvc *cache.P
 		Any("scan.findings", len(result.Findings)).
 		Any("scan.vulns", len(result.Vulnerabilities)).
 		Any("scan.packages", len(result.Packages)).
-		Msg("")
+		Msg("ScanImage() OK")
 
 	return result, sbomData, scanData, nil
 
