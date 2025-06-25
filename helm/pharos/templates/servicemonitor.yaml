@@ -1,0 +1,15 @@
+
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "pharos.fullname" . }}
+spec:
+  endpoints:
+    - path: /api/metrics
+      port: http
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+  selector:
+    matchLabels:
+        {{- include "pharos.labels" . | nindent 6 }}

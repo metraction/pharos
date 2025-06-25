@@ -70,6 +70,7 @@ func (dc *DatabaseContext) Migrate() error {
 
 func (databaseContext *DatabaseContext) DatabaseMiddleware() func(ctx huma.Context, next func(huma.Context)) {
 	return func(ctx huma.Context, next func(huma.Context)) {
+
 		ctx = huma.WithValue(ctx, "databaseContext", databaseContext)
 		next(ctx)
 	}

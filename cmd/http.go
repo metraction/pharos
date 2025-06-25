@@ -30,6 +30,7 @@ These submissions are then published to a Redis stream for further processing by
 		}
 		databaseContext := model.NewDatabaseContext(&currentConfig.Database)
 		databaseContext.Migrate()
+
 		router := http.NewServeMux()
 		apiConfig := huma.DefaultConfig("Pharos API", "1.0.0")
 		apiConfig.Servers = []*huma.Server{
@@ -37,6 +38,8 @@ These submissions are then published to a Redis stream for further processing by
 		}
 		apiConfig.OpenAPIPath = "/openapi"
 		api := humago.NewWithPrefix(router, "/api", apiConfig)
+		metricsController := controllers.NewMetricsController(&api, currentConfig)
+		api.UseMiddleware(metricsController.MetricsMiddleware())
 
 		api.UseMiddleware(databaseContext.DatabaseMiddleware())
 		publisher, err := routing.NewPublisher(cmd.Context(), currentConfig)
@@ -49,6 +52,7 @@ These submissions are then published to a Redis stream for further processing by
 		// Add routes for the API
 		controllers.NewimageController(&api, currentConfig).AddRoutes()
 		controllers.NewPharosScanTaskController(&api, currentConfig).WithPublisher(publisher, priorityPublisher).AddRoutes()
+		metricsController.AddRoutes()
 		// b, _ := api.OpenAPI().DowngradeYAML()
 		// err = os.WriteFile("openapi.yaml", b, 0644)
 		// if err != nil {

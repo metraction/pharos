@@ -75,6 +75,20 @@ type PharosImageMeta struct {
 	Packages        []PharosPackage       `json:"Packages" required:"false" gorm:"many2many:join_pharos_package_with_pharos_image_meta;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
+type PharosFindingSummary struct {
+	Severities map[string]int `json:"Severities"` // map of severity to count
+}
+
+func (pm *PharosImageMeta) GetSummary() PharosFindingSummary {
+	severities := make(map[string]int)
+	for _, finding := range pm.Findings {
+		severities[finding.Severity]++
+	}
+	return PharosFindingSummary{
+		Severities: severities,
+	}
+}
+
 // a finding is an instantiation of a vulnerability in an asset/package (scan result)
 type PharosScanFinding struct {
 	AdvId       string      `json:"AdvId" gorm:"primaryKey"`     // finding CVE, GHSA, ..
