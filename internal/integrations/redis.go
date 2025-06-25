@@ -12,16 +12,7 @@ import (
 	"github.com/reugn/go-streams/extension"
 )
 
-func NewRedisConsumerGroupSource[T any](ctx context.Context, redisCfg model.Redis, streamName string, groupName string, consumerName string, groupStartID string, blockTimeout time.Duration, messageCount int64) (streams.Source, error) {
-	// 1. Create Redis client (using go-redis/redis v6)
-	rdb := redis.NewClient(&redis.Options{
-		Addr: redisCfg.DSN,
-	})
-
-	if err := rdb.Ping(ctx).Err(); err != nil {
-		rdb.Close()
-		return nil, fmt.Errorf("failed to connect to Redis at %s for sink: %w", redisCfg.DSN, err)
-	}
+func NewRedisConsumerGroupSource[T any](ctx context.Context, rdb *redis.Client, streamName string, groupName string, consumerName string, groupStartID string, blockTimeout time.Duration, messageCount int64) (streams.Source, error) {
 
 	consumer := gtrs.NewGroupConsumer[T](ctx, rdb, groupName, consumerName, streamName, "0-0", gtrs.GroupConsumerConfig{
 		StreamConsumerConfig: gtrs.StreamConsumerConfig{
@@ -52,15 +43,7 @@ func NewRedisConsumerGroupSource[T any](ctx context.Context, redisCfg model.Redi
 	return redisSource, nil
 }
 
-func NewRedisStreamSink[T any](ctx context.Context, redisCfg model.Redis, streamName string) (streams.Sink, error) {
-	rdb := redis.NewClient(&redis.Options{
-		Addr: redisCfg.DSN,
-	})
-
-	if err := rdb.Ping(ctx).Err(); err != nil {
-		rdb.Close()
-		return nil, fmt.Errorf("failed to connect to Redis at %s for sink: %w", redisCfg.DSN, err)
-	}
+func NewRedisStreamSink[T any](ctx context.Context, rdb *redis.Client, streamName string) (streams.Sink, error) {
 
 	stream := gtrs.NewStream[T](rdb, streamName, nil)
 
@@ -75,6 +58,12 @@ func NewRedisStreamSink[T any](ctx context.Context, redisCfg model.Redis, stream
 	}()
 
 	return extension.NewChanSink(adapterChan), nil
+}
+
+func NewQueueLimit(ctx context.Context, rdb *redis.Client, queueName string, limit int64) func() bool {
+	return func() bool {
+		return rdb.XLen(ctx, queueName).Val() > limit
+	}
 }
 
 type RedisGtrsClient[T any, R any] struct {

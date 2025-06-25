@@ -12,6 +12,7 @@ import (
 	"github.com/alicebob/miniredis/v2"
 	"github.com/google/uuid"
 	"github.com/metraction/pharos/pkg/model"
+	"github.com/redis/go-redis/v9"
 	"github.com/reugn/go-streams"
 	"github.com/reugn/go-streams/extension"
 	"github.com/reugn/go-streams/flow"
@@ -22,7 +23,7 @@ import (
 // We'll use the actual model types for testing
 // PharosScanTask and PharosScanResult are defined in pkg/model
 
-func setupRedisTest(t *testing.T) (*miniredis.Miniredis, *model.Config) {
+func setupRedisTest(t *testing.T) (*miniredis.Miniredis, *redis.Client, *model.Config) {
 	// Check if REDIS_DSN environment variable is set
 	redisDSN := os.Getenv("REDIS_DSN")
 	if redisDSN != "" {
@@ -32,7 +33,17 @@ func setupRedisTest(t *testing.T) (*miniredis.Miniredis, *model.Config) {
 			Redis:     model.Redis{DSN: redisDSN},
 			Publisher: model.PublisherConfig{Timeout: "5s"},
 		}
-		return nil, config
+
+		// Create Redis client
+		rdb := redis.NewClient(&redis.Options{
+			Addr: redisDSN,
+		})
+
+		// Test the connection
+		err := rdb.Ping(context.Background()).Err()
+		require.NoError(t, err, "Failed to connect to Redis")
+
+		return nil, rdb, config
 	}
 
 	// Start a mini Redis server for testing
@@ -45,11 +56,16 @@ func setupRedisTest(t *testing.T) (*miniredis.Miniredis, *model.Config) {
 		DSN: mr.Addr(),
 	}
 
+	// Create Redis client
+	rdb := redis.NewClient(&redis.Options{
+		Addr: mr.Addr(),
+	})
+
 	config := &model.Config{
 		Redis:     redisCfg,
 		Publisher: model.PublisherConfig{Timeout: "5s"},
 	}
-	return mr, config
+	return mr, rdb, config
 }
 
 // newTestScanTask is a test helper that creates a PharosScanTask with standard defaults.
@@ -94,7 +110,7 @@ func TestIntegrationClientServer(t *testing.T) {
 	}
 
 	// Setup Redis (mini or real)
-	mr, config := setupRedisTest(t)
+	mr, _, config := setupRedisTest(t)
 	if mr != nil {
 		defer mr.Close()
 	}
@@ -209,7 +225,7 @@ func TestMessageConsumedOnlyOnce(t *testing.T) {
 	}
 
 	// Setup Redis (mini or real)
-	mr, config := setupRedisTest(t)
+	mr, _, config := setupRedisTest(t)
 	if mr != nil {
 		defer mr.Close()
 	}
@@ -306,7 +322,7 @@ func TestRedisConsumerGroupSource(t *testing.T) {
 	}
 
 	// Setup Redis (mini or real)
-	mr, config := setupRedisTest(t)
+	mr, rdb, _ := setupRedisTest(t)
 	if mr != nil {
 		defer mr.Close()
 	}
@@ -335,7 +351,7 @@ func TestRedisConsumerGroupSource(t *testing.T) {
 	consumerStats := make(map[string]int)        // consumer name -> count of messages processed
 
 	// Step 1: Create a Redis stream sink to publish messages
-	streamSink, err := NewRedisStreamSink[model.PharosScanTask](testCtx, config.Redis, streamName)
+	streamSink, err := NewRedisStreamSink[model.PharosScanTask](testCtx, rdb, streamName)
 	require.NoError(t, err)
 
 	// Step 2: Create a channel source to feed messages to the sink
@@ -359,7 +375,7 @@ func TestRedisConsumerGroupSource(t *testing.T) {
 		// Create a consumer group source with separate Redis context
 		source, err := NewRedisConsumerGroupSource[model.PharosScanTask](
 			testCtx,
-			config.Redis,
+			rdb,
 			streamName,
 			groupName,
 			consumerName,
@@ -460,4 +476,23 @@ func TestRedisConsumerGroupSource(t *testing.T) {
 
 	// Verify we processed all messages
 	assert.Equal(t, numMessages, len(processedMessages), "Should have processed all messages")
+}
+
+func TestRedisQueueLimit(t *testing.T) {
+
+	// Setup Redis (mini or real)
+	mr, rdb, _ := setupRedisTest(t)
+	if mr != nil {
+		defer mr.Close()
+	}
+
+	// Test the queue limit function
+	ctx := context.Background()
+	queueName := "test_queue_" + uuid.New().String()[:8]
+
+	// Create a limit function
+	limitFn := NewQueueLimit(ctx, rdb, queueName, 5)
+
+	// Initially the queue should be empty
+	assert.False(t, limitFn())
 }
