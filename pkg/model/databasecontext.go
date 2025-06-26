@@ -18,11 +18,12 @@ type DatabaseContext struct {
 }
 
 var Models = []interface{}{
-	DockerImage{},
 	PharosImageMeta{},
 	PharosVulnerability{},
 	PharosScanFinding{},
 	PharosPackage{},
+	ContextRoot{},
+	Context{},
 }
 
 // DefaultGormModel provides a base model with common fields for GORM models, removing the DeletedAt field.

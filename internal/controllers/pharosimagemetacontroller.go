@@ -10,7 +10,6 @@ import (
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/rs/zerolog"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 type PharosImageMetaController struct {
@@ -82,7 +81,12 @@ func (pc *PharosImageMetaController) Get() (huma.Operation, func(ctx context.Con
 			var query = model.PharosImageMeta{
 				ImageId: input.ImageId,
 			}
-			if err := databaseContext.DB.Preload(clause.Associations).First(&value, &query).Error; err != nil {
+			if err := databaseContext.DB.
+				Preload("ContextRoots.Contexts").
+				Preload("Vulnerabilities").
+				Preload("Findings").
+				Preload("Packages").
+				First(&value, &query).Error; err != nil {
 				pc.Logger.Error().Err(err).Str("imageId", input.ImageId).Msg("Failed to retrieve Docker image")
 				if err == gorm.ErrRecordNotFound {
 					return nil, huma.Error404NotFound("Image with ImageId " + input.ImageId + " not found")

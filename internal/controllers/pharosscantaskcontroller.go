@@ -180,6 +180,7 @@ func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx contex
 			}
 			if value.ImageId != "" {
 				pc.Logger.Info().Str("imageId", value.ImageId).Msg("Image already exists in database, using existing image metadata")
+
 				return nil, huma.Error409Conflict("Image with ImageSpec " + input.Body.ImageSpec.Image + " already exists in database")
 			}
 			corrId, pharosScanTask, err := pc.sendScanRequest(ctx, pc.AsyncPublisher, &input.Body)
@@ -188,6 +189,7 @@ func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx contex
 				return nil, err
 			}
 			// TODO: This must go into some sort of queue or async processing
+			// This is where we receiver the scan result.
 			go func(databaseContext *model.DatabaseContext, corrId string) {
 				ctx := context.Background()
 				pc.Logger.Info().Str("corrId", corrId).Msg("Starting async scan for image")
