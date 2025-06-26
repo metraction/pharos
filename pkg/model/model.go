@@ -73,6 +73,7 @@ type PharosImageMeta struct {
 	Vulnerabilities []PharosVulnerability `json:"Vulnerabilities" required:"false" gorm:"many2many:join_pharos_vulnerability_with_pharos_image_meta;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Findings        []PharosScanFinding   `json:"Findings" required:"false" gorm:"many2many:join_pharos_scan_finding_with_pharos_image_meta;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Packages        []PharosPackage       `json:"Packages" required:"false" gorm:"many2many:join_pharos_package_with_pharos_image_meta;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	ContextRoots    []ContextRoot         `json:"ContextRoots" required:"false" gorm:"foreignKey:ImageId;references:ImageId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 type PharosFindingSummary struct {
