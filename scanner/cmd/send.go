@@ -5,26 +5,28 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/metraction/pharos/internal/integrations"
 	"github.com/metraction/pharos/internal/integrations/mq"
 	"github.com/metraction/pharos/internal/utils"
 	"github.com/metraction/pharos/pkg/model"
+	"github.com/metraction/pharos/scanner/config"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
 )
 
-// command line arguments of root command
-// implemented as type to facilitate testing of command main routine
+// command line arguments of command
 type SendArgsType = struct {
 	MqEndpoint string // redis://user:pwd@localhost:6379/1
 	Tasks      string // file with scan tasks to send
 	Auths      string // file with auth DSNs to user
-	Queue      string // taskqueue definition "queue://mx:scantask/?maxlen=1000&maxretry=2&maxttl=1h"
-
+	OutDir     string // results dump dir
 }
 
 var SendArgs = SendArgsType{}
@@ -33,10 +35,10 @@ func init() {
 	rootCmd.AddCommand(sendCmd)
 
 	sendCmd.Flags().StringVar(&SendArgs.MqEndpoint, "mq_endpoint", EnvOrDefault("mq_endpoint", ""), "Redis message queue, e.g. redis://user:pwd@localhost:6379/1")
-	sendCmd.Flags().StringVar(&SendArgs.Queue, "queue", EnvOrDefault("queue", "queue://mx:scantask/?maxlen=1000&maxretry=2&maxttl=1h"), "taskqueue definition")
 	sendCmd.Flags().StringVar(&SendArgs.Tasks, "tasks", EnvOrDefault("tasks", ""), "file with images for scantasks")
 	sendCmd.Flags().StringVar(&SendArgs.Auths, "auths", EnvOrDefault("auths", ""), "file with list of auth DNS for scantasks")
 
+	sendCmd.Flags().StringVar(&SendArgs.OutDir, "outdir", EnvOrDefault("outdir", "_output"), "Output directory for results")
 }
 
 // runCmd represents the run command
@@ -46,14 +48,12 @@ var sendCmd = &cobra.Command{
 	Long:  `Send scan tasks via message queue`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		//cacheExpiry := utils.DurationOr(SendArgs.CacheExpiry, 90*time.Second)
-
-		ExecuteSend(SendArgs.Tasks, SendArgs.Auths, SendArgs.Queue, SendArgs.MqEndpoint, logger)
+		ExecuteSend(SendArgs.Tasks, SendArgs.Auths, SendArgs.MqEndpoint, SendArgs.OutDir, logger)
 
 	},
 }
 
-// read file, return lines, ignore comments
+// helper: return lines of file, ignore comments
 func ReadLines(infile string, unique bool) []string {
 
 	data, err := os.ReadFile(infile)
@@ -71,61 +71,52 @@ func ReadLines(infile string, unique bool) []string {
 	return lines
 }
 
-func ExecuteSend(tasksFile, authsFile, queue, mqEndpoint string, logger *zerolog.Logger) {
+func ExecuteSend(tasksFile, authsFile, mqEndpoint, outDir string, logger *zerolog.Logger) {
 
 	logger.Info().Msg("-----< Scan sender >-----")
 	logger.Info().
 		Str("mq_endpoint", utils.MaskDsn(mqEndpoint)).
-		Str("queue", queue).
 		Str("tasks", tasksFile).
 		Str("auths", authsFile).
+		Str("outdir", outDir).
 		Msg("")
 
+	// check
+	if outDir != "" && !utils.DirExists(outDir) {
+		logger.Fatal().Str("outdir", outDir).Msg("dir not found")
+	}
 	// initialize
-	var err error
 	ctx := context.Background()
 
-	streamName, groupName, maxStreamLen, maxMsgRetry, maxMsgTTL, err := mq.ParseTaskQueueDsn(queue)
-	if err != nil {
-		logger.Fatal().Err(err).Msg("queue")
-	}
+	var err error
+	var taskMq *mq.RedisWorkerGroup[model.PharosScanTask]     // send scan tasks
+	var resultMq *mq.RedisWorkerGroup[model.PharosScanResult] // send scan results
 
-	var tmq *mq.RedisTaskQueue[model.PharosScanTask]
-	if tmq, err = mq.NewRedisTaskQueue[model.PharosScanTask](ctx, mqEndpoint, streamName, maxStreamLen, maxMsgRetry, maxMsgTTL); err != nil {
-		logger.Fatal().Err(err).Msg("Redis mq create")
+	if taskMq, err = mq.NewRedisWorkerGroup[model.PharosScanTask](ctx, mqEndpoint, "$", config.RedisTaskStream, "task-group", config.RedisTaskStreamMaxLen); err != nil {
+		logger.Fatal().Err(err).Msg("NewRedisWorkerGroup")
 	}
-	defer tmq.Close()
+	if resultMq, err = mq.NewRedisWorkerGroup[model.PharosScanResult](ctx, mqEndpoint, "$", config.RedisResultStream, "result-group", config.RedisTaskStreamMaxLen); err != nil {
+		logger.Fatal().Err(err).Msg("NewRedisWorkerGroup")
+	}
+	defer taskMq.Close()
+	defer resultMq.Close()
 
-	// try connect: account for starupt delay of required pods/services
-	// TODO Stefan: refactor with loop over servies (with interface for Connect(), CheckConnect(), .. )
-	maxAttempts := 3
-	var err1 error
-	var err2 error
+	// try connect 3x with 3 sec sleep to account for startup delays of required pods/services
+	if err := integrations.TryConnectServices(ctx, 3, 3*time.Second, []integrations.ServiceInterface{taskMq, resultMq}, logger); err != nil {
+		logger.Fatal().Err(err).Msg("services connect")
+	}
+	logger.Info().Msg("services connect OK")
 
-	for connectCount := 1; connectCount < maxAttempts+1; connectCount++ {
-		logger.Info().Any("attempt", connectCount).Any("max", maxAttempts).Msg("service connect ..")
-		err1 = nil
-		err2 = tmq.Connect(ctx)
-		if err1 == nil && err2 == nil {
-			break
-		}
-		time.Sleep(2 * time.Second)
-	}
-	if err1 != nil || err2 != nil {
-		logger.Fatal().Err(err1).Err(err2).Msg("service connect errors")
-	}
+	// ensure stream groups are present
+	taskMq.CreateGroup(ctx)
+	resultMq.CreateGroup(ctx)
 
-	// register group
-	if err := tmq.CreateGroup(ctx, groupName, "$"); err != nil {
-		logger.Fatal().Err(err1).Err(err2).Msg("tmq.CreateGroup()")
-	}
+	// -----< prepare sending scan jobs >-----
 
 	// load authentications
 	var lines = []string{}
-
 	auths := []model.PharosRepoAuth{}
 	lines = ReadLines(authsFile, true)
-
 	logger.Info().Str("authsFile", authsFile).Any("lines", len(lines)).Msg("load auths")
 	for _, line := range lines {
 		auth, err := model.NewPharosRepoAuth(line)
@@ -137,20 +128,62 @@ func ExecuteSend(tasksFile, authsFile, queue, mqEndpoint string, logger *zerolog
 	}
 
 	// send scan tasks
-	cacheExpiry := 30 * time.Minute
+	scanCacheExpiry := 30 * time.Minute
 	scanTimeout := 5 * time.Minute
 
 	lines = ReadLines(tasksFile, true)
-	logger.Info().Str("tasksFile", tasksFile).Any("lines", len(lines)).Msg("load tasks")
+	logger.Info().
+		Str("tasksFile", tasksFile).
+		Str("stream:group", taskMq.StreamName+":"+taskMq.GroupName).
+		Any("lines", len(lines)).Msg("load tasks")
 
 	for k, image := range lines {
+		jobid := fmt.Sprintf("JOB-%v", k)
 		auth := model.GetMatchingAuth(image, auths)
-		task, _ := model.NewPharosScanTask(string(k), image, "", auth, cacheExpiry, scanTimeout)
+		task, _ := model.NewPharosScanTask(jobid, image, "", auth, scanCacheExpiry, scanTimeout)
 
-		logger.Info().Any("image", task.ImageSpec.Image).Msg("")
-		id, err := tmq.AddMessage(ctx, 1, task)
-
-		logger.Info().Err(err).Str("id", id).Msg("send")
-
+		// TODO: wait on backpressure
+		// send scan task
+		id, _ := taskMq.Publish(ctx, 1, task)
+		logger.Info().Str("id", id).Any("image", task.ImageSpec.Image).Msg("send scan task")
 	}
+
+	// -----< subscribe to scan results >-----
+
+	logger.Info().
+		Str("stream:group", resultMq.StreamName+":"+resultMq.GroupName).
+		Msg("wait for results ..")
+
+	// process incoming scan results
+	resultHandler := func(x mq.TaskMessage[model.PharosScanResult]) error {
+
+		if x.RetryCount > 2 {
+			logger.Error().Err(fmt.Errorf("%v: ack & forget", x.Id)) // ensure message is evicted after to many tries
+			return nil
+		}
+		r := x.Data
+		logger.Info().
+			Str("id", x.Id).
+			Str("image", r.Image.ImageSpec).
+			Str("distro", r.Image.DistroName+" "+r.Image.DistroVersion).
+			Any("findings", len(r.Findings)).
+			Any("packages", len(r.Packages)).
+			Msg("new scan result")
+
+		// save result
+		if utils.DirExists(outDir) {
+			os.WriteFile(filepath.Join(outDir, fmt.Sprintf("%v-%s-model.json", x.Id, "grype")), r.ToBytes(), 0644)
+		}
+		return nil
+	}
+
+	claimBlock := int64(5)
+	claimMinIdle := 30 * time.Second // min idle time to reclaim Non-ACKed messages
+	blockTime := 30 * time.Second    // max block time of xreadgroup
+	runTimeout := 5 * time.Minute    // terminate subscribe
+
+	resultMq.Subscribe(ctx, "alfa", claimBlock, claimMinIdle, blockTime, runTimeout, resultHandler)
+
+	logger.Info().Msg("done")
+
 }

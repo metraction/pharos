@@ -60,8 +60,11 @@ func (rx *RedisWorkerGroup[T]) Connect(ctx context.Context) error {
 	if err := rx.rdb.Ping(ctx).Err(); err != nil {
 		return fmt.Errorf("redis connect (ping): %v", err)
 	}
-
 	return nil
+}
+
+func (rx *RedisWorkerGroup[T]) ServiceName() string {
+	return "mq"
 }
 
 // create stream group
