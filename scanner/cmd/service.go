@@ -5,13 +5,16 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"time"
 
+	"github.com/metraction/pharos/internal/integrations"
 	"github.com/metraction/pharos/internal/integrations/cache"
 	"github.com/metraction/pharos/internal/integrations/mq"
 	"github.com/metraction/pharos/internal/utils"
 	"github.com/metraction/pharos/pkg/grype"
 	"github.com/metraction/pharos/pkg/model"
+	"github.com/metraction/pharos/scanner/config"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 )
@@ -70,71 +73,64 @@ func ExecuteService(engine string, cacheExpiry time.Duration, outDir, cacheEndpo
 		Msg("")
 
 	// initialize
-	var err error
 	ctx := context.Background()
 
-	// TODO: From arguments, mq_options="stream=mx&maxlen=1000&maxretry=2&maxttl=1h"
-	streamName := "mx"
-	groupName := "scantask"
-	maxStreamLen := int64(1000)
-	maxMsgRetry := int64(2)
-	maxMsgTTL := 60 * time.Minute
-	// TODO: From arguments / scantask
-	scanTimeout := 5 * time.Minute
+	var err error
+	var kvc *cache.PharosCache                                // redis cache
+	var taskMq *mq.RedisWorkerGroup[model.PharosScanTask]     // send scan tasks
+	var resultMq *mq.RedisWorkerGroup[model.PharosScanResult] // send scan results
 
-	var kvc *cache.PharosCache // redis cache
-	var tmq *mq.RedisTaskQueue[model.PharosScanTask]
-
-	// create redis KV cache
 	if kvc, err = cache.NewPharosCache(cacheEndpoint, logger); err != nil {
-		logger.Fatal().Err(err).Msg("Redis cache create")
+		logger.Fatal().Err(err).Msg("NewPharosCache")
 	}
 	defer kvc.Close()
 
-	if tmq, err = mq.NewRedisTaskQueue[model.PharosScanTask](ctx, mqEndpoint, streamName, maxStreamLen, maxMsgRetry, maxMsgTTL); err != nil {
-		logger.Fatal().Err(err).Msg("Redis mq create")
+	if taskMq, err = mq.NewRedisWorkerGroup[model.PharosScanTask](ctx, mqEndpoint, "$", config.RedisTaskStream, "task-group", config.RedisTaskStreamMaxLen); err != nil {
+		logger.Fatal().Err(err).Msg("NewRedisWorkerGroup")
 	}
-	defer tmq.Close()
+	if resultMq, err = mq.NewRedisWorkerGroup[model.PharosScanResult](ctx, mqEndpoint, "$", config.RedisResultStream, "result-group", config.RedisTaskStreamMaxLen); err != nil {
+		logger.Fatal().Err(err).Msg("NewRedisWorkerGroup")
+	}
+	defer taskMq.Close()
+	defer resultMq.Close()
 
-	// try connect: account for starupt delay of required pods/services
-	// TODO Stefan: refactor with loop over servies (with interface for Connect(), CheckConnect(), .. )
-	maxAttempts := 3
-	var err1 error
-	var err2 error
+	// try connect 3x with 3 sec sleep to account for startup delays of required pods/services
+	services := []integrations.ServiceInterface{kvc, taskMq, resultMq}
+	if err := integrations.TryConnectServices(ctx, 3, 3*time.Second, services, logger); err != nil {
+		logger.Fatal().Err(err).Msg("services connect")
+	}
+	logger.Info().Msg("services connect OK")
 
-	for connectCount := 1; connectCount < maxAttempts+1; connectCount++ {
-		logger.Info().Any("attempt", connectCount).Any("max", maxAttempts).Msg("service connect ..")
-		err1 = kvc.Connect(ctx)
-		err2 = tmq.Connect(ctx)
-		if err1 == nil && err2 == nil {
-			break
-		}
-		time.Sleep(2 * time.Second)
-	}
-	if err1 != nil || err2 != nil {
-		logger.Fatal().Err(err1).Err(err2).Msg("service connect errors")
-	}
+	// ensure stream groups are present
+	resultMq.CreateGroup(ctx)
 
-	// register group
-	if err := tmq.CreateGroup(ctx, groupName, "$"); err != nil {
-		logger.Fatal().Err(err1).Err(err2).Msg("tmq.CreateGroup()")
-	}
+	// -----< subscribe to scan tasks >-----
+	scanTimeout := 180 * time.Second
+
+	logger.Info().
+		Str("stream:group", taskMq.StreamName+":"+taskMq.GroupName).
+		Msg("wait for tasks ..")
 
 	if engine == "grype" {
 		var scanEngine *grype.GrypeScanner
 
-		// create scanner & update database (once)
 		if scanEngine, err = grype.NewGrypeScanner(scanTimeout, true, logger); err != nil {
 			logger.Fatal().Err(err).Msg("NewGrypeScanner()")
 		}
 
-		// scanner invocation handler
+		// scanHandler
 		grypeHandler := func(x mq.TaskMessage[model.PharosScanTask]) error {
 
-			logger.Info().Any("retry", x.RetryCount).Any("image", x.Data.ImageSpec.Image).Msg("scan-grype")
+			if x.RetryCount > 2 {
+				logger.Error().Err(fmt.Errorf("%v: ack & forget", x.Id)) // ensure message is evicted after to many tries
+				return nil
+			}
+			task := x.Data
+
+			logger.Info().Str("id", x.Id).Any("retry", x.RetryCount).Any("image", task.ImageSpec.Image).Msg("new scan task")
 
 			// scan image, use cache
-			result, sbomData, scanData, err := grype.ScanImage(x.Data, scanEngine, kvc, logger)
+			result, _, _, err := grype.ScanImage(task, scanEngine, kvc, logger)
 			if err != nil {
 				logger.Error().Err(err).Str("image", x.Data.ImageSpec.Image).Msg("grype.ScanImage()")
 				return err
@@ -148,18 +144,21 @@ func ExecuteService(engine string, cacheExpiry time.Duration, outDir, cacheEndpo
 				Any("packages", len(result.Packages)).
 				Msg("grype.ScanImage()")
 
-			saveResults(outDir, x.Id, "grype", sbomData, scanData, result)
+			// submit scan results
+			id, _ := resultMq.Publish(ctx, 1, result)
+			logger.Info().Str("id", id).Any("image", task.ImageSpec.Image).Msg("send scan result")
+
+			// saveResults(outDir, x.Id, "grype", sbomData, scanData, result)
 			// success
 			return err
 		}
 
-		// event loop
-		logger.Info().Str("stream", streamName).Str("group", groupName).Str("consumer", utils.Hostname()).Msg("GroupSubscribe() ..")
+		claimBlock := int64(5)
+		claimMinIdle := 30 * time.Second // min idle time to reclaim Non-ACKed messages
+		blockTime := 30 * time.Second    // max block time of xreadgroup
+		runTimeout := 5 * time.Minute    // terminate subscribe
 
-		err := tmq.GroupSubscribe(ctx, ">", groupName, utils.Hostname(), 0*time.Second, grypeHandler)
-		if err != nil {
-			logger.Error().Err(err).Msg("GroupSubscribe(grype)")
-		}
+		taskMq.Subscribe(ctx, "bravo", claimBlock, claimMinIdle, blockTime, runTimeout, grypeHandler)
 
 	}
 

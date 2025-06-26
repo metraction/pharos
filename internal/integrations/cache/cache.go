@@ -48,7 +48,7 @@ func NewPharosCache(endpoint string, logger *zerolog.Logger) (*PharosCache, erro
 	}, nil
 }
 
-func (rx PharosCache) GetSecviceName() string {
+func (rx PharosCache) ServiceName() string {
 	return "cache"
 }
 
