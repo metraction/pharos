@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -67,7 +68,7 @@ func TestRedisWorkerGroup(t *testing.T) {
 	rxStream := "scan-r"  // send scan results
 	maxLen := int64(1000) // max # messages in stream
 
-	txMq, err := NewRedisWorkerGroup[CityTaskType](ctx, redisEndpoint, "$", txStream, "scanner", maxLen)
+	txMq, err := NewRedisWorkerGroup[CityTaskType](ctx, redisEndpoint, "$", txStream, "tasks", maxLen)
 	assert.NoError(t, err)
 	assert.NotNil(t, txMq)
 
@@ -75,36 +76,67 @@ func TestRedisWorkerGroup(t *testing.T) {
 	assert.NoError(t, err)
 	defer txMq.Close()
 
-	rxMq, err := NewRedisWorkerGroup[CityResultType](ctx, redisEndpoint, "$", rxStream, "controller", maxLen)
+	rxMq, err := NewRedisWorkerGroup[CityResultType](ctx, redisEndpoint, "$", rxStream, "results", maxLen)
 	assert.NoError(t, err)
 	assert.NotNil(t, rxMq)
 	err = rxMq.Connect(ctx)
 	assert.NoError(t, err)
 	defer rxMq.Close()
 
+	// ensure clean start
+	assert.NoError(t, txMq.Delete(ctx))
+	assert.NoError(t, rxMq.Delete(ctx))
+	// create group
+	assert.NoError(t, txMq.CreateGroup(ctx))
+	assert.NoError(t, rxMq.CreateGroup(ctx))
+
 	// publish N tasks
-	samples := 0
+	samples := 20
+	fmt.Printf("\n-----< SEND %v cities >-----\n", samples)
 	for k, name := range createSamples(samples) {
 		city := CityTaskType{Cid: k, Name: name, Created: time.Now()}
+		if k%3 == 0 {
+			city.Name = city.Name + " (ERR)"
+		}
 		id, err := txMq.Publish(ctx, 1, city)
-		fmt.Println(id, city.Cid, city.Name)
+
+		fmt.Println(">>", txMq.StreamName, id, city.Cid, city.Name)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, id)
 	}
 
 	// subscribe scan-t
 	taskHandler := func(x TaskMessage[CityTaskType]) error {
-		fmt.Printf("rx-t | %-4v | %-10s |\n", x.Data.Cid, x.Data.Name)
-		if x.Data.Cid%3 == 0 {
-			return fmt.Errorf("sim error at %v for %s", x.Data.Cid, x.Data.Name)
+		result := CityResultType{Cid: x.Data.Cid, Name: strings.ToUpper(x.Data.Name)}
+
+		if x.RetryCount > 2 {
+			fmt.Println("<< ", x.StreamName, x.GroupName, x.RetryCount, x.Id, "ack and forget")
+			rxMq.Publish(ctx, 1, result)
+			return nil
+		} else if strings.Contains(x.Data.Name, "(ERR)") {
+			return fmt.Errorf("ERR %v %v %v %v %v %v", x.StreamName, x.GroupName, x.RetryCount, x.Id, x.Data.Cid, x.Data.Name)
 		}
+		fmt.Println("<< ", x.StreamName, x.GroupName, x.RetryCount, x.Id, x.Data.Cid, x.Data.Name)
+
+		rxMq.Publish(ctx, 1, result)
+
 		return nil
 	}
 
-	pendingBlock := int64(10)
-	err = txMq.Subscribe(ctx, "alfa", pendingBlock, 1*time.Second, taskHandler)
+	fmt.Printf("\n-----< SUBSCRIBE >-----\n")
 
-	fmt.Println("err", err)
+	claimBlock := int64(2)
+	claimMinIdle := 2 * time.Second // reclaim Non-ACK messages after 5 sec
+	blockTime := 3 * time.Second    // block/wait for XReadGroup
+	runTimeout := 60 * time.Second
+
+	read, pending, lag, groups, _ := txMq.GroupStats(ctx, "*")
+	fmt.Printf("stats() %v:  read:%v, pending:%v, lag:%v in %v\n", 0, read, pending, lag, groups)
+
+	txMq.Subscribe(ctx, "alfa", claimBlock, claimMinIdle, blockTime, runTimeout, taskHandler)
+
+	read, pending, lag, groups, _ = txMq.GroupStats(ctx, "*")
+	fmt.Printf("Stats() %v:  read:%v, pending:%v, lag:%v in %v\n", "X", read, pending, lag, groups)
 
 	//assert.True(t, false)
 }

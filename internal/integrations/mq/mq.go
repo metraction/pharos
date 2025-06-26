@@ -61,6 +61,11 @@ func (rx *RedisWorkerGroup[T]) Connect(ctx context.Context) error {
 		return fmt.Errorf("redis connect (ping): %v", err)
 	}
 
+	return nil
+}
+
+// create stream group
+func (rx *RedisWorkerGroup[T]) CreateGroup(ctx context.Context) error {
 	// NOTE: The stream is created with either automatically with XAdd or with the below
 	if err := rx.rdb.XGroupCreateMkStream(ctx, rx.StreamName, rx.GroupName, rx.Mode).Err(); err != nil {
 		// don't thorow error if stream/group already exists
@@ -76,6 +81,14 @@ func (rx *RedisWorkerGroup[T]) Close() {
 	if rx.rdb != nil {
 		rx.rdb.Close()
 	}
+}
+
+// delete stream
+func (rx *RedisWorkerGroup[T]) Delete(ctx context.Context) error {
+	if _, err := rx.rdb.Del(ctx, rx.StreamName).Result(); err != nil {
+		return err
+	}
+	return nil
 }
 
 // publish message
@@ -100,67 +113,121 @@ func (rx *RedisWorkerGroup[T]) Publish(ctx context.Context, priority int, payloa
 	return id, nil
 }
 
-// subscribe worker to tasks
-func (rx *RedisWorkerGroup[T]) Subscribe(ctx context.Context, consumerName string, pendingBlock int64, blockTime time.Duration, handlerFunc WorkerFunc[T]) error {
+// get group stats,  filter by groupName (or "*" for all)
+func (rx *RedisWorkerGroup[T]) GroupStats(ctx context.Context, groupName string) (int64, int64, int64, []string, error) {
 
+	groups, err := rx.rdb.XInfoGroups(ctx, rx.StreamName).Result()
+	if err != nil {
+		return 0, 0, 0, nil, err
+	}
+
+	var read int64 // total read
+	var pend int64 // pending
+	var lag int64
+	var names []string // group names
+
+	for _, group := range groups {
+		if groupName == group.Name || groupName == "*" {
+			read += group.EntriesRead
+			pend += group.Pending
+			lag += group.Lag
+			names = append(names, group.Name)
+
+		}
+		// fmt.Printf("Name: %s, Consumers: %d, Pending: %d, LastDeliveredID: %s, EntriesRead: %d, Lag: %d\n",
+		// 	group.Name, group.Consumers, group.Pending, group.LastDeliveredID, group.EntriesRead, group.Lag)
+	}
+	return read, pend, lag, names, nil
+}
+
+// subscribe worker to tasks
+func (rx *RedisWorkerGroup[T]) Subscribe(ctx context.Context, consumerName string, claimBlock int64, minIdle, blockTime, runTimeout time.Duration, handlerFunc WorkerFunc[T]) error {
+
+	k0 := 0
 	k1 := 0
 	k2 := 0
-	// read pending first (once)
-	pending, err := rx.rdb.XReadGroup(ctx, &redis.XReadGroupArgs{
-		Group:    rx.GroupName,
-		Consumer: consumerName,
-		Streams:  []string{rx.StreamName, "0"},
-		Count:    pendingBlock,
-		Block:    0,
-		NoAck:    false,
-	}).Result()
-	if err != nil && err != redis.Nil {
-		return fmt.Errorf("error reading pending messages: %w", err)
-	}
-	// process pending
-	for _, res := range pending {
-		for _, msg := range res.Messages {
-			k1++
+
+	startTime := time.Now()
+	//fmt.Printf("Subscribe() stream:%s, group:%s, consumer:%s\n", rx.StreamName, rx.GroupName, consumerName)
+
+	// process message, provide retry & idle count for handler
+	processMessage := func(msg redis.XMessage) error {
+
+		payload, err := NewTaskFromMessage[T](rx.StreamName, rx.GroupName, msg)
+		if err != nil {
+			return fmt.Errorf("error decoding message %s: %w", msg.ID, err)
+		}
+		if payload.RetryCount, payload.IdleTime, err = rx.getMsgState(ctx, msg.ID, rx.GroupName); err != nil {
+			return err
+		}
+		if err := handlerFunc(payload); err != nil {
+			return err
+		} else {
 			rx.rdb.XAck(ctx, rx.StreamName, rx.GroupName, msg.ID)
 		}
+		return nil
 	}
 
-	// read new (for block time)
+	nextId := "0-0"
 	for {
-		fresh, err := rx.rdb.XReadGroup(ctx, &redis.XReadGroupArgs{
+		k0 += 1
+		fmt.Println("LOOP", k0)
+		// autoclaim
+		msgs, nid, err := rx.rdb.XAutoClaim(ctx, &redis.XAutoClaimArgs{
+			Stream:   rx.StreamName,
 			Group:    rx.GroupName,
 			Consumer: consumerName,
-			Streams:  []string{rx.StreamName, ">"},
+			MinIdle:  minIdle,
+			Start:    nextId,     // Start scanning from the beginning
+			Count:    claimBlock, // Number of messages to claim per call
+		}).Result()
+		if err != nil {
+			return fmt.Errorf("XAutoClaim error: %v", err)
+		}
+		nextId = nid
+
+		// process autoclaimed
+		for _, msg := range msgs {
+			k1++
+			if err := processMessage(msg); err != nil {
+				fmt.Printf("[clm]: %v\n", err)
+			}
+		}
+
+		// subscribe to new: wait and fire on new, terminate after blockTime
+		fresh, err := rx.rdb.XReadGroup(ctx, &redis.XReadGroupArgs{
+			Streams:  []string{rx.StreamName, ">"}, // ">" et new
+			Group:    rx.GroupName,
+			Consumer: consumerName,
 			Count:    1,
 			Block:    blockTime,
 			NoAck:    false,
 		}).Result()
 		if err != nil {
-			if err == redis.Nil {
-				break
+			if err != redis.Nil {
+				return fmt.Errorf("error reading new messages: %w", err)
 			}
-			return fmt.Errorf("error reading new messages: %w", err)
 		}
+
 		// process pending
 		for _, res := range fresh {
 			for _, msg := range res.Messages {
 				k2++
-				payload, err := NewTaskFromMessage[T](msg)
-				if err != nil {
-					return fmt.Errorf("error decoding message %s: %w", msg.ID, err)
-				}
-				if payload.RetryCount, payload.IdleTime, err = rx.getMsgState(ctx, msg.ID, rx.GroupName); err != nil {
-					return err
-				}
-				if err := handlerFunc(payload); err != nil {
-					fmt.Printf("error in %s: %v\n", msg.ID, err)
-				} else {
-					rx.rdb.XAck(ctx, rx.StreamName, rx.GroupName, msg.ID)
+				if err := processMessage(msg); err != nil {
+					fmt.Printf("[new]: %v\n", err)
 				}
 			}
 		}
+
+		// exit main loop
+		if time.Since(startTime) > runTimeout {
+			break
+		}
 	}
-	return fmt.Errorf("timeout after %s, read %v pending, %v recent msgs", blockTime.String(), k1, k2)
+
+	elapsed := time.Since(startTime)
+	fmt.Printf("done after %v iterations in (%vs / %vs): claimed:%v, read:%v\n", k0, elapsed.Seconds(), runTimeout.Seconds(), k1, k2)
+	return nil
 }
 
 // helper function to get retryCount and idleTime for given message
