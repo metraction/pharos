@@ -1,5 +1,17 @@
 package model
 
+import "time"
+
+// Config holds the application configuration.
+type Config struct {
+	Redis           Redis                    `mapstructure:"redis"`
+	Scanner         ScannerConfig            `mapstructure:"scanner"`
+	Publisher       PublisherConfig          `mapstructure:"publisher"`
+	Database        Database                 `mapstructure:"database"`
+	Prometheus      PrometheusReporterConfig `mapstructure:"prometheus"`
+	ResultCollector ResultCollectorConfig    `mapstructure:"collector"`
+}
+
 // ScannerConfig holds scanner-specific configuration.
 type ScannerConfig struct {
 	RequestQueue          string `mapstructure:"requestQueue"`
@@ -21,13 +33,12 @@ type PublisherConfig struct {
 	Timeout               string `mapstructure:"timeout"`
 }
 
-// Config holds the application configuration.
-type Config struct {
-	Redis      Redis                    `mapstructure:"redis"`
-	Scanner    ScannerConfig            `mapstructure:"scanner"`
-	Publisher  PublisherConfig          `mapstructure:"publisher"`
-	Database   Database                 `mapstructure:"database"`
-	Prometheus PrometheusReporterConfig `mapstructure:"prometheus"`
+type ResultCollectorConfig struct {
+	QueueName    string        `mapstructure:"queueName"`
+	GroupName    string        `mapstructure:"groupName"`
+	ConsumerName string        `mapstructure:"consumerName"`
+	BlockTimeout time.Duration `mapstructure:"blockTimeout"`
+	MessageCount string        `mapstructure:"messageCount"`
 }
 
 type PrometheusReporterConfig struct {
