@@ -13,6 +13,12 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+func NewRedis(ctx context.Context, cfg *model.Config) *redis.Client {
+	return redis.NewClient(&redis.Options{
+		Addr: cfg.Redis.DSN,
+	})
+}
+
 func NewRedisConsumerGroupSource[T any](ctx context.Context, rdb *redis.Client, streamName string, groupName string, consumerName string, groupStartID string, blockTimeout time.Duration, messageCount int64) streams.Source {
 	consumer := gtrs.NewGroupConsumer[T](ctx, rdb, groupName, consumerName, streamName, "0-0", gtrs.GroupConsumerConfig{
 		StreamConsumerConfig: gtrs.StreamConsumerConfig{

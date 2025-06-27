@@ -13,6 +13,7 @@ import (
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 type PharosScanTaskController struct {
@@ -80,50 +81,17 @@ func (pc *PharosScanTaskController) sendScanRequest(ctx context.Context, publish
 		pharosScanTask.ImageSpec.CacheExpiry = 24 * time.Hour // Default cache expiry
 	}
 	if pc.PriorityPublisher == nil {
-		pc.Logger.Error().Msg("PriorityPublisher is not set, cannot send scan request")
+		log.Error().Msg("PriorityPublisher is not set, cannot send scan request")
 		return "", nil, huma.Error500InternalServerError("PriorityPublisher is not set, cannot send scan request")
 	}
-	pc.Logger.Info().Str("image", pharosScanTask.ImageSpec.Image).Msg("Sending image scan request")
+	log.Info().Str("image", pharosScanTask.ImageSpec.Image).Msg("Sending image scan request")
 	err, corrId := publisher.SendRequest(ctx, *pharosScanTask)
-	pc.Logger.Info().Str("corrId", corrId).Msg("Sent scan task to scanner")
+	log.Info().Str("corrId", corrId).Msg("Sent scan task to scanner")
 	if err != nil {
-		pc.Logger.Error().Err(err).Msg("Failed to send request to scanner")
+		log.Error().Err(err).Msg("Failed to send request to scanner")
 		return "", nil, huma.Error500InternalServerError("Failed to send request to scanner: " + err.Error())
 	}
 	return corrId, pharosScanTask, nil
-}
-
-func (pc *PharosScanTaskController) saveScanResult(databaseContext *model.DatabaseContext, pharosScanResult *model.PharosScanResult) error {
-	pharosScanResult.Image.Vulnerabilities = pharosScanResult.Vulnerabilities // Ensure vulnerabilities are set
-	pharosScanResult.Image.Findings = pharosScanResult.Findings               // Ensure findings are set
-	pharosScanResult.Image.Packages = pharosScanResult.Packages               // Ensure packages are set
-	// Does the image already exist in the database?
-	var value model.PharosImageMeta
-	var query = model.PharosImageMeta{
-		ImageId: pharosScanResult.Image.ImageId,
-	}
-	if err := databaseContext.DB.Find(&value, &query).Error; err != nil {
-		pc.Logger.Error().Err(err).Msg("Failed to retrieve Docker images")
-		return huma.Error500InternalServerError("Failed to retrieve Docker images: " + err.Error())
-	}
-	if value.ImageId == "" {
-		pc.Logger.Info().Str("imageId", pharosScanResult.Image.ImageId).Msg("Image ID does not exist, creating new image metadata")
-		tx := databaseContext.DB.Create(pharosScanResult.Image) // Try to Create the updated image metadata
-		if tx.Error != nil {
-			pc.Logger.Error().Err(tx.Error).Msg("Failed to save image metadata in database")
-			return huma.Error500InternalServerError("Failed to save image metadata in database: " + tx.Error.Error())
-		}
-		pc.Logger.Info().Str("imageId", pharosScanResult.Image.ImageId).Msg("Created image metadata in database")
-	} else {
-		pc.Logger.Info().Str("imageId", pharosScanResult.Image.ImageId).Msg("Updating existing image metadata")
-		tx := databaseContext.DB.Save(pharosScanResult.Image) // Try to Save the updated image metadata
-		if tx.Error != nil {
-			pc.Logger.Error().Err(tx.Error).Msg("Failed to save image metadata in database")
-			return huma.Error500InternalServerError("Failed to save image metadata in database: " + tx.Error.Error())
-		}
-		pc.Logger.Info().Str("imageId", pharosScanResult.Image.ImageId).Msg("Updated image metadata in database")
-	}
-	return nil
 }
 
 // SyncScan handles the creation or update of a Docker image and initiates a scan.
@@ -175,40 +143,42 @@ func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx contex
 				ArchName:  archName,
 			}
 			if err := databaseContext.DB.Find(&value, &query).Error; err != nil {
-				pc.Logger.Error().Err(err).Msg("Failed to retrieve Docker images")
+				log.Error().Err(err).Msg("Failed to retrieve Docker images")
 				return nil, huma.Error500InternalServerError("Failed to retrieve Docker images: " + err.Error())
 			}
 			if value.ImageId != "" {
-				pc.Logger.Info().Str("imageId", value.ImageId).Msg("Image already exists in database, using existing image metadata")
+				log.Info().Str("imageId", value.ImageId).Msg("Image already exists in database, using existing image metadata")
 
 				return nil, huma.Error409Conflict("Image with ImageSpec " + input.Body.ImageSpec.Image + " already exists in database")
 			}
-			corrId, pharosScanTask, err := pc.sendScanRequest(ctx, pc.AsyncPublisher, &input.Body)
+			_, pharosScanTask, err := pc.sendScanRequest(ctx, pc.AsyncPublisher, &input.Body)
 			if err != nil {
-				pc.Logger.Error().Err(err).Msg("Failed to send scan request")
+				log.Error().Err(err).Msg("Failed to send scan request")
 				return nil, err
 			}
 			// TODO: This must go into some sort of queue or async processing
 			// This is where we receiver the scan result.
-			go func(databaseContext *model.DatabaseContext, corrId string) {
-				ctx := context.Background()
-				pc.Logger.Info().Str("corrId", corrId).Msg("Starting async scan for image")
-				pc.Logger.Info().Str("image", pharosScanTask.ImageSpec.Image).Msg("Waiting for async scan to complete")
-				timeout := time.Duration(3600 * time.Second) // Default timeout for receiving response
-				pharosScanResult, err := pc.AsyncPublisher.ReceiveResponse(ctx, corrId, timeout)
-				if err != nil {
-					pc.Logger.Error().Err(err).Str("corrId", corrId).Msg("Failed to receive scan result for async scan")
-					return
-				}
-				if pharosScanResult.ScanTask.Error != "" {
-					pc.Logger.Warn().Str("corrId", corrId).Str("error", pharosScanResult.ScanTask.Error).Msg("Scan task failed during async scan")
-				} else {
-					pc.saveScanResult(databaseContext, &pharosScanResult)
-				}
+			/*
+				go func(databaseContext *model.DatabaseContext, corrId string) {
+					ctx := context.Background()
+					log.Info().Str("corrId", corrId).Msg("Starting async scan for image")
+					log.Info().Str("image", pharosScanTask.ImageSpec.Image).Msg("Waiting for async scan to complete")
+					timeout := time.Duration(3600 * time.Second) // Default timeout for receiving response
+					pharosScanResult, err := pc.AsyncPublisher.ReceiveResponse(ctx, corrId, timeout)
+					if err != nil {
+						log.Error().Err(err).Str("corrId", corrId).Msg("Failed to receive scan result for async scan")
+						return
+					}
+					if pharosScanResult.ScanTask.Error != "" {
+						log.Warn().Str("corrId", corrId).Str("error", pharosScanResult.ScanTask.Error).Msg("Scan task failed during async scan")
+					} else {
+						pc.saveScanResult(databaseContext, &pharosScanResult)
+					}
 
-				//time.Sleep(10 * time.Second) // Simulate waiting for the scan to complete
-				pc.Logger.Info().Str("image", pharosScanTask.ImageSpec.Image).Msg("Async scan completed")
-			}(databaseContext, corrId)
+					//time.Sleep(10 * time.Second) // Simulate waiting for the scan to complete
+					log.Info().Str("image", pharosScanTask.ImageSpec.Image).Msg("Async scan completed")
+				}(databaseContext, corrId)
+			*/
 			return &PharosScanTask{
 				Body: *pharosScanTask,
 			}, nil
@@ -252,15 +222,17 @@ func (pc *PharosScanTaskController) SyncScan() (huma.Operation, func(ctx context
 			}
 			corrId, _, err := pc.sendScanRequest(ctx, pc.PriorityPublisher, &input.Body)
 			if err != nil {
-				pc.Logger.Error().Err(err).Msg("Failed to send scan request")
+				log.Error().Err(err).Msg("Failed to send scan request")
 				return nil, err
 			}
 			pharosScanResult, err := pc.PriorityPublisher.ReceiveResponse(ctx, corrId, timeout)
 			if pharosScanResult.ScanTask.Error != "" {
-				pc.Logger.Warn().Str("corrId", corrId).Str("error", pharosScanResult.ScanTask.Error).Msg("Scan task failed")
+				log.Warn().Str("corrId", corrId).Str("error", pharosScanResult.ScanTask.Error).Msg("Scan task failed")
 				return nil, huma.Error500InternalServerError("Error during scan: " + pharosScanResult.ScanTask.Error)
 			} else {
-				pc.saveScanResult(databaseContext, &pharosScanResult)
+				if err := integrations.SaveScanResult(databaseContext, &pharosScanResult); err != nil {
+					huma.Error500InternalServerError("Error saving result:", err)
+				}
 			}
 			if err != nil {
 				return nil, err
