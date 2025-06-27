@@ -156,29 +156,6 @@ func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx contex
 				log.Error().Err(err).Msg("Failed to send scan request")
 				return nil, err
 			}
-			// TODO: This must go into some sort of queue or async processing
-			// This is where we receiver the scan result.
-			/*
-				go func(databaseContext *model.DatabaseContext, corrId string) {
-					ctx := context.Background()
-					log.Info().Str("corrId", corrId).Msg("Starting async scan for image")
-					log.Info().Str("image", pharosScanTask.ImageSpec.Image).Msg("Waiting for async scan to complete")
-					timeout := time.Duration(3600 * time.Second) // Default timeout for receiving response
-					pharosScanResult, err := pc.AsyncPublisher.ReceiveResponse(ctx, corrId, timeout)
-					if err != nil {
-						log.Error().Err(err).Str("corrId", corrId).Msg("Failed to receive scan result for async scan")
-						return
-					}
-					if pharosScanResult.ScanTask.Error != "" {
-						log.Warn().Str("corrId", corrId).Str("error", pharosScanResult.ScanTask.Error).Msg("Scan task failed during async scan")
-					} else {
-						pc.saveScanResult(databaseContext, &pharosScanResult)
-					}
-
-					//time.Sleep(10 * time.Second) // Simulate waiting for the scan to complete
-					log.Info().Str("image", pharosScanTask.ImageSpec.Image).Msg("Async scan completed")
-				}(databaseContext, corrId)
-			*/
 			return &PharosScanTask{
 				Body: *pharosScanTask,
 			}, nil
