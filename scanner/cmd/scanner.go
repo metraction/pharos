@@ -6,6 +6,8 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/metraction/pharos/internal/integrations"
@@ -152,7 +154,7 @@ func ExecuteScanner(engine, worker, mqEndpoint, cacheEndpoint, outDir string, lo
 			id, _ := resultMq.Publish(ctx, 1, result)
 			logger.Info().Str("id", id).Str("job", task.JobId).Any("image", task.ImageSpec.Image).Msg("send result")
 
-			// saveResults(outDir, x.Id, "grype", sbomData, scanData, result)
+			saveResults(outDir, utils.ShortDigest(result.Image.ImageId), "grype", result)
 			// success
 			return err
 		}
@@ -194,4 +196,11 @@ func ExecuteScanner(engine, worker, mqEndpoint, cacheEndpoint, outDir string, lo
 		logger.Fatal().Str("engine", engine).Msg("unknon engine")
 	}
 	logger.Info().Msg("done")
+}
+
+// saveResults(outDir, utils.ShortDigest(result.Image.ImageId), "grype", result)
+func saveResults(outDir, id, engine string, result model.PharosScanResult) {
+	outFile := filepath.Join(outDir, fmt.Sprintf("%s-%s-model.json", id, engine))
+	os.WriteFile(outFile, result.ToBytes(), 0644)
+
 }
