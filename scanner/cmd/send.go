@@ -23,10 +23,14 @@ import (
 
 // command line arguments of command
 type SendArgsType = struct {
-	MqEndpoint string // redis://user:pwd@localhost:6379/1
-	Tasks      string // file with scan tasks to send
-	Auths      string // file with auth DSNs to user
-	OutDir     string // results dump dir
+	Tasks  string // file with scan tasks to send
+	Auths  string // file with auth DSNs to user
+	OutDir string // results dump dir
+
+	MqEndpoint  string // redis://user:pwd@localhost:6379/1
+	ScanTimeout string // max scan duration
+	CacheExpiry string // sbom cache expiry
+
 }
 
 var SendArgs = SendArgsType{}
@@ -34,50 +38,42 @@ var SendArgs = SendArgsType{}
 func init() {
 	rootCmd.AddCommand(sendCmd)
 
-	sendCmd.Flags().StringVar(&SendArgs.MqEndpoint, "mq_endpoint", EnvOrDefault("mq_endpoint", ""), "Redis message queue, e.g. redis://user:pwd@localhost:6379/1")
 	sendCmd.Flags().StringVar(&SendArgs.Tasks, "tasks", EnvOrDefault("tasks", ""), "file with images for scantasks")
-	sendCmd.Flags().StringVar(&SendArgs.Auths, "auths", EnvOrDefault("auths", ""), "file with list of auth DNS for scantasks")
+	sendCmd.Flags().StringVar(&SendArgs.Auths, "auths", EnvOrDefault("auths", ""), "repo auth DSNs (registry://usr:pwd@docker.io registry://usr:pwd@google.com)")
+	sendCmd.Flags().StringVar(&SendArgs.OutDir, "outdir", EnvOrDefault("outdir", ""), "Output directory for results")
 
-	sendCmd.Flags().StringVar(&SendArgs.OutDir, "outdir", EnvOrDefault("outdir", "_output"), "Output directory for results")
+	sendCmd.Flags().StringVar(&SendArgs.ScanTimeout, "scan_timeout", EnvOrDefault("scan_timeout", "3m"), "Scanner timeout")
+	sendCmd.Flags().StringVar(&SendArgs.CacheExpiry, "cache_expiry", EnvOrDefault("cache_expiry", "1h"), "Redis sbom cache expiry")
+	sendCmd.Flags().StringVar(&SendArgs.MqEndpoint, "mq_endpoint", EnvOrDefault("mq_endpoint", ""), "Redis message queue, e.g. redis://:pwd@localhost:6379/1")
+
 }
 
 // runCmd represents the run command
 var sendCmd = &cobra.Command{
 	Use:   "send",
-	Short: "Send scan tasks via message queue",
-	Long:  `Send scan tasks via message queue`,
+	Short: "Send scan tasks",
+	Long:  `Send scan tasks`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		ExecuteSend(SendArgs.Tasks, SendArgs.Auths, SendArgs.MqEndpoint, SendArgs.OutDir, logger)
+		cacheExpiry := utils.DurationOr(SendArgs.CacheExpiry, 90*time.Second)
+		scanTimeout := utils.DurationOr(SendArgs.ScanTimeout, 180*time.Second)
+
+		ExecuteSend(SendArgs.Tasks, SendArgs.Auths, SendArgs.MqEndpoint, SendArgs.OutDir, scanTimeout, cacheExpiry, logger)
 
 	},
 }
 
-// helper: return lines of file, ignore comments
-func ReadLines(infile string, unique bool) []string {
+func ExecuteSend(tasksFile, authsDsn, mqEndpoint, outDir string, scanTimeout, scanCacheExpiry time.Duration, logger *zerolog.Logger) {
 
-	data, err := os.ReadFile(infile)
-	if err != nil {
-		return nil
-	}
-	lines := strings.Split(string(data), "\n")
-
-	// trim and remove empty lines
-	lines = lo.Map(lines, func(x string, k int) string { return strings.TrimSpace(x) })
-	lines = lo.Filter(lines, func(x string, k int) bool { return x != "" })
-	if unique {
-		lines = lo.Uniq(lines)
-	}
-	return lines
-}
-
-func ExecuteSend(tasksFile, authsFile, mqEndpoint, outDir string, logger *zerolog.Logger) {
+	auths := ParseAuths(authsDsn)
 
 	logger.Info().Msg("-----< Scan sender >-----")
 	logger.Info().
 		Str("mq_endpoint", utils.MaskDsn(mqEndpoint)).
 		Str("tasks", tasksFile).
-		Str("auths", authsFile).
+		Any("auths", len(auths)).
+		Str("cache_expiry", scanCacheExpiry.String()).
+		Str("scan_timeout", scanTimeout.String()).
 		Str("outdir", outDir).
 		Msg("")
 
@@ -113,41 +109,49 @@ func ExecuteSend(tasksFile, authsFile, mqEndpoint, outDir string, logger *zerolo
 
 	// -----< prepare sending scan jobs >-----
 
-	// load authentications
-	var lines = []string{}
-	auths := []model.PharosRepoAuth{}
-	lines = ReadLines(authsFile, true)
-	logger.Info().Str("authsFile", authsFile).Any("lines", len(lines)).Msg("load auths")
-	for _, line := range lines {
-		auth, err := model.NewPharosRepoAuth(line)
-		if err != nil {
-			logger.Error().Err(err).Str("auth", line).Msg("new-auth")
-			continue
-		}
-		auths = append(auths, auth)
+	images := ReadLines(tasksFile, true)
+
+	logger.Info().
+		Str("tasks(file)", tasksFile).
+		Any("images", len(images)).
+		Str("redis_mq", taskMq.StreamName+":"+taskMq.GroupName).
+		Any("lines", len(images)).Msg("load tasks")
+
+	if len(images) == 0 {
+		logger.Fatal().Msg("no images to scan")
 	}
 
-	// send scan tasks
-	scanCacheExpiry := 30 * time.Minute
-	scanTimeout := 5 * time.Minute
+	stats1, err := taskMq.GroupStats(ctx, "*")
+	if err != nil {
+		logger.Fatal().Err(err).Msg("taskMq.GroupStats")
+	}
 
-	lines = ReadLines(tasksFile, true)
-	logger.Info().
-		Str("tasksFile", tasksFile).
-		Str("stream:group", taskMq.StreamName+":"+taskMq.GroupName).
-		Any("lines", len(lines)).Msg("load tasks")
-
-	for k, image := range lines {
-		jobid := fmt.Sprintf("JOB-%v", k)
+	for k, image := range images {
+		jobid := fmt.Sprintf("JOB-%v-%v", utils.Hostname(), k)
 		auth := model.GetMatchingAuth(image, auths)
 		task, _ := model.NewPharosScanTask(jobid, image, "", auth, scanCacheExpiry, scanTimeout)
 
 		// TODO: wait on backpressure
 		// send scan task
 		id, _ := taskMq.Publish(ctx, 1, task)
-		logger.Info().Str("id", id).Any("image", task.ImageSpec.Image).Msg("send scan task")
+		logger.Info().Str("id", id).Str("job", jobid).Any("image", task.ImageSpec.Image).Msg("send scan task")
 	}
 
+	stats2, err := taskMq.GroupStats(ctx, "*")
+	if err != nil {
+		logger.Fatal().Err(err).Msg("taskMq.GroupStats")
+	}
+
+	for k, stats := range []mq.GroupStats{stats1, stats2} {
+		logger.Info().
+			Any("sent", len(images)).
+			Any("pending", stats.Pending).
+			Any("lag", stats.Lag).
+			Any("stream.len", stats.StreamLen).
+			Any("stream.max", stats.StreamMax).
+			Msg("tasmMQ stats " + lo.Ternary(k == 0, "before", "after "))
+	}
+	os.Exit(0)
 	// -----< subscribe to scan results >-----
 
 	logger.Info().
@@ -186,4 +190,40 @@ func ExecuteSend(tasksFile, authsFile, mqEndpoint, outDir string, logger *zerolo
 
 	logger.Info().Msg("done")
 
+}
+
+// parse auth DNS from lie
+func ParseAuths(input string) []model.PharosRepoAuth {
+
+	lines := strings.Split(input, " ")
+	lines = lo.Map(lines, func(x string, k int) string { return strings.TrimSpace(x) })
+	lines = lo.Filter(lines, func(x string, k int) bool { return x != "" })
+
+	auths := []model.PharosRepoAuth{}
+	for _, line := range lines {
+		auth, err := model.NewPharosRepoAuth(line)
+		if err != nil {
+			continue
+		}
+		auths = append(auths, auth)
+	}
+	return auths
+}
+
+// helper: return lines of file, ignore comments
+func ReadLines(infile string, unique bool) []string {
+
+	data, err := os.ReadFile(infile)
+	if err != nil {
+		return nil
+	}
+	lines := strings.Split(string(data), "\n")
+
+	// trim and remove empty lines
+	lines = lo.Map(lines, func(x string, k int) string { return strings.TrimSpace(x) })
+	lines = lo.Filter(lines, func(x string, k int) bool { return x != "" })
+	if unique {
+		lines = lo.Uniq(lines)
+	}
+	return lines
 }

@@ -19,7 +19,7 @@ type ServiceInterface interface {
 func TryConnectServices(ctx context.Context, retryMax int, retrySleep time.Duration, services []ServiceInterface, logger *zerolog.Logger) error {
 
 	for k := 1; k < retryMax+1; k++ {
-		logger.Info().Any("attempt", k).Any("max", retryMax).Msg("services connect ..")
+		logger.Info().Any("attempt", fmt.Sprintf("%v/%v", k, retryMax)).Str("sleep", retrySleep.String()).Msg("services connect ..")
 		ready := true
 		for _, service := range services {
 			if err := service.Connect(ctx); err != nil {

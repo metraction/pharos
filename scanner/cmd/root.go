@@ -18,7 +18,7 @@ type RootArgsType = struct {
 	LogLevel string
 }
 
-var EnvOrDefault = utils.EnvOrDefaultFunc("PHAROS") // return function that return envvar <PREFIX>_name or given default value
+var EnvOrDefault = utils.EnvOrDefaultFunc("PHAROS", ".env") // return function that return envvar <PREFIX>_name or given default value
 var RootArgs = RootArgsType{}
 var logger *zerolog.Logger
 
