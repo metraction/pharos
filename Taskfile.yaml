@@ -4,7 +4,7 @@ version: '3'
 
 vars:
   REGISTRY_USER: pharos
-  REGISTRY_PASSWORD: reg707
+  REGISTRY_PASSWORD: candela707
   PODEXE:
     sh: |
       if command -v docker >/dev/null 2>&1; then
@@ -21,19 +21,19 @@ silent: true
 tasks:
 
   alfa:
-    cmds: 
+    cmds:
       - go run scripts/sender/main.go -endpoint $PHAROS_MQ_ENDPOINT -action rx -consumer alfa -sleep 50ms
 
   bravo:
-    cmds: 
+    cmds:
       - go run scripts/sender/main.go -endpoint $PHAROS_MQ_ENDPOINT -action rx -consumer bravo -sleep 150ms
 
   charlie:
-    cmds: 
+    cmds:
       - go run scripts/sender/main.go -endpoint $PHAROS_MQ_ENDPOINT -action rx -consumer charlie -sleep 300ms
 
   delta:
-    cmds: 
+    cmds:
       - go run scripts/sender/main.go -endpoint $PHAROS_MQ_ENDPOINT -action rx -consumer delta -sleep 500ms
 
 
@@ -74,7 +74,7 @@ tasks:
       # create registry htpasswd
       - echo "Generate registry htpasswd registry .."
       - '{{.PODEXE}} run --rm --entrypoint htpasswd httpd:2 -Bbn {{.REGISTRY_USER}} {{.REGISTRY_PASSWORD}} > {{.devdir}}/htpasswd'
-      
+
       # create registry certificates
       - echo "Generate registry certificats .."
       - openssl req -newkey rsa:4096 -nodes -sha256 -addext "subjectAltName=DNS:localhost" -keyout {{.devdir}}/certs/domain.key -x509 -days 365 -out {{.devdir}}/certs/domain.crt -subj "/CN=localhost" 2>/dev/null
@@ -85,25 +85,65 @@ tasks:
       - echo "podman (rootless)  cp {{.devdir}}/certs/domain.crt ~/.config/containers/certs.d/localhost:5000/ca.crt"
 
   registry-seed:
-    desc: Seed local registry with images
+    desc: Seed local pharos.registry with images
     vars:
+      registry: pharos.secimo.net
       images:
+        # remove locally
+        # podman rmi --force  $(podman images --format "{{.Repository}}:{{.Tag}}" | grep '/ubuntu')
+
         # ghcr.io/digininja/dvwa:461b83a
         - dvwa:461b83a
+        # docker pull kalilinux/kali-rolling:latest
+        - kalilinux/kali-rolling:latest
+        # docker.io/library/registry  2
+        - registry:2
         # docker.io/library/redis:8.0.2-alpine
+        - redis:7.4.4-alpine
+        - redis:8.0.1-alpine
         - redis:8.0.2-alpine
+        # docker.io/library/postgres:17.4
+        - postgres:13.21
+        - postgres:14.18
+        - postgres:17.4
+        - postgres:17.5
+        # docker.io/library/ubuntu:24.04
+        - ubuntu:20.04
+        - ubuntu:24.04
         # docker.io/library/busybox:1.35
         - busybox:1.35
         - busybox:1.37
+        # docker.io/library/alpine:3.22
+        - alpine:3.16
+        - alpine:3.17
+        - alpine:3.18
+        - alpine:3.19
+        - alpine:3.20
+        - alpine:3.21
+        - alpine:3.22
+        # docker.io/axigen/axigen:10.5.0
+        - axigen:10.4.0
+        - axigen:10.5.0
+        - axigen:10.6.0
+        # docker.io/library/nginx:1.20
+        - nginx:1.20
+        - nginx:1.21
+        - nginx:1.22
+        - nginx:1.23
+        - nginx:1.24
+        - nginx:1.25
+        - nginx:1.26
+        - nginx:1.27
 
     cmds:
-      - podman login localhost:5000 -u {{.REGISTRY_USER}} -p {{.REGISTRY_PASSWORD}}
-      - echo "load.."
+      - podman login {{.registry}} -u {{.REGISTRY_USER}} -p {{.REGISTRY_PASSWORD}}
+      - echo "seed {{.registry}} .."
       - for:
           var: images
         cmd: |
-          {{.PODEXE}} tag {{.ITEM}} localhost:5000/{{.ITEM}}
-          {{.PODEXE}} push --tls-verify=false localhost:5000/{{.ITEM}}
+          {{.PODEXE}} tag {{.ITEM}} {{.registry}}/{{.ITEM}}
+          {{.PODEXE}} push --tls-verify=false {{.registry}}/{{.ITEM}}
+      - curl -X GET https://{{.REGISTRY_USER}}:{{.REGISTRY_PASSWORD}}@pharos.secimo.net:5000/v2/_catalog
 
 
   scan:
