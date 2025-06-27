@@ -1,0 +1,2 @@
+pharos.secimo.net/busybox:1.35
+pharos.secimo.net/busybox:1.37
