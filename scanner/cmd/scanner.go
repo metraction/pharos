@@ -117,26 +117,32 @@ func ExecuteScanner(engine, worker, mqEndpoint, cacheEndpoint, outDir string, lo
 		grypeScanHandler := func(x mq.TaskMessage[model.PharosScanTask]) error {
 
 			task := x.Data
+			image := task.ImageSpec.Image
 
 			// ensure message is evicted after 2 tries
 			if x.RetryCount > 2 {
-				logger.Error().Err(fmt.Errorf("%v ack & forget| %v", x.Id, task.ImageSpec.Image))
+				logger.Error().
+					Err(fmt.Errorf("%v ack & forget", x.Id)).
+					Str("_id", x.Id).Str("_job", task.JobId).Any("retry", x.RetryCount).Any("image", image).
+					Msg("max retry exceeded")
 				return nil
 			}
 
-			logger.Info().Str("id", x.Id).Str("job", task.JobId).Any("retry", x.RetryCount).Any("image", task.ImageSpec.Image).Msg("scan task ")
+			logger.Info().
+				Str("_id", x.Id).Str("_job", task.JobId).Any("retry", x.RetryCount).Any("image", image).
+				Msg("scan task ")
 
 			// scan image, use cache
 			result, _, _, err := grype.ScanImage(task, scanEngine, kvCache, logger)
 			if err != nil {
-				logger.Error().Err(err).Str("id", x.Id).Str("job", task.JobId).Any("retry", x.RetryCount).Any("image", task.ImageSpec.Image).Msg("scan error")
+				logger.Error().Err(err).
+					Str("_id", x.Id).Str("_job", task.JobId).Any("retry", x.RetryCount).Any("image", image).
+					Msg("scan error")
 				return err
 			}
 
 			logger.Info().
-				Str("id", x.Id).
-				Str("job", task.JobId).
-				Str("image", task.ImageSpec.Image).
+				Str("_id", x.Id).Str("_job", task.JobId).Any("retry", x.RetryCount).Any("image", image).
 				Str("os", result.Image.DistroName+" "+result.Image.DistroVersion).
 				Any("findings", len(result.Findings)).
 				Any("packages", len(result.Packages)).
@@ -158,8 +164,10 @@ func ExecuteScanner(engine, worker, mqEndpoint, cacheEndpoint, outDir string, lo
 
 		// event loop: scubscribe to scan tasks, run scanner update every 30 min
 		run := 0
+		elapsedTotal := utils.ElapsedFunc()
 		for {
 			run++
+			elapsed := utils.ElapsedFunc()
 			stats, err := taskMq.GroupStats(ctx, "*")
 			if err != nil {
 				logger.Fatal().Err(err).Msg("taskMq.GroupStats")
@@ -172,6 +180,8 @@ func ExecuteScanner(engine, worker, mqEndpoint, cacheEndpoint, outDir string, lo
 				Any("stream.max", stats.StreamMax).
 				Any("run.id", run).
 				Any("run.timeout", runTimeout.String()).
+				Any("elapsed.tot", elapsedTotal().String()).
+				Any("elapsed.run", elapsed().String()).
 				Msg("even loop")
 
 			taskMq.Subscribe(ctx, worker, claimBlock, claimMinIdle, blockTime, runTimeout, grypeScanHandler)

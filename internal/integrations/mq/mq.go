@@ -190,7 +190,8 @@ func (rx *RedisWorkerGroup[T]) Subscribe(ctx context.Context, consumerName strin
 	nextId := "0-0"
 	for {
 		k0 += 1
-		fmt.Println("LOOP", k0)
+		fmt.Printf("loop [%v] reclaim %v for %v with nextid %v\n", k0, claimBlock, consumerName, nextId)
+
 		// autoclaim
 		msgs, nid, err := rx.rdb.XAutoClaim(ctx, &redis.XAutoClaimArgs{
 			Stream:   rx.StreamName,
@@ -209,7 +210,7 @@ func (rx *RedisWorkerGroup[T]) Subscribe(ctx context.Context, consumerName strin
 		for _, msg := range msgs {
 			k1++
 			if err := processMessage(msg); err != nil {
-				fmt.Printf("[clm]: %v\n", err)
+				//fmt.Printf("[clm]: %v\n", err)
 			}
 		}
 
@@ -233,7 +234,7 @@ func (rx *RedisWorkerGroup[T]) Subscribe(ctx context.Context, consumerName strin
 			for _, msg := range res.Messages {
 				k2++
 				if err := processMessage(msg); err != nil {
-					fmt.Printf("[new]: %v\n", err)
+					//fmt.Printf("[new]: %v\n", err)
 				}
 			}
 		}
