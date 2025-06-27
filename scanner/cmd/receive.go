@@ -21,7 +21,7 @@ import (
 
 // command line arguments of root command
 // implemented as type to facilitate testing of command main routine
-type ServiceArgsType = struct {
+type ReceiveArgsType = struct {
 	ScanEngine string // scan engine to use
 	//
 	CacheExpiry   string // how log to cache sboms in redis
@@ -32,31 +32,27 @@ type ServiceArgsType = struct {
 
 }
 
-var ServiceArgs = RunArgsType{}
+var ReceiveArgs = ReceiveArgsType{}
 
 func init() {
-	rootCmd.AddCommand(serviceCmd)
+	rootCmd.AddCommand(receiveCmd)
 
-	serviceCmd.Flags().StringVar(&ServiceArgs.ScanEngine, "engine", EnvOrDefault("engine", ""), "Scan engine to use [grype,trivy]")
+	receiveCmd.Flags().StringVar(&ReceiveArgs.MqEndpoint, "mq_endpoint", EnvOrDefault("mq_endpoint", ""), "Redis message queue, e.g. redis://user:pwd@localhost:6379/1")
 
-	serviceCmd.Flags().StringVar(&ServiceArgs.CacheExpiry, "cache_expiry", EnvOrDefault("cache_expiry", "90s"), "Redis sbom cache expiry")
-	serviceCmd.Flags().StringVar(&ServiceArgs.CacheEndpoint, "cache_endpoint", EnvOrDefault("cache_endpoint", ""), "Redis cache, e.g. redis://user:pwd@localhost:6379/0")
-	serviceCmd.Flags().StringVar(&ServiceArgs.MqEndpoint, "mq_endpoint", EnvOrDefault("mq_endpoint", ""), "Redis message queue, e.g. redis://user:pwd@localhost:6379/1")
-
-	serviceCmd.Flags().StringVar(&ServiceArgs.OutDir, "outdir", EnvOrDefault("_outdir", ""), "Output directory for results")
+	receiveCmd.Flags().StringVar(&ReceiveArgs.OutDir, "outdir", EnvOrDefault("_outdir", ""), "Output directory for results")
 
 }
 
 // runCmd represents the run command
-var serviceCmd = &cobra.Command{
-	Use:   "service",
-	Short: "Run scanner as worker",
-	Long:  `Run the scanner as service listening for scan jobs to execute`,
+var receiveCmd = &cobra.Command{
+	Use:   "receive",
+	Short: "Run scan results receiver",
+	Long:  `Run scan results receiver`,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		cacheExpiry := utils.DurationOr(ScanArgs.CacheExpiry, 90*time.Second)
 
-		ExecuteService(ServiceArgs.ScanEngine, cacheExpiry, ServiceArgs.OutDir, ServiceArgs.CacheEndpoint, ServiceArgs.MqEndpoint, logger)
+		ExecuteService(ReceiveArgs.ScanEngine, cacheExpiry, ReceiveArgs.OutDir, ReceiveArgs.CacheEndpoint, ReceiveArgs.MqEndpoint, logger)
 
 	},
 }

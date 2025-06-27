@@ -27,27 +27,27 @@ func ToBool(input string) bool {
 	input = strings.TrimSpace(input)
 	input = strings.ToLower(input)
 
-	if lo.Contains([]string{"1", "t", "true", "on", "yes"}, input) {
-		return true
-	}
-	return false
+	return lo.Contains([]string{"1", "t", "true", "on", "yes"}, input)
 }
 
 // return function (closure) thats returns the <prefix>_<name> envvar if it exists, else the default value
-func EnvOrDefaultFunc(prefix string) func(string, string) string {
+func EnvOrDefaultFunc(prefix, envfile string) func(string, string) string {
 
 	// load .env if it exists
-	err := godotenv.Load()
+	err := godotenv.Load(envfile)
 	if err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
 			fmt.Println("error", err)
 			log.Fatal("Error loading .env file")
 		}
 	}
+	//fmt.Printf("EnvOrDefaultFunc(%s,%s)\n", prefix, envfile)
+
 	return func(name, defval string) string {
 		key := strings.ToUpper(prefix + "_" + name)
-		if value := os.Getenv(key); value != "" {
-			return value
+		val := os.Getenv(key)
+		if val != "" {
+			return val
 		}
 		return defval
 	}

@@ -17,6 +17,19 @@ import (
 var ErrTaskqueueTimeout = errors.New("taskqueue timeout")
 var ErrMsgDelete = errors.New("[handler] message delete")
 
+// https://redis.io/docs/latest/commands/xinfo-groups/
+type GroupStats struct {
+	StreamName string
+	StreamLen  int64 // stream current len
+	StreamMax  int64 // stream maxlen
+
+	Read    int64 // total read
+	Pending int64 // pending processed but not ACKed
+	Lag     int64 // never processed
+
+	Groups []string // group names
+}
+
 // main task queue object
 type RedisWorkerGroup[T any] struct {
 	RedisEndpoint string
@@ -117,30 +130,33 @@ func (rx *RedisWorkerGroup[T]) Publish(ctx context.Context, priority int, payloa
 }
 
 // get group stats,  filter by groupName (or "*" for all)
-func (rx *RedisWorkerGroup[T]) GroupStats(ctx context.Context, groupName string) (int64, int64, int64, []string, error) {
+func (rx *RedisWorkerGroup[T]) GroupStats(ctx context.Context, groupName string) (GroupStats, error) {
 
+	result := GroupStats{
+		StreamName: rx.StreamName,
+		StreamMax:  rx.MaxLen,
+	}
 	groups, err := rx.rdb.XInfoGroups(ctx, rx.StreamName).Result()
 	if err != nil {
-		return 0, 0, 0, nil, err
+		return result, err
 	}
-
-	var read int64 // total read
-	var pend int64 // pending
-	var lag int64
-	var names []string // group names
 
 	for _, group := range groups {
 		if groupName == group.Name || groupName == "*" {
-			read += group.EntriesRead
-			pend += group.Pending
-			lag += group.Lag
-			names = append(names, group.Name)
+			result.Read += group.EntriesRead
+			result.Pending += group.Pending
+			result.Lag += group.Lag
+			result.Groups = append(result.Groups, group.Name)
 
 		}
 		// fmt.Printf("Name: %s, Consumers: %d, Pending: %d, LastDeliveredID: %s, EntriesRead: %d, Lag: %d\n",
 		// 	group.Name, group.Consumers, group.Pending, group.LastDeliveredID, group.EntriesRead, group.Lag)
 	}
-	return read, pend, lag, names, nil
+
+	if length, err := rx.rdb.XLen(ctx, rx.StreamName).Result(); err == nil {
+		result.StreamLen = length
+	}
+	return result, nil
 }
 
 // subscribe worker to tasks
