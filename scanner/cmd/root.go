@@ -6,6 +6,7 @@ package cmd
 import (
 	"os"
 
+	"github.com/metraction/pharos/internal/integrations/mq"
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/internal/utils"
 	"github.com/rs/zerolog"
@@ -55,4 +56,18 @@ func Execute() {
 	if err != nil {
 		os.Exit(1)
 	}
+}
+
+// Helper Functions
+
+func ShowQueueStats(title string, stats mq.GroupStats, logger *zerolog.Logger) {
+
+	logger.Info().
+		Str("stream", stats.StreamName).
+		Any("pending", stats.Pending).
+		Any("lag", stats.Lag).
+		Any("stream.len", stats.StreamLen).
+		Any("stream.max", stats.StreamMax).
+		Any("pressure", stats.BackPressureOr(0)).
+		Msg(title)
 }

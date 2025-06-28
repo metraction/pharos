@@ -133,7 +133,7 @@ func (rx *TrivyScanner) UpdateDatabase() error {
 // scan cyclondex sbom with trivy
 func (rx *TrivyScanner) VulnScanSbom(sbom []byte) (trivytype.TrivyScanType, []byte, error) {
 
-	rx.logger.Info().
+	rx.logger.Debug().
 		Any("scan_timeout", rx.ScanTimeout.String()).
 		Msg("VulnScanSbom() ..")
 
@@ -181,6 +181,7 @@ func (rx *TrivyScanner) VulnScanSbom(sbom []byte) (trivytype.TrivyScanType, []by
 	}
 
 	rx.logger.Info().
+		Str("image", "").
 		Str("type", scan.ArtifactType).
 		Any("matches", len(scan.ListVulnerabilities())).
 		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).

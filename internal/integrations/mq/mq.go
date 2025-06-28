@@ -19,22 +19,30 @@ var ErrMsgDelete = errors.New("[handler] message delete")
 
 // https://redis.io/docs/latest/commands/xinfo-groups/
 type GroupStats struct {
-	StreamName string
-	StreamLen  int64    // stream current len
-	StreamMax  int64    // stream maxlen
-	Read       int64    // total messages read
-	Pending    int64    // pending messages (processed at leased once, but not ACKed)
-	Lag        int64    // messages never processed
-	Groups     []string // consumer group names
+	StreamName   string
+	StreamLen    int64    // stream current len
+	StreamMax    int64    // stream maxlen
+	Read         int64    // total messages read
+	Pending      int64    // pending messages (processed at leased once, but not ACKed)
+	Lag          int64    // messages never processed
+	BackPressure float64  // return indicator of unfinished work or default on 1) error or 2) unlimited stream length
+	Groups       []string // consumer group names
+}
+
+func (rx *GroupStats) BackPressureOr(defval float64) float64 {
+	if rx.StreamMax == 0 {
+		return defval
+	}
+	return float64(rx.Pending+rx.Lag) / float64(rx.StreamMax)
 }
 
 // main task queue object
 type RedisWorkerGroup[T any] struct {
-	RedisEndpoint string
-	StreamName    string
-	GroupName     string
-	Mode          string // "$" read from last processed message, "0" read from start of queue
-	MaxLen        int64  // stream max length
+	Endpoint   string
+	StreamName string
+	GroupName  string
+	Mode       string // "$" read from last processed message, "0" read from start of queue
+	MaxLen     int64  // stream max length
 
 	rdb *redis.Client
 }
@@ -52,12 +60,12 @@ func NewRedisWorkerGroup[T any](ctx context.Context, redisEndpoint, mode, stream
 	// mode: "$" read from last processed message
 	// mode: "0" read from start of queue
 	result := RedisWorkerGroup[T]{
-		RedisEndpoint: redisEndpoint,
-		StreamName:    streamName,
-		GroupName:     groupName,
-		Mode:          mode,
-		MaxLen:        maxStreamLen, // max number of messages in stream (Redis trims to this automatically)
-		rdb:           rdb,
+		Endpoint:   redisEndpoint,
+		StreamName: streamName,
+		GroupName:  groupName,
+		Mode:       mode,
+		MaxLen:     maxStreamLen, // max number of messages in stream (Redis trims to this automatically)
+		rdb:        rdb,
 	}
 
 	return &result, nil
@@ -93,6 +101,31 @@ func (rx *RedisWorkerGroup[T]) Close() {
 	if rx.rdb != nil {
 		rx.rdb.Close()
 	}
+}
+
+// retrieve memory usage
+func (rx *RedisWorkerGroup[T]) UsedMemory(ctx context.Context) (string, string, string) {
+
+	memUsed := "N/A"
+	memPeak := "N/A"
+	memSystem := "N/A"
+
+	if info, err := rx.rdb.Info(ctx, "memory").Result(); err == nil {
+		for _, line := range strings.Split(info, "\n") {
+			var parts []string
+			line = strings.TrimSpace(line)
+			if parts = strings.Split(line, "used_memory_human:"); len(parts) == 2 {
+				memUsed = parts[1]
+			}
+			if parts = strings.Split(line, "used_memory_peak_human:"); len(parts) == 2 {
+				memPeak = parts[1]
+			}
+			if parts = strings.Split(line, "total_system_memory_human:"); len(parts) == 2 {
+				memSystem = parts[1]
+			}
+		}
+	}
+	return memUsed, memPeak, memSystem
 }
 
 // delete stream (usefull for to begin tests with defined state)
@@ -153,19 +186,6 @@ func (rx *RedisWorkerGroup[T]) GroupStats(ctx context.Context, groupName string)
 		result.StreamLen = length
 	}
 	return result, nil
-}
-
-// return indicator of unfinished work or default on 1) error or 2) unlimited stream length
-func (rx *RedisWorkerGroup[T]) BackPressureOr(ctx context.Context, defval float64) float64 {
-	var err error
-	var stats GroupStats
-	if stats, err = rx.GroupStats(ctx, "*"); err != nil {
-		return defval
-	}
-	if rx.MaxLen == 0 {
-		return defval
-	}
-	return float64((stats.Pending + stats.Lag) / rx.MaxLen)
 }
 
 // subscribe worker to new and pending tasks

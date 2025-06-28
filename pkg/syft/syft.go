@@ -50,7 +50,7 @@ func NewSyftSbomCreator(timeout time.Duration, logger *zerolog.Logger) (*SyftSbo
 		logger:  logger,
 	}
 
-	logger.Info().
+	logger.Debug().
 		Any("timeout", generator.Timeout.String()).
 		Msg("NewSyftSbomCreator() OK")
 	return &generator, nil
@@ -64,7 +64,7 @@ func (rx *SyftSbomCreator) CreateSbom(task model.PharosScanTask, format string) 
 	imageRef := task.ImageSpec.Image
 	platform := task.ImageSpec.Platform
 
-	rx.logger.Info().
+	rx.logger.Debug().
 		Str("image", imageRef).
 		Str("platform", platform).
 		Bool("tlsCheck", auth.TlsCheck).
@@ -96,7 +96,7 @@ func (rx *SyftSbomCreator) CreateSbom(task model.PharosScanTask, format string) 
 	if auth.HasAuth(imageRef) {
 		cmd.Env = append(cmd.Env, "SYFT_REGISTRY_AUTH_AUTHORITY="+auth.Authority)
 		if auth.Username != "" {
-			rx.logger.Info().
+			rx.logger.Debug().
 				Str("authority", auth.Authority).
 				Str("user", auth.Username).
 				Msg("CreateSbom() user auth")
@@ -104,7 +104,7 @@ func (rx *SyftSbomCreator) CreateSbom(task model.PharosScanTask, format string) 
 			cmd.Env = append(cmd.Env, "SYFT_REGISTRY_AUTH_USERNAME="+auth.Username)
 			cmd.Env = append(cmd.Env, "SYFT_REGISTRY_AUTH_PASSWORD="+auth.Password)
 		} else if auth.Token != "" {
-			rx.logger.Info().
+			rx.logger.Debug().
 				Str("authority", auth.Authority).
 				Str("token", auth.Token).
 				Msg("CreateSbom() token auth")

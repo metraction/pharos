@@ -17,7 +17,7 @@ import (
 // execute scan with grype scanner
 func ScanImage(task model.PharosScanTask, scanEngine *TrivyScanner, kvc *cache.PharosCache, logger *zerolog.Logger) (model.PharosScanResult, []byte, []byte, error) {
 
-	logger.Info().Msg("Trivy.ScanImage()")
+	logger.Debug().Msg("Trivy.ScanImage()")
 
 	// return sbom cache key for given digest
 	CacheKey := func(digest string) string {
@@ -44,10 +44,11 @@ func ScanImage(task model.PharosScanTask, scanEngine *TrivyScanner, kvc *cache.P
 		return result.SetError(err), nil, nil, err
 	}
 
-	logger.Info().
+	logger.Debug().
 		Str("digest.idx", utils.ShortDigest(indexDigest)).
 		Str("digest.man", utils.ShortDigest(manifestDigest)).
-		Msg("image digests")
+		Str("image", task.ImageSpec.Image).
+		Msg("GetDigest()")
 
 	// create sbom generator
 	if sbomEngine, err = NewTrivySbomCreator(task.Timeout, logger); err != nil {
@@ -101,14 +102,14 @@ func ScanImage(task model.PharosScanTask, scanEngine *TrivyScanner, kvc *cache.P
 	logger.Info().
 		Str("key", key).
 		Str("cache", cacheState).
-		Any("time.scan_timeout", task.Timeout.String()).
-		Any("time.cache_expiry", task.ImageSpec.CacheExpiry.String()).
-		Any("img.distro", result.Image.DistroName+" "+result.Image.DistroVersion).
-		Any("img.size", humanize.Bytes(result.Image.Size)).
-		Any("scan.findings", len(result.Findings)).
-		Any("scan.vulns", len(result.Vulnerabilities)).
-		Any("scan.packages", len(result.Packages)).
-		Msg("")
+		Any("t.scan_timeout", task.Timeout.String()).
+		Any("t.cache_expiry", task.ImageSpec.CacheExpiry.String()).
+		Any("i.distro", result.Image.DistroName+" "+result.Image.DistroVersion).
+		Any("i.size", humanize.Bytes(result.Image.Size)).
+		Any("s.findings", len(result.Findings)).
+		Any("s.vulns", len(result.Vulnerabilities)).
+		Any("s.packages", len(result.Packages)).
+		Msg("ScanImage() OK")
 
 	return result, sbomData, scanData, nil
 

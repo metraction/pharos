@@ -13,6 +13,7 @@ import (
 
 	"github.com/metraction/pharos/internal/integrations"
 	"github.com/metraction/pharos/internal/integrations/mq"
+	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/internal/utils"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/metraction/pharos/scanner/config"
@@ -54,6 +55,8 @@ var sendCmd = &cobra.Command{
 	Short: "Send scan tasks",
 	Long:  `Send scan tasks`,
 	Run: func(cmd *cobra.Command, args []string) {
+
+		logger = logging.NewLogger(RootArgs.LogLevel)
 
 		cacheExpiry := utils.DurationOr(SendArgs.CacheExpiry, 90*time.Second)
 		scanTimeout := utils.DurationOr(SendArgs.ScanTimeout, 180*time.Second)
@@ -143,13 +146,7 @@ func ExecuteSend(tasksFile, authsDsn, mqEndpoint, outDir string, scanTimeout, sc
 	}
 
 	for k, stats := range []mq.GroupStats{stats1, stats2} {
-		logger.Info().
-			Any("sent", len(images)).
-			Any("pending", stats.Pending).
-			Any("lag", stats.Lag).
-			Any("stream.len", stats.StreamLen).
-			Any("stream.max", stats.StreamMax).
-			Msg("tasmMQ stats " + lo.Ternary(k == 0, "before", "after "))
+		ShowQueueStats(lo.Ternary(k == 0, "before", "after "), stats, logger)
 	}
 	os.Exit(0)
 	// -----< subscribe to scan results >-----
