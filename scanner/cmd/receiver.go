@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/metraction/pharos/internal/integrations"
+	"github.com/metraction/pharos/internal/integrations/localdb"
 	"github.com/metraction/pharos/internal/integrations/mq"
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/internal/utils"
@@ -26,6 +27,7 @@ type ReceiverArgsType = struct {
 	OutDir string // results dump dir
 	Worker string // scanner consumer name (MQ)
 
+	DbEndpoint string
 	MqEndpoint string // redis://user:pwd@localhost:6379/1
 }
 
@@ -37,6 +39,7 @@ func init() {
 
 	receiverCmd.Flags().StringVar(&ReceiverArgs.OutDir, "outdir", EnvOrDefault("outdir", ""), "Output directory for results")
 	receiverCmd.Flags().StringVar(&ReceiverArgs.Worker, "worker", EnvOrDefault("worker", ""), "receiver worker name (consumer)")
+	receiverCmd.Flags().StringVar(&ReceiverArgs.DbEndpoint, "db_endpoint", EnvOrDefault("db_endpoint", "receiver.db"), "Local db endpoint")
 	receiverCmd.Flags().StringVar(&ReceiverArgs.MqEndpoint, "mq_endpoint", EnvOrDefault("mq_endpoint", ""), "Redis message queue, e.g. redis://:pwd@localhost:6379/1")
 
 }
@@ -48,17 +51,18 @@ var receiverCmd = &cobra.Command{
 	Long:  `Receive and process scan results`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		ExecuteReceiver(ReceiverArgs.Worker, ReceiverArgs.MqEndpoint, ReceiverArgs.OutDir, logger)
+		ExecuteReceiver(ReceiverArgs.Worker, ReceiverArgs.DbEndpoint, ReceiverArgs.MqEndpoint, ReceiverArgs.OutDir, logger)
 
 	},
 }
 
-func ExecuteReceiver(worker, mqEndpoint, outDir string, logger *zerolog.Logger) {
+func ExecuteReceiver(worker, dbEndpoint, mqEndpoint, outDir string, logger *zerolog.Logger) {
 
 	logger.Info().Msg("-----< Receiver  >-----")
 	logger.Info().
 		Str("worker", worker).
 		Str("mq_endpoint", utils.MaskDsn(mqEndpoint)).
+		Str("db_endpoint", utils.MaskDsn(dbEndpoint)).
 		Str("outdir", outDir).
 		Msg("")
 
@@ -70,7 +74,13 @@ func ExecuteReceiver(worker, mqEndpoint, outDir string, logger *zerolog.Logger) 
 	ctx := context.Background()
 
 	var err error
+	var dbx *localdb.PharosLocalDb
 	var resultMq *mq.RedisWorkerGroup[model.PharosScanResult] // send scan results
+
+	if dbx, err = localdb.NewPharosLocalDb(dbEndpoint, logger); err != nil {
+		logger.Fatal().Err(err).Msg("NewPharosLocalDb")
+	}
+	defer dbx.Close()
 
 	if resultMq, err = mq.NewRedisWorkerGroup[model.PharosScanResult](ctx, mqEndpoint, "$", config.RedisResultStream, "result-group", config.RedisTaskStreamMaxLen); err != nil {
 		logger.Fatal().Err(err).Msg("NewRedisWorkerGroup")
@@ -78,7 +88,8 @@ func ExecuteReceiver(worker, mqEndpoint, outDir string, logger *zerolog.Logger) 
 	defer resultMq.Close()
 
 	// try connect 3x with 3 sec sleep to account for startup delays of required pods/services
-	if err := integrations.TryConnectServices(ctx, 3, 3*time.Second, []integrations.ServiceInterface{resultMq}, logger); err != nil {
+	services := []integrations.ServiceInterface{dbx, resultMq}
+	if err := integrations.TryConnectServices(ctx, 3, 3*time.Second, services, logger); err != nil {
 		logger.Fatal().Err(err).Msg("services connect")
 	}
 	logger.Info().Msg("services connect OK")
@@ -104,6 +115,7 @@ func ExecuteReceiver(worker, mqEndpoint, outDir string, logger *zerolog.Logger) 
 
 		logger.Info().
 			Str("_id", x.Id).Str("_job", task.JobId).Any("retry", x.RetryCount).Any(" image", image).
+			Any("context", task.ImageSpec.Context).
 			Str("status", result.ScanTask.Status+" "+result.ScanTask.Error).
 			Str("os", result.Image.DistroName+" "+result.Image.DistroVersion).
 			Any("vulns", len(result.Vulnerabilities)).
@@ -111,6 +123,12 @@ func ExecuteReceiver(worker, mqEndpoint, outDir string, logger *zerolog.Logger) 
 			Any("packages", len(result.Packages)).
 			Msg("result OK")
 
+		// populate database
+		elapsed := utils.ElapsedFunc()
+		if _, err := dbx.AddScanResult(ctx, result); err != nil {
+			logger.Error().Err(err).Msg("AddScanResult")
+		}
+		logger.Info().Any("elapsed", elapsed().Milliseconds()).Msg("db.insert")
 		// process result
 		saveResults(outDir, utils.ShortDigest(result.Image.ImageId), result.ScanEngine.Name, result)
 
@@ -152,8 +170,13 @@ func ExecuteReceiver(worker, mqEndpoint, outDir string, logger *zerolog.Logger) 
 
 // saveResults(outDir, utils.ShortDigest(result.Image.ImageId), "grype", result)
 func saveResults(outDir, id, engine string, result model.PharosScanResult) {
+	if outDir == "" {
+		return
+	}
+
 	filename := strings.Replace(fmt.Sprintf("%s-%s-model.json", id, engine), ":", "-", -1)
 	outFile := filepath.Join(outDir, filename)
+
 	os.WriteFile(outFile, result.ToBytes(), 0644)
 
 }
