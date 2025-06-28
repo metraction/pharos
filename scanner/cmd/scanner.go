@@ -12,8 +12,8 @@ import (
 	"github.com/metraction/pharos/internal/integrations/cache"
 	"github.com/metraction/pharos/internal/integrations/mq"
 	"github.com/metraction/pharos/internal/utils"
-	"github.com/metraction/pharos/pkg/grype"
 	"github.com/metraction/pharos/pkg/model"
+	"github.com/metraction/pharos/pkg/scanning"
 	"github.com/metraction/pharos/scanner/config"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
@@ -105,93 +105,101 @@ func ExecuteScanner(engine, worker, mqEndpoint, cacheEndpoint, outDir string, lo
 	taskMq.CreateGroup(ctx)
 	resultMq.CreateGroup(ctx)
 
+	// prepare scan engine and scanning worker function
 	scanTimeout := 180 * time.Second // default timeout
+	var scanner scanning.ScanEngineInterface
 	if engine == "grype" {
-		var scanEngine *grype.GrypeScanner
+		if scanner, err = scanning.NewGrypeScannerEngine(scanTimeout, true, kvCache, logger); err != nil {
+			logger.Fatal().Err(err).Msg("NewGrypeScannerEngine()")
+		}
+	} else if engine == "trivy" {
+		if scanner, err = scanning.NewTrivyScannerEngine(scanTimeout, true, kvCache, logger); err != nil {
+			logger.Fatal().Err(err).Msg("NewTrivyScannerEngine()")
+		}
+	} else {
+		logger.Fatal().Str("engine", engine).Msg("Unknown scanner")
+	}
 
-		if scanEngine, err = grype.NewGrypeScanner(scanTimeout, true, logger); err != nil {
-			logger.Fatal().Err(err).Msg("NewGrypeScanner()")
+	// scanning worker function
+	scanHandler := func(x mq.TaskMessage[model.PharosScanTask]) error {
+
+		var err error
+		var result model.PharosScanResult
+
+		task := x.Data
+		image := task.ImageSpec.Image
+
+		// ensure message is evicted after 2 tries (err=nil will ACK message)
+		if x.RetryCount > 2 {
+			logger.Error().
+				Err(fmt.Errorf("%v ack & forget", x.Id)).Str("_id", x.Id).Str("_job", task.JobId).Any("retry", x.RetryCount).Any("image", image).
+				Msg("max retry exceeded")
+			return nil
 		}
 
-		// scanHandler
-		grypeScanHandler := func(x mq.TaskMessage[model.PharosScanTask]) error {
+		logger.Info().
+			Str("_id", x.Id).Str("_job", task.JobId).Any("retry", x.RetryCount).Any("image", image).
+			Msg("scan task ")
 
-			task := x.Data
-			image := task.ImageSpec.Image
-
-			// ensure message is evicted after 2 tries
-			if x.RetryCount > 2 {
-				logger.Error().
-					Err(fmt.Errorf("%v ack & forget", x.Id)).
-					Str("_id", x.Id).Str("_job", task.JobId).Any("retry", x.RetryCount).Any("image", image).
-					Msg("max retry exceeded")
-				return nil
-			}
-
-			logger.Info().
+		// scan image, use cache
+		if result, _, _, err = scanner.ScanImage(task); err != nil {
+			logger.Error().Err(err).
 				Str("_id", x.Id).Str("_job", task.JobId).Any("retry", x.RetryCount).Any("image", image).
-				Msg("scan task ")
-
-			// scan image, use cache
-			result, _, _, err := grype.ScanImage(task, scanEngine, kvCache, logger)
-			if err != nil {
-				logger.Error().Err(err).
-					Str("_id", x.Id).Str("_job", task.JobId).Any("retry", x.RetryCount).Any("image", image).
-					Msg("scan error")
-				return err
-			}
-
-			logger.Info().
-				Str("_id", x.Id).Str("_job", task.JobId).Any("retry", x.RetryCount).Any("image", image).
-				Str("os", result.Image.DistroName+" "+result.Image.DistroVersion).
-				Any("findings", len(result.Findings)).
-				Any("packages", len(result.Packages)).
-				Msg("scan OK")
-
-			// submit scan results
-			id, _ := resultMq.Publish(ctx, 1, result)
-			logger.Info().Str("id", id).Str("job", task.JobId).Any("image", task.ImageSpec.Image).Msg("send result")
-
-			saveResults(outDir, utils.ShortDigest(result.Image.ImageId), "grype", result)
-			// success
+				Msg("scan error")
 			return err
 		}
 
-		claimBlock := int64(5)
-		claimMinIdle := 30 * time.Second // min idle time to reclaim Non-ACKed messages
-		blockTime := 30 * time.Second    // max block time of xreadgroup
-		runTimeout := 15 * time.Minute   // terminate subscribe
+		logger.Info().
+			Str("_id", x.Id).Str("_job", task.JobId).Any("retry", x.RetryCount).Any("image", image).
+			Str("os", result.Image.DistroName+" "+result.Image.DistroVersion).
+			Any("findings", len(result.Findings)).
+			Any("packages", len(result.Packages)).
+			Msg("scan OK")
 
-		// event loop: scubscribe to scan tasks, run scanner update every 30 min
-		run := 0
-		elapsedTotal := utils.ElapsedFunc()
-		for {
-			run++
-			elapsed := utils.ElapsedFunc()
-			stats, err := taskMq.GroupStats(ctx, "*")
-			if err != nil {
-				logger.Fatal().Err(err).Msg("taskMq.GroupStats")
-			}
+		// submit scan results
+		id, _ := resultMq.Publish(ctx, 1, result)
+		logger.Info().Str("id", id).Str("job", task.JobId).Any("image", task.ImageSpec.Image).Msg("send result")
 
-			logger.Info().
-				Any("pending", stats.Pending).
-				Any("lag", stats.Lag).
-				Any("stream.len", stats.StreamLen).
-				Any("stream.max", stats.StreamMax).
-				Any("run.id", run).
-				Any("run.timeout", runTimeout.String()).
-				Any("elapsed.tot", elapsedTotal().String()).
-				Any("elapsed.run", elapsed().String()).
-				Msg("even loop")
-
-			taskMq.Subscribe(ctx, worker, claimBlock, claimMinIdle, blockTime, runTimeout, grypeScanHandler)
-
-			if err := scanEngine.UpdateDatabase(); err != nil {
-				logger.Fatal().Err(err).Msg("vulndb update failed")
-			}
-		}
-	} else {
-		logger.Fatal().Str("engine", engine).Msg("unknon engine")
+		saveResults(outDir, utils.ShortDigest(result.Image.ImageId), scanner.ScannerName(), result)
+		// success
+		return err
 	}
+
+	// subscribe to scan tasks, every 1m check and process max 5 pending tasks idle for more than 5m
+	// after 30 check for vulndb updates
+	runTimeout := 30 * time.Minute  // terminate subscribe
+	blockTime := 1 * time.Minute    // max block time of xreadgroup
+	claimMinIdle := 5 * time.Minute // min idle time to reclaim Non-ACKed messages
+	claimBlock := int64(5)
+
+	// event loop: scubscribe to scan tasks, run scanner update every 30 min
+	run := 0
+	elapsedTotal := utils.ElapsedFunc()
+	for {
+		run++
+		elapsed := utils.ElapsedFunc()
+		stats, err := taskMq.GroupStats(ctx, "*")
+		if err != nil {
+			logger.Fatal().Err(err).Msg("taskMq.GroupStats")
+		}
+
+		logger.Info().
+			Any("pending", stats.Pending).
+			Any("lag", stats.Lag).
+			Any("stream.len", stats.StreamLen).
+			Any("stream.max", stats.StreamMax).
+			Any("run.id", run).
+			Any("run.timeout", runTimeout.String()).
+			Any("elapsed.tot", elapsedTotal().String()).
+			Any("elapsed.run", elapsed().String()).
+			Msg("even loop")
+
+		taskMq.Subscribe(ctx, worker, claimBlock, claimMinIdle, blockTime, runTimeout, scanHandler)
+
+		if err := scanner.UpdateDatabase(); err != nil {
+			logger.Fatal().Err(err).Msg("vulndb update failed")
+		}
+	}
+
 	logger.Info().Msg("done")
 }

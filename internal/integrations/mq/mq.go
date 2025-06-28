@@ -33,7 +33,7 @@ type RedisWorkerGroup[T any] struct {
 	RedisEndpoint string
 	StreamName    string
 	GroupName     string
-	Mode          string // ">" or "$"
+	Mode          string // "$" read from last processed message, "0" read from start of queue
 	MaxLen        int64  // stream max length
 
 	rdb *redis.Client
@@ -49,10 +49,8 @@ func NewRedisWorkerGroup[T any](ctx context.Context, redisEndpoint, mode, stream
 	}
 	rdb := redis.NewClient(options)
 
-	// setup object parameter
 	// mode: "$" read from last processed message
 	// mode: "0" read from start of queue
-
 	result := RedisWorkerGroup[T]{
 		RedisEndpoint: redisEndpoint,
 		StreamName:    streamName,
@@ -65,22 +63,22 @@ func NewRedisWorkerGroup[T any](ctx context.Context, redisEndpoint, mode, stream
 	return &result, nil
 }
 
-// connect
+// redis connect
 func (rx *RedisWorkerGroup[T]) Connect(ctx context.Context) error {
-
 	if err := rx.rdb.Ping(ctx).Err(); err != nil {
 		return fmt.Errorf("redis connect (ping): %v", err)
 	}
 	return nil
 }
 
+// return service name
 func (rx *RedisWorkerGroup[T]) ServiceName() string {
-	return "mq"
+	return "pharos-mq"
 }
 
-// create stream group
+// create redis stream group
 func (rx *RedisWorkerGroup[T]) CreateGroup(ctx context.Context) error {
-	// NOTE: The stream is created with either automatically with XAdd or with the below
+
 	if err := rx.rdb.XGroupCreateMkStream(ctx, rx.StreamName, rx.GroupName, rx.Mode).Err(); err != nil {
 		// don't thorow error if stream/group already exists
 		if !strings.Contains(err.Error(), "BUSYGROUP") {
@@ -90,14 +88,14 @@ func (rx *RedisWorkerGroup[T]) CreateGroup(ctx context.Context) error {
 	return nil
 }
 
-// safely close connection
+// safely close redis connection
 func (rx *RedisWorkerGroup[T]) Close() {
 	if rx.rdb != nil {
 		rx.rdb.Close()
 	}
 }
 
-// delete stream
+// delete stream (usefull for to begin tests with defined state)
 func (rx *RedisWorkerGroup[T]) Delete(ctx context.Context) error {
 	if _, err := rx.rdb.Del(ctx, rx.StreamName).Result(); err != nil {
 		return err
@@ -127,7 +125,7 @@ func (rx *RedisWorkerGroup[T]) Publish(ctx context.Context, priority int, payloa
 	return id, nil
 }
 
-// get group stats,  filter by groupName (or "*" for all)
+// get group stats, filter by groupName (or "*" for all groups in stream)
 func (rx *RedisWorkerGroup[T]) GroupStats(ctx context.Context, groupName string) (GroupStats, error) {
 
 	result := GroupStats{
@@ -157,19 +155,33 @@ func (rx *RedisWorkerGroup[T]) GroupStats(ctx context.Context, groupName string)
 	return result, nil
 }
 
-// subscribe worker to tasks
+// return indicator of unfinished work or default on 1) error or 2) unlimited stream length
+func (rx *RedisWorkerGroup[T]) BackPressureOr(ctx context.Context, defval float64) float64 {
+	var err error
+	var stats GroupStats
+	if stats, err = rx.GroupStats(ctx, "*"); err != nil {
+		return defval
+	}
+	if rx.MaxLen == 0 {
+		return defval
+	}
+	return float64((stats.Pending + stats.Lag) / rx.MaxLen)
+}
+
+// subscribe worker to new and pending tasks
+// 1) block/wait for new tasks. Unblock after blockTime or when new message arrives
+// 2) process new message (ACK message if handlerFunc return err==nil)
+// 3) get max claimBlock pending messages with >minIdle time
+// repeat until runTimeout, then exit
 func (rx *RedisWorkerGroup[T]) Subscribe(ctx context.Context, consumerName string, claimBlock int64, minIdle, blockTime, runTimeout time.Duration, handlerFunc WorkerFunc[T]) error {
 
 	k0 := 0
 	k1 := 0
 	k2 := 0
-
 	startTime := time.Now()
-	//fmt.Printf("Subscribe() stream:%s, group:%s, consumer:%s\n", rx.StreamName, rx.GroupName, consumerName)
 
-	// process message, provide retry & idle count for handler
+	// process message, provide retry & idle count for handler, ACK if err returned is  nil
 	processMessage := func(msg redis.XMessage) error {
-
 		payload, err := NewTaskFromMessage[T](rx.StreamName, rx.GroupName, msg)
 		if err != nil {
 			return fmt.Errorf("error decoding message %s: %w", msg.ID, err)
@@ -189,9 +201,8 @@ func (rx *RedisWorkerGroup[T]) Subscribe(ctx context.Context, consumerName strin
 	for {
 		k0 += 1
 		fmt.Printf("loop [%v] reclaim %v for %v with nextid %v\n", k0, claimBlock, consumerName, nextId)
-
 		// autoclaim
-		msgs, nid, err := rx.rdb.XAutoClaim(ctx, &redis.XAutoClaimArgs{
+		msgs, _, err := rx.rdb.XAutoClaim(ctx, &redis.XAutoClaimArgs{
 			Stream:   rx.StreamName,
 			Group:    rx.GroupName,
 			Consumer: consumerName,
@@ -202,19 +213,17 @@ func (rx *RedisWorkerGroup[T]) Subscribe(ctx context.Context, consumerName strin
 		if err != nil {
 			return fmt.Errorf("XAutoClaim error: %v", err)
 		}
-		nextId = nid
 
-		// process autoclaimed
+		// process autoclaimed messages
 		for _, msg := range msgs {
 			k1++
-			if err := processMessage(msg); err != nil {
-				//fmt.Printf("[clm]: %v\n", err)
-			}
+			processMessage(msg)
+			nextId = msg.ID
 		}
 
 		// subscribe to new: wait and fire on new, terminate after blockTime
 		fresh, err := rx.rdb.XReadGroup(ctx, &redis.XReadGroupArgs{
-			Streams:  []string{rx.StreamName, ">"}, // ">" et new
+			Streams:  []string{rx.StreamName, ">"},
 			Group:    rx.GroupName,
 			Consumer: consumerName,
 			Count:    1,
@@ -227,13 +236,11 @@ func (rx *RedisWorkerGroup[T]) Subscribe(ctx context.Context, consumerName strin
 			}
 		}
 
-		// process pending
+		// process new messages
 		for _, res := range fresh {
 			for _, msg := range res.Messages {
 				k2++
-				if err := processMessage(msg); err != nil {
-					//fmt.Printf("[new]: %v\n", err)
-				}
+				processMessage(msg)
 			}
 		}
 
@@ -265,5 +272,4 @@ func (rx *RedisWorkerGroup[T]) getMsgState(ctx context.Context, msgId, groupName
 		return pending[0].RetryCount, pending[0].Idle, nil
 	}
 	return 0, 0, fmt.Errorf("error getting retry, idle for %s", pending[0].ID)
-
 }
