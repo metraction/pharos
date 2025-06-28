@@ -3,6 +3,7 @@ package localdb
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -69,15 +70,22 @@ func (rx *PharosLocalDb) AddScanResult(ctx context.Context, result model.PharosS
 
 	// add image
 	var err error
-	var imgid uint64
-	if imgid, err = rx.AddImage(ctx, result.Image); err != nil {
+	var image_id uint64
+
+	if image_id, err = rx.AddImage(ctx, result.Image); err != nil {
 		return 0, err
 	}
+	rx.logger.Info().Any("image_id", image_id).Msg("AddImage")
+
+	if _, err = rx.AddContext(ctx, image_id, result.ScanTask.ImageSpec.Context); err != nil {
+		return 0, err
+	}
+
 	if err := rx.AddVulns(ctx, result.Vulnerabilities); err != nil {
 		return 0, err
 	}
 
-	return imgid, nil
+	return image_id, nil
 }
 
 func (rx *PharosLocalDb) AddImage(ctx context.Context, image model.PharosImageMeta) (uint64, error) {
@@ -110,6 +118,55 @@ func (rx *PharosLocalDb) AddImage(ctx context.Context, image model.PharosImageMe
 		return 0, err
 	}
 
+	return id, err
+}
+
+// add context
+func (rx *PharosLocalDb) AddContext(ctx context.Context, image_id uint64, xcontext map[string]any) (uint64, error) {
+
+	ctxStringOr := func(xc map[string]any, key, defval string) string {
+		value, ok := xc[key].(string)
+		if !ok {
+			return defval
+		}
+		return value
+	}
+
+	var err error
+	var id uint64
+	var xdata []byte
+
+	if xdata, err = json.Marshal(xcontext); err != nil {
+		return 0, err
+	}
+	// TODO: Simulate for now
+	now := time.Now().UTC()
+	expired := time.Now().Add(5 * time.Minute)
+	key := ctxStringOr(xcontext, "cluster", "no-cluster") + "/" + ctxStringOr(xcontext, "namespace", "no-namespace")
+
+	sqlcmd := `
+		insert into vdb.contexta (
+			image_id,
+			Created, Updated, Expired,
+			ContextKey, Context
+		) values (
+			?,
+			?, ?, ?,
+			?, ?
+		)
+		on conflict (ContextKey) do update set
+			updated = excluded.Updated,
+			expired = excluded.Expired
+		returning id
+	`
+
+	err = rx.db.QueryRow(sqlcmd,
+		image_id,
+		now, now, expired,
+		key, string(xdata)).Scan(&id)
+	if err != nil {
+		return 0, err
+	}
 	return id, err
 }
 
