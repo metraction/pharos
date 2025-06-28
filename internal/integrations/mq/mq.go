@@ -20,14 +20,12 @@ var ErrMsgDelete = errors.New("[handler] message delete")
 // https://redis.io/docs/latest/commands/xinfo-groups/
 type GroupStats struct {
 	StreamName string
-	StreamLen  int64 // stream current len
-	StreamMax  int64 // stream maxlen
-
-	Read    int64 // total read
-	Pending int64 // pending processed but not ACKed
-	Lag     int64 // never processed
-
-	Groups []string // group names
+	StreamLen  int64    // stream current len
+	StreamMax  int64    // stream maxlen
+	Read       int64    // total messages read
+	Pending    int64    // pending messages (processed at leased once, but not ACKed)
+	Lag        int64    // messages never processed
+	Groups     []string // consumer group names
 }
 
 // main task queue object
@@ -35,8 +33,8 @@ type RedisWorkerGroup[T any] struct {
 	RedisEndpoint string
 	StreamName    string
 	GroupName     string
-	Mode          string
-	MaxLen        int64 // stream max length
+	Mode          string // ">" or "$"
+	MaxLen        int64  // stream max length
 
 	rdb *redis.Client
 }
