@@ -97,14 +97,16 @@ func ExecuteReceiver(worker, mqEndpoint, outDir string, logger *zerolog.Logger) 
 		if x.RetryCount > 2 {
 			logger.Error().
 				Err(fmt.Errorf("%v ack & forget", x.Id)).
-				Str("_id", x.Id).Str("_job", task.JobId).Any("retry", x.RetryCount).Any("image", image).
+				Str("_id", x.Id).Str("_job", task.JobId).Any("retry", x.RetryCount).Any(" image", image).
 				Msg("max retry exceeded")
 			return nil
 		}
 
 		logger.Info().
-			Str("_id", x.Id).Str("_job", task.JobId).Any("retry", x.RetryCount).Any("image", image).
+			Str("_id", x.Id).Str("_job", task.JobId).Any("retry", x.RetryCount).Any(" image", image).
+			Str("status", result.ScanTask.Status+" "+result.ScanTask.Error).
 			Str("os", result.Image.DistroName+" "+result.Image.DistroVersion).
+			Any("vulns", len(result.Vulnerabilities)).
 			Any("findings", len(result.Findings)).
 			Any("packages", len(result.Packages)).
 			Msg("result OK")
