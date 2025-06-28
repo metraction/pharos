@@ -6,8 +6,8 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -112,7 +112,7 @@ func ExecuteSend(tasksFile, authsDsn, mqEndpoint, outDir string, scanTimeout, sc
 
 	// -----< prepare sending scan jobs >-----
 
-	images := ReadLines(tasksFile, true)
+	images := readLines(tasksFile, true)
 
 	logger.Info().
 		Str("tasks(file)", tasksFile).
@@ -130,14 +130,16 @@ func ExecuteSend(tasksFile, authsDsn, mqEndpoint, outDir string, scanTimeout, sc
 	}
 
 	for k, image := range images {
-		jobid := fmt.Sprintf("JOB-%v-%v", utils.Hostname(), k)
+		jobid := fmt.Sprintf("job-%v-%v", utils.Hostname(), k)
 		auth := model.GetMatchingAuth(image, auths)
 		task, _ := model.NewPharosScanTask(jobid, image, "", auth, scanCacheExpiry, scanTimeout)
+
+		task.ImageSpec.Context = contextGenerator()
 
 		// TODO: wait on backpressure
 		// send scan task
 		id, _ := taskMq.Publish(ctx, 1, task)
-		logger.Info().Str("id", id).Str("job", jobid).Any("image", task.ImageSpec.Image).Msg("send scan task")
+		logger.Info().Str("id", id).Str("job", jobid).Any("image", task.ImageSpec.Image).Any("context", task.ImageSpec.Context).Msg("send scan task")
 	}
 
 	stats2, err := taskMq.GroupStats(ctx, "*")
@@ -148,43 +150,6 @@ func ExecuteSend(tasksFile, authsDsn, mqEndpoint, outDir string, scanTimeout, sc
 	for k, stats := range []mq.GroupStats{stats1, stats2} {
 		ShowQueueStats(lo.Ternary(k == 0, "before", "after "), stats, logger)
 	}
-	os.Exit(0)
-	// -----< subscribe to scan results >-----
-
-	logger.Info().
-		Str("stream:group", resultMq.StreamName+":"+resultMq.GroupName).
-		Msg("wait for results ..")
-
-	// process incoming scan results
-	resultHandler := func(x mq.TaskMessage[model.PharosScanResult]) error {
-
-		if x.RetryCount > 2 {
-			logger.Error().Err(fmt.Errorf("%v: ack & forget", x.Id)) // ensure message is evicted after to many tries
-			return nil
-		}
-		r := x.Data
-		logger.Info().
-			Str("id", x.Id).
-			Str("image", r.Image.ImageSpec).
-			Str("distro", r.Image.DistroName+" "+r.Image.DistroVersion).
-			Any("findings", len(r.Findings)).
-			Any("packages", len(r.Packages)).
-			Msg("new scan result")
-
-		// save result
-		if utils.DirExists(outDir) {
-			os.WriteFile(filepath.Join(outDir, fmt.Sprintf("%v-%s-model.json", x.Id, "grype")), r.ToBytes(), 0644)
-		}
-		return nil
-	}
-
-	claimBlock := int64(5)
-	claimMinIdle := 30 * time.Second // min idle time to reclaim Non-ACKed messages
-	blockTime := 30 * time.Second    // max block time of xreadgroup
-	runTimeout := 5 * time.Minute    // terminate subscribe
-
-	resultMq.Subscribe(ctx, "alfa", claimBlock, claimMinIdle, blockTime, runTimeout, resultHandler)
-
 	logger.Info().Msg("done")
 
 }
@@ -208,7 +173,7 @@ func ParseAuths(input string) []model.PharosRepoAuth {
 }
 
 // helper: return lines of file, ignore comments
-func ReadLines(infile string, unique bool) []string {
+func readLines(infile string, unique bool) []string {
 
 	data, err := os.ReadFile(infile)
 	if err != nil {
@@ -222,5 +187,44 @@ func ReadLines(infile string, unique bool) []string {
 	if unique {
 		lines = lo.Uniq(lines)
 	}
+
 	return lines
+}
+
+// generate related contexts
+func contextGenerator() map[string]any {
+
+	ctxt := map[string]any{}
+	clusters := []string{"dev", "txt", "pre", "mte", "prd"}
+	owners := []string{"Darth Vader", "Luke Skywalker", "Han Solo", "Princess Leia", "Yoda", "Obi-Wan Kenobi", "R2-D2", "C-3PO", "Chewbacca", "Din Djarin"}
+	cities := map[string][]string{
+		"Abruzzo":        []string{"Pescara", "Aquila", "Teramo"},
+		"AostaValley":    []string{"Aosta", "Saint-Vincent", "Sarre"},
+		"Apulia":         []string{"Bari", "Taranto", "Foggia"},
+		"Basilicata":     []string{"Potenza", "Matera", "Melfi"},
+		"Calabria":       []string{"ReggioCalabria", "Catanzaro", "Lamezia Terme"},
+		"Campania":       []string{"Naples", "Salerno", "Giugliano in Campania"},
+		"Emilia-Romagna": []string{"Bologna", "Parma", "Modena"},
+		"Friuli-Venezia": []string{"Trieste", "Udine", "Pordenone"},
+		"Lazio":          []string{"Rome", "Latina", "Guidonia Montecelio"},
+		"Liguria":        []string{"Genoa", "LaSpezia", "Savona"},
+		"Lombardy":       []string{"Milan", "Brescia", "Monza"},
+		"Marche":         []string{"Ancona", "Pesaro", "Fano"},
+		"Molise":         []string{"Campobasso", "Termoli", "Isernia"},
+		"Piedmont":       []string{"Turin", "Novara", "Alessandria"},
+		"Sardinia":       []string{"Cagliari", "Sassari", "Quartu SantElena"},
+		"Sicily":         []string{"Palermo", "Catania", "Messina"},
+		"Trentino-Alto":  []string{"Bolzano", "Trento", "Merano"},
+		"Tuscany":        []string{"Florence", "Prato", "Livorno"},
+		"Umbria":         []string{"Perugia", "Terni", "Foligno"},
+		"Veneto":         []string{"Venice", "Verona", "Padua"}}
+
+	namespaces := lo.Keys(cities)
+	namespace := lo.Sample(namespaces)
+
+	ctxt["cluster"] = lo.Sample(clusters)
+	ctxt["namespace"] = namespace
+	ctxt["apps"] = lo.Samples(cities[namespace], rand.Intn(3)) // add N apps related to namespace
+	ctxt["owner"] = lo.Sample(owners)
+	return ctxt
 }

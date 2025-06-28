@@ -174,7 +174,7 @@ func ExecuteScanner(engine, worker, mqEndpoint, cacheEndpoint, outDir string, qu
 		// submit scan results
 		resultMq.Publish(ctx, 1, result)
 
-		// sace locally
+		// save locally
 		saveResults(outDir, utils.ShortDigest(result.Image.ImageId), scanner.ScannerName(), result)
 
 		return err
