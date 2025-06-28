@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/dustin/go-humanize"
@@ -128,35 +129,41 @@ func ExecuteScanner(engine, worker, mqEndpoint, cacheEndpoint, outDir string, qu
 		logger.Fatal().Str("engine", engine).Msg("Unknown scanner")
 	}
 
-	// scanning worker function
+	// scanning worker function:
+	// execute scan task, report status (errors) and result via MQ
 	scanHandler := func(x mq.TaskMessage[model.PharosScanTask]) error {
-		var err error
-		var result model.PharosScanResult
 
 		task := x.Data
 		image := task.ImageSpec.Image
+		var err error
+		var result = model.PharosScanResult{
+			ScanTask: task,
+		}
 		// ensure message is evicted after 2 tries (err=nil will ACK message)
 		if x.RetryCount > 2 {
 			logger.Error().
-				Str("id", x.Id).Str("job", task.JobId).Any("retry", x.RetryCount).Any(" image", image).
+				Any(" image", image).Str("job", task.JobId).Any("retry", x.RetryCount).Str("id", x.Id).
 				Msg("max retry exceeded")
+
+			resultMq.Publish(ctx, 1, result.SetError(fmt.Errorf("max retry exceeded %v", x.RetryCount)))
 			return nil
 		}
 
 		logger.Info().
-			Str("job", task.JobId).Any("retry", x.RetryCount).Any(" image", image).
+			Any(" image", image).Str("job", task.JobId).Any("retry", x.RetryCount).
 			Msg("ScanTask() ..")
 
 		// scan image, use cache
 		if result, _, _, err = scanner.ScanImage(task); err != nil {
 			logger.Error().Err(err).
-				Str("job", task.JobId).Any("retry", x.RetryCount).Any(" image", image).
+				Any(" image", image).Str("job", task.JobId).Any("retry", x.RetryCount).
 				Msg("ScanImage()")
+			resultMq.Publish(ctx, 1, result.SetError(err))
 			return err
 		}
 
 		logger.Info().
-			Str("job", task.JobId).Any("retry", x.RetryCount).Any(" image", image).
+			Any(" image", image).Str("job", task.JobId).Any("retry", x.RetryCount).
 			Str("os", result.Image.DistroName+" "+result.Image.DistroVersion).
 			Any("size", humanize.Bytes(result.Image.Size)).
 			Any("findings", len(result.Findings)).
@@ -166,10 +173,10 @@ func ExecuteScanner(engine, worker, mqEndpoint, cacheEndpoint, outDir string, qu
 
 		// submit scan results
 		resultMq.Publish(ctx, 1, result)
-		//logger.Info().Str("id", id).Str("job", task.JobId).Any("image", task.ImageSpec.Image).Msg("send result")
 
+		// sace locally
 		saveResults(outDir, utils.ShortDigest(result.Image.ImageId), scanner.ScannerName(), result)
-		// success
+
 		return err
 	}
 
