@@ -220,7 +220,7 @@ func (rx *RedisWorkerGroup[T]) Subscribe(ctx context.Context, consumerName strin
 	nextId := "0-0"
 	for {
 		k0 += 1
-		fmt.Printf("loop [%v] reclaim %v for %v with nextid %v\n", k0, claimBlock, consumerName, nextId)
+		//fmt.Printf("loop [%v] reclaim %v for %v with nextid %v\n", k0, claimBlock, consumerName, nextId)
 		// autoclaim
 		msgs, _, err := rx.rdb.XAutoClaim(ctx, &redis.XAutoClaimArgs{
 			Stream:   rx.StreamName,
@@ -270,8 +270,8 @@ func (rx *RedisWorkerGroup[T]) Subscribe(ctx context.Context, consumerName strin
 		}
 	}
 
-	elapsed := time.Since(startTime)
-	fmt.Printf("done after %v iterations in (%vs / %vs): claimed:%v, read:%v\n", k0, elapsed.Seconds(), runTimeout.Seconds(), k1, k2)
+	// elapsed := time.Since(startTime)
+	// fmt.Printf("done after %v iterations in (%vs / %vs): claimed:%v, read:%v\n", k0, elapsed.Seconds(), runTimeout.Seconds(), k1, k2)
 	return nil
 }
 

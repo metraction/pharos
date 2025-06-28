@@ -99,8 +99,7 @@ func ScanImage(task model.PharosScanTask, scanEngine *TrivyScanner, kvc *cache.P
 
 	}
 	result.SetStatus("done")
-	logger.Info().
-		Str("key", key).
+	logger.Debug().
 		Str("cache", cacheState).
 		Any("t.scan_timeout", task.Timeout.String()).
 		Any("t.cache_expiry", task.ImageSpec.CacheExpiry.String()).

@@ -7,6 +7,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/dustin/go-humanize"
 	"github.com/metraction/pharos/internal/integrations"
 	"github.com/metraction/pharos/internal/integrations/cache"
 	"github.com/metraction/pharos/internal/integrations/mq"
@@ -129,37 +130,37 @@ func ExecuteScanner(engine, worker, mqEndpoint, cacheEndpoint, outDir string, qu
 
 	// scanning worker function
 	scanHandler := func(x mq.TaskMessage[model.PharosScanTask]) error {
-
 		var err error
 		var result model.PharosScanResult
 
 		task := x.Data
 		image := task.ImageSpec.Image
-
 		// ensure message is evicted after 2 tries (err=nil will ACK message)
 		if x.RetryCount > 2 {
 			logger.Error().
-				Str("id", x.Id).Str("job", task.JobId).Any("retry", x.RetryCount).Any("image", image).
+				Str("id", x.Id).Str("job", task.JobId).Any("retry", x.RetryCount).Any(" image", image).
 				Msg("max retry exceeded")
 			return nil
 		}
 
 		logger.Info().
-			Str("job", task.JobId).Any("retry", x.RetryCount).Any("image", image).
+			Str("job", task.JobId).Any("retry", x.RetryCount).Any(" image", image).
 			Msg("ScanTask() ..")
 
 		// scan image, use cache
 		if result, _, _, err = scanner.ScanImage(task); err != nil {
 			logger.Error().Err(err).
-				Str("job", task.JobId).Any("retry", x.RetryCount).Any("image", image).
+				Str("job", task.JobId).Any("retry", x.RetryCount).Any(" image", image).
 				Msg("ScanImage()")
 			return err
 		}
 
 		logger.Info().
-			Str("job", task.JobId).Any("retry", x.RetryCount).Any("image", image).
+			Str("job", task.JobId).Any("retry", x.RetryCount).Any(" image", image).
 			Str("os", result.Image.DistroName+" "+result.Image.DistroVersion).
+			Any("size", humanize.Bytes(result.Image.Size)).
 			Any("findings", len(result.Findings)).
+			Any("vulns", len(result.Vulnerabilities)).
 			Any("packages", len(result.Packages)).
 			Msg("ScanTask() OK")
 
