@@ -128,7 +128,7 @@ func ExecuteReceiver(worker, dbEndpoint, mqEndpoint, outDir string, logger *zero
 		if _, err := dbx.AddScanResult(ctx, result); err != nil {
 			logger.Error().Err(err).Msg("AddScanResult")
 		}
-		logger.Info().Any("elapsed", elapsed().Milliseconds()).Msg("db.insert")
+		logger.Info().Any("elapsed(ms)", elapsed().Milliseconds()).Msg("db.insert")
 		// process result
 		saveResults(outDir, utils.ShortDigest(result.Image.ImageId), result.ScanEngine.Name, result)
 

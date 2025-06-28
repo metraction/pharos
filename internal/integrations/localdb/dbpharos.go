@@ -75,6 +75,20 @@ func InitPharosDb(execer driver.ExecerContext) error {
             Description         text,
         )`,
 		`create unique index if not exists vulns_advisory_idx on vdb.vulns (AdvId,AdvSource)`,
+
+		// BaseContext
+		`create sequence if not exists contexta_id start 1`,
+		`create table if not exists vdb.contexta (
+            id                  uint64 primary key default nextval('contexta_id'),
+            image_id            uint64,
+            Created             timestamptz,
+            Updated             timestamptz,
+            Expired             timestamptz,    
+            ContextKey          text,
+            Context             json,
+            foreign key (image_id) references vdb.images(id)
+        )`,
+		`create unique index if not exists contexta_key_idx on vdb.contexta (ContextKey)`,
 	}
 	for _, sql := range cmds {
 		_, err = execer.ExecContext(context.Background(), sql, nil)
