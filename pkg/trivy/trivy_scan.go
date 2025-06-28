@@ -7,8 +7,8 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/metraction/pharos/internal/integrations/cache"
 	"github.com/metraction/pharos/internal/utils"
+	"github.com/metraction/pharos/pkg/images"
 	"github.com/metraction/pharos/pkg/model"
-	"github.com/metraction/pharos/pkg/scanning"
 	"github.com/metraction/pharos/pkg/trivytype"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
@@ -39,7 +39,7 @@ func ScanImage(task model.PharosScanTask, scanEngine *TrivyScanner, kvc *cache.P
 
 	// get manifestDigest to have a platform unique key for caching
 	result.SetStatus("get-digest")
-	indexDigest, manifestDigest, err := scanning.GetImageDigests(task)
+	indexDigest, manifestDigest, err := images.GetImageDigests(task)
 	if err != nil {
 		return result.SetError(err), nil, nil, err
 	}

@@ -29,6 +29,10 @@ type TrivyScanner struct {
 	logger *zerolog.Logger
 }
 
+func (rx *TrivyScanner) ScannerName() string {
+	return "trivy"
+}
+
 // create trivy scanner
 func NewTrivyScanner(scanTimeout time.Duration, updateDb bool, logger *zerolog.Logger) (*TrivyScanner, error) {
 

@@ -1,4 +1,4 @@
-package scanning
+package images
 
 import (
 	"fmt"
