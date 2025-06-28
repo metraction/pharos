@@ -131,7 +131,7 @@ func (rx *TrivySbomCreator) CreateSbom(task model.PharosScanTask, format string)
 		Str("distro", "N/A").
 		Any("size", humanize.Bytes(uint64(len(data)))).
 		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).
-		Msg("CreateSbom() OK")
+		Msg("MakeSbom() OK")
 
 	return sbom, data, nil
 }

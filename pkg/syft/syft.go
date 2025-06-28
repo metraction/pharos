@@ -69,7 +69,7 @@ func (rx *SyftSbomCreator) CreateSbom(task model.PharosScanTask, format string) 
 		Str("platform", platform).
 		Bool("tlsCheck", auth.TlsCheck).
 		Str("format", format).
-		Msg("CreateSbom() ..")
+		Msg("MakeSbom() ..")
 
 	var err error
 	var stdout, stderr bytes.Buffer
@@ -99,7 +99,7 @@ func (rx *SyftSbomCreator) CreateSbom(task model.PharosScanTask, format string) 
 			rx.logger.Debug().
 				Str("authority", auth.Authority).
 				Str("user", auth.Username).
-				Msg("CreateSbom() user auth")
+				Msg("MakeSbom() user auth")
 
 			cmd.Env = append(cmd.Env, "SYFT_REGISTRY_AUTH_USERNAME="+auth.Username)
 			cmd.Env = append(cmd.Env, "SYFT_REGISTRY_AUTH_PASSWORD="+auth.Password)
@@ -107,7 +107,7 @@ func (rx *SyftSbomCreator) CreateSbom(task model.PharosScanTask, format string) 
 			rx.logger.Debug().
 				Str("authority", auth.Authority).
 				Str("token", auth.Token).
-				Msg("CreateSbom() token auth")
+				Msg("MakeSbom() token auth")
 			cmd.Env = append(cmd.Env, "SYFT_REGISTRY_AUTH_TOKEN="+auth.Token)
 		}
 	}
@@ -141,7 +141,7 @@ func (rx *SyftSbomCreator) CreateSbom(task model.PharosScanTask, format string) 
 		Str("distro", sbom.Distro.Name).
 		Any("size", humanize.Bytes(uint64(len(data)))).
 		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).
-		Msg("CreateSbom() OK")
+		Msg("MakeSbom() OK")
 
 	return sbom, data, nil
 }

@@ -180,7 +180,7 @@ func (rx *TrivyScanner) VulnScanSbom(sbom []byte) (trivytype.TrivyScanType, []by
 		return trivytype.TrivyScanType{}, nil, err
 	}
 
-	rx.logger.Info().
+	rx.logger.Debug().
 		Str("image", "").
 		Str("type", scan.ArtifactType).
 		Any("matches", len(scan.ListVulnerabilities())).

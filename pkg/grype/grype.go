@@ -203,7 +203,7 @@ func (rx *GrypeScanner) VulnScanSbom(sbom []byte) (grypetype.GrypeScanType, []by
 		return grypetype.GrypeScanType{}, nil, err
 	}
 
-	rx.logger.Info().
+	rx.logger.Debug().
 		Str("image", result.Source.Target.UserInput).
 		Str("type", result.Type).
 		Any("matches", len(result.Matches)).
