@@ -13,6 +13,7 @@ import (
 
 	"github.com/metraction/pharos/internal/integrations"
 	"github.com/metraction/pharos/internal/integrations/mq"
+	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/internal/utils"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/metraction/pharos/scanner/config"
@@ -32,6 +33,7 @@ var ReceiverArgs = ReceiverArgsType{}
 
 func init() {
 	rootCmd.AddCommand(receiverCmd)
+	logger = logging.NewLogger(RootArgs.LogLevel)
 
 	receiverCmd.Flags().StringVar(&ReceiverArgs.OutDir, "outdir", EnvOrDefault("outdir", ""), "Output directory for results")
 	receiverCmd.Flags().StringVar(&ReceiverArgs.Worker, "worker", EnvOrDefault("worker", ""), "receiver worker name (consumer)")

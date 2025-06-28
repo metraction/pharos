@@ -5,12 +5,12 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/metraction/pharos/internal/integrations"
 	"github.com/metraction/pharos/internal/integrations/cache"
 	"github.com/metraction/pharos/internal/integrations/mq"
+	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/internal/utils"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/metraction/pharos/pkg/scanning"
@@ -25,6 +25,7 @@ type ScannerArgsType = struct {
 	Engine string // scan engine to use
 	Worker string // scanner consumer name (MQ)
 
+	QueueMax      string // task queue max size
 	MqEndpoint    string // redis://user:pwd@localhost:6379/1
 	CacheEndpoint string
 }
@@ -37,9 +38,10 @@ func init() {
 	scannerCmd.Flags().StringVar(&ScannerArgs.OutDir, "outdir", EnvOrDefault("outdir", ""), "Output directory for results")
 	scannerCmd.Flags().StringVar(&ScannerArgs.Engine, "engine", EnvOrDefault("engine", ""), "Scan engine [grype,trivy]")
 	scannerCmd.Flags().StringVar(&ScannerArgs.Worker, "worker", EnvOrDefault("worker", ""), "scanner worker name (consumer)")
+	scannerCmd.Flags().StringVar(&ScannerArgs.QueueMax, "queue_max", EnvOrDefault("queue_max", "1000"), "redis max queue stream size")
 
 	scannerCmd.Flags().StringVar(&ScannerArgs.MqEndpoint, "mq_endpoint", EnvOrDefault("mq_endpoint", ""), "Redis message queue, e.g. redis://:pwd@localhost:6379/1")
-	scannerCmd.Flags().StringVar(&ScannerArgs.CacheEndpoint, "cache_endpoint", EnvOrDefault("cache_endpoint", ""), "Redis message queue, e.g. redis://:pwd@localhost:6379/1")
+	scannerCmd.Flags().StringVar(&ScannerArgs.CacheEndpoint, "cache_endpoint", EnvOrDefault("cache_endpoint", ""), "Redis cache, e.g. redis://:pwd@localhost:6379/0")
 
 }
 
@@ -50,18 +52,23 @@ var scannerCmd = &cobra.Command{
 	Long:  `Execute scan tasks from MQ`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		ExecuteScanner(ScannerArgs.Engine, ScannerArgs.Worker, ScannerArgs.MqEndpoint, ScannerArgs.CacheEndpoint, ScannerArgs.OutDir, logger)
+		logger = logging.NewLogger(RootArgs.LogLevel)
+
+		queueMaxLen := utils.ToNumOr[int64](ScannerArgs.QueueMax, 1000)
+
+		ExecuteScanner(ScannerArgs.Engine, ScannerArgs.Worker, ScannerArgs.MqEndpoint, ScannerArgs.CacheEndpoint, ScannerArgs.OutDir, queueMaxLen, logger)
 
 	},
 }
 
-func ExecuteScanner(engine, worker, mqEndpoint, cacheEndpoint, outDir string, logger *zerolog.Logger) {
+func ExecuteScanner(engine, worker, mqEndpoint, cacheEndpoint, outDir string, queueMaxLen int64, logger *zerolog.Logger) {
 
 	logger.Info().Msg("-----< Scanner sender >-----")
 	logger.Info().
 		Str("engine", engine).
 		Str("worker", worker).
 		Str("mq_endpoint", utils.MaskDsn(mqEndpoint)).
+		Any("queue_max", queueMaxLen).
 		Str("cache_endpoint", utils.MaskDsn(cacheEndpoint)).
 		Str("outdir", outDir).
 		Msg("")
@@ -82,10 +89,10 @@ func ExecuteScanner(engine, worker, mqEndpoint, cacheEndpoint, outDir string, lo
 	var resultMq *mq.RedisWorkerGroup[model.PharosScanResult] // send scan results
 	var kvCache *cache.PharosCache                            // sbom cache
 
-	if taskMq, err = mq.NewRedisWorkerGroup[model.PharosScanTask](ctx, mqEndpoint, "$", config.RedisTaskStream, "task-group", config.RedisTaskStreamMaxLen); err != nil {
+	if taskMq, err = mq.NewRedisWorkerGroup[model.PharosScanTask](ctx, mqEndpoint, "$", config.RedisTaskStream, "task-group", queueMaxLen); err != nil {
 		logger.Fatal().Err(err).Msg("NewRedisWorkerGroup")
 	}
-	if resultMq, err = mq.NewRedisWorkerGroup[model.PharosScanResult](ctx, mqEndpoint, "$", config.RedisResultStream, "result-group", config.RedisTaskStreamMaxLen); err != nil {
+	if resultMq, err = mq.NewRedisWorkerGroup[model.PharosScanResult](ctx, mqEndpoint, "$", config.RedisResultStream, "result-group", queueMaxLen); err != nil {
 		logger.Fatal().Err(err).Msg("NewRedisWorkerGroup")
 	}
 	if kvCache, err = cache.NewPharosCache(cacheEndpoint, logger); err != nil {
@@ -132,33 +139,33 @@ func ExecuteScanner(engine, worker, mqEndpoint, cacheEndpoint, outDir string, lo
 		// ensure message is evicted after 2 tries (err=nil will ACK message)
 		if x.RetryCount > 2 {
 			logger.Error().
-				Err(fmt.Errorf("%v ack & forget", x.Id)).Str("_id", x.Id).Str("_job", task.JobId).Any("retry", x.RetryCount).Any("image", image).
+				Str("id", x.Id).Str("job", task.JobId).Any("retry", x.RetryCount).Any("image", image).
 				Msg("max retry exceeded")
 			return nil
 		}
 
 		logger.Info().
-			Str("_id", x.Id).Str("_job", task.JobId).Any("retry", x.RetryCount).Any("image", image).
-			Msg("scan task ")
+			Str("job", task.JobId).Any("retry", x.RetryCount).Any("image", image).
+			Msg("ScanTask() ..")
 
 		// scan image, use cache
 		if result, _, _, err = scanner.ScanImage(task); err != nil {
 			logger.Error().Err(err).
-				Str("_id", x.Id).Str("_job", task.JobId).Any("retry", x.RetryCount).Any("image", image).
-				Msg("scan error")
+				Str("job", task.JobId).Any("retry", x.RetryCount).Any("image", image).
+				Msg("ScanImage()")
 			return err
 		}
 
 		logger.Info().
-			Str("_id", x.Id).Str("_job", task.JobId).Any("retry", x.RetryCount).Any("image", image).
+			Str("job", task.JobId).Any("retry", x.RetryCount).Any("image", image).
 			Str("os", result.Image.DistroName+" "+result.Image.DistroVersion).
 			Any("findings", len(result.Findings)).
 			Any("packages", len(result.Packages)).
-			Msg("scan OK")
+			Msg("ScanTask() OK")
 
 		// submit scan results
-		id, _ := resultMq.Publish(ctx, 1, result)
-		logger.Info().Str("id", id).Str("job", task.JobId).Any("image", task.ImageSpec.Image).Msg("send result")
+		resultMq.Publish(ctx, 1, result)
+		//logger.Info().Str("id", id).Str("job", task.JobId).Any("image", task.ImageSpec.Image).Msg("send result")
 
 		saveResults(outDir, utils.ShortDigest(result.Image.ImageId), scanner.ScannerName(), result)
 		// success

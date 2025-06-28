@@ -6,6 +6,7 @@ package cmd
 import (
 	"time"
 
+	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/pkg/grype"
 	"github.com/metraction/pharos/pkg/trivy"
 	"github.com/rs/zerolog"
@@ -24,6 +25,8 @@ var UpdateArgs = UpdateArgsType{}
 // define command line arguments
 func init() {
 	rootCmd.AddCommand(updateCmd)
+
+	logger = logging.NewLogger(RootArgs.LogLevel)
 
 	updateCmd.Flags().StringVar(&UpdateArgs.ScanEngine, "engine", EnvOrDefault("engine", ""), "Scan engine to use [grype,trivy]")
 	updateCmd.Flags().StringVar(&UpdateArgs.ScanTimeout, "scan_timeout", EnvOrDefault("scan_timeout", "180s"), "Scan timeout")

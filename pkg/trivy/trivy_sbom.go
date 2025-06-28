@@ -49,7 +49,7 @@ func NewTrivySbomCreator(timeout time.Duration, logger *zerolog.Logger) (*TrivyS
 		logger:       logger,
 	}
 
-	logger.Info().
+	logger.Debug().
 		Any("timeout", generator.Timeout.String()).
 		Msg("NewTrivySbomCreator() ready")
 	return &generator, nil
@@ -62,7 +62,7 @@ func (rx *TrivySbomCreator) CreateSbom(task model.PharosScanTask, format string)
 	imageRef := task.ImageSpec.Image
 	platform := task.ImageSpec.Platform
 
-	rx.logger.Info().
+	rx.logger.Debug().
 		Str("image", imageRef).
 		Str("platform", platform).
 		Bool("tlsCheck", auth.TlsCheck).
@@ -93,7 +93,7 @@ func (rx *TrivySbomCreator) CreateSbom(task model.PharosScanTask, format string)
 	// Authentication
 	if auth.HasAuth(imageRef) {
 		if auth.Username != "" {
-			rx.logger.Info().
+			rx.logger.Debug().
 				Str("authority", auth.Authority).
 				Str("user", auth.Username).
 				Msg("Add user authenication")

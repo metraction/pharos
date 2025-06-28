@@ -165,7 +165,7 @@ func (rx *GrypeScanner) UpdateDatabase() error {
 // scan cyclondex sbom with grype
 func (rx *GrypeScanner) VulnScanSbom(sbom []byte) (grypetype.GrypeScanType, []byte, error) {
 
-	rx.logger.Info().
+	rx.logger.Debug().
 		Any("scan_timeout", rx.ScanTimeout.String()).
 		Msg("VulnScanSbom() ..")
 
@@ -204,6 +204,7 @@ func (rx *GrypeScanner) VulnScanSbom(sbom []byte) (grypetype.GrypeScanType, []by
 	}
 
 	rx.logger.Info().
+		Str("image", result.Source.Target.UserInput).
 		Str("type", result.Type).
 		Any("matches", len(result.Matches)).
 		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).

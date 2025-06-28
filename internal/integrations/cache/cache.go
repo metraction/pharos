@@ -19,14 +19,14 @@ var ErrKeyNotFound = errors.New("key not found")
 type PharosCache struct {
 	Endpoint string
 
-	client *redis.Client
+	rdb    *redis.Client
 	packer *utils.ZStd
 	logger *zerolog.Logger
 }
 
 func NewPharosCache(endpoint string, logger *zerolog.Logger) (*PharosCache, error) {
 
-	logger.Info().
+	logger.Debug().
 		Msg("NewPharosCache() ..")
 
 	packer, err := utils.NewZStd()
@@ -43,7 +43,7 @@ func NewPharosCache(endpoint string, logger *zerolog.Logger) (*PharosCache, erro
 	return &PharosCache{
 		Endpoint: endpoint,
 		packer:   packer,
-		client:   client,
+		rdb:      client,
 		logger:   logger,
 	}, nil
 }
@@ -54,23 +54,47 @@ func (rx PharosCache) ServiceName() string {
 
 func (rx *PharosCache) Connect(ctx context.Context) error {
 
-	if err := rx.client.Ping(ctx).Err(); err != nil {
+	if err := rx.rdb.Ping(ctx).Err(); err != nil {
 		return fmt.Errorf("redis connect (ping): %v", err)
 	}
 	return nil
 }
 
 func (rx *PharosCache) CheckConnected(ctx context.Context) error {
-	return rx.client.Ping(ctx).Err()
+	return rx.rdb.Ping(ctx).Err()
 }
 func (rx *PharosCache) Close() {
-	if rx.client != nil {
-		rx.client.Close()
+	if rx.rdb != nil {
+		rx.rdb.Close()
 	}
 }
 
+// retrieve memory usage
+func (rx *PharosCache) UsedMemory(ctx context.Context) (string, string, string) {
+
+	memUsed := "N/A"
+	memPeak := "N/A"
+	memSystem := "N/A"
+
+	if info, err := rx.rdb.Info(ctx, "memory").Result(); err == nil {
+		for _, line := range strings.Split(info, "\n") {
+			var parts []string
+			line = strings.TrimSpace(line)
+			if parts = strings.Split(line, "used_memory_human:"); len(parts) == 2 {
+				memUsed = parts[1]
+			}
+			if parts = strings.Split(line, "used_memory_peak_human:"); len(parts) == 2 {
+				memPeak = parts[1]
+			}
+			if parts = strings.Split(line, "total_system_memory_human:"); len(parts) == 2 {
+				memSystem = parts[1]
+			}
+		}
+	}
+	return memUsed, memPeak, memSystem
+}
 func (rx PharosCache) Version(ctx context.Context) string {
-	info, err := rx.client.Info(ctx, "server").Result()
+	info, err := rx.rdb.Info(ctx, "server").Result()
 	if err != nil {
 		return ""
 	}
@@ -95,7 +119,7 @@ func (rx PharosCache) UnPack(data []byte) ([]byte, error) {
 }
 
 func (rx PharosCache) Get(ctx context.Context, key string) ([]byte, error) {
-	result, err := rx.client.Get(ctx, key).Result()
+	result, err := rx.rdb.Get(ctx, key).Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
 			// key not found
@@ -109,10 +133,10 @@ func (rx PharosCache) Get(ctx context.Context, key string) ([]byte, error) {
 
 // set key and expire.
 func (rx PharosCache) SetExpire(ctx context.Context, key string, data []byte, ttl time.Duration) error {
-	return rx.client.Set(ctx, key, data, ttl).Err()
+	return rx.rdb.Set(ctx, key, data, ttl).Err()
 }
 func (rx PharosCache) SetExpirePack(ctx context.Context, key string, data []byte, ttl time.Duration) error {
-	return rx.client.Set(ctx, key, rx.Pack(data), ttl).Err()
+	return rx.rdb.Set(ctx, key, rx.Pack(data), ttl).Err()
 }
 
 // get key and expire
@@ -122,7 +146,7 @@ func (rx PharosCache) GetExpire(ctx context.Context, key string, ttl time.Durati
 		return nil, err
 	}
 	if ttl > 0 {
-		if err := rx.client.Expire(ctx, key, ttl).Err(); err != nil {
+		if err := rx.rdb.Expire(ctx, key, ttl).Err(); err != nil {
 			return nil, err
 		}
 	}
