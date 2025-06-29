@@ -19,14 +19,14 @@ var ErrMsgDelete = errors.New("[handler] message delete")
 
 // https://redis.io/docs/latest/commands/xinfo-groups/
 type GroupStats struct {
-	StreamName   string
-	StreamLen    int64    // stream current len
-	StreamMax    int64    // stream maxlen
-	Read         int64    // total messages read
-	Pending      int64    // pending messages (processed at leased once, but not ACKed)
-	Lag          int64    // messages never processed
-	BackPressure float64  // return indicator of unfinished work or default on 1) error or 2) unlimited stream length
-	Groups       []string // consumer group names
+	StreamName string
+	StreamLen  int64 // stream current len
+	StreamMax  int64 // stream maxlen
+	Read       int64 // total messages read
+	Pending    int64 // pending messages (processed at leased once, but not ACKed)
+	Lag        int64 // messages never processed
+	//BackPressure float64  // return indicator of unfinished work or default on 1) error or 2) unlimited stream length
+	Groups []string // consumer group names
 }
 
 func (rx *GroupStats) BackPressureOr(defval float64) float64 {
@@ -186,6 +186,14 @@ func (rx *RedisWorkerGroup[T]) GroupStats(ctx context.Context, groupName string)
 		result.StreamLen = length
 	}
 	return result, nil
+}
+
+func (rx *RedisWorkerGroup[T]) PressureOr(ctx context.Context, defval float64) float64 {
+	stats, err := rx.GroupStats(ctx, rx.GroupName)
+	if err != nil {
+		return defval
+	}
+	return stats.BackPressureOr(defval)
 }
 
 // subscribe worker to new and pending tasks

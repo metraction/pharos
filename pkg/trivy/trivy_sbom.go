@@ -60,7 +60,7 @@ func (rx *TrivySbomCreator) CreateSbom(task model.PharosScanTask, format string)
 
 	auth := task.Auth
 	imageRef := task.ImageSpec.Image
-	platform := task.ImageSpec.Platform
+	platform := task.ImageSpec.Platform //lo.CoalesceOrEmpty(task.ImageSpec.Platform, "linux/amd64")
 
 	rx.logger.Debug().
 		Str("image", imageRef).

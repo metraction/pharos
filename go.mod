@@ -59,6 +59,7 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.9 // indirect
 	github.com/marcboeker/go-duckdb v1.8.5 // indirect
+	github.com/mattn/go-sqlite3 v1.14.28 // indirect
 	github.com/otiai10/copy v1.14.1 // indirect
 	github.com/otiai10/mint v1.6.3 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect

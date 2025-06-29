@@ -7,6 +7,18 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestGetMatchingAuthDsn(t *testing.T) {
+
+	authDSNs := []string{
+		"registry://me:secret@docker.io",
+		"registry://me:secret@artifactory.internal",
+		"registry://me:secret@exploit.nsa",
+	}
+	images := []string{"exploit.nsa", "artifactory.internal", "docker.io"}
+	for k, host := range []string{"exploit.nsa", "artifactory.internal", "docker.io"} {
+
+}
+
 func TestGetMatchingAuth(t *testing.T) {
 
 	repos := []string{

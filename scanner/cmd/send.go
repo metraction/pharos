@@ -25,12 +25,9 @@ import (
 // command line arguments of command
 type SendArgsType = struct {
 	Tasks  string // file with scan tasks to send
-	Auths  string // file with auth DSNs to user
 	OutDir string // results dump dir
 
-	MqEndpoint  string // redis://user:pwd@localhost:6379/1
-	ScanTimeout string // max scan duration
-	CacheExpiry string // sbom cache expiry
+	MqEndpoint string // redis://user:pwd@localhost:6379/1
 
 }
 
@@ -40,11 +37,7 @@ func init() {
 	rootCmd.AddCommand(sendCmd)
 
 	sendCmd.Flags().StringVar(&SendArgs.Tasks, "tasks", EnvOrDefault("tasks", ""), "file with images for scantasks")
-	sendCmd.Flags().StringVar(&SendArgs.Auths, "auths", EnvOrDefault("auths", ""), "repo auth DSNs (registry://usr:pwd@docker.io registry://usr:pwd@google.com)")
 	sendCmd.Flags().StringVar(&SendArgs.OutDir, "outdir", EnvOrDefault("outdir", ""), "Output directory for results")
-
-	sendCmd.Flags().StringVar(&SendArgs.ScanTimeout, "scan_timeout", EnvOrDefault("scan_timeout", "3m"), "Scanner timeout")
-	sendCmd.Flags().StringVar(&SendArgs.CacheExpiry, "cache_expiry", EnvOrDefault("cache_expiry", "1h"), "Redis sbom cache expiry")
 	sendCmd.Flags().StringVar(&SendArgs.MqEndpoint, "mq_endpoint", EnvOrDefault("mq_endpoint", ""), "Redis message queue, e.g. redis://:pwd@localhost:6379/1")
 
 }
@@ -58,25 +51,19 @@ var sendCmd = &cobra.Command{
 
 		logger = logging.NewLogger(RootArgs.LogLevel)
 
-		cacheExpiry := utils.DurationOr(SendArgs.CacheExpiry, 90*time.Second)
-		scanTimeout := utils.DurationOr(SendArgs.ScanTimeout, 180*time.Second)
-
-		ExecuteSend(SendArgs.Tasks, SendArgs.Auths, SendArgs.MqEndpoint, SendArgs.OutDir, scanTimeout, cacheExpiry, logger)
+		ExecuteSend(SendArgs.Tasks, SendArgs.MqEndpoint, SendArgs.OutDir, logger)
 
 	},
 }
 
-func ExecuteSend(tasksFile, authsDsn, mqEndpoint, outDir string, scanTimeout, scanCacheExpiry time.Duration, logger *zerolog.Logger) {
+func ExecuteSend(tasksFile, mqEndpoint, outDir string, logger *zerolog.Logger) {
 
-	auths := ParseAuths(authsDsn)
+	//auths := ParseAuths(authsDsn)
 
 	logger.Info().Msg("-----< Scan sender >-----")
 	logger.Info().
 		Str("mq_endpoint", utils.MaskDsn(mqEndpoint)).
 		Str("tasks", tasksFile).
-		Any("auths", len(auths)).
-		Str("cache_expiry", scanCacheExpiry.String()).
-		Str("scan_timeout", scanTimeout.String()).
 		Str("outdir", outDir).
 		Msg("")
 
@@ -86,29 +73,21 @@ func ExecuteSend(tasksFile, authsDsn, mqEndpoint, outDir string, scanTimeout, sc
 	}
 	// initialize
 	ctx := context.Background()
-
 	var err error
-	var taskMq *mq.RedisWorkerGroup[model.PharosScanTask]     // send scan tasks
-	var resultMq *mq.RedisWorkerGroup[model.PharosScanResult] // send scan results
+	var taskMq *mq.RedisWorkerGroup[model.PharosScanTask2] // send scan tasks
 
-	if taskMq, err = mq.NewRedisWorkerGroup[model.PharosScanTask](ctx, mqEndpoint, "$", config.RedisTaskStream, "task-group", config.RedisTaskStreamMaxLen); err != nil {
-		logger.Fatal().Err(err).Msg("NewRedisWorkerGroup")
-	}
-	if resultMq, err = mq.NewRedisWorkerGroup[model.PharosScanResult](ctx, mqEndpoint, "$", config.RedisResultStream, "result-group", config.RedisTaskStreamMaxLen); err != nil {
+	if taskMq, err = mq.NewRedisWorkerGroup[model.PharosScanTask2](ctx, mqEndpoint, "$", config.RedisTaskStream, "task-group", config.RedisTaskStreamMaxLen); err != nil {
 		logger.Fatal().Err(err).Msg("NewRedisWorkerGroup")
 	}
 	defer taskMq.Close()
-	defer resultMq.Close()
 
 	// try connect 3x with 3 sec sleep to account for startup delays of required pods/services
-	if err := integrations.TryConnectServices(ctx, 3, 3*time.Second, []integrations.ServiceInterface{taskMq, resultMq}, logger); err != nil {
+	if err := integrations.TryConnectServices(ctx, 3, 3*time.Second, []integrations.ServiceInterface{taskMq}, logger); err != nil {
 		logger.Fatal().Err(err).Msg("services connect")
 	}
 	logger.Info().Msg("services connect OK")
 
-	// ensure stream groups are present
-	taskMq.CreateGroup(ctx)
-	resultMq.CreateGroup(ctx)
+	taskMq.CreateGroup(ctx) // ensure stream groups are present
 
 	// -----< prepare sending scan jobs >-----
 
@@ -129,17 +108,74 @@ func ExecuteSend(tasksFile, authsDsn, mqEndpoint, outDir string, scanTimeout, sc
 		logger.Fatal().Err(err).Msg("taskMq.GroupStats")
 	}
 
-	for k, image := range images {
-		jobid := fmt.Sprintf("job-%v-%v", utils.Hostname(), k)
-		auth := model.GetMatchingAuth(image, auths)
-		task, _ := model.NewPharosScanTask(jobid, image, "", auth, scanCacheExpiry, scanTimeout)
+	// submit scan requests for all images in list
+	// set <auth> and <platform> for all images following settings like
+	// # auth: registry://<user>:<pwd>@repo.host.lan
+	// # platform: linux/amd64
+	// # cachettl: 60m
+	// # scanttl: 3m
+	// # backpressure: 0.1
+	auth := ""
+	platform := "linux/amd64"
+	cacheTTL := "60m"
+	scanTTL := "3m"
+	maxpressure := "0.1"
+	count := 0
+	var pressure float64
 
-		task.ImageSpec.Context = contextGenerator()
+	for _, line := range images {
+		if strings.HasPrefix(line, "#") {
+			auth = os.ExpandEnv(utils.RightOfPrefixOr(line, "# auth:", auth))
+			platform = os.ExpandEnv(utils.RightOfPrefixOr(line, "# platform:", platform))
+			cacheTTL = os.ExpandEnv(utils.RightOfPrefixOr(line, "# cachettl:", cacheTTL))
+			scanTTL = os.ExpandEnv(utils.RightOfPrefixOr(line, "# scanttl:", scanTTL))
+			maxpressure = os.ExpandEnv(utils.RightOfPrefixOr(line, "# maxpressure:", maxpressure))
+			continue
+		}
+		count++
+		task := model.PharosScanTask2{
+			JobId:     fmt.Sprintf("job-%v-%v", utils.Hostname(), count),
+			Status:    "new",
+			Error:     "",
+			AuthDsn:   auth,
+			ImageSpec: line,
+			Platform:  platform,
+			ScanTTL:   utils.DurationOr(scanTTL, 3*time.Minute),
+			CacheTTL:  utils.DurationOr(cacheTTL, 15*time.Minute),
+			Context:   contextGenerator(),
+		}
+		utils.SetPath(task.Context, "scan/jobid", task.JobId)
 
-		// TODO: wait on backpressure
-		// send scan task
-		id, _ := taskMq.Publish(ctx, 1, task)
-		logger.Info().Str("id", id).Str("job", jobid).Any("image", task.ImageSpec.Image).Any("context", task.ImageSpec.Context).Msg("send scan task")
+		// wait on queue backpressure
+		for {
+			pressure = taskMq.PressureOr(ctx, 0)
+			if pressure < utils.ToNumOr[float64](maxpressure, 0) {
+				break
+			}
+			sleep := 10 * time.Second
+			logger.Error().
+				Any("pressure", pressure).
+				Any("maxpressure", maxpressure).
+				Any("sleep", sleep.String()).
+				Msg("queue backpressure")
+			time.Sleep(sleep)
+		}
+		// send
+		id, err := taskMq.Publish(ctx, 1, task)
+
+		logger.Info().
+			// Str(" auth", utils.MaskDsn(task.AuthDsn)).
+			Any("err", err).
+			Str(" platform", task.Platform).
+			Str(" cacheTTL", task.CacheTTL.String()).
+			Str(" scanTTL", task.ScanTTL.String()).
+			Str("image", task.ImageSpec).
+			Any(".ns", utils.PropOr(task.Context, "namespace", "none")).
+			Any(".cluster", utils.PropOr(task.Context, "cluster", "none")).
+			Any("preassure", pressure).
+			Any("id", id).
+			Msg(task.JobId)
+
 	}
 
 	stats2, err := taskMq.GroupStats(ctx, "*")
@@ -184,9 +220,6 @@ func readLines(infile string, unique bool) []string {
 	// trim and remove empty lines
 	lines = lo.Map(lines, func(x string, k int) string { return strings.TrimSpace(x) })
 	lines = lo.Filter(lines, func(x string, k int) bool { return x != "" })
-	if unique {
-		lines = lo.Uniq(lines)
-	}
 
 	return lines
 }

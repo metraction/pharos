@@ -136,6 +136,9 @@ func ExecuteScanner(engine, worker, mqEndpoint, cacheEndpoint, outDir string, qu
 		task := x.Data
 		image := task.ImageSpec.Image
 		var err error
+		var sbom []byte
+		var scan []byte
+
 		var result = model.PharosScanResult{
 			ScanTask: task,
 		}
@@ -154,7 +157,7 @@ func ExecuteScanner(engine, worker, mqEndpoint, cacheEndpoint, outDir string, qu
 			Msg("ScanTask() ..")
 
 		// scan image, use cache
-		if result, _, _, err = scanner.ScanImage(task); err != nil {
+		if result, sbom, scan, err = scanner.ScanImage(task); err != nil {
 			logger.Error().Err(err).
 				Any(" image", image).Str("job", task.JobId).Any("retry", x.RetryCount).
 				Msg("ScanImage()")
@@ -175,7 +178,8 @@ func ExecuteScanner(engine, worker, mqEndpoint, cacheEndpoint, outDir string, qu
 		resultMq.Publish(ctx, 1, result)
 
 		// save locally
-		saveResults(outDir, utils.ShortDigest(result.Image.ImageId), scanner.ScannerName(), result)
+		saveResults(outDir, utils.ShortDigest(result.Image.ImageId), result.ScanEngine.Name, "sbom", sbom)
+		saveResults(outDir, utils.ShortDigest(result.Image.ImageId), result.ScanEngine.Name, "scan", scan)
 
 		return err
 	}
