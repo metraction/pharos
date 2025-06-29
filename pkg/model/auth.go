@@ -8,6 +8,27 @@ import (
 	"github.com/metraction/pharos/internal/utils"
 )
 
+// from list of AuthDSNs return the first that matches the image host
+// imageSpec docker.io/nginx:1.20
+// auths []"registry://user:pwd@pharos.secimo.net
+func GetMatchingAuthDsn(imageSpec string, auths []string) string {
+
+	imageHost := utils.LeftOfFirstOr(imageSpec, "/", "")
+	if imageHost == "" {
+		return ""
+	}
+	for _, auth := range auths {
+		authHost := utils.GetHostPortOr(auth, "")
+		if authHost == "" {
+			continue
+		}
+		if imageHost == authHost {
+			return auth
+		}
+	}
+	return ""
+}
+
 func GetMatchingAuth(imageSpec string, auths []PharosRepoAuth) PharosRepoAuth {
 
 	parts := strings.Split(imageSpec, "/")

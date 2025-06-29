@@ -35,7 +35,7 @@ func (rx *PharosScanResult) LoadTrivyImageScan(sbom trivytype.TrivySbomType, sca
 	rx.Image.ArchOS = scan.Metadata.ImageConfig.OS
 	rx.Image.DistroName = scan.Metadata.OS.Famile
 	rx.Image.DistroVersion = scan.Metadata.OS.Name
-	rx.Image.Size = utils.UInt64Or(cdxFilterPropertyFirstOr("aquasecurity:trivy:Size", "", *properties), 0)
+	rx.Image.Size = utils.ToNumOr[uint64](cdxFilterPropertyFirstOr("aquasecurity:trivy:Size", "", *properties), 0)
 
 	rx.Image.Tags = scan.Metadata.RepoTags
 	rx.Image.Layers = lo.Map(scan.Metadata.Layers, func(x trivytype.TrivyLayer, k int) string { return x.DiffId })

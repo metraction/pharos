@@ -76,6 +76,9 @@ func GetImageDigests(task model.PharosScanTask) (string, string, error) {
 	if err != nil {
 		return "", "", err
 	}
+	// fmt.Println("repote.Get Arch:", desc.Platform.Architecture)
+	// fmt.Println("repote.Get OS:  ", desc.Platform.OS)
+
 	indexDigest := desc.Digest.String() // same accross platforms
 	manifestDigest := "N/A"             // depends on platform (set default here for  single-image manifest)
 

@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 
@@ -94,33 +93,6 @@ func HumanDeltaSec(delta time.Duration) string {
 }
 func HumanDeltaMilisec(delta time.Duration) string {
 	return delta.Round(10 * time.Millisecond).String()
-}
-
-// Number conversion
-
-// parse string, return number or default
-func UInt64Or(input string, defval uint64) uint64 {
-	if u, err := strconv.ParseUint(input, 10, 64); err == nil {
-		return u
-	}
-	return defval
-}
-
-// parse string, return time.Duration or default
-func DurationOr(input string, defval time.Duration) time.Duration {
-	dt, err := time.ParseDuration(input)
-	if err != nil {
-		return defval
-	}
-	return dt
-}
-
-// parse string, return time.Time or defauls
-func DateStrOr(input string, defval time.Time) time.Time {
-	if t, err := time.Parse("2006-01-02", input); err == nil {
-		return t
-	}
-	return defval
 }
 
 // decode purl encoding,

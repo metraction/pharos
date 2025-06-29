@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/metraction/pharos/internal/integrations"
-	"github.com/metraction/pharos/internal/integrations/localdb"
+	"github.com/metraction/pharos/internal/integrations/dbl"
 	"github.com/metraction/pharos/internal/integrations/mq"
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/internal/utils"
@@ -74,10 +74,10 @@ func ExecuteReceiver(worker, dbEndpoint, mqEndpoint, outDir string, logger *zero
 	ctx := context.Background()
 
 	var err error
-	var dbx *localdb.PharosLocalDb
+	var dbx *dbl.PharosLocalDb
 	var resultMq *mq.RedisWorkerGroup[model.PharosScanResult] // send scan results
 
-	if dbx, err = localdb.NewPharosLocalDb(dbEndpoint, logger); err != nil {
+	if dbx, err = dbl.NewPharosLocalDb(dbEndpoint, logger); err != nil {
 		logger.Fatal().Err(err).Msg("NewPharosLocalDb")
 	}
 	defer dbx.Close()
@@ -130,7 +130,7 @@ func ExecuteReceiver(worker, dbEndpoint, mqEndpoint, outDir string, logger *zero
 		}
 		logger.Info().Any("elapsed(ms)", elapsed().Milliseconds()).Msg("db.insert")
 		// process result
-		saveResults(outDir, utils.ShortDigest(result.Image.ImageId), result.ScanEngine.Name, result)
+		saveResults(outDir, utils.ShortDigest(result.Image.ImageId), result.ScanEngine.Name, "model", result.ToBytes())
 
 		return nil
 	}
@@ -169,14 +169,12 @@ func ExecuteReceiver(worker, dbEndpoint, mqEndpoint, outDir string, logger *zero
 }
 
 // saveResults(outDir, utils.ShortDigest(result.Image.ImageId), "grype", result)
-func saveResults(outDir, id, engine string, result model.PharosScanResult) {
+func saveResults(outDir, id, engine, what string, data []byte) {
 	if outDir == "" {
 		return
 	}
-
-	filename := strings.Replace(fmt.Sprintf("%s-%s-model.json", id, engine), ":", "-", -1)
+	filename := strings.Replace(fmt.Sprintf("%s-%s-%s.json", id, engine, what), ":", "-", -1)
 	outFile := filepath.Join(outDir, filename)
 
-	os.WriteFile(outFile, result.ToBytes(), 0644)
-
+	os.WriteFile(outFile, data, 0644)
 }

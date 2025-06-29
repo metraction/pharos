@@ -2,6 +2,18 @@ package model
 
 import "time"
 
+type PharosScanTask2 struct {
+	JobId     string         `json:"jobId" required:"false"` // jobid for batch jobs tracking
+	Status    string         `json:"status" required:"false"`
+	Error     string         `json:"error" required:"false"`
+	AuthDsn   string         `json:"authdsn"`
+	ImageSpec string         `json:"image" required:"true"`
+	Platform  string         `json:"platform" required:"false"`
+	CacheTTL  time.Duration  `json:"cachettl" required:"false"` // cache expiry in sec
+	ScanTTL   time.Duration  `json:"scanttl" required:"false"`  // cache expiry in sec
+	Context   map[string]any `json:"context" required:"false"`
+}
+
 type PharosScanTask struct {
 	JobId      string          `json:"jobId" required:"false"` // jobid for batch jobs tracking
 	Auth       PharosRepoAuth  `json:"auth" required:"false"`
