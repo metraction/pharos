@@ -56,16 +56,18 @@ func NewTrivySbomCreator(timeout time.Duration, logger *zerolog.Logger) (*TrivyS
 }
 
 // download image, create sbom in chosen format, e.g. "cyclonedx"
-func (rx *TrivySbomCreator) CreateSbom(task model.PharosScanTask, format string) (trivytype.TrivySbomType, []byte, error) {
+func (rx *TrivySbomCreator) CreateSbom(task model.PharosScanTask2, format string) (trivytype.TrivySbomType, []byte, error) {
 
-	auth := task.Auth
-	imageRef := task.ImageSpec.Image
-	platform := task.ImageSpec.Platform //lo.CoalesceOrEmpty(task.ImageSpec.Platform, "linux/amd64")
+	//auth := task.Auth
+	//imageRef := task.ImageSpec.Image
+	//platform := task.Platform //lo.CoalesceOrEmpty(task.ImageSpec.Platform, "linux/amd64")
+
+	tlsCheck := utils.DsnParaBoolOr(task.AuthDsn, "tlscheck", true)
 
 	rx.logger.Debug().
-		Str("image", imageRef).
-		Str("platform", platform).
-		Bool("tlsCheck", auth.TlsCheck).
+		Str("image", task.ImageSpec).
+		Str("platform", task.Platform).
+		Bool("tlsCheck", tlsCheck).
 		Str("format", format).
 		Msg("TrivySbomCreator.CreateSbom() ..")
 
@@ -75,36 +77,27 @@ func (rx *TrivySbomCreator) CreateSbom(task model.PharosScanTask, format string)
 	defer cancel()
 
 	// fail if image is not provided
-	if imageRef == "" {
+	if task.ImageSpec == "" {
 		return trivytype.TrivySbomType{}, nil, fmt.Errorf("no image provided")
 	}
-	// be explicit, set default in app and not here
-	// if platform == "" {
-	// 	return trivytype.TrivySbomType{}, nil, fmt.Errorf("no platform provided")
-	// }
 
-	// auth
 	elapsed := utils.ElapsedFunc()
-	cmd := exec.Command(rx.GeneratorBin, "image", "--platform", platform, "--format", format, imageRef)
+	cmd := exec.Command(rx.GeneratorBin, "image", "--platform", task.Platform, "--format", format, task.ImageSpec)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 
-	// prepare environment
-	// Authentication
-	if auth.HasAuth(imageRef) {
-		if auth.Username != "" {
-			rx.logger.Debug().
-				Str("authority", auth.Authority).
-				Str("user", auth.Username).
-				Msg("Add user authenication")
+	// prepare environment: auth
+	if utils.DsnUserOr(task.AuthDsn, "") != "" {
+		cmd.Env = append(cmd.Env, "TRIVY_USERNAME="+utils.DsnUserOr(task.AuthDsn, ""))
+		cmd.Env = append(cmd.Env, "TRIVY_PASSWORD="+utils.DsnPasswordOr(task.AuthDsn, ""))
 
-			cmd.Env = append(cmd.Env, "TRIVY_USERNAME="+auth.Username)
-			cmd.Env = append(cmd.Env, "TRIVY_PASSWORD="+auth.Password)
-		} else if auth.Token != "" {
-			return trivytype.TrivySbomType{}, nil, fmt.Errorf("token authentication not supported")
-		}
+		rx.logger.Debug().
+			Str("authority", utils.DsnHostPortOr(task.AuthDsn, "")).
+			Str("user", utils.DsnUserOr(task.AuthDsn, "")).
+			Msg("MakeSbom() user auth")
+
 	}
-	if !auth.TlsCheck {
+	if !tlsCheck {
 		cmd.Env = append(cmd.Env, "TRIVY_INSECURE=true")
 	}
 
@@ -125,8 +118,8 @@ func (rx *TrivySbomCreator) CreateSbom(task model.PharosScanTask, format string)
 	}
 
 	rx.logger.Info().
-		Str("image", imageRef).
-		Str("platform", platform).
+		Str("image", task.ImageSpec).
+		Str("platform", task.Platform).
 		Str("format", format).
 		Str("distro", "N/A").
 		Any("size", humanize.Bytes(uint64(len(data)))).

@@ -17,7 +17,7 @@ import (
 )
 
 // execute scan with grype scanner
-func ScanImage(task model.PharosScanTask, scanEngine *GrypeScanner, kvc *cache.PharosCache, logger *zerolog.Logger) (model.PharosScanResult, []byte, []byte, error) {
+func ScanImage(task model.PharosScanTask2, scanEngine *GrypeScanner, kvc *cache.PharosCache, logger *zerolog.Logger) (model.PharosScanResult, []byte, []byte, error) {
 
 	logger.Debug().Msg("ScanImage() ..")
 
@@ -31,28 +31,30 @@ func ScanImage(task model.PharosScanTask, scanEngine *GrypeScanner, kvc *cache.P
 	var scanProd grypetype.GrypeScanType
 	var sbomEngine *syft.SyftSbomCreator
 
-	task.SbomEngine = "syft"
-	task.ScanEngine = scanEngine.Engine + " " + scanEngine.ScannerVersion
-
 	result := model.PharosScanResult{
 		ScanTask: task,
 	}
+	result.ScanTask.Status = "get-digest"
+	result.ScanTask.Engine = scanEngine.Engine
 
 	// get manifestDigest to have a platform unique key for caching
-	result.SetStatus("get-digest")
-	indexDigest, manifestDigest, err := images.GetImageDigests(task)
+	indexDigest, manifestDigest, rxPlatform, err := images.GetImageDigests(task)
 	if err != nil {
-		return result.SetError(err), nil, nil, err
+		result.ScanTask.SetError(err)
+		return result, nil, nil, err
 	}
+	result.ScanTask.RxDigest = manifestDigest
+	result.ScanTask.RxPlatform = rxPlatform
 
 	logger.Debug().
 		Str("digest.idx", utils.ShortDigest(indexDigest)).
 		Str("digest.man", utils.ShortDigest(manifestDigest)).
-		Str("image", task.ImageSpec.Image).
+		Str("rxPlatform", rxPlatform).
+		Str("image", task.ImageSpec).
 		Msg("GetDigest()")
 
 	// create sbom generator
-	if sbomEngine, err = syft.NewSyftSbomCreator(task.Timeout, logger); err != nil {
+	if sbomEngine, err = syft.NewSyftSbomCreator(task.ScanTTL, logger); err != nil {
 		logger.Fatal().Err(err).Msg("NewSyftSbomCreator()")
 	}
 
@@ -63,47 +65,52 @@ func ScanImage(task model.PharosScanTask, scanEngine *GrypeScanner, kvc *cache.P
 	key := CacheKey(manifestDigest)
 
 	// try cache, else create
-	sbomData, err = kvc.GetExpireUnpack(ctx, key, task.Timeout)
+	sbomData, err = kvc.GetExpireUnpack(ctx, key, task.CacheTTL)
 	if err != nil && !errors.Is(err, cache.ErrKeyNotFound) {
-		return result.SetError(err), nil, nil, err
+		result.ScanTask.SetError(err)
+		return result, nil, nil, err
 	}
 
 	if errors.Is(err, cache.ErrKeyNotFound) {
 		// cache miss: generate sbom
 		cacheState = "cache miss"
-		result.SetStatus("cache-miss")
+		result.ScanTask.Status = cacheState
 		if sbomProd, sbomData, err = sbomEngine.CreateSbom(task, "syft-json"); err != nil {
-			return result.SetError(err), nil, nil, err
+			result.ScanTask.SetError(err)
+			return result, nil, nil, err
 		}
 		// cache sbom
-		if err := kvc.SetExpirePack(ctx, key, sbomData, task.ImageSpec.CacheExpiry); err != nil {
-			return result.SetError(err), nil, nil, err
+		if err := kvc.SetExpirePack(ctx, key, sbomData, task.CacheTTL); err != nil {
+			result.ScanTask.SetError(err)
+			return result, nil, nil, err
 		}
 	} else {
 		// cache hit, parse []byte
 		cacheState = "cache hit"
-		result.SetStatus("cache-hit")
+		result.ScanTask.Status = cacheState
 		if err := sbomProd.FromBytes(sbomData); err != nil {
-			return result.SetError(err), nil, nil, err
+			result.ScanTask.SetError(err)
+			return result, nil, nil, err
 		}
 	}
 
 	// scan sbom for vulns
-	result.SetStatus("parse-scan")
+	result.ScanTask.Status = "scan"
 	if scanProd, scanData, err = scanEngine.VulnScanSbom(sbomData); err != nil {
 		logger.Fatal().Err(err).Msg("VulnScanSbom()")
 	}
 	// map produce result to pharos result type
-	result.SetStatus("parse-scan")
+	result.ScanTask.Status = "parse-scan"
 	if err = result.LoadGrypeImageScan(sbomProd, scanProd); err != nil {
-		return result.SetError(err), nil, nil, err
+		result.ScanTask.SetError(err)
+		return result, nil, nil, err
 	}
 
-	result.SetStatus("done")
+	result.ScanTask.Status = "done"
 	logger.Debug().
 		Str("cache", cacheState).
-		Any("t.scan_timeout", task.Timeout.String()).
-		Any("t.cache_expiry", task.ImageSpec.CacheExpiry.String()).
+		Any("t.scan_timeout", task.ScanTTL.String()).
+		Any("t.cache_expiry", task.CacheTTL.String()).
 		Any("i.distro", result.Image.DistroName+" "+result.Image.DistroVersion).
 		Any("i.size", humanize.Bytes(result.Image.Size)).
 		Any("s.findings", len(result.Findings)).

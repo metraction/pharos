@@ -102,7 +102,7 @@ func ExecuteReceiver(worker, dbEndpoint, mqEndpoint, outDir string, logger *zero
 
 		result := x.Data
 		task := result.ScanTask
-		image := task.ImageSpec.Image
+		image := task.ImageSpec
 
 		// ensure message is evicted after 2 tries
 		if x.RetryCount > 2 {
@@ -115,7 +115,7 @@ func ExecuteReceiver(worker, dbEndpoint, mqEndpoint, outDir string, logger *zero
 
 		logger.Info().
 			Str("_id", x.Id).Str("_job", task.JobId).Any("retry", x.RetryCount).Any(" image", image).
-			Any("context", task.ImageSpec.Context).
+			Any("context", task.Context).
 			Str("status", result.ScanTask.Status+" "+result.ScanTask.Error).
 			Str("os", result.Image.DistroName+" "+result.Image.DistroVersion).
 			Any("vulns", len(result.Vulnerabilities)).
@@ -130,7 +130,7 @@ func ExecuteReceiver(worker, dbEndpoint, mqEndpoint, outDir string, logger *zero
 		}
 		logger.Info().Any("elapsed(ms)", elapsed().Milliseconds()).Msg("db.insert")
 		// process result
-		saveResults(outDir, utils.ShortDigest(result.Image.ImageId), result.ScanEngine.Name, "model", result.ToBytes())
+		saveResults(outDir, utils.ShortDigest(result.Image.ImageId), result.ScanTask.Engine, "model", result.ToBytes())
 
 		return nil
 	}

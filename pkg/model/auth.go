@@ -18,7 +18,7 @@ func GetMatchingAuthDsn(imageSpec string, auths []string) string {
 		return ""
 	}
 	for _, auth := range auths {
-		authHost := utils.GetHostPortOr(auth, "")
+		authHost := utils.DsnHostPortOr(auth, "")
 		if authHost == "" {
 			continue
 		}

@@ -81,7 +81,7 @@ func (rx *PharosLocalDb) AddScanResult(ctx context.Context, result model.PharosS
 	}
 	rx.logger.Info().Any("image_id", image_id).Msg("AddImage")
 
-	if _, err = rx.AddContext(ctx, image_id, result.ScanTask.ImageSpec.Context); err != nil {
+	if _, err = rx.AddContext(ctx, image_id, result.ScanTask.Context); err != nil {
 		return 0, fmt.Errorf("addContext: %w", err)
 	}
 
