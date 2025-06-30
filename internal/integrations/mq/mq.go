@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/metraction/pharos/internal/gtrsconvert"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -141,20 +140,27 @@ func (rx *RedisWorkerGroup[T]) Delete(ctx context.Context) error {
 func (rx *RedisWorkerGroup[T]) Publish(ctx context.Context, priority int, payload T) (string, error) {
 
 	var err error
-	var values map[string]any
+	//var values map[string]any
+	// if values, err = gtrsconvert.StructToMap(payload); err != nil {
+	// 	return "", err
+	// }
 
-	if values, err = gtrsconvert.StructToMap(payload); err != nil {
+	values, err := PayloadEncode(payload)
+	if err != nil {
 		return "", err
 	}
 	id, err := rx.rdb.XAdd(ctx, &redis.XAddArgs{
 		Stream: rx.StreamName,
 		MaxLen: rx.MaxLen,
 		Approx: true,
-		Values: values, // data
+		//Values: values, // data
+		Values: map[string]any{"data": values},
 	}).Result()
+
 	if err != nil {
 		return "", err
 	}
+
 	return id, nil
 }
 

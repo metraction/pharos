@@ -87,11 +87,11 @@ func ExecuteScanner(engine, worker, mqEndpoint, cacheEndpoint, outDir string, qu
 	ctx := context.Background()
 
 	var err error
-	var taskMq *mq.RedisWorkerGroup[model.PharosScanTask]     // send scan tasks
+	var taskMq *mq.RedisWorkerGroup[model.PharosScanTask2]    // send scan tasks
 	var resultMq *mq.RedisWorkerGroup[model.PharosScanResult] // send scan results
 	var kvCache *cache.PharosCache                            // sbom cache
 
-	if taskMq, err = mq.NewRedisWorkerGroup[model.PharosScanTask](ctx, mqEndpoint, "$", config.RedisTaskStream, "task-group", queueMaxLen); err != nil {
+	if taskMq, err = mq.NewRedisWorkerGroup[model.PharosScanTask2](ctx, mqEndpoint, "$", config.RedisTaskStream, "task-group", queueMaxLen); err != nil {
 		logger.Fatal().Err(err).Msg("NewRedisWorkerGroup")
 	}
 	if resultMq, err = mq.NewRedisWorkerGroup[model.PharosScanResult](ctx, mqEndpoint, "$", config.RedisResultStream, "result-group", queueMaxLen); err != nil {
@@ -131,10 +131,10 @@ func ExecuteScanner(engine, worker, mqEndpoint, cacheEndpoint, outDir string, qu
 
 	// scanning worker function:
 	// execute scan task, report status (errors) and result via MQ
-	scanHandler := func(x mq.TaskMessage[model.PharosScanTask]) error {
+	scanHandler := func(x mq.TaskMessage[model.PharosScanTask2]) error {
 
 		task := x.Data
-		image := task.ImageSpec.Image
+		image := task.ImageSpec
 		var err error
 		var sbom []byte
 		var scan []byte
@@ -145,23 +145,22 @@ func ExecuteScanner(engine, worker, mqEndpoint, cacheEndpoint, outDir string, qu
 		// ensure message is evicted after 2 tries (err=nil will ACK message)
 		if x.RetryCount > 2 {
 			logger.Error().
-				Any(" image", image).Str("job", task.JobId).Any("retry", x.RetryCount).Str("id", x.Id).
-				Msg("max retry exceeded")
-
-			resultMq.Publish(ctx, 1, result.SetError(fmt.Errorf("max retry exceeded %v", x.RetryCount)))
+				Any(" image", image).Str("job", task.JobId).Any("retry", x.RetryCount).Str("id", x.Id).Msg("max retry exceeded")
+			result.ScanTask.SetError(fmt.Errorf("max retry exceeded %v", x.RetryCount))
+			resultMq.Publish(ctx, 1, result.MaskAuth())
 			return nil
 		}
 
 		logger.Info().
-			Any(" image", image).Str("job", task.JobId).Any("retry", x.RetryCount).
-			Msg("ScanTask() ..")
+			Any(" image", image).Str("job", task.JobId).Any("retry", x.RetryCount).Any("platform", task.Platform).Msg("ScanTask() ..")
 
-		// scan image, use cache
+		//scan image, use cache
 		if result, sbom, scan, err = scanner.ScanImage(task); err != nil {
 			logger.Error().Err(err).
-				Any(" image", image).Str("job", task.JobId).Any("retry", x.RetryCount).
-				Msg("ScanImage()")
-			resultMq.Publish(ctx, 1, result.SetError(err))
+				Any(" image", image).Str("job", task.JobId).Any("retry", x.RetryCount).Msg("ScanImage()")
+
+			result.ScanTask.SetError(err)
+			resultMq.Publish(ctx, 1, result.MaskAuth())
 			return err
 		}
 
@@ -175,11 +174,11 @@ func ExecuteScanner(engine, worker, mqEndpoint, cacheEndpoint, outDir string, qu
 			Msg("ScanTask() OK")
 
 		// submit scan results
-		resultMq.Publish(ctx, 1, result)
+		resultMq.Publish(ctx, 1, result.MaskAuth())
 
 		// save locally
-		saveResults(outDir, utils.ShortDigest(result.Image.ImageId), result.ScanEngine.Name, "sbom", sbom)
-		saveResults(outDir, utils.ShortDigest(result.Image.ImageId), result.ScanEngine.Name, "scan", scan)
+		saveResults(outDir, utils.ShortDigest(result.Image.ImageId), result.ScanTask.Engine, "sbom", sbom)
+		saveResults(outDir, utils.ShortDigest(result.Image.ImageId), result.ScanTask.Engine, "scan", scan)
 
 		return err
 	}

@@ -92,10 +92,9 @@ func ExecuteSend(tasksFile, mqEndpoint, outDir string, logger *zerolog.Logger) {
 	// -----< prepare sending scan jobs >-----
 
 	images := readLines(tasksFile, true)
-
 	logger.Info().
 		Str("tasks(file)", tasksFile).
-		Any("images", len(images)).
+		Any("lines", len(images)).
 		Str("redis_mq", taskMq.StreamName+":"+taskMq.GroupName).
 		Any("lines", len(images)).Msg("load tasks")
 
@@ -124,11 +123,12 @@ func ExecuteSend(tasksFile, mqEndpoint, outDir string, logger *zerolog.Logger) {
 	var pressure float64
 
 	for _, line := range images {
+		// read task commands/settings
 		if strings.HasPrefix(line, "#") {
 			auth = os.ExpandEnv(utils.RightOfPrefixOr(line, "# auth:", auth))
-			platform = os.ExpandEnv(utils.RightOfPrefixOr(line, "# platform:", platform))
-			cacheTTL = os.ExpandEnv(utils.RightOfPrefixOr(line, "# cachettl:", cacheTTL))
 			scanTTL = os.ExpandEnv(utils.RightOfPrefixOr(line, "# scanttl:", scanTTL))
+			cacheTTL = os.ExpandEnv(utils.RightOfPrefixOr(line, "# cachettl:", cacheTTL))
+			platform = os.ExpandEnv(utils.RightOfPrefixOr(line, "# platform:", platform))
 			maxpressure = os.ExpandEnv(utils.RightOfPrefixOr(line, "# maxpressure:", maxpressure))
 			continue
 		}
@@ -144,7 +144,7 @@ func ExecuteSend(tasksFile, mqEndpoint, outDir string, logger *zerolog.Logger) {
 			CacheTTL:  utils.DurationOr(cacheTTL, 15*time.Minute),
 			Context:   contextGenerator(),
 		}
-		utils.SetPath(task.Context, "scan/jobid", task.JobId)
+		//utils.SetPath(task.Context, "scan/jobid", task.JobId)
 
 		// wait on queue backpressure
 		for {

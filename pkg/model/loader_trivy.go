@@ -21,9 +21,9 @@ func (rx *PharosScanResult) LoadTrivyImageScan(sbom trivytype.TrivySbomType, sca
 
 	// scan engine
 	rx.Version = "1.0"
-	rx.ScanEngine.Name = "trivy"
-	rx.ScanEngine.Version = trivytype.GetToolVersion(sbom)
-	rx.ScanEngine.ScanTime = scan.CreatedAt
+	//rx.ScanEngine.Name = "trivy"
+	//rx.ScanEngine.Version = trivytype.GetToolVersion(sbom)
+	//rx.ScanEngine.ScanTime = scan.CreatedAt
 
 	// (1) load image metadata
 	rx.Image.ImageSpec = sbom.Metadata.Component.Name

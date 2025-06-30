@@ -13,7 +13,7 @@ import (
 // scanner interface
 type ScanEngineInterface interface {
 	ScannerName() string
-	ScanImage(model.PharosScanTask) (model.PharosScanResult, []byte, []byte, error)
+	ScanImage(model.PharosScanTask2) (model.PharosScanResult, []byte, []byte, error)
 	UpdateDatabase() error
 }
 
@@ -39,7 +39,7 @@ func NewGrypeScannerEngine(scanTimeout time.Duration, doUpdate bool, kvCache *ca
 func (rx *GrypeScannerEngine) ScannerName() string {
 	return rx.ScanEngine.Engine
 }
-func (rx *GrypeScannerEngine) ScanImage(task model.PharosScanTask) (model.PharosScanResult, []byte, []byte, error) {
+func (rx *GrypeScannerEngine) ScanImage(task model.PharosScanTask2) (model.PharosScanResult, []byte, []byte, error) {
 	return grype.ScanImage(task, rx.ScanEngine, rx.cache, rx.logger)
 }
 
@@ -70,7 +70,7 @@ func (rx *TrivyScannerEngine) ScannerName() string {
 	return rx.ScanEngine.Engine
 }
 
-func (rx *TrivyScannerEngine) ScanImage(task model.PharosScanTask) (model.PharosScanResult, []byte, []byte, error) {
+func (rx *TrivyScannerEngine) ScanImage(task model.PharosScanTask2) (model.PharosScanResult, []byte, []byte, error) {
 	return trivy.ScanImage(task, rx.ScanEngine, rx.cache, rx.logger)
 }
 
