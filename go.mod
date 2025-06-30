@@ -47,7 +47,7 @@ require (
 require (
 	github.com/danielgtaylor/huma/v2 v2.32.0
 	github.com/mattn/go-sqlite3 v1.14.28
-	github.com/metraction/handwheel v0.0.2-0.20250630142155-91658fabd432
+	github.com/metraction/handwheel v0.0.3
 	github.com/otiai10/copy v1.14.1
 	github.com/prometheus/client_golang v1.22.0
 	k8s.io/api v0.33.2
