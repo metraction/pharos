@@ -18,7 +18,7 @@ var logger *zerolog.Logger
 func NewScannerFlow(ctx context.Context, cfg *model.Config) error {
 	logger = logging.NewLogger("info")
 
-	server, err := integrations.NewRedisGtrsServer[model.PharosScanTask, model.PharosScanResult](
+	server, err := integrations.NewRedisGtrsServer[model.PharosScanTask2, model.PharosScanResult](
 		ctx, cfg.Redis, cfg.Scanner.RequestQueue, cfg.Scanner.ResponseQueue)
 	if err != nil {
 		return err
@@ -48,8 +48,8 @@ func NewScannerFlow(ctx context.Context, cfg *model.Config) error {
 		logger.Fatal().Err(err).Msg("NewGrypeScanner()")
 	}
 
-	go server.ProcessRequest(ctx, func(task model.PharosScanTask) model.PharosScanResult {
-		logger.Debug().Msg("Processing scan request: " + task.ImageSpec.Image)
+	go server.ProcessRequest(ctx, func(task model.PharosScanTask2) model.PharosScanResult {
+		logger.Debug().Msg("Processing scan request: " + task.ImageSpec)
 		result, _, _, err := grype.ScanImage(task, scanEngine, kvc, logger)
 		if err != nil {
 			logger.Error().Err(err).Msg("grype.ScanImage()")

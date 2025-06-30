@@ -29,6 +29,10 @@ type TrivyScanner struct {
 	logger *zerolog.Logger
 }
 
+func (rx *TrivyScanner) ScannerName() string {
+	return "trivy"
+}
+
 // create trivy scanner
 func NewTrivyScanner(scanTimeout time.Duration, updateDb bool, logger *zerolog.Logger) (*TrivyScanner, error) {
 
@@ -129,7 +133,7 @@ func (rx *TrivyScanner) UpdateDatabase() error {
 // scan cyclondex sbom with trivy
 func (rx *TrivyScanner) VulnScanSbom(sbom []byte) (trivytype.TrivyScanType, []byte, error) {
 
-	rx.logger.Info().
+	rx.logger.Debug().
 		Any("scan_timeout", rx.ScanTimeout.String()).
 		Msg("VulnScanSbom() ..")
 
@@ -176,7 +180,8 @@ func (rx *TrivyScanner) VulnScanSbom(sbom []byte) (trivytype.TrivyScanType, []by
 		return trivytype.TrivyScanType{}, nil, err
 	}
 
-	rx.logger.Info().
+	rx.logger.Debug().
+		Str("image", "").
 		Str("type", scan.ArtifactType).
 		Any("matches", len(scan.ListVulnerabilities())).
 		Any("elapsed", utils.HumanDeltaMilisec(elapsed())).

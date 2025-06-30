@@ -69,31 +69,21 @@ func setupRedisTest(t *testing.T) (*miniredis.Miniredis, *redis.Client, *model.C
 }
 
 // newTestScanTask is a test helper that creates a PharosScanTask with standard defaults.
-func newTestScanTask(t *testing.T, taskID, image string) model.PharosScanTask {
+func newTestScanTask(t *testing.T, taskID, image string) model.PharosScanTask2 {
 	t.Helper()
-	task, err := model.NewPharosScanTask(
-		taskID,
-		image,
-		"",                     // platform
-		model.PharosRepoAuth{}, // auth
-		1*time.Hour,            // cache expiry
-		30*time.Second,         // scan timeout
-	)
-	require.NoError(t, err)
+	task := model.PharosScanTask2{JobId: taskID, ImageSpec: image, ScanTTL: 30 * time.Second, CacheTTL: 1 * time.Hour}
 	return task
 }
 
 // newTestScanResult is a test helper that creates a PharosScanResult for a given task and engine name.
-func newTestScanResult(task model.PharosScanTask, engineName string) model.PharosScanResult {
+func newTestScanResult(task model.PharosScanTask2, engineName string) model.PharosScanResult {
+	task.Engine = engineName
+	task.Status = "done"
 	return model.PharosScanResult{
 		Version:  "1.0",
 		ScanTask: task,
-		ScanEngine: model.PharosScanEngine{
-			Name:    engineName,
-			Version: "1.0",
-		},
 		Image: model.PharosImageMeta{
-			ImageSpec:   task.ImageSpec.Image,
+			ImageSpec:   task.ImageSpec,
 			ImageId:     "test-image-id",
 			IndexDigest: "sha256:test",
 		},
@@ -118,11 +108,11 @@ func TestIntegrationClientServer(t *testing.T) {
 	ctx := context.Background()
 
 	// Create server
-	server, err := NewRedisGtrsServer[model.PharosScanTask, model.PharosScanResult](ctx, config.Redis, "test_requests", "test_responses")
+	server, err := NewRedisGtrsServer[model.PharosScanTask2, model.PharosScanResult](ctx, config.Redis, "test_requests", "test_responses")
 	require.NoError(t, err)
 
 	// Create a mock handler function
-	mockHandler := func(task model.PharosScanTask) model.PharosScanResult {
+	mockHandler := func(task model.PharosScanTask2) model.PharosScanResult {
 		// Simulate some processing time to test concurrency
 		time.Sleep(50 * time.Millisecond)
 
@@ -139,7 +129,7 @@ func TestIntegrationClientServer(t *testing.T) {
 	}()
 
 	// Create client
-	client, err := NewRedisGtrsClient[model.PharosScanTask, model.PharosScanResult](ctx, config, "test_requests", "test_responses")
+	client, err := NewRedisGtrsClient[model.PharosScanTask2, model.PharosScanResult](ctx, config, "test_requests", "test_responses")
 	require.NoError(t, err)
 
 	// Number of concurrent requests to send
@@ -193,7 +183,7 @@ func TestIntegrationClientServer(t *testing.T) {
 	// Verify each response matches its request
 	for taskID, response := range results {
 		assert.Equal(t, taskID, response.ScanTask.JobId, "Response task ID should match request ID")
-		assert.Equal(t, "test-engine", response.ScanEngine.Name, "Response should contain expected engine name")
+		assert.Equal(t, "test-engine", response.ScanTask.Engine, "Response should contain expected engine name")
 	}
 }
 
@@ -243,7 +233,7 @@ func TestMessageConsumedOnlyOnce(t *testing.T) {
 
 	// Create multiple server instances (consumers) with the same group name but different consumer names
 	const numServers = 3
-	servers := make([]*RedisGtrsServer[model.PharosScanTask, model.PharosScanResult], numServers)
+	servers := make([]*RedisGtrsServer[model.PharosScanTask2, model.PharosScanResult], numServers)
 
 	// Use a wait group to ensure all consumers are ready before sending the request
 	var wg sync.WaitGroup
@@ -252,12 +242,12 @@ func TestMessageConsumedOnlyOnce(t *testing.T) {
 	// Create servers and start processing
 	for i := 0; i < numServers; i++ {
 		serverIdx := i // Capture loop variable
-		server, err := NewRedisGtrsServer[model.PharosScanTask, model.PharosScanResult](ctx, config.Redis, requestQueue, responseQueue)
+		server, err := NewRedisGtrsServer[model.PharosScanTask2, model.PharosScanResult](ctx, config.Redis, requestQueue, responseQueue)
 		require.NoError(t, err)
 		servers[i] = server
 
 		// Create a unique handler for each server that tracks message processing
-		handler := func(task model.PharosScanTask) model.PharosScanResult {
+		handler := func(task model.PharosScanTask2) model.PharosScanResult {
 			// Record that this server processed the message
 			mutex.Lock()
 			processedCount[task.JobId] = processedCount[task.JobId] + 1
@@ -285,7 +275,7 @@ func TestMessageConsumedOnlyOnce(t *testing.T) {
 	time.Sleep(500 * time.Millisecond)
 
 	// Create client
-	client, err := NewRedisGtrsClient[model.PharosScanTask, model.PharosScanResult](ctx, config, requestQueue, responseQueue)
+	client, err := NewRedisGtrsClient[model.PharosScanTask2, model.PharosScanResult](ctx, config, requestQueue, responseQueue)
 	require.NoError(t, err)
 
 	// Send multiple requests
@@ -351,7 +341,7 @@ func TestRedisConsumerGroupSource(t *testing.T) {
 	consumerStats := make(map[string]int)        // consumer name -> count of messages processed
 
 	// Step 1: Create a Redis stream sink to publish messages
-	streamSink := NewRedisStreamSink[model.PharosScanTask](testCtx, rdb, streamName)
+	streamSink := NewRedisStreamSink[model.PharosScanTask2](testCtx, rdb, streamName)
 
 	// Step 2: Create a channel source to feed messages to the sink
 	messageChan := make(chan any, numMessages)
@@ -372,7 +362,7 @@ func TestRedisConsumerGroupSource(t *testing.T) {
 		consumerName := fmt.Sprintf("consumer-%d", i)
 
 		// Create a consumer group source with separate Redis context
-		source := NewRedisConsumerGroupSource[model.PharosScanTask](
+		source := NewRedisConsumerGroupSource[model.PharosScanTask2](
 			testCtx,
 			rdb,
 			streamName,
@@ -392,8 +382,8 @@ func TestRedisConsumerGroupSource(t *testing.T) {
 			go func() {
 				src.
 					Via(flow.NewMap(func(msg any) any {
-						scanTask := msg.(model.PharosScanTask)
-						t.Logf("Consumer %s processing task %s for image %s", consumerID, scanTask.JobId, scanTask.ImageSpec.Image)
+						scanTask := msg.(model.PharosScanTask2)
+						t.Logf("Consumer %s processing task %s for image %s", consumerID, scanTask.JobId, scanTask.ImageSpec)
 
 						// Record that this consumer processed this message
 						mutex.Lock()
@@ -491,7 +481,7 @@ func TestRedisQueueLimit(t *testing.T) {
 	wg.Add(limit) // We expect each message to be processed exactly once
 
 	rejectedCounter := func(in any) {
-		fmt.Println("Rejected message:", in.(model.PharosScanTask).JobId)
+		fmt.Println("Rejected message:", in.(model.PharosScanTask2).JobId)
 		wg.Done()
 	}
 
@@ -499,7 +489,7 @@ func TestRedisQueueLimit(t *testing.T) {
 	messageChan := make(chan any)
 	go extension.NewChanSource(messageChan).
 		Via(flow.NewFilter(NewQueueLimit(ctx, rdb, queueName, int64(limit), rejectedCounter), 1)).
-		To(NewRedisStreamSink[model.PharosScanTask](ctx, rdb, queueName))
+		To(NewRedisStreamSink[model.PharosScanTask2](ctx, rdb, queueName))
 
 	// Send messages to the channel
 	for i := 0; i < 10; i++ {

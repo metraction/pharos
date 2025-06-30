@@ -19,14 +19,15 @@ import (
 type PharosScanTaskController struct {
 	Path              string
 	Api               *huma.API
-	AsyncPublisher    *integrations.RedisGtrsClient[model.PharosScanTask, model.PharosScanResult]
-	PriorityPublisher *integrations.RedisGtrsClient[model.PharosScanTask, model.PharosScanResult]
+	AsyncPublisher    *integrations.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult]
+	PriorityPublisher *integrations.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult]
 	Config            *model.Config
 	Logger            *zerolog.Logger
 }
 
+// TODO: Rename as PharosScanTask is know from model, leads to confusion
 type PharosScanTask struct {
-	Body model.PharosScanTask `json:"body"`
+	Body model.PharosScanTask2 `json:"body"`
 }
 
 func NewPharosScanTaskController(api *huma.API, config *model.Config) *PharosScanTaskController {
@@ -55,36 +56,36 @@ func (pc *PharosScanTaskController) AddRoutes() {
 }
 
 func (pc *PharosScanTaskController) WithPublisher(
-	publisher *integrations.RedisGtrsClient[model.PharosScanTask, model.PharosScanResult], priorityPublisher *integrations.RedisGtrsClient[model.PharosScanTask, model.PharosScanResult]) *PharosScanTaskController {
+	publisher *integrations.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult], priorityPublisher *integrations.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult]) *PharosScanTaskController {
 	pc.AsyncPublisher = publisher
 	pc.PriorityPublisher = priorityPublisher
 	return pc
 }
 
-func (pc *PharosScanTaskController) sendScanRequest(ctx context.Context, publisher *integrations.RedisGtrsClient[model.PharosScanTask, model.PharosScanResult], pharosScanTask *model.PharosScanTask) (string, *model.PharosScanTask, error) {
+func (pc *PharosScanTaskController) sendScanRequest(ctx context.Context, publisher *integrations.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult], pharosScanTask *model.PharosScanTask2) (string, *model.PharosScanTask2, error) {
 	// Set default values for ArchName and ArchOS if not provided
-	now := time.Now().UTC()
-	if pharosScanTask.ImageSpec.Platform == "" {
-		pharosScanTask.ImageSpec.Platform = "linux/amd64"
+	//now := time.Now().UTC()
+	if pharosScanTask.Platform == "" {
+		pharosScanTask.Platform = "linux/amd64"
 	}
 	if pharosScanTask.JobId == "" {
 		pharosScanTask.JobId = uuid.New().String() // Generate a new JobId if not provided
 	}
-	pharosScanTask.Created = now
-	pharosScanTask.Updated = now
+	//pharosScanTask.Created = now
+	//pharosScanTask.Updated = now
 	timeout, err := time.ParseDuration(pc.Config.Publisher.Timeout)
 	if err != nil {
 		timeout = 30 * time.Second
 	}
-	pharosScanTask.Timeout = timeout
-	if pharosScanTask.ImageSpec.CacheExpiry == 0 {
-		pharosScanTask.ImageSpec.CacheExpiry = 24 * time.Hour // Default cache expiry
+	pharosScanTask.ScanTTL = timeout
+	if pharosScanTask.CacheTTL == 0 {
+		pharosScanTask.CacheTTL = 24 * time.Hour // Default cache expiry
 	}
 	if pc.PriorityPublisher == nil {
 		log.Error().Msg("PriorityPublisher is not set, cannot send scan request")
 		return "", nil, huma.Error500InternalServerError("PriorityPublisher is not set, cannot send scan request")
 	}
-	log.Info().Str("image", pharosScanTask.ImageSpec.Image).Msg("Sending image scan request")
+	pc.Logger.Info().Str("image", pharosScanTask.ImageSpec).Str("requestqueue", pc.Config.Publisher.PriorityRequestQueue).Msg("Sending image scan request")
 	err, corrId := publisher.SendRequest(ctx, *pharosScanTask)
 	log.Info().Str("corrId", corrId).Msg("Sent scan task to scanner")
 	if err != nil {
@@ -127,7 +128,7 @@ func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx contex
 			}
 			var value model.PharosImageMeta
 			// Split the platform string into OS and Arch
-			platform := input.Body.ImageSpec.Platform
+			platform := input.Body.Platform
 			archOS := ""
 			archName := ""
 			if platform != "" {
@@ -138,7 +139,7 @@ func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx contex
 				}
 			}
 			var query = model.PharosImageMeta{
-				ImageSpec: input.Body.ImageSpec.Image,
+				ImageSpec: input.Body.ImageSpec,
 				ArchOS:    archOS,
 				ArchName:  archName,
 			}
@@ -149,7 +150,7 @@ func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx contex
 			if value.ImageId != "" {
 				log.Info().Str("imageId", value.ImageId).Msg("Image already exists in database, using existing image metadata")
 
-				return nil, huma.Error409Conflict("Image with ImageSpec " + input.Body.ImageSpec.Image + " already exists in database")
+				return nil, huma.Error409Conflict("Image with ImageSpec " + input.Body.ImageSpec + " already exists in database")
 			}
 			_, pharosScanTask, err := pc.sendScanRequest(ctx, pc.AsyncPublisher, &input.Body)
 			if err != nil {

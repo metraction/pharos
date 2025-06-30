@@ -1,0 +1,17 @@
+# auth: $PHAROS_REPO_AUTH
+# platform: linux/amd64
+# cachettl: 2h
+# scanttl: 5m
+# maxpressure: 0.2
+
+pharos.secimo.net/nginx:1.20
+pharos.secimo.net/postgres:17.5
+pharos.secimo.net/docker:26.0
+pharos.secimo.net/golang:1.24.4
+
+
+# platform: linux/arm64
+pharos.secimo.net/nginx:1.20
+pharos.secimo.net/postgres:17.5
+pharos.secimo.net/docker:26.0
+pharos.secimo.net/golang:1.24.4

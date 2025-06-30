@@ -88,8 +88,90 @@ type RedisGtrsClient[T any, R any] struct {
 	requestStream *gtrs.Stream[T]
 	requestQueue  string
 	replyQueue    string
+	streamName    string // NEW Stefan
 	zeroValue     R
 	timeout       time.Duration
+}
+
+// NEW: Stefan
+func NewRedisGtrsClientStefan[T any, R any](ctx context.Context, redisEndpoint, streamName string) (*RedisGtrsClient[T, R], error) {
+
+	options, err := redis.ParseURL(redisEndpoint)
+	if err != nil {
+		return nil, err
+	}
+	rdb := redis.NewClient(options)
+
+	timeout := 60 * time.Second
+	stream := gtrs.NewStream[T](rdb, streamName, nil)
+
+	return &RedisGtrsClient[T, R]{
+		rdb:           rdb,
+		requestStream: &stream,
+		requestQueue:  "none",
+		streamName:    streamName,
+		replyQueue:    "none",
+		timeout:       timeout}, nil
+}
+
+// NEW: Stefan
+func (rx *RedisGtrsClient[T, R]) Connect(ctx context.Context) error {
+	if err := rx.rdb.Ping(ctx).Err(); err != nil {
+		return fmt.Errorf("redis connect (ping): %v", err)
+	}
+	return nil
+}
+
+// NEW: Stefan
+func (rx *RedisGtrsClient[T, R]) Close() {
+	if rx.rdb != nil {
+		rx.rdb.Close()
+	}
+}
+
+// NEW: Stefan
+func (rx *RedisGtrsClient[T, R]) ReceiveStefan(ctx context.Context, groupName, consumerName, mode string, handlerFunc func(gtrs.Message[T]) error) error {
+	// source: https://github.com/dranikpg/gtrs
+	// consumer := gtrs.NewConsumer[T](ctx, rx.rdb, gtrs.StreamIDs{rx.requestQueue: "0"}, gtrs.StreamConsumerConfig{
+	// 	Block:      0,
+	// 	Count:      0,
+	// 	BufferSize: 50,
+	// })
+
+	// mode "0" all history, ">" new entries
+	block := 0 * time.Second
+	if mode == "0" {
+		block = 10 * time.Second
+	}
+
+	groupConfig := gtrs.GroupConsumerConfig{
+		StreamConsumerConfig: gtrs.StreamConsumerConfig{
+			Block:      block, // 0 means infinite
+			Count:      1,     // maximum number of entries per request
+			BufferSize: 1,     // how many entries to prefetch at most
+		},
+		AckBufferSize: 1, // size of the acknowledgement buffer
+	}
+	group := gtrs.NewGroupConsumer[T](ctx, rx.rdb, groupName, consumerName, rx.streamName, mode, groupConfig)
+	defer group.Close()
+
+	fmt.Printf("Waiting for stream:%s group:%s consumer:%s\n", rx.streamName, groupName, consumerName)
+	for msg := range group.Chan() {
+		if msg.Err != nil {
+			fmt.Println("listener[1]: msg.err", msg.Err)
+			continue
+		}
+		// call handler, acknowledge when no error is thrown
+		err := handlerFunc(msg)
+		if err == nil {
+			group.Ack(msg)
+		}
+		if err != nil {
+			fmt.Println("listener[2]: handler.err", err)
+		}
+		// act on handler error, like terminate loop
+	}
+	return fmt.Errorf("timeout waiting for reply")
 }
 
 func NewRedisGtrsClient[T any, R any](ctx context.Context, redisCfg *model.Config, requestQueue string, replyQueue string) (*RedisGtrsClient[T, R], error) {

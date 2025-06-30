@@ -6,30 +6,9 @@ import (
 	"errors"
 	"strings"
 	"time"
+
+	"github.com/metraction/pharos/internal/utils"
 )
-
-// hold results if images scans returned from a variety of scanner engines
-type PharosScanResult struct {
-	Version    string           `json:"Version"`
-	ScanTask   PharosScanTask   `json:"ScanTask"`
-	ScanEngine PharosScanEngine `json:"ScanEngine"` // scanner & scan metadata
-	// Add Scantask
-
-	Image           PharosImageMeta       `json:"Image"`
-	Findings        []PharosScanFinding   `json:"Findings"`        // instatiation of vulnerabilities in packages
-	Vulnerabilities []PharosVulnerability `json:"Vulnerabilities"` // vulnerabilities found with vuln metadata (description, CVSS, ..)
-	Packages        []PharosPackage       `json:"Packages"`
-	// Context
-}
-
-func (rx *PharosScanResult) SetStatus(status string) PharosScanResult {
-	rx.ScanTask.SetStatus(status)
-	return *rx
-}
-func (rx *PharosScanResult) SetError(err error) PharosScanResult {
-	rx.ScanTask.Error = err.Error()
-	return *rx
-}
 
 type StringSlice []string
 
@@ -48,9 +27,30 @@ func (ss StringSlice) Value() (driver.Value, error) {
 	return strings.Join(ss, ","), nil
 }
 
+// hold results if images scans returned from a variety of scanner engines
+// Update: Stefan 2025-06-29
+// Context and scanner info is in ScanTask
+type PharosScanResult struct {
+	Version  string          `json:"Version"`
+	ScanTask PharosScanTask2 `json:"ScanTask"`
+
+	//ScanEngine PharosScanEngine `json:"ScanEngine"` // scanner info in scan task
+
+	Image           PharosImageMeta       `json:"Image"`
+	Findings        []PharosScanFinding   `json:"Findings"`        // instatiation of vulnerabilities in packages
+	Vulnerabilities []PharosVulnerability `json:"Vulnerabilities"` // vulnerabilities found with vuln metadata (description, CVSS, ..)
+	Packages        []PharosPackage       `json:"Packages"`
+}
+
+// mask auth info in scantask (e.g. before submitting results)
+func (rx *PharosScanResult) MaskAuth() PharosScanResult {
+	rx.ScanTask.AuthDsn = utils.MaskDsn(rx.ScanTask.AuthDsn)
+	return *rx
+}
+
 // scan metadata to identify scanner tool and versions
 // (this is importan once we have a variety of scanners)
-type PharosScanEngine struct {
+type Delete_PharosScanEngine struct {
 	Name     string    `json:"Name"`
 	Version  string    `json:"Version"`
 	ScanTime time.Time `json:"ScanTime"`
