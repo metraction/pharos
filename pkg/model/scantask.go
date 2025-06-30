@@ -15,12 +15,13 @@ type PharosScanTask2 struct {
 	Engine string `json:"engine" required:"false"`
 	Error  string `json:"error" required:"false"`
 	// image
-	AuthDsn    string         `json:"authdsn"`
-	ImageSpec  string         `json:"imagespec" required:"true"`
-	Platform   string         `json:"platform" required:"false"`
-	Context    map[string]any `json:"context" required:"false"`
-	RxDigest   string         `json:"rxdigest" required:"false"`   // manifest digest retrieved from repo
-	RxPlatform string         `json:"rxplatform" required:"false"` // platform retrieved from repo
+	AuthDsn        string         `json:"authdsn"`
+	ImageSpec      string         `json:"imagespec" required:"true"`
+	Platform       string         `json:"platform" required:"false"`
+	Context        map[string]any `json:"context" required:"false"`
+	ContextRootKey string         `json:"contextRootKey" required:"false"` // key to the context root, if any
+	RxDigest       string         `json:"rxdigest" required:"false"`       // manifest digest retrieved from repo
+	RxPlatform     string         `json:"rxplatform" required:"false"`     // platform retrieved from repo
 
 	// scanner
 	CacheTTL time.Duration `json:"cachettl" required:"false"` // cache expiry in sec

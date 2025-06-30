@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"time"
 
 	hwmodel "github.com/metraction/handwheel/model"
@@ -101,15 +102,28 @@ func (pst *PharosScanTaskCreator) Result(metric hwmodel.ImageMetric) []model.Pha
 			continue
 		}
 	}
-
+	var context map[string]any = make(map[string]any)
+	key := ""
+	sortLabels := pst.Config.Prometheus.ContextLabels
+	sort.Strings(sortLabels)
+	for _, label := range pst.Config.Prometheus.ContextLabels {
+		if value, exists := metric.Labels[label]; exists {
+			context[label] = value
+			key += label + "=" + value + ","
+		} else {
+			pst.Logger.Warn().Str("label", label).Msgf("Label not found in metric: %s", label)
+		}
+	}
 	now := time.Now()
 	pharosScanTask := model.PharosScanTask2{
-		ImageSpec: metric.Image_spec,
-		Platform:  pst.Config.Prometheus.Platform, // Default platform, can be adjusted as needed
-		AuthDsn:   pharosRepoAuth.ToDsn(),
-		Created:   now,
-		Updated:   now,
-		Timeout:   time.Second * 180, // 3 minutes
+		ImageSpec:      metric.Image_spec,
+		Platform:       pst.Config.Prometheus.Platform, // Default platform, can be adjusted as needed
+		AuthDsn:        pharosRepoAuth.ToDsn(),
+		Created:        now,
+		Updated:        now,
+		Timeout:        time.Second * 180, // 3 minutes
+		Context:        context,
+		ContextRootKey: key,
 	}
 	return []model.PharosScanTask2{pharosScanTask}
 }

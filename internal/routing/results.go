@@ -2,6 +2,7 @@ package routing
 
 import (
 	"context"
+	"time"
 
 	"github.com/metraction/pharos/internal/integrations"
 	"github.com/metraction/pharos/pkg/model"
@@ -24,6 +25,10 @@ func NewScanResultCollectorFlow(
 			if item.ScanTask.Error != "" {
 				log.Warn().Str("JobId", item.ScanTask.JobId).Str("error", item.ScanTask.Error).Msg("Scan task failed during async scan")
 			} else {
+				// Here we have to run the whole flow. Something to help you:
+				rootContext := item.GetContextRoot("phraos api", time.Duration(time.Minute*30))
+				log.Info().Any("context", rootContext).Str("image", item.ScanTask.ImageSpec).Msg("Async scan completed, saving result")
+				// End of the flow here. :-)
 				if err := integrations.SaveScanResult(databaseContext, &item); err != nil {
 					log.Error().Msg("Async result saving error")
 				}

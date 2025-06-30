@@ -42,6 +42,30 @@ type PharosScanResult struct {
 	Packages        []PharosPackage       `json:"Packages"`
 }
 
+// ContextRootKey string // Composite Foreign Key to the ContextRoot Table
+// ImageId        string // Composite Foreign Key to the ContextRoot Table
+// Owner          string // The owner of the Context, this is the plugin that has created / changed it. Will be a Foreign Key to the Plugins Table
+// UpdatedAt      time.Time
+// Data           map[string]any `gorm:"serializer:json"` // Context data
+
+func (rx *PharosScanResult) GetContextRoot(owner string, ttl time.Duration) *ContextRoot {
+	return &ContextRoot{
+		Key:       rx.ScanTask.ContextRootKey,
+		ImageId:   rx.Image.ImageId,
+		UpdatedAt: time.Now(),
+		TTL:       ttl, // 25 minutes
+		Contexts: []Context{
+			{
+				ContextRootKey: rx.ScanTask.ContextRootKey,
+				ImageId:        rx.Image.ImageId,
+				Owner:          owner,
+				UpdatedAt:      time.Now(),
+				Data:           rx.ScanTask.Context,
+			},
+		},
+	}
+}
+
 // mask auth info in scantask (e.g. before submitting results)
 func (rx *PharosScanResult) MaskAuth() PharosScanResult {
 	rx.ScanTask.AuthDsn = utils.MaskDsn(rx.ScanTask.AuthDsn)
