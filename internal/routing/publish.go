@@ -14,18 +14,18 @@ import (
 	"github.com/metraction/pharos/pkg/model"
 )
 
-func NewPublisher(ctx context.Context, cfg *model.Config) (*integrations.RedisGtrsClient[model.PharosScanTask, model.PharosScanResult], error) {
-	client, err := integrations.NewRedisGtrsClient[model.PharosScanTask, model.PharosScanResult](ctx, cfg, cfg.Publisher.RequestQueue, cfg.Publisher.ResponseQueue)
+func NewPublisher(ctx context.Context, cfg *model.Config) (*integrations.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult], error) {
+	client, err := integrations.NewRedisGtrsClient[model.PharosScanTask2, model.PharosScanResult](ctx, cfg, cfg.Publisher.RequestQueue, cfg.Publisher.ResponseQueue)
 	return client, err
 }
 
-func NewPriorityPublisher(ctx context.Context, cfg *model.Config) (*integrations.RedisGtrsClient[model.PharosScanTask, model.PharosScanResult], error) {
-	client, err := integrations.NewRedisGtrsClient[model.PharosScanTask, model.PharosScanResult](ctx, cfg, cfg.Publisher.PriorityRequestQueue, cfg.Publisher.PriorityResponseQueue)
+func NewPriorityPublisher(ctx context.Context, cfg *model.Config) (*integrations.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult], error) {
+	client, err := integrations.NewRedisGtrsClient[model.PharosScanTask2, model.PharosScanResult](ctx, cfg, cfg.Publisher.PriorityRequestQueue, cfg.Publisher.PriorityResponseQueue)
 	return client, err
 }
 
 // SubmitImageHandler handles HTTP requests for submitting Docker image information.
-func SubmitImageHandler(client *integrations.RedisGtrsClient[model.PharosScanTask, model.PharosScanResult], cfg *model.Config) http.HandlerFunc {
+func SubmitImageHandler(client *integrations.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult], cfg *model.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
@@ -45,7 +45,7 @@ func SubmitImageHandler(client *integrations.RedisGtrsClient[model.PharosScanTas
 		r.Body.Close()
 
 		// First try to parse as a simple image request
-		var request model.PharosScanTask
+		var request model.PharosScanTask2
 
 		if err := json.Unmarshal(bodyBytes, &simpleRequest); err == nil && simpleRequest.Image != "" {
 			// Successfully parsed simple request with image field
@@ -55,19 +55,28 @@ func SubmitImageHandler(client *integrations.RedisGtrsClient[model.PharosScanTas
 			}
 
 			// Create a full scan task from the simple image name
-			request, err = model.NewPharosScanTask(
-				uuid.New().String(),    // jobId
-				simpleRequest.Image,    // imageRef
-				"linux/amd64",          // platform
-				model.PharosRepoAuth{}, // auth
-				24*time.Hour,           // cacheExpiry
-				timeout,                // scanTimeout
-			)
-			if err != nil {
-				log.Printf("Error creating scan task: %v\n", err)
-				http.Error(w, "Error creating scan task", http.StatusInternalServerError)
-				return
+			// request, err = model.NewPharosScanTask(
+			// 	uuid.New().String(),    // jobId
+			// 	simpleRequest.Image,    // imageRef
+			// 	"linux/amd64",          // platform
+			// 	model.PharosRepoAuth{}, // auth
+			// 	24*time.Hour,           // cacheExpiry
+			// 	timeout,                // scanTimeout
+			// )
+			request = model.PharosScanTask2{
+				JobId:     uuid.New().String(), // jobId
+				ImageSpec: simpleRequest.Image, // imageRef
+				Platform:  "linux/amd64",       // platform
+				AuthDsn:   "",
+				CacheTTL:  24 * time.Hour, // cacheExpiry
+				ScanTTL:   timeout,        // scanTimeout
 			}
+
+			// if err != nil {
+			// 	log.Printf("Error creating scan task: %v\n", err)
+			// 	http.Error(w, "Error creating scan task", http.StatusInternalServerError)
+			// 	return
+			// }
 		} else {
 			// Try parsing as a full PharosScanTask
 			if err := json.Unmarshal(bodyBytes, &request); err != nil {
@@ -77,7 +86,7 @@ func SubmitImageHandler(client *integrations.RedisGtrsClient[model.PharosScanTas
 		}
 
 		// Make sure we have an image to scan
-		if request.ImageSpec.Image == "" {
+		if request.ImageSpec == "" {
 			http.Error(w, "Missing image specification", http.StatusBadRequest)
 			return
 		}
@@ -85,7 +94,7 @@ func SubmitImageHandler(client *integrations.RedisGtrsClient[model.PharosScanTas
 		fmt.Println("Sending image scan request:", request, " to ", cfg.Publisher.RequestQueue)
 		response, err := client.RequestReply(r.Context(), request)
 		if err != nil {
-			log.Printf("Failed to get result for %s: %v\n", request.ImageSpec.Image, err)
+			log.Printf("Failed to get result for %s: %v\n", request.ImageSpec, err)
 			http.Error(w, "Failed to get result", http.StatusInternalServerError)
 			return
 		}

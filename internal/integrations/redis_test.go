@@ -233,7 +233,7 @@ func TestMessageConsumedOnlyOnce(t *testing.T) {
 
 	// Create multiple server instances (consumers) with the same group name but different consumer names
 	const numServers = 3
-	servers := make([]*RedisGtrsServer[model.PharosScanTask, model.PharosScanResult], numServers)
+	servers := make([]*RedisGtrsServer[model.PharosScanTask2, model.PharosScanResult], numServers)
 
 	// Use a wait group to ensure all consumers are ready before sending the request
 	var wg sync.WaitGroup
@@ -242,12 +242,12 @@ func TestMessageConsumedOnlyOnce(t *testing.T) {
 	// Create servers and start processing
 	for i := 0; i < numServers; i++ {
 		serverIdx := i // Capture loop variable
-		server, err := NewRedisGtrsServer[model.PharosScanTask, model.PharosScanResult](ctx, config.Redis, requestQueue, responseQueue)
+		server, err := NewRedisGtrsServer[model.PharosScanTask2, model.PharosScanResult](ctx, config.Redis, requestQueue, responseQueue)
 		require.NoError(t, err)
 		servers[i] = server
 
 		// Create a unique handler for each server that tracks message processing
-		handler := func(task model.PharosScanTask) model.PharosScanResult {
+		handler := func(task model.PharosScanTask2) model.PharosScanResult {
 			// Record that this server processed the message
 			mutex.Lock()
 			processedCount[task.JobId] = processedCount[task.JobId] + 1
@@ -275,7 +275,7 @@ func TestMessageConsumedOnlyOnce(t *testing.T) {
 	time.Sleep(500 * time.Millisecond)
 
 	// Create client
-	client, err := NewRedisGtrsClient[model.PharosScanTask, model.PharosScanResult](ctx, config, requestQueue, responseQueue)
+	client, err := NewRedisGtrsClient[model.PharosScanTask2, model.PharosScanResult](ctx, config, requestQueue, responseQueue)
 	require.NoError(t, err)
 
 	// Send multiple requests
