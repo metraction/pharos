@@ -24,8 +24,8 @@ type PharosScanTaskController struct {
 	Logger            *zerolog.Logger
 }
 
-// TODO: Rename as PharosScanTask is know from model, leads to confusion
-type PharosScanTask struct {
+// TODO: Rename as PharosScanTask2 is know from model, leads to confusion
+type PharosScanTask2 struct {
 	Body model.PharosScanTask2 `json:"body"`
 }
 
@@ -96,7 +96,7 @@ func (pc *PharosScanTaskController) sendScanRequest(ctx context.Context, publish
 
 // SyncScan handles the creation or update of a Docker image and initiates a scan.
 
-func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx context.Context, input *PharosScanTask) (*PharosScanTask, error)) {
+func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx context.Context, input *PharosScanTask2) (*PharosScanTask2, error)) {
 	return huma.Operation{
 			OperationID: "AsyncScan",
 			Method:      "POST",
@@ -120,7 +120,7 @@ func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx contex
 					Description: "Internal server error",
 				},
 			},
-		}, func(ctx context.Context, input *PharosScanTask) (*PharosScanTask, error) {
+		}, func(ctx context.Context, input *PharosScanTask2) (*PharosScanTask2, error) {
 			databaseContext, err := getDatabaseContext(ctx)
 			if err != nil {
 				return nil, huma.Error500InternalServerError("Database context not found in request context")
@@ -156,7 +156,7 @@ func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx contex
 				pc.Logger.Error().Err(err).Msg("Failed to send scan request")
 				return nil, err
 			}
-			return &PharosScanTask{
+			return &PharosScanTask2{
 				Body: *pharosScanTask,
 			}, nil
 		}
@@ -164,7 +164,7 @@ func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx contex
 
 // SyncScan handles the creation or update of a Docker image and initiates a scan.
 
-func (pc *PharosScanTaskController) SyncScan() (huma.Operation, func(ctx context.Context, input *PharosScanTask) (*PharosScanResult, error)) {
+func (pc *PharosScanTaskController) SyncScan() (huma.Operation, func(ctx context.Context, input *PharosScanTask2) (*PharosScanResult, error)) {
 	return huma.Operation{
 			OperationID: "SyncScan",
 			Method:      "POST",
@@ -188,7 +188,7 @@ func (pc *PharosScanTaskController) SyncScan() (huma.Operation, func(ctx context
 					Description: "Internal server error",
 				},
 			},
-		}, func(ctx context.Context, input *PharosScanTask) (*PharosScanResult, error) {
+		}, func(ctx context.Context, input *PharosScanTask2) (*PharosScanResult, error) {
 			databaseContext, err := getDatabaseContext(ctx)
 			if err != nil {
 				return nil, huma.Error500InternalServerError("Database context not found in request context")
