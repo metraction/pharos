@@ -11,7 +11,7 @@ import (
 
 // PharosScanTaskDedup holds state for filtering duplicate images in-memory.
 type PharosScanTaskDedup struct {
-	seen   map[string]model.PharosScanTask
+	seen   map[string]model.PharosScanTask2
 	mu     sync.Mutex
 	Config *model.Config // Config for the deduplicator, if needed
 	Logger *zerolog.Logger
@@ -20,16 +20,15 @@ type PharosScanTaskDedup struct {
 // NewDedup constructs a Dedup instance.
 func NewPharosScanTaskDeduplicator(config *model.Config) *PharosScanTaskDedup {
 	return &PharosScanTaskDedup{
-		seen:   make(map[string]model.PharosScanTask),
+		seen:   make(map[string]model.PharosScanTask2),
 		Logger: logging.NewLogger("info"),
 		Config: config,
 	}
 }
 
 // FilterDuplicates is a predicate for flow.NewFilter to filter out already seen images.
-func (d *PharosScanTaskDedup) FilterDuplicates(task model.PharosScanTask) bool {
-	//labels := map[string]string{}
-	key := task.ImageSpec.Image
+func (d *PharosScanTaskDedup) FilterDuplicates(task model.PharosScanTask2) bool {
+	key := task.ImageSpec
 	d.mu.Lock()
 	defer d.mu.Unlock()
 	random := time.Now().UnixNano() % 15

@@ -6,6 +6,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/scanner/version"
 	"github.com/spf13/cobra"
 )
@@ -20,6 +21,8 @@ var versionCmd = &cobra.Command{
 	Short: "Scanner version",
 	Long:  `Scanner display version.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		logger = logging.NewLogger(RootArgs.LogLevel)
+
 		fmt.Printf("Pharos scanner %s (%s, %s)\n", version.Version, version.BuildTimestamp, version.GoVersion)
 	},
 }

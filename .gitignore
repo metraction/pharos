@@ -34,7 +34,7 @@ go.work.sum
 .DS_Store
 
 # Dev/Test data
-_scans/
-_registry/
-_output/
+_data/
 *.json
+*.db
+*.db.wal

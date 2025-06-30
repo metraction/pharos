@@ -88,12 +88,12 @@ func BenchmarkSubmit1000Images(b *testing.B) {
 	ctx := context.Background()
 
 	// Create Redis client for request-reply
-	client, err := integrations.NewRedisGtrsClient[model.PharosScanTask, model.PharosScanResult](ctx, cfg, cfg.Publisher.RequestQueue, cfg.Publisher.ResponseQueue)
+	client, err := integrations.NewRedisGtrsClient[model.PharosScanTask2, model.PharosScanResult](ctx, cfg, cfg.Publisher.RequestQueue, cfg.Publisher.ResponseQueue)
 	if err != nil {
 		b.Fatalf("Failed to create Redis client: %v", err)
 	}
 
-	tasks := make([]model.PharosScanTask, 0, len(images))
+	tasks := make([]model.PharosScanTask2, 0, len(images))
 
 	for i, img := range images {
 		// Check if we have auth for this image's registry
@@ -111,17 +111,25 @@ func BenchmarkSubmit1000Images(b *testing.B) {
 		}
 
 		// Create a proper PharosScanTask using the constructor
-		task, err := model.NewPharosScanTask(
-			fmt.Sprintf("task-%d-%s", i, img), // jobId
-			img,                               // imageRef
-			"linux/amd64",                     // platform
-			auth,                              // auth (with credentials if matched)
-			24*time.Hour,                      // cacheExpiry
-			300*time.Second,                   // scanTimeout
-		)
-		if err != nil {
-			b.Fatalf("Failed to create scan task: %v", err)
+		// task, err := model.NewPharosScanTask(
+		// 	fmt.Sprintf("task-%d-%s", i, img), // jobId
+		// 	img,                               // imageRef
+		// 	"linux/amd64",                     // platform
+		// 	auth,                              // auth (with credentials if matched)
+		// 	24*time.Hour,                      // cacheExpiry
+		// 	300*time.Second,                   // scanTimeout
+		// )
+		task := model.PharosScanTask2{
+			JobId:     fmt.Sprintf("task-%d-%s", i, img), // jobId
+			ImageSpec: img,                               // imageRef
+			Platform:  "linux/amd64",                     // platform
+			AuthDsn:   auth.ToDsn(),                      //auth,                              // auth (with credentials if matched)
+			CacheTTL:  24 * time.Hour,                    // cacheExpiry
+			ScanTTL:   300 * time.Second,                 // scanTimeout
 		}
+		// if err != nil {
+		// 	b.Fatalf("Failed to create scan task: %v", err)
+		// }
 		tasks = append(tasks, task)
 	}
 
@@ -134,7 +142,7 @@ func BenchmarkSubmit1000Images(b *testing.B) {
 		results := make(chan struct {
 			result model.PharosScanResult
 			err    error
-			task   model.PharosScanTask
+			task   model.PharosScanTask2
 		}, len(tasks))
 
 		// Track errors to report at the end
@@ -147,7 +155,7 @@ func BenchmarkSubmit1000Images(b *testing.B) {
 		var wg sync.WaitGroup
 		for _, task := range tasks {
 			wg.Add(1)
-			go func(t model.PharosScanTask) {
+			go func(t model.PharosScanTask2) {
 				defer wg.Done()
 
 				// Create a context with timeout for this specific request
@@ -157,21 +165,21 @@ func BenchmarkSubmit1000Images(b *testing.B) {
 				r, err := client.RequestReply(reqCtx, t)
 				if err != nil {
 					errorsMu.Lock()
-					errors = append(errors, fmt.Sprintf("Error sending request for %s: %v", t.ImageSpec.Image, err))
+					errors = append(errors, fmt.Sprintf("Error sending request for %s: %v", t.ImageSpec, err))
 					errorsMu.Unlock()
 					return
 				}
 
 				if r.ScanTask.Error != "" {
 					errorsMu.Lock()
-					errors = append(errors, fmt.Sprintf("Error in scan task result for %s: %v", t.ImageSpec.Image, r.ScanTask.Error))
+					errors = append(errors, fmt.Sprintf("Error in scan task result for %s: %v", t.ImageSpec, r.ScanTask.Error))
 					errorsMu.Unlock()
 				}
 
 				results <- struct {
 					result model.PharosScanResult
 					err    error
-					task   model.PharosScanTask
+					task   model.PharosScanTask2
 				}{r, err, t}
 			}(task)
 		}
@@ -187,7 +195,7 @@ func BenchmarkSubmit1000Images(b *testing.B) {
 		for result := range results {
 			if result.err == nil && result.result.ScanTask.Error == "" {
 				successCount++
-				b.Logf("Success: %s", result.task.ImageSpec.Image)
+				b.Logf("Success: %s", result.task.ImageSpec)
 			}
 		}
 

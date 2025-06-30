@@ -30,7 +30,7 @@ func NewScanResultCollectorFlow(
 			}
 
 			//time.Sleep(10 * time.Second) // Simulate waiting for the scan to complete
-			log.Info().Str("image", item.ScanTask.ImageSpec.Image).Msg("Async scan completed")
+			log.Info().Str("image", item.ScanTask.ImageSpec).Msg("Async scan completed")
 			return item
 		}, 1)).
 		To(extension.NewStdoutSink())

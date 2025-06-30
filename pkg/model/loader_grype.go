@@ -16,9 +16,9 @@ func (rx *PharosScanResult) LoadGrypeImageScan(sbom syfttype.SyftSbomType, scan 
 
 	// scan engine
 	rx.Version = "1.0"
-	rx.ScanEngine.Name = scan.Descriptor.Name
-	rx.ScanEngine.Version = scan.Descriptor.Version
-	rx.ScanEngine.ScanTime = scan.Descriptor.ScanTime
+	//rx.ScanEngine.Name = scan.Descriptor.Name
+	//rx.ScanEngine.Version = scan.Descriptor.Version
+	//rx.ScanEngine.ScanTime = scan.Descriptor.ScanTime
 
 	// unique lists
 	vulnsList := map[string]int{}

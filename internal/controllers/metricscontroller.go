@@ -21,8 +21,8 @@ type MetricsController struct {
 	Path              string
 	Vulnerabilities   prometheus.GaugeVec
 	Api               *huma.API
-	AsyncPublisher    *integrations.RedisGtrsClient[model.PharosScanTask, model.PharosScanResult]
-	PriorityPublisher *integrations.RedisGtrsClient[model.PharosScanTask, model.PharosScanResult]
+	AsyncPublisher    *integrations.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult]
+	PriorityPublisher *integrations.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult]
 	Config            *model.Config
 	Logger            *zerolog.Logger
 }
