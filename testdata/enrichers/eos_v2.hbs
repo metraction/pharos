@@ -1,10 +1,6 @@
 version: v2
-kind: RiskPolicy
+kind: EosPolicy
 
 spec:
-  risk: {{ .data.Vulnerabilities | map "field" "L1" | sum  }}
-  eos: 2025-01-01
-  distro: {{ .data.Distro }}
-  distros:
-    alpine: {{ index .eos .data.Distro | filter "version" "startsWith" "3.18" | toYaml | nindent 4 }}
+  eos: {{ index .eos .data.Image.DistroName | filter "version" "startsWith" .data.Image.DistroVersion | map "field" "eos" | first }}
   

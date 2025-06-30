@@ -3,6 +3,7 @@ package routing
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/metraction/policy-engine/pkg/enricher"
@@ -18,7 +19,19 @@ func TestEosEnricher(t *testing.T) {
 
 	stream := NewEosEnricher(source, "../../testdata/enrichers").
 		Via(flow.NewMap(enricher.NewDebug(), 1))
-	result := (<-stream.Out()).(map[string]interface{})
 
-	fmt.Println("Result:", result)
+	contextRoot := model.ContextRoot{
+		Key:       "test-1",
+		ImageId:   "test-image-1",
+		UpdatedAt: time.Now(),
+		TTL:       1 * time.Hour,
+		Contexts: []model.Context{
+			{
+				Owner: "eos",
+				Data:  (<-stream.Out()).(map[string]interface{}),
+			},
+		},
+	}
+
+	fmt.Println("Result:", contextRoot.Contexts[0].Data)
 }
