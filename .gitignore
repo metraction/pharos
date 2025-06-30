@@ -37,3 +37,4 @@ go.work.sum
 _data/
 *.json
 *.db
+*.db.wal
