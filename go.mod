@@ -47,7 +47,7 @@ require (
 
 require (
 	github.com/danielgtaylor/huma/v2 v2.32.0
-	github.com/metraction/handwheel v0.0.2-0.20250622145352-05d70e27d53e
+	github.com/metraction/handwheel v0.0.2-0.20250630142155-91658fabd432
 	github.com/prometheus/client_golang v1.22.0
 	k8s.io/api v0.33.2
 	k8s.io/apimachinery v0.33.2

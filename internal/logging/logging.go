@@ -10,7 +10,7 @@ import (
 
 // return new logger with <logoutput> json,console and <loglevel> debug,info,warn
 
-func NewLogger(logLevel string) *zerolog.Logger {
+func NewLogger(logLevel string, extra ...string) *zerolog.Logger {
 
 	// Set log output format
 	logger := zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: "15:04:05"}).With().Timestamp().Logger()
@@ -30,5 +30,12 @@ func NewLogger(logLevel string) *zerolog.Logger {
 	case "error":
 		zerolog.SetGlobalLevel(zerolog.ErrorLevel)
 	}
+	if (len(extra) % 2) != 0 {
+		panic("extra strings must be in key=value format (even number of arguments)")
+	}
+	for i := 0; i < len(extra)/2; i += 2 {
+		logger = logger.With().Str(extra[i], extra[i+1]).Logger()
+	}
+
 	return &logger
 }

@@ -42,11 +42,12 @@ type ResultCollectorConfig struct {
 }
 
 type PrometheusReporterConfig struct {
-	URL       string `mapstructure:"url"`       // URL of the Prometheus server
-	Interval  string `mapstructure:"interval"`  // Interval for scraping Prometheus metrics
-	Platform  string `mapstructure:"platform"`  // Platform for which the metrics are collected, defaults to "linux/amd64"
-	Namespace string `mapstructure:"namespace"` // Namespace for the Prometheus metrics
-	PharosURL string `mapstructure:"pharosUrl"` // Root URL of the Pharos server for Prometheus metrics
+	URL           string   `mapstructure:"url"`           // URL of the Prometheus server
+	Interval      string   `mapstructure:"interval"`      // Interval for scraping Prometheus metrics
+	Platform      string   `mapstructure:"platform"`      // Platform for which the metrics are collected, defaults to "linux/amd64"
+	Namespace     string   `mapstructure:"namespace"`     // Namespace for the Prometheus metrics
+	PharosURL     string   `mapstructure:"pharosUrl"`     // Root URL of the Pharos server for Prometheus metrics
+	ContextLabels []string `mapstructure:"contextLabels"` // Labels to add to the Prometheus context
 }
 
 // Redis holds Redis-specific configuration.
