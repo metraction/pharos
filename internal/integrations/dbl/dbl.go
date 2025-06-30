@@ -1,6 +1,6 @@
 package dbl
 
-// Pharos local db for testing and exploration
+// Pharos local db for testing and results validation
 
 import (
 	"context"

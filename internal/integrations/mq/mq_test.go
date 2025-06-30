@@ -28,13 +28,14 @@ type CityTaskType struct {
 	Cid     int
 	Name    string
 	Created time.Time
-	Trigger int // trigger error
-
+	Trigger int            // trigger error
+	Context map[string]any // complex structure test
 }
 type CityResultType struct {
 	Cid        int
 	Name       string
 	ResultName string
+	Context    map[string]any
 }
 
 // Helper: setup redis test endpoint (miniredis or external instance)
@@ -52,6 +53,9 @@ func setupRedis(t *testing.T) (string, bool) {
 	return redisEndpoint, useMiniRedis
 }
 
+func showGroupStats(title string, stats GroupStats) {
+	fmt.Printf("stats:%-15v read:%v, pending:%v, lag:%v, pressure:%v in %v\n", title, stats.Read, stats.Pending, stats.Lag, stats.BackPressureOr(0), stats.Groups)
+}
 func TestRedisWorkerGroup(t *testing.T) {
 
 	// get redis or miniredis endpoint
@@ -63,10 +67,9 @@ func TestRedisWorkerGroup(t *testing.T) {
 	ctx := context.Background()
 
 	// stream config and dimension
-
-	txStream := "scan-t"  // send scan tasks
-	rxStream := "scan-r"  // send scan results
-	maxLen := int64(1000) // max # messages in stream
+	maxLen := int64(1000)          // max # messages in stream (e.g. test backpressure)
+	txStream := "scan-task-test"   // send scan tasks
+	rxStream := "scan-result-test" // send scan results
 
 	txMq, err := NewRedisWorkerGroup[CityTaskType](ctx, redisEndpoint, "$", txStream, "tasks", maxLen)
 	assert.NoError(t, err)
@@ -79,10 +82,17 @@ func TestRedisWorkerGroup(t *testing.T) {
 	rxMq, err := NewRedisWorkerGroup[CityResultType](ctx, redisEndpoint, "$", rxStream, "results", maxLen)
 	assert.NoError(t, err)
 	assert.NotNil(t, rxMq)
+
+	if err != nil {
+		t.FailNow()
+	}
 	err = rxMq.Connect(ctx)
 	assert.NoError(t, err)
 	defer rxMq.Close()
 
+	if err != nil {
+		t.FailNow()
+	}
 	// ensure clean start
 	assert.NoError(t, txMq.Delete(ctx))
 	assert.NoError(t, rxMq.Delete(ctx))
@@ -91,19 +101,37 @@ func TestRedisWorkerGroup(t *testing.T) {
 	assert.NoError(t, rxMq.CreateGroup(ctx))
 
 	// publish N tasks
-	samples := 20
+	samples := int(maxLen / 5)
+
 	fmt.Printf("\n-----< SEND %v cities >-----\n", samples)
+
+	stats, _ := txMq.GroupStats(ctx, "*")
+	showGroupStats("before", stats)
+	assert.Equal(t, int64(0), stats.Read)
+	assert.Equal(t, int64(0), stats.Lag)
+	assert.Equal(t, int64(0), stats.Pending)
+	assert.Equal(t, float64(0), stats.BackPressureOr(-1))
+
+	errorMsgs := 0
 	for k, name := range createSamples(samples) {
-		city := CityTaskType{Cid: k, Name: name, Created: time.Now()}
+		city := CityTaskType{Cid: k, Name: name, Created: time.Now(), Context: ContextGenerator()}
 		if k%3 == 0 {
+			errorMsgs += 1
 			city.Name = city.Name + " (ERR)"
 		}
 		id, err := txMq.Publish(ctx, 1, city)
-
-		fmt.Println(">>", txMq.StreamName, id, city.Cid, city.Name)
+		//fmt.Println(">>", txMq.StreamName, id, city.Cid, city.Name)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, id)
 	}
+
+	stats, _ = txMq.GroupStats(ctx, "*")
+	showGroupStats(fmt.Sprintf("sent-%v", samples), stats)
+
+	assert.Equal(t, int64(0), stats.Read)
+	assert.Equal(t, int64(samples), stats.Lag)
+	assert.Equal(t, int64(0), stats.Pending)
+	assert.Greater(t, stats.BackPressureOr(-1), float64(0))
 
 	// subscribe scan-t
 	taskHandler := func(x TaskMessage[CityTaskType]) error {
@@ -116,7 +144,7 @@ func TestRedisWorkerGroup(t *testing.T) {
 		} else if strings.Contains(x.Data.Name, "(ERR)") {
 			return fmt.Errorf("ERR %v %v %v %v %v %v", x.StreamName, x.GroupName, x.RetryCount, x.Id, x.Data.Cid, x.Data.Name)
 		}
-		fmt.Println("<< ", x.StreamName, x.GroupName, x.RetryCount, x.Id, x.Data.Cid, x.Data.Name)
+		//fmt.Println("<< ", x.StreamName, x.GroupName, x.RetryCount, x.Id, x.Data.Cid, x.Data.Name)
 
 		rxMq.Publish(ctx, 1, result)
 
@@ -125,18 +153,21 @@ func TestRedisWorkerGroup(t *testing.T) {
 
 	fmt.Printf("\n-----< SUBSCRIBE >-----\n")
 
-	claimBlock := int64(2)
-	claimMinIdle := 2 * time.Second // reclaim Non-ACK messages after 5 sec
-	blockTime := 3 * time.Second    // block/wait for XReadGroup
-	runTimeout := 60 * time.Second
+	claimBlock := int64(maxLen / 2)
+	claimMinIdle := 1 * time.Second // reclaim Non-ACK messages after 1 sec
+	blockTime := 1 * time.Second    // block/wait for XReadGroup
+	runTimeout := 2 * time.Second
 
-	read, pending, lag, groups, _ := txMq.GroupStats(ctx, "*")
-	fmt.Printf("stats() %v:  read:%v, pending:%v, lag:%v in %v\n", 0, read, pending, lag, groups)
+	stats1, _ := txMq.GroupStats(ctx, "*")
 
 	txMq.Subscribe(ctx, "alfa", claimBlock, claimMinIdle, blockTime, runTimeout, taskHandler)
 
-	read, pending, lag, groups, _ = txMq.GroupStats(ctx, "*")
-	fmt.Printf("Stats() %v:  read:%v, pending:%v, lag:%v in %v\n", "X", read, pending, lag, groups)
+	stats2, _ := txMq.GroupStats(ctx, "*")
+	showGroupStats("subs-before", stats1)
+	showGroupStats("subs-after", stats2)
+
+	assert.Equal(t, int64(200), stats2.Read)
+	assert.Equal(t, int64(errorMsgs), stats2.Pending)
 
 	//assert.True(t, false)
 }
