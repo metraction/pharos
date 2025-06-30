@@ -22,7 +22,7 @@ func SaveScanResult(databaseContext *model.DatabaseContext, pharosScanResult *mo
 	}
 	if err := databaseContext.DB.Find(&value, &query).Error; err != nil {
 		log.Error().Err(err).Msg("Failed to retrieve Docker images")
-		return fmt.Errorf("Failed to retrieve Docker images.", err)
+		return fmt.Errorf("Failed to retrieve Docker images: %w", err)
 	}
 	if value.ImageId == "" {
 		log.Info().Str("imageId", pharosScanResult.Image.ImageId).Msg("Image ID does not exist, creating new image metadata")

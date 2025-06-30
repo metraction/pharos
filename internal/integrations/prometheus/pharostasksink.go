@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/metraction/pharos/internal/logging"
+	"github.com/metraction/pharos/internal/utils"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/reugn/go-streams"
 	"github.com/rs/zerolog"
@@ -34,7 +35,7 @@ var _ streams.Sink = (*PharosTaskSink)(nil)
 func (ps *PharosTaskSink) process() {
 	defer close(ps.done)
 	for task := range ps.in {
-		scanTask, _ := task.(model.PharosScanTask)
+		scanTask, _ := task.(model.PharosScanTask2)
 		url := ps.Config.Prometheus.PharosURL + "/api/pharosscantask/asyncscan"
 
 		client := &http.Client{}
@@ -50,7 +51,7 @@ func (ps *PharosTaskSink) process() {
 			ps.log.Error().Err(err).Msg("Failed to POST to PharosScanTask endpoint")
 			continue
 		}
-		ps.log.Info().Str("image", scanTask.ImageSpec.Image).Str("username", scanTask.Auth.Username).Msg("Sending task to PharosScanTask endpoint")
+		ps.log.Info().Str("image", scanTask.ImageSpec).Str("auth", utils.MaskDsn(scanTask.AuthDsn)).Msg("Sending task to PharosScanTask endpoint")
 		resp.Body.Close()
 	}
 }

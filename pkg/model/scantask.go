@@ -26,6 +26,10 @@ type PharosScanTask2 struct {
 	CacheTTL time.Duration `json:"cachettl" required:"false"` // cache expiry in sec
 	ScanTTL  time.Duration `json:"scanttl" required:"false"`  // cache expiry in sec
 
+	// TODO - this is ORM fields, can we remove this?
+	Timeout time.Duration `json:"timeout" required:"false"` // scan timeout in sec
+	Created time.Time     `json:"created" required:"false"`
+	Updated time.Time     `json:"updated" required:"false"`
 }
 
 // set error and status
@@ -36,7 +40,7 @@ func (rx *PharosScanTask2) SetError(err error) *PharosScanTask2 {
 }
 
 // legacy
-type PharosScanTask struct {
+type XXPharosScanTask struct {
 	JobId      string          `json:"jobId" required:"false"` // jobid for batch jobs tracking
 	Auth       PharosRepoAuth  `json:"auth" required:"false"`
 	ImageSpec  PharosImageSpec `json:"imageSpec" required:"true"`
@@ -49,29 +53,29 @@ type PharosScanTask struct {
 	Error      string          `json:"error" required:"false"`
 }
 
-func DeleteNewPharosScanTask(jobId, imageRef, platform string, auth PharosRepoAuth, cacheExpiry, scanTimeout time.Duration) (PharosScanTask, error) {
-	now := time.Now().UTC()
+// func DeleteNewPharosScanTask(jobId, imageRef, platform string, auth PharosRepoAuth, cacheExpiry, scanTimeout time.Duration) (PharosScanTask, error) {
+// 	now := time.Now().UTC()
 
-	task := PharosScanTask{
-		JobId: jobId,
-		Auth:  auth,
-		ImageSpec: PharosImageSpec{
-			Image:       imageRef,
-			Platform:    platform,
-			CacheExpiry: cacheExpiry,
-		},
-		Timeout: scanTimeout,
-		Created: now,
-		Updated: now,
-		Status:  "new",
-	}
-	return task, nil
-}
+// 	task := PharosScanTask{
+// 		JobId: jobId,
+// 		Auth:  auth,
+// 		ImageSpec: PharosImageSpec{
+// 			Image:       imageRef,
+// 			Platform:    platform,
+// 			CacheExpiry: cacheExpiry,
+// 		},
+// 		Timeout: scanTimeout,
+// 		Created: now,
+// 		Updated: now,
+// 		Status:  "new",
+// 	}
+// 	return task, nil
+// }
 
-func (rx *PharosScanTask) SetStatus(status string) {
-	rx.Status = status
-	rx.Updated = time.Now().UTC()
-}
+// func (rx *PharosScanTask) SetStatus(status string) {
+// 	rx.Status = status
+// 	rx.Updated = time.Now().UTC()
+// }
 
 type PharosImageSpec struct {
 	Image       string         `json:"image" required:"true"`

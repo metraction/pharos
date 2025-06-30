@@ -84,7 +84,7 @@ func (pst *PharosScanTaskCreator) WithImagePullSecrets() *PharosScanTaskCreator 
 	return pst
 }
 
-func (pst *PharosScanTaskCreator) Result(metric hwmodel.ImageMetric) []model.PharosScanTask {
+func (pst *PharosScanTaskCreator) Result(metric hwmodel.ImageMetric) []model.PharosScanTask2 {
 	// Look for a matching DockerConfigJSON for the image
 
 	repo := "docker.io"
@@ -104,15 +104,13 @@ func (pst *PharosScanTaskCreator) Result(metric hwmodel.ImageMetric) []model.Pha
 	}
 
 	now := time.Now()
-	pharosScanTask := model.PharosScanTask{
-		ImageSpec: model.PharosImageSpec{
-			Image:    metric.Image_spec,
-			Platform: pst.Config.Prometheus.Platform, // Default platform, can be adjusted as needed
-		},
-		Auth:    pharosRepoAuth,
-		Created: now,
-		Updated: now,
-		Timeout: time.Second * 180, // 3 minutes
+	pharosScanTask := model.PharosScanTask2{
+		ImageSpec: metric.Image_spec,
+		Platform:  pst.Config.Prometheus.Platform, // Default platform, can be adjusted as needed
+		AuthDsn:   pharosRepoAuth.ToDsn(),
+		Created:   now,
+		Updated:   now,
+		Timeout:   time.Second * 180, // 3 minutes
 	}
-	return []model.PharosScanTask{pharosScanTask}
+	return []model.PharosScanTask2{pharosScanTask}
 }

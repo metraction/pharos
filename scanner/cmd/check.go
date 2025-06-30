@@ -88,7 +88,7 @@ func ExecuteCheck(mqEndpoint, cacheEndpoint string, logger *zerolog.Logger) {
 	}
 	if mqEndpoint != "" {
 		logger.Info().Msg("---< Redis Queue Stats >---")
-		taskMq, _ := mq.NewRedisWorkerGroup[model.PharosScanTask](ctx, mqEndpoint, "$", config.RedisTaskStream, "task-group", 0)
+		taskMq, _ := mq.NewRedisWorkerGroup[model.PharosScanTask2](ctx, mqEndpoint, "$", config.RedisTaskStream, "task-group", 0)
 		resultMq, _ := mq.NewRedisWorkerGroup[model.PharosScanResult](ctx, mqEndpoint, "$", config.RedisResultStream, "result-group", 0)
 
 		memUsed, memPeak, memSystem := taskMq.UsedMemory(ctx)

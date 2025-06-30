@@ -25,12 +25,12 @@ func (p *PharosRepoAuth) UnmarshalBinary(data []byte) error {
 }
 
 // MarshalBinary implements encoding.BinaryMarshaler for PharosScanTask
-func (p PharosScanTask) MarshalBinary() ([]byte, error) {
+func (p PharosScanTask2) MarshalBinary() ([]byte, error) {
 	return json.Marshal(p)
 }
 
 // UnmarshalBinary implements encoding.BinaryUnmarshaler for PharosScanTask
-func (p *PharosScanTask) UnmarshalBinary(data []byte) error {
+func (p *PharosScanTask2) UnmarshalBinary(data []byte) error {
 	return json.Unmarshal(data, p)
 }
 
