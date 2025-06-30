@@ -8,7 +8,6 @@ import (
 func NewEosEnricher(source streams.Source, basePath string) streams.Source {
 	enrichers := []enricher.EnricherConfig{
 		{Name: "file", Config: "eos.yaml"},
-		{Name: "debug", Config: ""},
 		{Name: "hbs", Config: "eos_v2.hbs"},
 	}
 	return enricher.NewEnricherStream(source, enrichers, basePath)
