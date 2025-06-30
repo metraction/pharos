@@ -19,15 +19,6 @@ func NewRedis(ctx context.Context, cfg *model.Config) *redis.Client {
 	})
 }
 
-func NewRedisStreamSource(ctx context.Context, redisCfg model.Redis, streamName string, groupName string, consumerName, groupStartID string, blockTimeout time.Duration, messageCount int64) (streams.Source, error) {
-	// 1. Create Redis client (using go-redis/redis v6)
-	fmt.Println("Connecting to Redis at:", redisCfg.DSN)
-	rdb := redis.NewClient(&redis.Options{
-		Addr: redisCfg.DSN,
-		// Other v6 options if needed (e.g., Password, DB)
-	})
-}
-
 func NewRedisConsumerGroupSource[T any](ctx context.Context, rdb *redis.Client, streamName string, groupName string, consumerName string, groupStartID string, blockTimeout time.Duration, messageCount int64) streams.Source {
 	consumer := gtrs.NewGroupConsumer[T](ctx, rdb, groupName, consumerName, streamName, "0-0", gtrs.GroupConsumerConfig{
 		StreamConsumerConfig: gtrs.StreamConsumerConfig{

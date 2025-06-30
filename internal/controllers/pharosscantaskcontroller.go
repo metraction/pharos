@@ -85,11 +85,7 @@ func (pc *PharosScanTaskController) sendScanRequest(ctx context.Context, publish
 		log.Error().Msg("PriorityPublisher is not set, cannot send scan request")
 		return "", nil, huma.Error500InternalServerError("PriorityPublisher is not set, cannot send scan request")
 	}
-<<<<<<< HEAD
-	log.Info().Str("image", pharosScanTask.ImageSpec.Image).Msg("Sending image scan request")
-=======
 	pc.Logger.Info().Str("image", pharosScanTask.ImageSpec).Str("requestqueue", pc.Config.Publisher.PriorityRequestQueue).Msg("Sending image scan request")
->>>>>>> c20696a (fix tests and code to PharosScanTask2)
 	err, corrId := publisher.SendRequest(ctx, *pharosScanTask)
 	log.Info().Str("corrId", corrId).Msg("Sent scan task to scanner")
 	if err != nil {
@@ -132,7 +128,7 @@ func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx contex
 			}
 			var value model.PharosImageMeta
 			// Split the platform string into OS and Arch
-			platform := input.Body.ImageSpec.Platform
+			platform := input.Body.Platform
 			archOS := ""
 			archName := ""
 			if platform != "" {
@@ -143,7 +139,7 @@ func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx contex
 				}
 			}
 			var query = model.PharosImageMeta{
-				ImageSpec: input.Body.ImageSpec.Image,
+				ImageSpec: input.Body.ImageSpec,
 				ArchOS:    archOS,
 				ArchName:  archName,
 			}
@@ -154,7 +150,7 @@ func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx contex
 			if value.ImageId != "" {
 				log.Info().Str("imageId", value.ImageId).Msg("Image already exists in database, using existing image metadata")
 
-				return nil, huma.Error409Conflict("Image with ImageSpec " + input.Body.ImageSpec.Image + " already exists in database")
+				return nil, huma.Error409Conflict("Image with ImageSpec " + input.Body.ImageSpec + " already exists in database")
 			}
 			_, pharosScanTask, err := pc.sendScanRequest(ctx, pc.AsyncPublisher, &input.Body)
 			if err != nil {

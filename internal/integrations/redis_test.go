@@ -382,8 +382,8 @@ func TestRedisConsumerGroupSource(t *testing.T) {
 			go func() {
 				src.
 					Via(flow.NewMap(func(msg any) any {
-						scanTask := msg.(model.PharosScanTask)
-						t.Logf("Consumer %s processing task %s for image %s", consumerID, scanTask.JobId, scanTask.ImageSpec.Image)
+						scanTask := msg.(model.PharosScanTask2)
+						t.Logf("Consumer %s processing task %s for image %s", consumerID, scanTask.JobId, scanTask.ImageSpec)
 
 						// Record that this consumer processed this message
 						mutex.Lock()
