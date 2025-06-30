@@ -69,31 +69,21 @@ func setupRedisTest(t *testing.T) (*miniredis.Miniredis, *redis.Client, *model.C
 }
 
 // newTestScanTask is a test helper that creates a PharosScanTask with standard defaults.
-func newTestScanTask(t *testing.T, taskID, image string) model.PharosScanTask {
+func newTestScanTask(t *testing.T, taskID, image string) model.PharosScanTask2 {
 	t.Helper()
-	task, err := model.NewPharosScanTask(
-		taskID,
-		image,
-		"",                     // platform
-		model.PharosRepoAuth{}, // auth
-		1*time.Hour,            // cache expiry
-		30*time.Second,         // scan timeout
-	)
-	require.NoError(t, err)
+	task := model.PharosScanTask2{JobId: taskID, ImageSpec: image, ScanTTL: 30 * time.Second, CacheTTL: 1 * time.Hour}
 	return task
 }
 
 // newTestScanResult is a test helper that creates a PharosScanResult for a given task and engine name.
-func newTestScanResult(task model.PharosScanTask, engineName string) model.PharosScanResult {
+func newTestScanResult(task model.PharosScanTask2, engineName string) model.PharosScanResult {
+	task.Engine = engineName
+	task.Status = "done"
 	return model.PharosScanResult{
 		Version:  "1.0",
 		ScanTask: task,
-		ScanEngine: model.PharosScanEngine{
-			Name:    engineName,
-			Version: "1.0",
-		},
 		Image: model.PharosImageMeta{
-			ImageSpec:   task.ImageSpec.Image,
+			ImageSpec:   task.ImageSpec,
 			ImageId:     "test-image-id",
 			IndexDigest: "sha256:test",
 		},
@@ -118,11 +108,11 @@ func TestIntegrationClientServer(t *testing.T) {
 	ctx := context.Background()
 
 	// Create server
-	server, err := NewRedisGtrsServer[model.PharosScanTask, model.PharosScanResult](ctx, config.Redis, "test_requests", "test_responses")
+	server, err := NewRedisGtrsServer[model.PharosScanTask2, model.PharosScanResult](ctx, config.Redis, "test_requests", "test_responses")
 	require.NoError(t, err)
 
 	// Create a mock handler function
-	mockHandler := func(task model.PharosScanTask) model.PharosScanResult {
+	mockHandler := func(task model.PharosScanTask2) model.PharosScanResult {
 		// Simulate some processing time to test concurrency
 		time.Sleep(50 * time.Millisecond)
 
@@ -139,7 +129,7 @@ func TestIntegrationClientServer(t *testing.T) {
 	}()
 
 	// Create client
-	client, err := NewRedisGtrsClient[model.PharosScanTask, model.PharosScanResult](ctx, config, "test_requests", "test_responses")
+	client, err := NewRedisGtrsClient[model.PharosScanTask2, model.PharosScanResult](ctx, config, "test_requests", "test_responses")
 	require.NoError(t, err)
 
 	// Number of concurrent requests to send
@@ -193,7 +183,7 @@ func TestIntegrationClientServer(t *testing.T) {
 	// Verify each response matches its request
 	for taskID, response := range results {
 		assert.Equal(t, taskID, response.ScanTask.JobId, "Response task ID should match request ID")
-		assert.Equal(t, "test-engine", response.ScanEngine.Name, "Response should contain expected engine name")
+		assert.Equal(t, "test-engine", response.ScanTask.Engine, "Response should contain expected engine name")
 	}
 }
 
