@@ -7,7 +7,9 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
+
 	"github.com/metraction/pharos/internal/controllers"
+	"github.com/metraction/pharos/internal/integrations"
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/internal/routing"
 	"github.com/metraction/pharos/pkg/model"
@@ -24,11 +26,11 @@ var httpCmd = &cobra.Command{
 These submissions are then published to a Redis stream for further processing by the scanner.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		logger := logging.NewLogger("info")
-		currentConfig := cmd.Context().Value("config").(*model.Config)
-		if currentConfig == nil {
+		config := cmd.Context().Value("config").(*model.Config)
+		if config == nil {
 			logger.Fatal().Msg("Configuration not found in context. Ensure rootCmd PersistentPreRun is setting it.")
 		}
-		databaseContext := model.NewDatabaseContext(&currentConfig.Database)
+		databaseContext := model.NewDatabaseContext(&config.Database)
 		databaseContext.Migrate()
 
 		router := http.NewServeMux()
@@ -38,20 +40,35 @@ These submissions are then published to a Redis stream for further processing by
 		}
 		apiConfig.OpenAPIPath = "/openapi"
 		api := humago.NewWithPrefix(router, "/api", apiConfig)
-		metricsController := controllers.NewMetricsController(&api, currentConfig)
+		metricsController := controllers.NewMetricsController(&api, config)
 		api.UseMiddleware(metricsController.MetricsMiddleware())
 
 		api.UseMiddleware(databaseContext.DatabaseMiddleware())
-		publisher, err := routing.NewPublisher(cmd.Context(), currentConfig)
-		priorityPublisher, err := routing.NewPriorityPublisher(cmd.Context(), currentConfig)
+		publisher, err := routing.NewPublisher(cmd.Context(), config)
 		if err != nil {
 			log.Fatal("Failed to create publisher flow:", err)
 			logger.Fatal().Err(err).Msg("Failed to create publisher flow")
 			return
 		}
+		priorityPublisher, err := routing.NewPriorityPublisher(cmd.Context(), config)
+		if err != nil {
+			log.Fatal("Failed to create publisher flow:", err)
+			logger.Fatal().Err(err).Msg("Failed to create publisher flow")
+			return
+		}
+
+		rdb := integrations.NewRedis(cmd.Context(), config)
+		go routing.NewScanResultCollectorFlow(
+			cmd.Context(),
+			rdb,
+			databaseContext,
+			&config.ResultCollector,
+			logger,
+		)
+
 		// Add routes for the API
-		controllers.NewimageController(&api, currentConfig).AddRoutes()
-		controllers.NewPharosScanTaskController(&api, currentConfig).WithPublisher(publisher, priorityPublisher).AddRoutes()
+		controllers.NewimageController(&api, config).AddRoutes()
+		controllers.NewPharosScanTaskController(&api, config).WithPublisher(publisher, priorityPublisher).AddRoutes()
 		metricsController.AddRoutes()
 		// b, _ := api.OpenAPI().DowngradeYAML()
 		// err = os.WriteFile("openapi.yaml", b, 0644)
@@ -86,7 +103,7 @@ These submissions are then published to a Redis stream for further processing by
 </html>`))
 		})
 
-		router.HandleFunc("/submit/image", routing.SubmitImageHandler(publisher, currentConfig))
+		router.HandleFunc("/submit/image", routing.SubmitImageHandler(publisher, config))
 		serverAddr := fmt.Sprintf(":%d", httpPort)
 		logger.Info().Str("address", serverAddr).Msg("Starting HTTP server")
 		if err := http.ListenAndServe(serverAddr, router); err != nil {

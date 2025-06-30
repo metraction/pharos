@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/metraction/pharos/internal/routing"
 	"github.com/metraction/pharos/pkg/model"
@@ -153,10 +154,17 @@ func init() {
 	rootCmd.PersistentFlags().String("publisher.priorityResponseQueue", "priorityScanresult", "Redis stream for sync responses")
 	rootCmd.PersistentFlags().String("publisher.timeout", "300s", "Publisher timeout")
 
+	rootCmd.PersistentFlags().String("collector.queueName", "scanresult", "Redis stream for async responses")
+	rootCmd.PersistentFlags().String("collector.groupName", "collector", "Redis stream for async responses")
+	rootCmd.PersistentFlags().String("collector.consumerName", "single", "Redis stream for async responses")
+	rootCmd.PersistentFlags().Duration("collector.blockTimeout", 300*time.Second, "Redis stream for async responses")
+	rootCmd.PersistentFlags().String("collector.messageCount", "100", "Redis stream for async responses")
+
 	rootCmd.PersistentFlags().String("scanner.requestQueue", "scantasks", "Redis stream for requests")
 	rootCmd.PersistentFlags().String("scanner.responseQueue", "scanresult", "Redis stream for responses")
 	rootCmd.PersistentFlags().String("scanner.timeout", "300s", "Scanner timeout")
 	rootCmd.PersistentFlags().String("scanner.cacheEndpoint", "redis://localhost:6379", "Scanner cache endpoint")
+
 	rootCmd.PersistentFlags().String("prometheus.url", "http://prometheus.prometheus.svc.cluster.local:9090", "URL of the Prometheus server")
 	rootCmd.PersistentFlags().String("prometheus.interval", "3600s", "Interval for scraping Prometheus metrics")
 	rootCmd.PersistentFlags().String("prometheus.pharosUrl", "http://localhost:8080", "Root URL of the Pharos server for submitting tasks")
@@ -166,5 +174,6 @@ func init() {
 	rootCmd.PersistentFlags().String("database.driver", "postgres", "Database driver for the scanner, righ now, only 'postgres' is implemented.")
 	defaultDSN := fmt.Sprintf("postgres://postgres:postgres@localhost:5432/pharos?sslmode=disable") // run `brew install db-browser-for-sqlite` to view the database.
 	rootCmd.PersistentFlags().String("database.dsn", defaultDSN, "Database DSN for the scanner, for postgres it is the connection string.")
+
 	rootCmd.AddCommand(scannerCmd)
 }
