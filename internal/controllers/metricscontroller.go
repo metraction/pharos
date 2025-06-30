@@ -38,7 +38,7 @@ func NewMetricsController(api *huma.API, config *model.Config) *MetricsControlle
 		Path:            "/metrics",
 		Api:             api,
 		Config:          config,
-		Logger:          logging.NewLogger("info"),
+		Logger:          logging.NewLogger("info", "component", "MetricsController"),
 		Vulnerabilities: *vulnerabilities,
 	}
 	return mc

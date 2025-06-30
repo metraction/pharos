@@ -39,7 +39,7 @@ type PharosScanTaskCreator struct {
 
 func NewPharosScanTaskCreator(config *model.Config) *PharosScanTaskCreator {
 	return &PharosScanTaskCreator{
-		Logger:            logging.NewLogger("info"),
+		Logger:            logging.NewLogger("info", "component", "PharosScanTaskCreator"),
 		Config:            config,
 		DockerConfigJSONs: []DockerConfigJSON{},
 	}
@@ -86,7 +86,6 @@ func (pst *PharosScanTaskCreator) WithImagePullSecrets() *PharosScanTaskCreator 
 
 func (pst *PharosScanTaskCreator) Result(metric hwmodel.ImageMetric) []model.PharosScanTask {
 	// Look for a matching DockerConfigJSON for the image
-
 	repo := "docker.io"
 	matches := regexp.MustCompile(`^([^/]+)/`).FindStringSubmatch(metric.Image_spec)
 	pharosRepoAuth := model.PharosRepoAuth{}

@@ -13,25 +13,25 @@ import (
 type PharosScanTaskDedup struct {
 	seen   map[string]model.PharosScanTask
 	mu     sync.Mutex
+	Config *model.Config // Config for the deduplicator, if needed
 	Logger *zerolog.Logger
 }
 
 // NewDedup constructs a Dedup instance.
-func NewPharosScanTaskDeduplicator() *PharosScanTaskDedup {
+func NewPharosScanTaskDeduplicator(config *model.Config) *PharosScanTaskDedup {
 	return &PharosScanTaskDedup{
 		seen:   make(map[string]model.PharosScanTask),
 		Logger: logging.NewLogger("info"),
+		Config: config,
 	}
 }
 
 // FilterDuplicates is a predicate for flow.NewFilter to filter out already seen images.
 func (d *PharosScanTaskDedup) FilterDuplicates(task model.PharosScanTask) bool {
+	//labels := map[string]string{}
 	key := task.ImageSpec.Image
 	d.mu.Lock()
 	defer d.mu.Unlock()
-	// if matched, _ := regexp.MatchString(`^ghcr.io`, key); !matched {
-	// 	return false
-	// }
 	random := time.Now().UnixNano() % 15
 	if _, exists := d.seen[key]; exists {
 		oldTask := d.seen[key]
