@@ -11,9 +11,11 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/google/uuid"
 	"github.com/metraction/pharos/internal/integrations"
+	"github.com/metraction/pharos/internal/integrations/db"
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/internal/routing"
 	"github.com/metraction/pharos/pkg/model"
+	"github.com/reugn/go-streams/extension"
 	"github.com/rs/zerolog"
 )
 
@@ -41,7 +43,9 @@ func NewPharosScanTaskController(api *huma.API, config *model.Config) *PharosSca
 		ResultChannel: make(chan any), // Channel to handle scan
 	}
 	// Start the flow to handle scan results without scanner.
-	go routing.NewScanResultsInternalFlow(model.NewDatabaseContext(&config.Database), pc.ResultChannel)
+	source := extension.NewChanSource(pc.ResultChannel)
+	go routing.NewScanResultsInternalFlow(source).
+		To(db.NewImageDbSink(model.NewDatabaseContext(&config.Database)))
 	return pc
 }
 
