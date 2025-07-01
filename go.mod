@@ -51,6 +51,7 @@ require (
 	github.com/metraction/handwheel v0.0.3
 	github.com/otiai10/copy v1.14.1
 	github.com/prometheus/client_golang v1.22.0
+	gorm.io/driver/sqlite v1.6.0
 	k8s.io/api v0.33.2
 	k8s.io/apimachinery v0.33.2
 	k8s.io/client-go v0.33.2
