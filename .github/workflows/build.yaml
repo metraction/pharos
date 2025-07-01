@@ -4,6 +4,7 @@ on:
     branches: 
     - main
     - PH-47/*
+    - PH-38/*
     tags:
     - 'v*'
   workflow_dispatch:

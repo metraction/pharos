@@ -4,8 +4,6 @@ go 1.24.0
 
 toolchain go1.24.4
 
-require github.com/metraction/policy-engine v0.0.0-20250625121415-b669a8a25290
-
 require (
 	github.com/CycloneDX/cyclonedx-go v0.9.2
 	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d
