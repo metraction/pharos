@@ -1,0 +1,6 @@
+version: v1
+kind: RiskPolicy
+
+spec:
+  risk: {{ map "field" "L1" .Vulnerabilities | sum }}
+  
