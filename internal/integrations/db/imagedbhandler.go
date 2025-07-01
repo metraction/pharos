@@ -35,5 +35,7 @@ func (ih *ImageDbHandler) RemoveImagesWithoutContext(item model.PharosImageMeta)
 
 		}
 	}
+	// TODO: Remove image with ImageId = "" - we have to find out where it comes from.
+	ih.DatabaseContext.DB.Model(&model.PharosImageMeta{}).Where("image_id = ?", "").Delete(&model.PharosImageMeta{})
 	return item
 }
