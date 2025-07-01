@@ -15,7 +15,7 @@ func TestEosEnricher(t *testing.T) {
 	messageChan := make(chan any, 1)
 	messageChan <- model.NewTestScanResult(model.NewTestScanTask(t, "test-1", "test-image-1"), "test-engine-1")
 	source := extension.NewChanSource(messageChan).
-		Via(flow.NewMap(mappers.NewMapOfMaps(), 1))
+		Via(flow.NewMap(mappers.ToMap, 1))
 
 	stream := NewEosEnricher(source, "../../cmd/kodata/enrichers").
 		Via(flow.NewMap(mappers.NewDebug(), 1))
