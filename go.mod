@@ -45,6 +45,7 @@ require (
 )
 
 require (
+	github.com/alicebob/miniredis v2.5.0+incompatible
 	github.com/danielgtaylor/huma/v2 v2.32.0
 	github.com/mattn/go-sqlite3 v1.14.28
 	github.com/metraction/handwheel v0.0.3
@@ -57,7 +58,6 @@ require (
 
 require (
 	github.com/alicebob/gopher-json v0.0.0-20200520072559-a9ecdc9d1d3a // indirect
-	github.com/alicebob/miniredis v2.5.0+incompatible // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/emicklei/go-restful/v3 v3.11.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.7.0 // indirect

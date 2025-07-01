@@ -70,12 +70,8 @@ These submissions are then published to a Redis stream for further processing by
 		controllers.NewimageController(&api, config).AddRoutes()
 		controllers.NewPharosScanTaskController(&api, config).WithPublisher(publisher, priorityPublisher).AddRoutes()
 		metricsController.AddRoutes()
-		// b, _ := api.OpenAPI().DowngradeYAML()
-		// err = os.WriteFile("openapi.yaml", b, 0644)
-		// if err != nil {
-		// 	logger.Error().Err(err).Msg("Failed to write openapi.yaml")
-		// }
-		// I love swagger
+		// Add go streams routes
+		go routing.NewImageCleanupFlow(databaseContext, config)
 
 		router.HandleFunc("/api/swagger", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/html")

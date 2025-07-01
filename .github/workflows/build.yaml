@@ -3,7 +3,7 @@ on:
   push:
     branches: 
     - main
-    - PH-44/*
+    - PH-47/*
     tags:
     - 'v*'
   workflow_dispatch:
