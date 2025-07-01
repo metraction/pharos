@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
@@ -72,7 +73,10 @@ func TestServer(t *testing.T) {
 		}
 		tx := databaseContext.DB.Create(&pharosImageMeta)
 		require.NoError(t, tx.Error)
+		// Wait for the server to start
+		time.Sleep(5 * time.Second)
 	})
+
 	t.Run("GetDataViaAPI", func(t *testing.T) {
 		resp, err := http.Get("http://localhost:8081/api/pharosimagemeta/test-image-id")
 		if err != nil {
