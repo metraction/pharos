@@ -115,7 +115,7 @@ func (pc *PharosImageMetaController) GetContexts() (huma.Operation, func(ctx con
 	return huma.Operation{
 			OperationID: "GetContexts",
 			Method:      "GET",
-			Path:        pc.Path + "contexts/{imageid}",
+			Path:        pc.Path + "/contexts/{imageid}",
 			Summary:     "Get Contexts for Image",
 			Description: "Returns a flattened list of contexts for the image, to be used by Grafana.",
 			Tags:        []string{"PharosImageMeta"},
