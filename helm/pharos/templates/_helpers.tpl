@@ -37,7 +37,7 @@ Common labels
 helm.sh/chart: {{ include "pharos.chart" . }}
 {{ include "pharos.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote | trunc 63 | trimSuffix "-" }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
