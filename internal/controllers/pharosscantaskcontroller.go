@@ -161,7 +161,7 @@ func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx contex
 				age := time.Since(value.LastSuccessfulScan)
 				randomValue := 0
 				if value.TTL.Seconds() != 0 {
-					randomValue = rand.Intn(int(value.TTL.Seconds()))
+					randomValue = rand.Intn(int(value.TTL.Seconds())) - int(value.TTL.Seconds()/2)
 				}
 				if age > value.TTL+time.Duration(randomValue)*time.Second {
 					pc.Logger.Info().Str("ImageId", value.ImageId).Msg("Image exists but is too old, re-scanning")
