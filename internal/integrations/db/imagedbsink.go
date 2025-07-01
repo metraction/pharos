@@ -1,4 +1,4 @@
-package streams
+package db
 
 import (
 	"github.com/metraction/pharos/internal/logging"

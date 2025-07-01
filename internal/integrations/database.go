@@ -9,7 +9,7 @@ import (
 )
 
 /*
-TODO Should return pure errors instead puma
+TODO Should return pure errors instead puma, used for sync scan - must be replaced.
 */
 func SaveScanResult(databaseContext *model.DatabaseContext, pharosScanResult *model.PharosScanResult) error {
 	pharosScanResult.Image.Vulnerabilities = pharosScanResult.Vulnerabilities // Ensure vulnerabilities are set
