@@ -106,6 +106,12 @@ jobs:
           echo "Waiting for services to initialize..."
           sleep 15 # Adjust as needed, or implement a more robust health check for the scanner
 
+      - name: Run controller integration tests
+        env:
+          DOCKER_REGISTRIES_AUTH: "registry://spastai\\@gmail.com:${{ secrets.GITHUB_TOKEN }}@ghcr.io/metraction"
+        run: |
+          go test ./internal/routing -timeout=5m
+
       - name: Run benchmark tests
         env:
           DOCKER_REGISTRIES_AUTH: "registry://spastai\\@gmail.com:${{ secrets.GITHUB_TOKEN }}@ghcr.io/metraction"
