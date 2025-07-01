@@ -165,9 +165,6 @@ func (pc *PharosImageMetaController) GetContexts() (huma.Operation, func(ctx con
 							UpdatedAt:      context.UpdatedAt,
 						})
 					}
-					contextEntries = append(contextEntries, model.ContextEntry{
-						ContextRootKey: context.ContextRootKey,
-					})
 				}
 			}
 			return &ContextEntries{
