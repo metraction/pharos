@@ -27,6 +27,7 @@ type Image struct {
 	Vulnerabilities []Vulnerability
 	Namespace       string
 	Distro          string
+	Version         string
 }
 
 type RiskV1 struct {
@@ -88,7 +89,8 @@ func TestApplyRiskV1Template(t *testing.T) {
 	}
 
 	// Ensure the template exists for the test
-	templatePath := filepath.Join("..", "..", "rules", "risk_v1.hbs")
+
+	templatePath := filepath.Join("..", "..", "testdata", "enrichers", "risk_v1.hbs")
 	if _, err := os.Stat(templatePath); os.IsNotExist(err) {
 		t.Fatalf("Template file %s does not exist", templatePath)
 	}
@@ -134,7 +136,7 @@ func TestApplyRiskV2Template(t *testing.T) {
 		Namespace: "frontend",
 	}
 
-	templatePath := filepath.Join("..", "..", "rules", "risk_v2.hbs")
+	templatePath := filepath.Join("..", "..", "testdata", "enrichers", "risk_v2.hbs")
 	if _, err := os.Stat(templatePath); os.IsNotExist(err) {
 		t.Fatalf("Template file %s does not exist", templatePath)
 	}
@@ -173,7 +175,7 @@ func TestApplyRiskV2Template(t *testing.T) {
 }
 
 func TestStream(t *testing.T) {
-	templatePath := filepath.Join("..", "..", "rules", "risk_v2.hbs")
+	templatePath := filepath.Join("..", "..", "testdata", "enrichers", "risk_v2.hbs")
 
 	img := Image{
 		Vulnerabilities: []Vulnerability{
@@ -181,6 +183,8 @@ func TestStream(t *testing.T) {
 			{L1: 7},
 		},
 		Namespace: "portal",
+		Distro:    "alpine",
+		Version:   "3.16",
 	}
 
 	outChan := make(chan any)
@@ -204,6 +208,8 @@ func TestAppendFile(t *testing.T) {
 			{L1: 7},
 		},
 		Namespace: "portal",
+		Distro:    "alpine",
+		Version:   "3.16",
 	}
 
 	outChan := make(chan any)
@@ -213,15 +219,25 @@ func TestAppendFile(t *testing.T) {
 	}()
 
 	// Use filepath.Join to create a platform-independent path to the test data file
-	eosYamlPath := filepath.Join("..", "..", "testdata", "eos.yaml")
-	templatePath := filepath.Join("..", "..", "testdata", "eos_v1.hbs")
+	eosYamlPath := filepath.Join("..", "..", "testdata", "enrichers", "eos.yaml")
+	templatePath := filepath.Join("..", "..", "testdata", "enrichers", "eos_v1.hbs")
 
 	mapper := extension.NewChanSource(outChan).
 		Via(flow.NewMap(NewAppendFile[Image](eosYamlPath), 1)).
 		Via(flow.NewMap(NewPureHbs[map[string]interface{}, map[string]interface{}](templatePath), 1))
 	result := (<-mapper.Out()).(map[string]interface{})
 
-	fmt.Printf("Result: %+v", result)
+	// Assert that the result contains the expected structure
+	spec, ok := result["spec"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("Expected result to contain 'spec' as map[string]interface{}, got %T", result["spec"])
+	}
+
+	// Assert that spec contains the eos field
+	_, ok = spec["eos"]
+	if !ok {
+		t.Fatalf("Expected spec to contain 'eos' field, got keys: %v", getMapKeys(spec))
+	}
 }
 
 // getMapKeys returns a sorted slice of keys from a map[string]interface{}.
@@ -237,7 +253,7 @@ func getMapKeys(m map[string]interface{}) []string {
 func TestDynamicStream(t *testing.T) {
 	enrichers := []EnricherConfig{
 		{Name: "file", Config: "eos.yaml"},
-		{Name: "hbs", Config: "eos_v2.hbs"},
+		{Name: "hbs", Config: "eos_v1.hbs"},
 		{Name: "debug", Config: ""},
 	}
 
@@ -248,6 +264,7 @@ func TestDynamicStream(t *testing.T) {
 		},
 		Namespace: "portal",
 		Distro:    "alpine",
+		Version:   "3.16",
 	}
 
 	outChan := make(chan any)
@@ -258,7 +275,8 @@ func TestDynamicStream(t *testing.T) {
 	source := extension.NewChanSource(outChan).
 		Via(flow.NewMap(NewMapOfMaps(), 1))
 
-	stream := NewEnricherStream(source, enrichers, filepath.Join("..", "..", "testdata"))
+	enrichersPath := filepath.Join("..", "..", "testdata", "enrichers")
+	stream := NewEnricherStream(source, enrichers, enrichersPath)
 	result := (<-stream.Out()).(map[string]interface{})
 
 	// Assert that the result contains the expected structure
@@ -276,9 +294,9 @@ func TestDynamicStream(t *testing.T) {
 	// Check if eos contains the expected date
 	eosStr := fmt.Sprintf("%v", eos)
 
-	// Check if the date string contains the expected date prefix
-	if !strings.Contains(eosStr, "2025-01-01") && !strings.Contains(eosStr, "2025-01-02") {
-		t.Errorf("Expected eos to contain either '2025-01-01' or '2025-01-02', got '%s'", eosStr)
+	// Check if the date string contains the expected date format
+	if !strings.Contains(eosStr, "2024-05-23") {
+		t.Errorf("Expected eos to contain '2024-05-23', got '%s'", eosStr)
 	} else {
 		t.Logf("Found expected date in eos value: %s", eosStr)
 	}

@@ -7,6 +7,9 @@ on:
     - PH-38/*
     tags:
     - 'v*'
+  pull_request:
+    branches:
+    - main
   workflow_dispatch:
     inputs:
       run_integration_tests:

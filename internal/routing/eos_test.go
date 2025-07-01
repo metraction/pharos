@@ -17,7 +17,7 @@ func TestEosEnricher(t *testing.T) {
 	source := extension.NewChanSource(messageChan).
 		Via(flow.NewMap(mappers.NewMapOfMaps(), 1))
 
-	stream := NewEosEnricher(source, "../../testdata/enrichers").
+	stream := NewEosEnricher(source, "../../cmd/kodata/enrichers").
 		Via(flow.NewMap(mappers.NewDebug(), 1))
 
 	contextRoot := model.ContextRoot{
