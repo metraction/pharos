@@ -4,6 +4,7 @@ package controllers
 
 import (
 	"context"
+	"math/rand"
 	"strings"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/metraction/pharos/internal/integrations"
 	"github.com/metraction/pharos/internal/logging"
+	"github.com/metraction/pharos/internal/routing"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/rs/zerolog"
 )
@@ -22,6 +24,7 @@ type PharosScanTaskController struct {
 	PriorityPublisher *integrations.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult]
 	Config            *model.Config
 	Logger            *zerolog.Logger
+	ResultChannel     chan any
 }
 
 // TODO: Rename as PharosScanTask2 is know from model, leads to confusion
@@ -31,11 +34,14 @@ type PharosScanTask2 struct {
 
 func NewPharosScanTaskController(api *huma.API, config *model.Config) *PharosScanTaskController {
 	pc := &PharosScanTaskController{
-		Path:   "/pharosscantask",
-		Api:    api,
-		Config: config,
-		Logger: logging.NewLogger("info", "component", "PharosScanTaskController"),
+		Path:          "/pharosscantask",
+		Api:           api,
+		Config:        config,
+		Logger:        logging.NewLogger("info", "component", "PharosScanTaskController"),
+		ResultChannel: make(chan any), // Channel to handle scan
 	}
+	// Start the flow to handle scan results without scanner.
+	go routing.NewScanResultsInternalFlow(model.NewDatabaseContext(&config.Database), pc.ResultChannel)
 	return pc
 }
 
@@ -152,14 +158,25 @@ func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx contex
 				return nil, huma.Error500InternalServerError("Failed to retrieve Docker images: " + err.Error())
 			}
 			if value.ImageId != "" {
-				pc.Logger.Info().Str("imageId", value.ImageId).Msg("Image already exists in database, using existing image metadata")
-				// TODO: We must create a scanresult and send that to the results stream here.
-				// PharosScanResult := model.PharosScanResult{
-				// 	ScanTask: input.Body,
-				// 	Image:    value,
-				// }
-
-				return nil, huma.Error409Conflict("Image with ImageSpec " + input.Body.ImageSpec + " already exists in database")
+				age := time.Since(value.LastSuccessfulScan)
+				randomValue := 0
+				if value.TTL.Seconds() != 0 {
+					randomValue = rand.Intn(int(value.TTL.Seconds()))
+				}
+				if age > value.TTL+time.Duration(randomValue)*time.Second {
+					pc.Logger.Info().Str("ImageId", value.ImageId).Msg("Image exists but is too old, re-scanning")
+				} else {
+					// If the image is not too old, we can return the existing image metadata
+					pc.Logger.Info().Str("ImageId", value.ImageId).Msg("Image already exists in database, using existing image metadata")
+					// TODO: We must create a scanresult and send that to the results stream here.
+					PharosScanResult := model.PharosScanResult{
+						ScanTask: input.Body,
+						Image:    value,
+					}
+					// Send the scan result to the results channel
+					pc.ResultChannel <- PharosScanResult
+					return nil, huma.Error409Conflict("Image with ImageSpec " + input.Body.ImageSpec + " already exists in database")
+				}
 			}
 			_, pharosScanTask, err := pc.sendScanRequest(ctx, pc.AsyncPublisher, &input.Body)
 			if err != nil {

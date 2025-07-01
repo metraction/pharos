@@ -49,8 +49,17 @@ func (is *ImageDbSink) process() {
 			logger.Error().Err(err).Msg("Failed to retrieve Docker images")
 			continue
 		}
+		pharosScanResult.Image.TTL = pharosScanResult.ScanTask.ScanTTL // Set the TTL for the image
 		if value.ImageId == "" {
 			logger.Info().Msg("Image ID does not exist, creating new image metadata")
+			if is.DatabaseContext == nil {
+				logger.Error().Msg("Database context is nil, cannot save image metadata")
+				continue
+			}
+			if is.DatabaseContext.DB == nil {
+				logger.Error().Msg("Database is nil, cannot save image metadata")
+				continue
+			}
 			tx := is.DatabaseContext.DB.Create(pharosScanResult.Image) // Try to Create the updated image metadata
 			if tx.Error != nil {
 				logger.Error().Err(tx.Error).Msg("Failed to save image metadata in database")
@@ -58,6 +67,10 @@ func (is *ImageDbSink) process() {
 			}
 			logger.Info().Msg("Created image metadata in database")
 		} else {
+			if pharosScanResult.Image.ImageId == "" || pharosScanResult.ScanTask.ContextRootKey == "" {
+				logger.Warn().Msg("Image ID or ContextRootKey is empty, skipping update")
+				continue
+			}
 			logger.Info().Msg("Updating existing image metadata")
 			var query = model.ContextRoot{
 				ImageId: pharosScanResult.Image.ImageId,
