@@ -35,7 +35,7 @@ type DefaultGormModel struct {
 
 func NewDatabaseContext(config *Database) *DatabaseContext {
 	dsn := config.Dsn
-	logger := logging.NewLogger("info")
+	logger := logging.NewLogger("info", "component", "DatabaseContext")
 	var dialector gorm.Dialector
 	switch config.Driver {
 	// case DatabaseDriverSqlite:

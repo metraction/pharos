@@ -19,11 +19,11 @@ type PharosImageMetaController struct {
 	Logger *zerolog.Logger
 }
 
-type Images struct {
+type PharosImageMetas struct {
 	Body []model.PharosImageMeta `json:"body"`
 }
 
-type Image struct {
+type PharosImageMeta struct {
 	Body model.PharosImageMeta `json:"body"`
 }
 
@@ -36,7 +36,7 @@ func NewimageController(api *huma.API, config *model.Config) *PharosImageMetaCon
 		Path:   "/pharosimagemeta",
 		Api:    api,
 		Config: config,
-		Logger: logging.NewLogger("info"),
+		Logger: logging.NewLogger("info", "component", "PharosImageMetaController"),
 	}
 	return pc
 }
@@ -52,7 +52,7 @@ func (pc *PharosImageMetaController) AddRoutes() {
 	}
 }
 
-func (pc *PharosImageMetaController) Get() (huma.Operation, func(ctx context.Context, input *ImageDigestInput) (*Image, error)) {
+func (pc *PharosImageMetaController) Get() (huma.Operation, func(ctx context.Context, input *ImageDigestInput) (*PharosImageMeta, error)) {
 	return huma.Operation{
 			OperationID: "Getimage",
 			Method:      "GET",
@@ -72,7 +72,7 @@ func (pc *PharosImageMetaController) Get() (huma.Operation, func(ctx context.Con
 					Description: "image not found",
 				},
 			},
-		}, func(ctx context.Context, input *ImageDigestInput) (*Image, error) {
+		}, func(ctx context.Context, input *ImageDigestInput) (*PharosImageMeta, error) {
 			databaseContext, err := getDatabaseContext(ctx)
 			if err != nil {
 				return nil, huma.Error500InternalServerError("Database context not found in request context")
@@ -97,13 +97,13 @@ func (pc *PharosImageMetaController) Get() (huma.Operation, func(ctx context.Con
 			if value.IndexDigest == "" {
 				return nil, huma.Error404NotFound("Image with ImageId " + input.ImageId + " not found")
 			}
-			return &Image{
+			return &PharosImageMeta{
 				Body: value,
 			}, nil
 		}
 }
 
-func (pc *PharosImageMetaController) GetAll() (huma.Operation, func(ctx context.Context, input *struct{}) (*Images, error)) {
+func (pc *PharosImageMetaController) GetAll() (huma.Operation, func(ctx context.Context, input *struct{}) (*PharosImageMetas, error)) {
 	return huma.Operation{
 			OperationID: "GetAllImages",
 			Method:      "GET",
@@ -119,7 +119,7 @@ func (pc *PharosImageMetaController) GetAll() (huma.Operation, func(ctx context.
 					Description: "Internal server error",
 				},
 			},
-		}, func(ctx context.Context, input *struct{}) (*Images, error) {
+		}, func(ctx context.Context, input *struct{}) (*PharosImageMetas, error) {
 			databaseContext, err := getDatabaseContext(ctx)
 			if err != nil {
 				return nil, huma.Error500InternalServerError("Database context not found in request context")
@@ -128,7 +128,7 @@ func (pc *PharosImageMetaController) GetAll() (huma.Operation, func(ctx context.
 			if err := databaseContext.DB.Find(&values).Error; err != nil {
 				return nil, huma.Error500InternalServerError("Failed to retrieve Docker images: " + err.Error())
 			}
-			return &Images{
+			return &PharosImageMetas{
 				Body: values,
 			}, nil
 		}

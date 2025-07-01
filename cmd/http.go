@@ -25,7 +25,7 @@ var httpCmd = &cobra.Command{
 	Long: `Starts an HTTP server that listens for Docker image submissions (name and SHA) via a POST request.
 These submissions are then published to a Redis stream for further processing by the scanner.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		logger := logging.NewLogger("info")
+		logger := logging.NewLogger("info", "component", "cmd.http")
 		config := cmd.Context().Value("config").(*model.Config)
 		if config == nil {
 			logger.Fatal().Msg("Configuration not found in context. Ensure rootCmd PersistentPreRun is setting it.")

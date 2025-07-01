@@ -1,0 +1,37 @@
+// Handler functions related to Pharos scan tasks.
+
+package streams
+
+import (
+	"time"
+
+	"github.com/metraction/pharos/internal/logging"
+	"github.com/metraction/pharos/pkg/model"
+	"github.com/rs/zerolog"
+)
+
+type PharosScanTaskHandler struct {
+	Logger *zerolog.Logger
+}
+
+func NewPharosScanTaskHandler() *PharosScanTaskHandler {
+	return &PharosScanTaskHandler{
+		Logger: logging.NewLogger("info", "component", "PharosScanTaskHandler"),
+	}
+}
+
+func (ph *PharosScanTaskHandler) FilterFailedTasks(item model.PharosScanResult) bool {
+	ph.Logger.Info().Str("ImageId", item.Image.ImageId).Msg("Receiving scan result for image")
+	if item.ScanTask.Error != "" {
+		ph.Logger.Warn().Str("JobId", item.ScanTask.JobId).Str("error", item.ScanTask.Error).Msg("Scan task failed during async scan")
+		return false
+	} else {
+		return true
+	}
+}
+
+func (ph *PharosScanTaskHandler) CreateRootContext(result model.PharosScanResult) model.PharosScanResult {
+	contextRoot := result.GetContextRoot("pharos controller", time.Minute*30) // TODO: Need to make this configurable
+	result.Image.ContextRoots = []model.ContextRoot{contextRoot}
+	return result
+}

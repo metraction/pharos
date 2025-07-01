@@ -170,7 +170,7 @@ func init() {
 	rootCmd.PersistentFlags().String("prometheus.pharosUrl", "http://localhost:8080", "Root URL of the Pharos server for submitting tasks")
 	rootCmd.PersistentFlags().String("prometheus.platform", "linux/amd64", "Platform for which the metrics are collected, defaults to 'linux/amd64'")
 	rootCmd.PersistentFlags().String("prometheus.namespace", "pharos", "Namespace for the Prometheus metrics")
-
+	rootCmd.PersistentFlags().String("prometheus.contextLabels", "namespace", "Labels to add to the Prometheus context")
 	rootCmd.PersistentFlags().String("database.driver", "postgres", "Database driver for the scanner, righ now, only 'postgres' is implemented.")
 	defaultDSN := fmt.Sprintf("postgres://postgres:postgres@localhost:5432/pharos?sslmode=disable") // run `brew install db-browser-for-sqlite` to view the database.
 	rootCmd.PersistentFlags().String("database.dsn", defaultDSN, "Database DSN for the scanner, for postgres it is the connection string.")

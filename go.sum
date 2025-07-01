@@ -120,6 +120,16 @@ github.com/mattn/go-sqlite3 v1.14.28 h1:ThEiQrnbtumT+QMknw63Befp/ce/nUPgBPMlRFEu
 github.com/mattn/go-sqlite3 v1.14.28/go.mod h1:Uh1q+B4BYcTPb+yiD3kU8Ct7aC0hY9fxUwlHK0RXw+Y=
 github.com/metraction/handwheel v0.0.2-0.20250622145352-05d70e27d53e h1:jyScGMeDsWSrRBzVl/66um6Xvj5P8KOOol1121t9q80=
 github.com/metraction/handwheel v0.0.2-0.20250622145352-05d70e27d53e/go.mod h1:Yh3ep7n59UXW8m9hMIuEzJ+T72Z6pVoO6hDFx94+A6M=
+github.com/metraction/handwheel v0.0.2-0.20250630110323-6e3779ce588b h1:oO5r9tSjc4mRk1mG8eOovp8M/CqhyJwWcVsM3X31vSE=
+github.com/metraction/handwheel v0.0.2-0.20250630110323-6e3779ce588b/go.mod h1:Yh3ep7n59UXW8m9hMIuEzJ+T72Z6pVoO6hDFx94+A6M=
+github.com/metraction/handwheel v0.0.2-0.20250630112041-9ce2bebff189 h1:kSJWNSy4wzhUSJybXPG4PdbnoJmdZpO3a8mo1UGSe/c=
+github.com/metraction/handwheel v0.0.2-0.20250630112041-9ce2bebff189/go.mod h1:Yh3ep7n59UXW8m9hMIuEzJ+T72Z6pVoO6hDFx94+A6M=
+github.com/metraction/handwheel v0.0.2-0.20250630142155-91658fabd432 h1:yNR0Bi9LEc3uDXnNKSjRtzM6OYOE6WTOp4pgL/Lfqi4=
+github.com/metraction/handwheel v0.0.2-0.20250630142155-91658fabd432/go.mod h1:Yh3ep7n59UXW8m9hMIuEzJ+T72Z6pVoO6hDFx94+A6M=
+github.com/metraction/handwheel v0.0.2-0.20250630183150-e16dd629d1aa h1:nlqbZZJpDIos/yDsmCk378nIYO1TwhWXsNb3o1AUOs0=
+github.com/metraction/handwheel v0.0.2-0.20250630183150-e16dd629d1aa/go.mod h1:Yh3ep7n59UXW8m9hMIuEzJ+T72Z6pVoO6hDFx94+A6M=
+github.com/metraction/handwheel v0.0.3 h1:Gyw38RnqzJzwMMYw5EBJ4XDXnGvPz8CF0cOZkXT3RIk=
+github.com/metraction/handwheel v0.0.3/go.mod h1:Yh3ep7n59UXW8m9hMIuEzJ+T72Z6pVoO6hDFx94+A6M=
 github.com/mitchellh/go-homedir v1.1.0 h1:lukF9ziXFxDFPkA1vsr5zpc1XuPDn/wFntq5mG+4E0Y=
 github.com/mitchellh/go-homedir v1.1.0/go.mod h1:SfyaCUpYCn1Vlf4IUYiD9fPX4A5wJrkLzIz1N1q0pr0=
 github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=

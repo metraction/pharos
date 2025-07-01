@@ -24,8 +24,7 @@ type PrometheusReporter struct {
 }
 
 func NewPrometheusReporter(ctx *context.Context, config *model.Config) *PrometheusReporter {
-	logger := logging.NewLogger("info")
-	logger.Info().Str("test", "test").Msg("PrometheusReporter initialized")
+	logger := logging.NewLogger("info", "component", "PrometheusReporter")
 
 	hwModelConfig := hwmodel.Config{
 		Prometheus: hwmodel.PrometheusConfig{
@@ -62,7 +61,7 @@ func (pr *PrometheusReporter) RunAsServer() error {
 	pr.Logger.Info().Msg("PrometheusReporter is running as a server")
 	source := ext.NewChanSource(pr.NewTicker())
 	pharosScanTaskCreator := prometheus.NewPharosScanTaskCreator(pr.Config).WithImagePullSecrets()
-	seenImages := prometheus.NewPharosScanTaskDeduplicator() // deduplication not working yet for some reason.
+	seenImages := prometheus.NewPharosScanTaskDeduplicator(pr.Config) // deduplication not working yet for some reason.
 	pharosTaskSink := prometheus.NewPharosTaskSink(pr.Config)
 	source.
 		Via(flow.NewMap(pr.PrometheusIntegration.FetchImageMetrics, 1)).

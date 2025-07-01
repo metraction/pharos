@@ -119,13 +119,17 @@ func BenchmarkSubmit1000Images(b *testing.B) {
 		// 	24*time.Hour,                      // cacheExpiry
 		// 	300*time.Second,                   // scanTimeout
 		// )
+		context := make(map[string]any)
+		context["namespace"] = "default" // Example context, can be customized
 		task := model.PharosScanTask2{
-			JobId:     fmt.Sprintf("task-%d-%s", i, img), // jobId
-			ImageSpec: img,                               // imageRef
-			Platform:  "linux/amd64",                     // platform
-			AuthDsn:   auth.ToDsn(),                      //auth,                              // auth (with credentials if matched)
-			CacheTTL:  24 * time.Hour,                    // cacheExpiry
-			ScanTTL:   300 * time.Second,                 // scanTimeout
+			JobId:          fmt.Sprintf("task-%d-%s", i, img), // jobId
+			ImageSpec:      img,                               // imageRef
+			Platform:       "linux/amd64",                     // platform
+			AuthDsn:        auth.ToDsn(),                      //auth,                              // auth (with credentials if matched)
+			CacheTTL:       24 * time.Hour,                    // cacheExpiry
+			ScanTTL:        300 * time.Second,                 // scanTimeout
+			Context:        context,                           // context
+			ContextRootKey: "namespace=default",               // Example context
 		}
 		// if err != nil {
 		// 	b.Fatalf("Failed to create scan task: %v", err)

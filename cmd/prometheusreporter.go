@@ -18,7 +18,7 @@ var prometheusReporterCmd = &cobra.Command{
 	Short: "Report images from prometheus to pharos",
 	Long:  `Pulls information about images from prometheus and posts scantasks to pharos.`, // You can customize this more
 	Run: func(cmd *cobra.Command, args []string) {
-		logger := logging.NewLogger("info")
+		logger := logging.NewLogger("info", "component", "cmd.prometheus-reporter")
 		config := cmd.Context().Value("config").(*model.Config)
 		// Create a new context that can be cancelled.
 		ctx, cancel := context.WithCancel(cmd.Context())

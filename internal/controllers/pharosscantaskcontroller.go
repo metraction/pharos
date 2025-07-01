@@ -13,7 +13,6 @@ import (
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 )
 
 type PharosScanTaskController struct {
@@ -25,8 +24,8 @@ type PharosScanTaskController struct {
 	Logger            *zerolog.Logger
 }
 
-// TODO: Rename as PharosScanTask is know from model, leads to confusion
-type PharosScanTask struct {
+// TODO: Rename as PharosScanTask2 is know from model, leads to confusion
+type PharosScanTask2 struct {
 	Body model.PharosScanTask2 `json:"body"`
 }
 
@@ -35,7 +34,7 @@ func NewPharosScanTaskController(api *huma.API, config *model.Config) *PharosSca
 		Path:   "/pharosscantask",
 		Api:    api,
 		Config: config,
-		Logger: logging.NewLogger("info"),
+		Logger: logging.NewLogger("info", "component", "PharosScanTaskController"),
 	}
 	return pc
 }
@@ -82,14 +81,14 @@ func (pc *PharosScanTaskController) sendScanRequest(ctx context.Context, publish
 		pharosScanTask.CacheTTL = 24 * time.Hour // Default cache expiry
 	}
 	if pc.PriorityPublisher == nil {
-		log.Error().Msg("PriorityPublisher is not set, cannot send scan request")
+		pc.Logger.Error().Msg("PriorityPublisher is not set, cannot send scan request")
 		return "", nil, huma.Error500InternalServerError("PriorityPublisher is not set, cannot send scan request")
 	}
-	pc.Logger.Info().Str("image", pharosScanTask.ImageSpec).Str("requestqueue", pc.Config.Publisher.PriorityRequestQueue).Msg("Sending image scan request")
+	pc.Logger.Info().Str("image", pharosScanTask.ImageSpec).Msg("Sending image scan request")
 	err, corrId := publisher.SendRequest(ctx, *pharosScanTask)
-	log.Info().Str("corrId", corrId).Msg("Sent scan task to scanner")
+	pc.Logger.Info().Str("corrId", corrId).Msg("Sent scan task to scanner")
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to send request to scanner")
+		pc.Logger.Error().Err(err).Msg("Failed to send request to scanner")
 		return "", nil, huma.Error500InternalServerError("Failed to send request to scanner: " + err.Error())
 	}
 	return corrId, pharosScanTask, nil
@@ -97,7 +96,7 @@ func (pc *PharosScanTaskController) sendScanRequest(ctx context.Context, publish
 
 // SyncScan handles the creation or update of a Docker image and initiates a scan.
 
-func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx context.Context, input *PharosScanTask) (*PharosScanTask, error)) {
+func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx context.Context, input *PharosScanTask2) (*PharosScanTask2, error)) {
 	return huma.Operation{
 			OperationID: "AsyncScan",
 			Method:      "POST",
@@ -121,7 +120,9 @@ func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx contex
 					Description: "Internal server error",
 				},
 			},
-		}, func(ctx context.Context, input *PharosScanTask) (*PharosScanTask, error) {
+		}, func(ctx context.Context, input *PharosScanTask2) (*PharosScanTask2, error) {
+			// Check if the image already exists in the database - Shortcut not to send the scan request if it already exists
+			// For now we don't use the shortcut.
 			databaseContext, err := getDatabaseContext(ctx)
 			if err != nil {
 				return nil, huma.Error500InternalServerError("Database context not found in request context")
@@ -143,21 +144,29 @@ func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx contex
 				ArchOS:    archOS,
 				ArchName:  archName,
 			}
-			if err := databaseContext.DB.Find(&value, &query).Error; err != nil {
-				log.Error().Err(err).Msg("Failed to retrieve Docker images")
+			if err := databaseContext.DB.
+				Preload("Vulnerabilities").
+				Preload("Findings").
+				Preload("Packages").Find(&value, &query).Error; err != nil {
+				pc.Logger.Error().Err(err).Msg("Failed to retrieve Docker images")
 				return nil, huma.Error500InternalServerError("Failed to retrieve Docker images: " + err.Error())
 			}
 			if value.ImageId != "" {
-				log.Info().Str("imageId", value.ImageId).Msg("Image already exists in database, using existing image metadata")
+				pc.Logger.Info().Str("imageId", value.ImageId).Msg("Image already exists in database, using existing image metadata")
+				// TODO: We must create a scanresult and send that to the results stream here.
+				// PharosScanResult := model.PharosScanResult{
+				// 	ScanTask: input.Body,
+				// 	Image:    value,
+				// }
 
 				return nil, huma.Error409Conflict("Image with ImageSpec " + input.Body.ImageSpec + " already exists in database")
 			}
 			_, pharosScanTask, err := pc.sendScanRequest(ctx, pc.AsyncPublisher, &input.Body)
 			if err != nil {
-				log.Error().Err(err).Msg("Failed to send scan request")
+				pc.Logger.Error().Err(err).Msg("Failed to send scan request")
 				return nil, err
 			}
-			return &PharosScanTask{
+			return &PharosScanTask2{
 				Body: *pharosScanTask,
 			}, nil
 		}
@@ -165,7 +174,7 @@ func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx contex
 
 // SyncScan handles the creation or update of a Docker image and initiates a scan.
 
-func (pc *PharosScanTaskController) SyncScan() (huma.Operation, func(ctx context.Context, input *PharosScanTask) (*PharosScanResult, error)) {
+func (pc *PharosScanTaskController) SyncScan() (huma.Operation, func(ctx context.Context, input *PharosScanTask2) (*PharosScanResult, error)) {
 	return huma.Operation{
 			OperationID: "SyncScan",
 			Method:      "POST",
@@ -189,7 +198,7 @@ func (pc *PharosScanTaskController) SyncScan() (huma.Operation, func(ctx context
 					Description: "Internal server error",
 				},
 			},
-		}, func(ctx context.Context, input *PharosScanTask) (*PharosScanResult, error) {
+		}, func(ctx context.Context, input *PharosScanTask2) (*PharosScanResult, error) {
 			databaseContext, err := getDatabaseContext(ctx)
 			if err != nil {
 				return nil, huma.Error500InternalServerError("Database context not found in request context")
@@ -200,12 +209,12 @@ func (pc *PharosScanTaskController) SyncScan() (huma.Operation, func(ctx context
 			}
 			corrId, _, err := pc.sendScanRequest(ctx, pc.PriorityPublisher, &input.Body)
 			if err != nil {
-				log.Error().Err(err).Msg("Failed to send scan request")
+				pc.Logger.Error().Err(err).Msg("Failed to send scan request")
 				return nil, err
 			}
 			pharosScanResult, err := pc.PriorityPublisher.ReceiveResponse(ctx, corrId, timeout)
 			if pharosScanResult.ScanTask.Error != "" {
-				log.Warn().Str("corrId", corrId).Str("error", pharosScanResult.ScanTask.Error).Msg("Scan task failed")
+				pc.Logger.Warn().Str("corrId", corrId).Str("error", pharosScanResult.ScanTask.Error).Msg("Scan task failed")
 				return nil, huma.Error500InternalServerError("Error during scan: " + pharosScanResult.ScanTask.Error)
 			} else {
 				if err := integrations.SaveScanResult(databaseContext, &pharosScanResult); err != nil {
