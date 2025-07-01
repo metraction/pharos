@@ -48,6 +48,20 @@ func InitPharosDbSchema(db *sql.DB) error {
         )`,
 		`create unique index if not exists images_digest_idx on vdb_images (Digest)`,
 
+		// ScanMeta
+		`create table if not exists vdb_scans (
+            id                  integer primary key autoincrement,
+            image_id            integer,
+            Created             timestamptz,
+            Updated             timestamptz,
+            ScanDate            timestamptz,
+            DbBuiltDate         timestamptz,
+            Engine              string
+            EngineVersion       string
+            foreign key (image_id) references vdb_images(id),
+        )`,
+		`create unique index if not exists scans_imageengine_idx on vdb_findings (image_id, Engine)`,
+
 		// Vulnerabilities
 		`create table if not exists vdb_vulns (
             id                  integer primary key autoincrement,
@@ -92,18 +106,29 @@ func InitPharosDbSchema(db *sql.DB) error {
         )`,
 		`create unique index if not exists findings_advs_idx on vdb_findings (image_id, vuln_id)`,
 
-		// BaseContext
-		`create table if not exists vdb_contexta (
+		// ContextRoot
+		`create table if not exists vdb_contextroot (
             id                  integer primary key autoincrement,
             image_id            integer,
             Created             timestamptz,
             Updated             timestamptz,
-            Expired             timestamptz,    
+            Expired             timestamptz,
             ContextKey          text,
-            Context             jsonb,
             foreign key (image_id) references vdb_images(id)
         )`,
-		`create unique index if not exists contexta_key_idx on vdb_contexta (ContextKey)`,
+		`create unique index if not exists contextroot_key_idx on vdb_contextroot (image_id, ContextKey)`,
+
+		// Context
+		`create table if not exists vdb_context (
+            id                  integer primary key autoincrement,
+            root_id             integer,
+            Created             timestamptz,
+            Updated             timestamptz,
+            Source              test,
+            Context             jsonb,
+            foreign key (root_id) references vdb_contextroot(id)
+        )`,
+		`create unique index if not exists context_rootkey_idx on vdb_context (root_id, Source)`,
 	}
 
 	for _, sqlcmd := range cmds {

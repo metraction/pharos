@@ -69,24 +69,33 @@ func (rx *PharosLocalDb) Close() {
 	}
 }
 
-// add complete scan result
+// add scan result with image meta, findings, and vulns into db
 func (rx *PharosLocalDb) AddScanResult(ctx context.Context, result model.PharosScanResult) (uint64, error) {
 
-	// add image
 	var err error
 	var image_id uint64
 
+	task := result.ScanTask
+	// TODO: Use provided task.ContextRootKey
+	contextKey := strings.ToLower(utils.PropOr(task.Context, "cluster", "nope") + "/" + utils.PropOr(task.Context, "namespace", "nope"))
+
+	// add image
 	if image_id, err = rx.AddImage(ctx, result.Image); err != nil {
 		return 0, fmt.Errorf("addImage: %w", err)
 	}
-	rx.logger.Info().Any("image_id", image_id).Msg("AddImage")
-
-	if _, err = rx.AddContext(ctx, image_id, result.ScanTask.Context); err != nil {
+	// add rootcontext & context
+	if _, err = rx.AddContext(ctx, image_id, "scan", contextKey, task.Context); err != nil {
 		return 0, fmt.Errorf("addContext: %w", err)
 	}
 
+	// add vulnerabilities
 	if err := rx.AddVulns(ctx, result.Vulnerabilities); err != nil {
 		return 0, fmt.Errorf("addVulns: %w", err)
+	}
+	// TODO: add packages
+	// add findings
+	if err := rx.AddFindings(ctx, image_id, result.Findings); err != nil {
+		return 0, fmt.Errorf("addFindings: %w", err)
 	}
 
 	return image_id, nil
@@ -96,12 +105,12 @@ func (rx *PharosLocalDb) AddImage(ctx context.Context, image model.PharosImageMe
 
 	sqlcmd := `
 		insert into vdb_images (
-			Created, Updated, Digest, ImageSpec, ImageId, 
-			IndexDigest, ManifestDigest, RepoDigests, ArchName, ArchOS, 
+			Created, Updated, Digest, ImageSpec, ImageId,
+			IndexDigest, ManifestDigest, RepoDigests, ArchName, ArchOS,
 			DistroName, DistroVersion, Size, Tags, Layers
 		) values (
-			?, ?, ?, ?, ?, 
-			?, ?, ?, ?, ?, 
+			?, ?, ?, ?, ?,
+			?, ?, ?, ?, ?,
 			?, ?, ?, ?, ?
 		)
 		on conflict (Digest) do update set
@@ -125,58 +134,69 @@ func (rx *PharosLocalDb) AddImage(ctx context.Context, image model.PharosImageMe
 }
 
 // add context
-func (rx *PharosLocalDb) AddContext(ctx context.Context, image_id uint64, xcontext map[string]any) (uint64, error) {
+func (rx *PharosLocalDb) AddContext(ctx context.Context, image_id uint64, source, contextKey string, xcontext map[string]any) (uint64, error) {
 
 	var err error
 	var id uint64
-	var xdata []byte
+	var root_id uint64
 
+	var xdata []byte
 	if xdata, err = json.Marshal(xcontext); err != nil {
 		return 0, err
 	}
 	// TODO: Simulate for now
 	now := time.Now().UTC()
 	expired := time.Now().Add(5 * time.Minute)
-	key := strings.ToLower(utils.PropOr(xcontext, "cluster", "nope") + "/" + utils.PropOr(xcontext, "namespace", "nope"))
 
 	sqlcmd := `
-		insert into vdb_contexta (
-			image_id,
-			Created, Updated, Expired, ContextKey, Context
+		insert into vdb_contextroot (
+			image_id, Created, Updated, Expired, ContextKey
 		) values (
-			?,
 			?, ?, ?, ?, ?
 		)
-		on conflict (ContextKey) do update set
-			updated = excluded.Updated,
-			expired = excluded.Expired
+		on conflict (image_id, ContextKey) do update set
+			Updated = excluded.Updated,
+			Expired = excluded.Expired
 		returning id
 	`
-
-	err = rx.db.QueryRow(sqlcmd,
-		image_id,
-		now, now, expired,
-		key, string(xdata)).Scan(&id)
-
+	err = rx.db.QueryRow(sqlcmd, image_id, now, now, expired, contextKey).Scan(&root_id)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("vdb_contextroot: %w", err)
 	}
-	return id, err
+
+	sqlcmd = `
+		insert into vdb_context (
+			root_id, Created, Updated, Source, Context
+		) values (
+			?, ?, ?, ?, ?
+		)
+		on conflict (root_id, Source) do update set
+			Updated = excluded.Updated,
+			Context = excluded.Context
+		returning id
+	`
+	err = rx.db.QueryRow(sqlcmd, root_id, now, now, source, string(xdata)).Scan(&id)
+	if err != nil {
+		return 0, fmt.Errorf("vdb_context: %w", err)
+	}
+
+	return root_id, err
 }
 
 // add vulnerabilities
 func (rx *PharosLocalDb) AddVulns(ctx context.Context, vulns []model.PharosVulnerability) error {
 
+	now := time.Now().UTC()
 	sqlcmd := `
 		insert into vdb_vulns (
 			Created, Updated, AdvId, AdvSource, AdvAliases,
-			CreateDate, PubDate, ModDate, KevDate, Severity, 
-			CvssVectors, CvssBase, RiskScore, Cpes, Cwes, 
+			CreateDate, PubDate, ModDate, KevDate, Severity,
+			CvssVectors, CvssBase, RiskScore, Cpes, Cwes,
 			Refs, Ransomware, Description
 		) values (
 			?, ?, ?, ?, ?,
-			?, ?, ?, ?, ?, 
-			?, ?, ?, ?, ?, 
+			?, ?, ?, ?, ?,
+			?, ?, ?, ?, ?,
 			?, ?, ?
 		)
 		on conflict (AdvId,AdvSource) do update set
@@ -187,12 +207,46 @@ func (rx *PharosLocalDb) AddVulns(ctx context.Context, vulns []model.PharosVulne
 
 	for _, vuln := range vulns {
 		_, err = rx.db.Exec(sqlcmd,
-			time.Now().UTC(), time.Now().UTC(),
-			vuln.AdvId, vuln.AdvSource, vuln.AdvAliases,
-			vuln.CreateDate, vuln.PubDate, vuln.ModDate, vuln.KevDate,
-			vuln.Severity, dbStrList(vuln.CvssVectors), vuln.CvssBase, vuln.RiskScoce,
-			dbStrList(vuln.Cpes), dbStrList(vuln.Cwes), dbStrList(vuln.References),
-			vuln.RansomwareUsed, vuln.Description)
+			now, now, vuln.AdvId, vuln.AdvSource, vuln.AdvAliases,
+			vuln.CreateDate, vuln.PubDate, vuln.ModDate, vuln.KevDate, vuln.Severity,
+			dbStrList(vuln.CvssVectors), vuln.CvssBase, vuln.RiskScoce, dbStrList(vuln.Cpes), dbStrList(vuln.Cwes),
+			dbStrList(vuln.References), vuln.RansomwareUsed, vuln.Description)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// add findings
+func (rx *PharosLocalDb) AddFindings(ctx context.Context, image_id uint64, findings []model.PharosScanFinding) error {
+
+	now := time.Now().UTC()
+	sqlcmd := `
+		insert into vdb_findings (
+			i
+			Created, Updated, AdvId, AdvSource, AdvAliases,
+			CreateDate, PubDate, ModDate, KevDate, Severity,
+			CvssVectors, CvssBase, RiskScore, Cpes, Cwes,
+			Refs, Ransomware, Description
+		) values (
+			?, ?, ?, ?, ?,
+			?, ?, ?, ?, ?,
+			?, ?, ?, ?, ?,
+			?, ?, ?
+		)
+		on conflict (AdvId,AdvSource) do update set
+			updated = excluded.Updated
+		returning id
+	`
+	var err error
+
+	for _, vuln := range vulns {
+		_, err = rx.db.Exec(sqlcmd,
+			now, now, vuln.AdvId, vuln.AdvSource, vuln.AdvAliases,
+			vuln.CreateDate, vuln.PubDate, vuln.ModDate, vuln.KevDate, vuln.Severity,
+			dbStrList(vuln.CvssVectors), vuln.CvssBase, vuln.RiskScoce, dbStrList(vuln.Cpes), dbStrList(vuln.Cwes),
+			dbStrList(vuln.References), vuln.RansomwareUsed, vuln.Description)
 		if err != nil {
 			return err
 		}

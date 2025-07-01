@@ -125,6 +125,7 @@ func ExecuteReceiver(worker, dbEndpoint, mqEndpoint, outDir string, logger *zero
 
 		// populate database
 		elapsed := utils.ElapsedFunc()
+
 		if _, err := dbx.AddScanResult(ctx, result); err != nil {
 			logger.Error().Err(err).Msg("AddScanResult")
 		}
