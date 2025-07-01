@@ -85,18 +85,16 @@ func NewDebug() flow.MapFunction[map[string]interface{}, map[string]interface{}]
 	}
 }
 
-func NewMapOfMaps() flow.MapFunction[any, map[string]interface{}] {
-	return func(data any) map[string]interface{} {
-		// Convert Image to map[string]interface{} using JSON marshaling
-		imageJSON, err := json.Marshal(data)
-		if err != nil {
-			return nil
-		}
-
-		var result map[string]interface{}
-		if err = json.Unmarshal(imageJSON, &result); err != nil {
-			return nil
-		}
-		return result
+func ToMap(data any) map[string]interface{} {
+	// Convert any to map[string]interface{} using JSON marshaling
+	imageJSON, err := json.Marshal(data)
+	if err != nil {
+		return nil
 	}
+
+	var result map[string]interface{}
+	if err = json.Unmarshal(imageJSON, &result); err != nil {
+		return nil
+	}
+	return result
 }

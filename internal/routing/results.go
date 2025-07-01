@@ -31,7 +31,9 @@ func NewScanResultCollectorFlow(
 
 func NewScanResultsInternalFlow(source streams.Source) streams.Flow {
 	pharosScanTaskHandler := pharosstreams.NewPharosScanTaskHandler()
-	return source.
+	contextFlow := source.
 		Via(flow.NewFilter(pharosScanTaskHandler.FilterFailedTasks, 1)).
 		Via(flow.NewMap(pharosScanTaskHandler.CreateRootContext, 1))
+
+	return contextFlow
 }
