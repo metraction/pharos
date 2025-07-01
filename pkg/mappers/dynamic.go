@@ -12,7 +12,8 @@ type EnricherConfig struct {
 	Config string
 }
 
-func NewEnricherStream(stream streams.Source, enrichers []EnricherConfig, basePath string) streams.Source {
+func NewEnricherStream(stream streams.Source, enrichers []EnricherConfig, basePath string) streams.Flow {
+	var result streams.Flow
 	for _, enricher := range enrichers {
 		filePath := filepath.Join(basePath, enricher.Config)
 		switch enricher.Name {
@@ -23,6 +24,7 @@ func NewEnricherStream(stream streams.Source, enrichers []EnricherConfig, basePa
 		case "debug":
 			stream = stream.Via(flow.NewMap(NewDebug(), 1))
 		}
+		result = stream.(streams.Flow)
 	}
-	return stream
+	return result
 }
