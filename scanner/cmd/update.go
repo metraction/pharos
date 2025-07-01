@@ -16,6 +16,7 @@ import (
 // command line arguments of root command
 type UpdateArgsType = struct {
 	ScanEngine  string // scan engine to use
+	VulnDbDir   string
 	ScanTimeout string // database update timeout
 
 }
@@ -29,6 +30,7 @@ func init() {
 	logger = logging.NewLogger(RootArgs.LogLevel)
 
 	updateCmd.Flags().StringVar(&UpdateArgs.ScanEngine, "engine", EnvOrDefault("engine", ""), "Scan engine to use [grype,trivy]")
+	updateCmd.Flags().StringVar(&UpdateArgs.VulnDbDir, "vulndbdir", EnvOrDefault("vulndbdir", ""), "Scanner vuln db dir")
 	updateCmd.Flags().StringVar(&UpdateArgs.ScanTimeout, "scan_timeout", EnvOrDefault("scan_timeout", "180s"), "Scan timeout")
 
 	updateCmd.MarkFlagRequired("engine")
@@ -41,25 +43,28 @@ var updateCmd = &cobra.Command{
 	Long:  `Check and update scanner vulnerability database`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		ExecuteUpdate(UpdateArgs.ScanEngine, logger)
+		ExecuteUpdate(UpdateArgs.ScanEngine, UpdateArgs.VulnDbDir, logger)
 	},
 }
 
 // execute command
-func ExecuteUpdate(engine string, logger *zerolog.Logger) {
+func ExecuteUpdate(engine, vulnDbDir string, logger *zerolog.Logger) {
 
 	logger.Info().Msg("-----< Scanner Update >-----")
-	logger.Info().Str("engine", engine).Msg("")
+	logger.Info().
+		Str("engine", engine).
+		Str("vulndbdir", vulnDbDir).
+		Msg("")
 
 	if engine == "grype" {
-		_, err := grype.NewGrypeScanner(90*time.Second, true, logger)
+		_, err := grype.NewGrypeScanner(90*time.Second, true, vulnDbDir, logger)
 		if err != nil {
 			logger.Fatal().Err(err).Msg("NewGrypeScanner()")
 		}
 
 	} else if engine == "trivy" {
 
-		vulnScanner, err := trivy.NewTrivyScanner(90*time.Second, true, logger)
+		vulnScanner, err := trivy.NewTrivyScanner(90*time.Second, true, vulnDbDir, logger)
 		if err != nil {
 			logger.Fatal().Err(err).Msg("NewTrivyScanner()")
 		}

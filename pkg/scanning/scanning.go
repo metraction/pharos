@@ -25,13 +25,13 @@ type GrypeScannerEngine struct {
 	cache  *cache.PharosCache
 }
 
-func NewGrypeScannerEngine(scanTimeout time.Duration, doUpdate bool, kvCache *cache.PharosCache, logger *zerolog.Logger) (*GrypeScannerEngine, error) {
+func NewGrypeScannerEngine(scanTimeout time.Duration, doUpdate bool, vulnDbDir string, kvCache *cache.PharosCache, logger *zerolog.Logger) (*GrypeScannerEngine, error) {
 	var err error
 	scanner := GrypeScannerEngine{
 		cache:  kvCache,
 		logger: logger,
 	}
-	if scanner.ScanEngine, err = grype.NewGrypeScanner(scanTimeout, doUpdate, logger); err != nil {
+	if scanner.ScanEngine, err = grype.NewGrypeScanner(scanTimeout, doUpdate, vulnDbDir, logger); err != nil {
 		return nil, err
 	}
 	return &scanner, nil
@@ -55,13 +55,13 @@ type TrivyScannerEngine struct {
 	cache  *cache.PharosCache
 }
 
-func NewTrivyScannerEngine(scanTimeout time.Duration, doUpdate bool, kvCache *cache.PharosCache, logger *zerolog.Logger) (*TrivyScannerEngine, error) {
+func NewTrivyScannerEngine(scanTimeout time.Duration, doUpdate bool, vulnDbDir string, kvCache *cache.PharosCache, logger *zerolog.Logger) (*TrivyScannerEngine, error) {
 	var err error
 	scanner := TrivyScannerEngine{
 		cache:  kvCache,
 		logger: logger,
 	}
-	if scanner.ScanEngine, err = trivy.NewTrivyScanner(scanTimeout, doUpdate, logger); err != nil {
+	if scanner.ScanEngine, err = trivy.NewTrivyScanner(scanTimeout, doUpdate, vulnDbDir, logger); err != nil {
 		return nil, err
 	}
 	return &scanner, nil
