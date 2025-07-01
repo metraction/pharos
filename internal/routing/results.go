@@ -7,6 +7,7 @@ import (
 	"github.com/metraction/pharos/internal/integrations/streams"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/redis/go-redis/v9"
+	"github.com/reugn/go-streams/extension"
 	"github.com/reugn/go-streams/flow"
 	"github.com/rs/zerolog"
 )
@@ -14,9 +15,8 @@ import (
 func NewScanResultsInternalFlow(databaseContext *model.DatabaseContext, channel chan any) {
 	pharosScanTaskHandler := streams.NewPharosScanTaskHandler()
 	imageDbSink := streams.NewImageDbSink(databaseContext)
-	pharosScanResultSource := streams.NewPharosScanResultSource(channel)
+	pharosScanResultSource := extension.NewChanSource(channel)
 	pharosScanResultSource.
-		Via(flow.NewPassThrough()).
 		Via(flow.NewFilter(pharosScanTaskHandler.FilterFailedTasks, 1)).
 		Via(flow.NewMap(pharosScanTaskHandler.CreateRootContext, 1)).
 		To(imageDbSink)
