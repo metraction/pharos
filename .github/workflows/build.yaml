@@ -110,7 +110,7 @@ jobs:
         env:
           DOCKER_REGISTRIES_AUTH: "registry://spastai\\@gmail.com:${{ secrets.GITHUB_TOKEN }}@ghcr.io/metraction"
         run: |
-          go test ./internal/routing -timeout=5m
+          go test ./internal/controllers -timeout=5m
 
       - name: Run benchmark tests
         env:
