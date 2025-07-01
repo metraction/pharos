@@ -20,3 +20,11 @@ type Context struct {
 	UpdatedAt      time.Time
 	Data           map[string]any `gorm:"serializer:json"` // Context data
 }
+
+type ContextEntry struct {
+	ContextRootKey string    `json:"ContextRootKey"` // Composite Foreign Key to the ContextRoot Table
+	Owner          string    `json:"Owner"`
+	Key            string    `json:"Key"`       // Composite Key to the ContextRoot Table
+	Value          any       `json:"Value"`     // Value of the context entry
+	UpdatedAt      time.Time `json:"UpdatedAt"` // Last update timestamp
+}

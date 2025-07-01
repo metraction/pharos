@@ -115,6 +115,11 @@ func (pst *PharosScanTaskCreator) Result(metric hwmodel.ImageMetric) []model.Pha
 		}
 	}
 	now := time.Now()
+	scanTTL, err := time.ParseDuration(pst.Config.Prometheus.TTL)
+	if err != nil {
+		pst.Logger.Warn().Err(err).Msg("Invalid prometheus.ttl in config, defaulting to 12h")
+		scanTTL = time.Hour * 12
+	}
 	pharosScanTask := model.PharosScanTask2{
 		ImageSpec:      metric.Image_spec,
 		Platform:       pst.Config.Prometheus.Platform, // Default platform, can be adjusted as needed
@@ -124,6 +129,7 @@ func (pst *PharosScanTaskCreator) Result(metric hwmodel.ImageMetric) []model.Pha
 		Timeout:        time.Second * 180, // 3 minutes
 		Context:        context,
 		ContextRootKey: key,
+		ScanTTL:        scanTTL, // 12 hour scan ttl
 	}
 	return []model.PharosScanTask2{pharosScanTask}
 }
