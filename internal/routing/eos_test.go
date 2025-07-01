@@ -36,9 +36,10 @@ func TestEosEnricher(t *testing.T) {
 		t.Error("Context is nil")
 		return
 	}
-	if contextRoot.Contexts[0].Data["eos"] == nil {
-		t.Error("Context is nil")
+
+	fmt.Printf("Context: %v\n", contextRoot.Contexts[0].Data)
+	if contextRoot.Contexts[0].Data["spec"].(map[string]interface{})["eos"] == nil {
+		t.Error("Context has no eos")
 		return
 	}
-	fmt.Println("Result:", contextRoot.Contexts[0].Data["eos"])
 }
