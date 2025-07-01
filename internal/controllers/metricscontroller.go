@@ -93,7 +93,7 @@ func (mc *MetricsController) Metrics() (huma.Operation, func(ctx context.Context
 					mc.Logger.Warn().Err(err).Str("imageId", image.ImageId).Msg("Failed to retrieve Docker image")
 				} else {
 					summary := fullImage.GetSummary()
-					mc.Logger.Info().Str("imageId", image.ImageId).Any("summary", summary).Msg("Found image in database")
+					mc.Logger.Debug().Str("imageId", image.ImageId).Any("summary", summary).Msg("Found image in database")
 					for level, count := range summary.Severities {
 						mc.Vulnerabilities.WithLabelValues(fullImage.ImageSpec, fullImage.IndexDigest, fullImage.ImageId, fullImage.ArchOS+"/"+fullImage.ArchName, level).Set(float64(count))
 					}
