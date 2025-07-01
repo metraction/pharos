@@ -50,50 +50,7 @@ func (pc *PharosImageMetaController) AddRoutes() {
 		op, handler := pc.GetAll()
 		huma.Register(*pc.Api, op, handler)
 	}
-	// {
-	// 	op, handler := pc.Find()
-	// 	huma.Register(*pc.Api, op, handler)
-	// }
 }
-
-// For later use, if we want to implement a search functionality.
-// func (pc *PharosImageMetaController) Find() (huma.Operation, func(ctx context.Context, input *PharosImageMeta) (*PharosImageMetas, error)) {
-// 	return huma.Operation{
-// 			OperationID: "FindImage",
-// 			Method:      "POST",
-// 			Path:        pc.Path + "/find",
-// 			Summary:     "Finds images based on search criteria",
-// 			Description: "Retrieves a list of Docker images based on the provided search criteria.",
-// 			Tags:        []string{"PharosImageMeta"},
-
-// 			Responses: map[string]*huma.Response{
-// 				"200": {
-// 					Description: "A list of images matching the search criteria",
-// 				},
-// 				"500": {
-// 					Description: "Internal server error",
-// 				},
-// 				"404": {
-// 					Description: "Nothing found matching the search criteria",
-// 				},
-// 			},
-// 		}, func(ctx context.Context, input *PharosImageMeta) (*PharosImageMetas, error) {
-// 			databaseContext, err := getDatabaseContext(ctx)
-// 			if err != nil {
-// 				return nil, huma.Error500InternalServerError("Database context not found in request context")
-// 			}
-// 			var values []model.PharosImageMeta
-// 			if err := databaseContext.DB.
-// 				Preload("ContextRoots.Contexts").
-// 				Find(&values, &input.Body).Error; err != nil {
-// 				pc.Logger.Error().Err(err).Msg("Failed to retrieve Docker images")
-// 			}
-// 			PharosImageMetas := &PharosImageMetas{
-// 				Body: values,
-// 			}
-// 			return PharosImageMetas, nil
-// 		}
-// }
 
 func (pc *PharosImageMetaController) Get() (huma.Operation, func(ctx context.Context, input *ImageDigestInput) (*PharosImageMeta, error)) {
 	return huma.Operation{
