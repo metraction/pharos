@@ -48,8 +48,8 @@ type PharosScanResult struct {
 // UpdatedAt      time.Time
 // Data           map[string]any `gorm:"serializer:json"` // Context data
 
-func (rx *PharosScanResult) GetContextRoot(owner string, ttl time.Duration) *ContextRoot {
-	return &ContextRoot{
+func (rx *PharosScanResult) GetContextRoot(owner string, ttl time.Duration) ContextRoot {
+	return ContextRoot{
 		Key:       rx.ScanTask.ContextRootKey,
 		ImageId:   rx.Image.ImageId,
 		UpdatedAt: time.Now(),

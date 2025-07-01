@@ -2,12 +2,11 @@ package routing
 
 import (
 	"context"
-	"time"
 
 	"github.com/metraction/pharos/internal/integrations"
+	"github.com/metraction/pharos/internal/integrations/streams"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/redis/go-redis/v9"
-	"github.com/reugn/go-streams/extension"
 	"github.com/reugn/go-streams/flow"
 	"github.com/rs/zerolog"
 )
@@ -18,25 +17,11 @@ func NewScanResultCollectorFlow(
 	databaseContext *model.DatabaseContext,
 	config *model.ResultCollectorConfig,
 	log *zerolog.Logger) {
-
+	pharosScanTaskHandler := streams.NewPharosScanTaskHandler()
+	imageDbSink := streams.NewImageDbSink(databaseContext)
 	integrations.NewRedisConsumerGroupSource[model.PharosScanResult](ctx, rdb, config.QueueName, config.GroupName, config.ConsumerName, "0", config.BlockTimeout, 1).
 		Via(flow.NewPassThrough()).
-		Via(flow.NewMap(func(item model.PharosScanResult) model.PharosScanResult {
-			if item.ScanTask.Error != "" {
-				log.Warn().Str("JobId", item.ScanTask.JobId).Str("error", item.ScanTask.Error).Msg("Scan task failed during async scan")
-			} else {
-				// Here we have to run the whole flow. Something to help you:
-				rootContext := item.GetContextRoot("phraos api", time.Duration(time.Minute*30))
-				log.Info().Any("context", rootContext).Str("image", item.ScanTask.ImageSpec).Msg("Async scan completed, saving result")
-				// End of the flow here. :-)
-				if err := integrations.SaveScanResult(databaseContext, &item); err != nil {
-					log.Error().Msg("Async result saving error")
-				}
-			}
-
-			//time.Sleep(10 * time.Second) // Simulate waiting for the scan to complete
-			log.Info().Str("image", item.ScanTask.ImageSpec).Msg("Async scan completed")
-			return item
-		}, 1)).
-		To(extension.NewStdoutSink())
+		Via(flow.NewFilter(pharosScanTaskHandler.FilterFailedTasks, 1)).
+		Via(flow.NewMap(pharosScanTaskHandler.CreateRootContext, 1)).
+		To(imageDbSink)
 }
