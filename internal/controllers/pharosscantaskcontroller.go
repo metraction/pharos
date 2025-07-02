@@ -12,7 +12,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/metraction/pharos/internal/integrations"
 	"github.com/metraction/pharos/internal/logging"
-	"github.com/metraction/pharos/internal/routing"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/rs/zerolog"
 )
@@ -32,16 +31,15 @@ type PharosScanTask2 struct {
 	Body model.PharosScanTask2 `json:"body"`
 }
 
-func NewPharosScanTaskController(api *huma.API, config *model.Config) *PharosScanTaskController {
+func NewPharosScanTaskController(api *huma.API, config *model.Config, resultChannel chan any) *PharosScanTaskController {
 	pc := &PharosScanTaskController{
 		Path:          "/pharosscantask",
 		Api:           api,
 		Config:        config,
 		Logger:        logging.NewLogger("info", "component", "PharosScanTaskController"),
-		ResultChannel: make(chan any), // Channel to handle scan
+		ResultChannel: resultChannel, // Channel to handle scan
 	}
-	// Start the flow to handle scan results without scanner.
-	go routing.NewScanResultsInternalFlow(model.NewDatabaseContext(&config.Database), pc.ResultChannel)
+
 	return pc
 }
 

@@ -10,6 +10,7 @@ type Config struct {
 	Database        Database                 `mapstructure:"database"`
 	Prometheus      PrometheusReporterConfig `mapstructure:"prometheus"`
 	ResultCollector ResultCollectorConfig    `mapstructure:"collector"`
+	Mapper          MapperConfig             `mapstructure:"mapper"`
 }
 
 // ScannerConfig holds scanner-specific configuration.
@@ -65,4 +66,8 @@ const (
 type Database struct {
 	Driver DatabaseDriver `mapstructure:"driver"` // "postgres"
 	Dsn    string         `mapstructure:"dsn"`
+}
+
+type MapperConfig struct {
+	BasePath string `mapstructure:"basePath"` // Base path for the mappers
 }

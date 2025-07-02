@@ -1,0 +1,7 @@
+version: v1
+kind: RiskPolicy
+
+spec:
+  risk: {{ .data.Vulnerabilities| map "field" "L1"  | sum }}
+  eos: {{  index .eos .data.Distro | filter "version" "startsWith" .data.Version | map "field" "eos" | first }}
+  

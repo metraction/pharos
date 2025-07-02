@@ -4,8 +4,12 @@ on:
     branches: 
     - main
     - PH-47/*
+    - PH-38/*
     tags:
     - 'v*'
+  pull_request:
+    branches:
+    - main
   workflow_dispatch:
     inputs:
       run_integration_tests:
@@ -18,9 +22,44 @@ permissions:
   packages: write
 
 jobs:
+  go-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          cache: true
+
+      - name: Go mod cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Run unit tests
+        run: go test ./... -v -race -coverprofile=coverage.txt -covermode=atomic
+
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.txt
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
   ko-build:
     # Run this job only on push events, not when manually triggered just for tests
     if: github.event_name == 'push'
+    needs: [go-test]
     uses: metraction/github-actions/.github/workflows/ko-build.yaml@main
     secrets: inherit
     
