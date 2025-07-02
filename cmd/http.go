@@ -4,14 +4,18 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"path/filepath"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
+	"github.com/reugn/go-streams/extension"
 
 	"github.com/metraction/pharos/internal/controllers"
 	"github.com/metraction/pharos/internal/integrations"
+	"github.com/metraction/pharos/internal/integrations/db"
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/internal/routing"
+	"github.com/metraction/pharos/pkg/mappers"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/spf13/cobra"
 )
@@ -33,6 +37,7 @@ These submissions are then published to a Redis stream for further processing by
 		databaseContext := model.NewDatabaseContext(&config.Database)
 		databaseContext.Migrate()
 
+		// TODO move huma config at the end of this file: first dependencies (db, redis), then flows and then huma
 		router := http.NewServeMux()
 		apiConfig := huma.DefaultConfig("Pharos API", "1.0.0")
 		apiConfig.Servers = []*huma.Server{
@@ -56,19 +61,36 @@ These submissions are then published to a Redis stream for further processing by
 			logger.Fatal().Err(err).Msg("Failed to create publisher flow")
 			return
 		}
-
 		rdb := integrations.NewRedis(cmd.Context(), config)
-		go routing.NewScanResultCollectorFlow(
+
+		enricher := mappers.EnricherConfig{
+			BasePath: filepath.Join("..", "..", "testdata", "enrichers"),
+			Configs: []mappers.MapperConfig{
+				{Name: "file", Config: "eos.yaml"},
+				{Name: "hbs", Config: "eos_v1.hbs"},
+				//	{Name: "debug", Config: ""},
+			},
+		}
+
+		// Results processing stream reading from redis
+		go routing.NewScanResultCollectorSink(
 			cmd.Context(),
 			rdb,
 			databaseContext,
 			&config.ResultCollector,
+			enricher,
 			logger,
 		)
 
+		resultChannel := make(chan any)
+		source := extension.NewChanSource(resultChannel)
+		// Create results flow without redis
+		go routing.NewScanResultsInternalFlow(source, enricher).
+			To(db.NewImageDbSink(databaseContext))
+
 		// Add routes for the API
 		controllers.NewimageController(&api, config).AddRoutes()
-		controllers.NewPharosScanTaskController(&api, config).WithPublisher(publisher, priorityPublisher).AddRoutes()
+		controllers.NewPharosScanTaskController(&api, config, resultChannel).WithPublisher(publisher, priorityPublisher).AddRoutes()
 		metricsController.AddRoutes()
 		// Add go streams routes
 		go routing.NewImageCleanupFlow(databaseContext, config)

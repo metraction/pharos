@@ -6,6 +6,7 @@ import (
 	"github.com/metraction/pharos/internal/integrations"
 	"github.com/metraction/pharos/internal/integrations/db"
 	pharosstreams "github.com/metraction/pharos/internal/integrations/streams"
+	"github.com/metraction/pharos/pkg/mappers"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/redis/go-redis/v9"
 	"github.com/reugn/go-streams"
@@ -13,11 +14,12 @@ import (
 	"github.com/rs/zerolog"
 )
 
-func NewScanResultCollectorFlow(
+func NewScanResultCollectorSink(
 	ctx context.Context,
 	rdb *redis.Client,
 	databaseContext *model.DatabaseContext,
 	config *model.ResultCollectorConfig,
+	enricher mappers.EnricherConfig,
 	log *zerolog.Logger) {
 	pharosScanTaskHandler := pharosstreams.NewPharosScanTaskHandler()
 
@@ -25,15 +27,16 @@ func NewScanResultCollectorFlow(
 		Via(flow.NewPassThrough()).
 		Via(flow.NewFilter(pharosScanTaskHandler.FilterFailedTasks, 1))
 
-	NewScanResultsInternalFlow(redisFlow).
+	NewScanResultsInternalFlow(redisFlow, enricher).
 		To(db.NewImageDbSink(databaseContext))
 }
 
-func NewScanResultsInternalFlow(source streams.Source) streams.Flow {
+func NewScanResultsInternalFlow(source streams.Source, enricher mappers.EnricherConfig) streams.Flow {
 	pharosScanTaskHandler := pharosstreams.NewPharosScanTaskHandler()
 	contextFlow := source.
 		Via(flow.NewFilter(pharosScanTaskHandler.FilterFailedTasks, 1)).
 		Via(flow.NewMap(pharosScanTaskHandler.CreateRootContext, 1))
+	stream := mappers.NewResultEnricherStream(contextFlow, enricher)
 
-	return contextFlow
+	return stream
 }

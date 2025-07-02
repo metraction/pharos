@@ -13,10 +13,13 @@ import (
 )
 
 func TestDynamicStream(t *testing.T) {
-	enrichers := []EnricherConfig{
-		{Name: "file", Config: "eos.yaml"},
-		{Name: "hbs", Config: "eos_v1.hbs"},
-		//	{Name: "debug", Config: ""},
+	enricher := EnricherConfig{
+		BasePath: filepath.Join("..", "..", "testdata", "enrichers"),
+		Configs: []MapperConfig{
+			{Name: "file", Config: "eos.yaml"},
+			{Name: "hbs", Config: "eos_v1.hbs"},
+			//	{Name: "debug", Config: ""},
+		},
 	}
 
 	img := Image{
@@ -37,8 +40,7 @@ func TestDynamicStream(t *testing.T) {
 	source := extension.NewChanSource(outChan).
 		Via(flow.NewMap(ToMap, 1))
 
-	enrichersPath := filepath.Join("..", "..", "testdata", "enrichers")
-	stream := NewEnricherStream(source, enrichers, enrichersPath)
+	stream := NewEnricherStream(source, enricher)
 	result := (<-stream.Out()).((map[string]interface{}))
 
 	// Assert that the result contains the expected structure
@@ -63,36 +65,37 @@ func TestDynamicStream(t *testing.T) {
 }
 
 func TestDynamicWrapperStream(t *testing.T) {
-	enrichers := []EnricherConfig{
-		{Name: "file", Config: "eos.yaml"},
-		{Name: "hbs", Config: "pass_through.hbs"},
-		//{Name: "debug", Config: ""},
+	enricher := EnricherConfig{
+		BasePath: filepath.Join("..", "..", "testdata", "enrichers"),
+		Configs: []MapperConfig{
+			{Name: "file", Config: "eos.yaml"},
+			{Name: "hbs", Config: "pass_through.hbs"},
+			//	{Name: "debug", Config: ""},
+		},
 	}
 
 	scanResult := model.NewTestScanResult(model.NewTestScanTask(t, "test-1", "test-image-1"), "test-engine-1")
 	outChan := make(chan any, 1)
-	outChan <- WrappedResult{Result: scanResult, Context: ToMap(scanResult)}
+	outChan <- scanResult
 	close(outChan)
 
 	source := extension.NewChanSource(outChan)
-
-	enrichersPath := filepath.Join("..", "..", "testdata", "enrichers")
-	stream := NewResultEnricherStream(source, enrichers, enrichersPath)
-	result := (<-stream.Out()).(WrappedResult)
+	stream := NewResultEnricherStream(source, enricher)
+	result := (<-stream.Out()).(model.PharosScanResult)
 
 	// Assert that the result contains the same scan result that was passed in
-	if !reflect.DeepEqual(result.Result, scanResult) {
-		t.Errorf("Expected result.Result to be %v, got %v", scanResult, result.Result)
+	if !reflect.DeepEqual(result.ScanTask.JobId, scanResult.ScanTask.JobId) {
+		t.Errorf("Expected result.ScanTask.JobId to be %v, got %v", scanResult.ScanTask.JobId, result.ScanTask.JobId)
 	}
 
 	// Assert that the result contains the expected structure
-	data, ok := result.Context["data"].(map[string]interface{})
+	data, ok := result.ScanTask.Context["data"].(map[string]interface{})
 	if !ok {
-		t.Fatalf("Expected result to contain 'data' as map[string]interface{}, got %T", result.Context["data"])
+		t.Fatalf("Expected result.ScanTask.Context to contain 'data' as map[string]interface{}, got %T", result.ScanTask.Context["data"])
 	}
 	imageSpec, ok := data["Image"].(map[string]interface{})["ImageSpec"].(string)
 	if !ok {
-		t.Fatalf("Expected result to contain 'Image.ImageSpec' as map[string]interface{}, got %T", data["Image"])
+		t.Fatalf("Expected result.ScanTask.Context to contain 'Image.ImageSpec' as map[string]interface{}, got %T", data["Image"])
 	}
 
 	if imageSpec != "test-image-1" {

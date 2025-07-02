@@ -3,20 +3,26 @@ package mappers
 import (
 	"path/filepath"
 
+	"github.com/metraction/pharos/pkg/model"
 	"github.com/reugn/go-streams"
 	"github.com/reugn/go-streams/flow"
 )
 
-type EnricherConfig struct {
+type MapperConfig struct {
 	Name   string
 	Config string
 }
 
-func NewEnricherStream(stream streams.Source, enrichers []EnricherConfig, basePath string) streams.Flow {
+type EnricherConfig struct {
+	BasePath string
+	Configs  []MapperConfig
+}
+
+func NewEnricherStream(stream streams.Source, enricher EnricherConfig) streams.Flow {
 	var result streams.Flow
-	for _, enricher := range enrichers {
-		filePath := filepath.Join(basePath, enricher.Config)
-		switch enricher.Name {
+	for _, mapper := range enricher.Configs {
+		filePath := filepath.Join(enricher.BasePath, mapper.Config)
+		switch mapper.Name {
 		case "file":
 			stream = stream.Via(flow.NewMap(NewAppendFile[map[string]interface{}](filePath), 1))
 		case "hbs":
@@ -29,12 +35,12 @@ func NewEnricherStream(stream streams.Source, enrichers []EnricherConfig, basePa
 	return result
 }
 
-func NewResultEnricherStream(stream streams.Source, enrichers []EnricherConfig, basePath string) streams.Flow {
-
+func NewResultEnricherStream(stream streams.Source, enricher EnricherConfig) streams.Flow {
 	var result streams.Flow
-	for _, enricher := range enrichers {
-		filePath := filepath.Join(basePath, enricher.Config)
-		switch enricher.Name {
+	stream = stream.Via(flow.NewMap(ToWrappedResult, 1))
+	for _, mapper := range enricher.Configs {
+		filePath := filepath.Join(enricher.BasePath, mapper.Config)
+		switch mapper.Name {
 		case "file":
 			stream = stream.Via(flow.NewMap(Wrap(NewAppendFile[map[string]interface{}](filePath)), 1))
 		case "hbs":
@@ -44,5 +50,19 @@ func NewResultEnricherStream(stream streams.Source, enrichers []EnricherConfig, 
 		}
 		result = stream.(streams.Flow)
 	}
+	result = result.Via(flow.NewMap(ToUnWrappedResult, 1))
 	return result
+}
+
+func ToWrappedResult(result model.PharosScanResult) WrappedResult {
+	return WrappedResult{
+		Result:  result,
+		Context: ToMap(result),
+	}
+}
+
+func ToUnWrappedResult(result WrappedResult) model.PharosScanResult {
+	scanResult := result.Result
+	scanResult.ScanTask.Context = result.Context
+	return scanResult
 }

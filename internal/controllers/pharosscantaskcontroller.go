@@ -11,11 +11,8 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/google/uuid"
 	"github.com/metraction/pharos/internal/integrations"
-	"github.com/metraction/pharos/internal/integrations/db"
 	"github.com/metraction/pharos/internal/logging"
-	"github.com/metraction/pharos/internal/routing"
 	"github.com/metraction/pharos/pkg/model"
-	"github.com/reugn/go-streams/extension"
 	"github.com/rs/zerolog"
 )
 
@@ -34,18 +31,15 @@ type PharosScanTask2 struct {
 	Body model.PharosScanTask2 `json:"body"`
 }
 
-func NewPharosScanTaskController(api *huma.API, config *model.Config) *PharosScanTaskController {
+func NewPharosScanTaskController(api *huma.API, config *model.Config, resultChannel chan any) *PharosScanTaskController {
 	pc := &PharosScanTaskController{
 		Path:          "/pharosscantask",
 		Api:           api,
 		Config:        config,
 		Logger:        logging.NewLogger("info", "component", "PharosScanTaskController"),
-		ResultChannel: make(chan any), // Channel to handle scan
+		ResultChannel: resultChannel, // Channel to handle scan
 	}
-	// Start the flow to handle scan results without scanner.
-	source := extension.NewChanSource(pc.ResultChannel)
-	go routing.NewScanResultsInternalFlow(source).
-		To(db.NewImageDbSink(model.NewDatabaseContext(&config.Database)))
+
 	return pc
 }
 
