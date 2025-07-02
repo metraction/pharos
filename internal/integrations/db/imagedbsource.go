@@ -42,6 +42,7 @@ func (is *ImageDbSource) Via(operator streams.Flow) streams.Flow {
 	return operator
 }
 
+// TODO consider instead of Source use map function
 func (is *ImageDbSource) Start() {
 	ticker := time.NewTicker(60 * time.Second)
 	go is.RunAsync() // Initial run to populate the channel
