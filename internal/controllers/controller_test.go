@@ -120,6 +120,7 @@ func TestServer(t *testing.T) {
 	})
 	t.Run("03 Cleanup", func(t *testing.T) {
 		go routing.NewImageCleanupFlow(&databaseContext, config)
-		time.Sleep(10 * time.Second) // Allow cleanup to run
+		// Allow cleanup to run
+		time.Sleep(10 * time.Second)
 	})
 }
