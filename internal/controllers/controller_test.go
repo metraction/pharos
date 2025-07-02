@@ -2,7 +2,9 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"os"
 	"testing"
 	"time"
 
@@ -11,26 +13,41 @@ import (
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/stretchr/testify/require"
+	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
 func TestServer(t *testing.T) {
 	t.Logf("setup suite") //
-	config := &model.Config{
-		Database: model.Database{
-			Driver: "sqlite",
-			Dsn:    ":memory:", // Use in-memory SQLite for testing
-		},
+	driver := os.Getenv("DATABASE_DRIVER")
+	if driver == "" {
+		driver = "sqlite"
 	}
-	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{
-		DisableForeignKeyConstraintWhenMigrating: false,
-	})
-	require.NoError(t, err)
+	dsn := os.Getenv("DATABASE_DSN")
+	if dsn == "" {
+		dsn = ":memory:"
+	}
+	fmt.Printf("Using database driver: %s, DSN: %s\n", driver, dsn)
+	config := &model.Config{}
+	var db *gorm.DB
+	var err error
+	if driver == "sqlite" {
+		db, err = gorm.Open(sqlite.Open(dsn), &gorm.Config{
+			DisableForeignKeyConstraintWhenMigrating: false,
+		})
+	} else if driver == "postgres" {
+		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
+			DisableForeignKeyConstraintWhenMigrating: false,
+		})
+	} else {
+		t.Fatalf("Unsupported database driver: %s", driver)
+	}
 	databaseContext := model.DatabaseContext{
 		DB:     db,
 		Logger: logging.NewLogger("info", "component", "DatabaseContext"),
 	}
+	require.NoError(t, err)
 	err = databaseContext.Migrate()
 	require.NoError(t, err)
 	router := http.NewServeMux()

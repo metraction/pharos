@@ -108,7 +108,8 @@ jobs:
 
       - name: Run controller integration tests
         env:
-          DOCKER_REGISTRIES_AUTH: "registry://spastai\\@gmail.com:${{ secrets.GITHUB_TOKEN }}@ghcr.io/metraction"
+          DATABASE_DSN: "postgres://postgres:postgres@localhost:5432?sslmode=disable"
+          DATABASE_DRIVER: "postgres"
         run: |
           go test ./internal/controllers -timeout=5m -v
 
