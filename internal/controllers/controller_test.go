@@ -11,6 +11,7 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
 	"github.com/metraction/pharos/internal/logging"
+	"github.com/metraction/pharos/internal/routing"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/stretchr/testify/require"
 	"gorm.io/driver/postgres"
@@ -65,7 +66,7 @@ func TestServer(t *testing.T) {
 		err := http.ListenAndServe(":8081", router)
 		require.NoError(t, err, "Failed to start server")
 	}()
-	t.Run("AddDataTo Database", func(t *testing.T) {
+	t.Run("01 AddDataTo Database", func(t *testing.T) {
 		pharosImageMeta := model.PharosImageMeta{
 			ImageId:     "test-image-id",
 			IndexDigest: "test-digest",
@@ -94,7 +95,7 @@ func TestServer(t *testing.T) {
 		time.Sleep(5 * time.Second)
 	})
 
-	t.Run("GetDataViaAPI", func(t *testing.T) {
+	t.Run("02 GetDataViaAPI", func(t *testing.T) {
 		resp, err := http.Get("http://localhost:8081/api/pharosimagemeta/test-image-id")
 		if err != nil {
 			t.Fatalf("Failed to make request: %v", err)
@@ -116,5 +117,9 @@ func TestServer(t *testing.T) {
 		require.Equal(t, "CVE-2023-12345", got.Vulnerabilities[0].AdvId)
 		require.Len(t, got.Findings, 1)
 		require.Equal(t, "CVE-2023-12345", got.Findings[0].AdvId)
+	})
+	t.Run("03 Cleanup", func(t *testing.T) {
+		go routing.NewImageCleanupFlow(&databaseContext, config)
+		time.Sleep(10 * time.Second) // Allow cleanup to run
 	})
 }
