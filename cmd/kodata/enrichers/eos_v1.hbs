@@ -1,2 +1,4 @@
-eos: {{ index .eos .data.Image.DistroName | filter "version" "startsWith" .data.Image.DistroVersion | map "field" "eos" | first }}
+distro: {{ .data.Image.DistroName }}
+version: {{ .data.Image.DistroVersion }}
+eos: {{ index .eos .data.Image.DistroName | filter "version" "matchWildcard" .data.Image.DistroVersion | map "field" "eos" | first }}
   

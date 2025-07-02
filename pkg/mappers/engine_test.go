@@ -248,3 +248,70 @@ func getMapKeys(m map[string]interface{}) []string {
 	sort.Strings(keys)
 	return keys
 }
+
+func TestMatchWildcard(t *testing.T) {
+	tests := []struct {
+		name     string
+		pattern  string
+		criteria string
+		expected bool
+	}{
+		{"Exact match", "3.16.0", "3.16.0", true},
+		{"No match", "3.16.0", "3.16.1", false},
+		{"Wildcard at end", "3.16.%", "3.16.2", true},
+		{"Wildcard at end - no match", "3.16.%", "3.17.0", false},
+		{"Wildcard in middle", "3.%.0", "3.16.0", true},
+		{"Wildcard in middle - no match", "3.%.0", "3.16.1", false},
+		{"Multiple wildcards", "3.%.%", "3.16.2", true},
+		{"Multiple wildcards - no match", "3.%.%", "4.16.2", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Create a map with the pattern
+			item := map[string]interface{}{
+				"version": tt.pattern,
+			}
+
+			// Call the matchWildcard function
+			result := filterOperators["matchWildcard"](item, "version", tt.criteria)
+
+			// Check the result
+			if result != tt.expected {
+				t.Errorf("matchWildcard(%q, %q) = %v, want %v", 
+					tt.pattern, tt.criteria, result, tt.expected)
+			}
+		})
+	}
+
+	// Test with Alpine version patterns from eos.yaml
+	t.Run("Alpine version patterns", func(t *testing.T) {
+		alpinePatterns := []struct {
+			pattern  string
+			version  string
+			matches  bool
+		}{
+			{"3.16.%", "3.16.0", true},
+			{"3.16.%", "3.16.1", true},
+			{"3.16.%", "3.16.10", true},
+			{"3.16.%", "3.17.0", false},
+			{"3.20.%", "3.20.3", true},
+			{"3.20.%", "3.20.0", true},
+			{"3.20.%", "3.20.10", true},
+			{"3.20.%", "3.21.0", false},
+		}
+
+		for _, tc := range alpinePatterns {
+			item := map[string]interface{}{
+				"version": tc.pattern,
+			}
+
+			result := filterOperators["matchWildcard"](item, "version", tc.version)
+
+			if result != tc.matches {
+				t.Errorf("matchWildcard with pattern %q and version %q = %v, want %v", 
+					tc.pattern, tc.version, result, tc.matches)
+			}
+		}
+	})
+}

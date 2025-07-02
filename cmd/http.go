@@ -63,8 +63,9 @@ These submissions are then published to a Redis stream for further processing by
 			BasePath: config.Mapper.BasePath,
 			Configs: []mappers.MapperConfig{
 				{Name: "file", Config: "eos.yaml"},
+				//	{Name: "debug", Config: "1"},
 				{Name: "hbs", Config: "eos_v1.hbs"},
-				//	{Name: "debug", Config: ""},
+				//	{Name: "debug", Config: "2"},
 			},
 		}
 

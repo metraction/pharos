@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"regexp"
 	"strings"
 	"text/template"
 
@@ -73,7 +74,6 @@ var filterOperators = map[string]func(item interface{}, fieldName string, criter
 
 			return strings.HasPrefix(fieldValue, criteria)
 		}
-
 		// Handle map case
 		if m, ok := item.(map[string]interface{}); ok {
 			if val, exists := m[fieldName]; exists {
@@ -81,8 +81,54 @@ var filterOperators = map[string]func(item interface{}, fieldName string, criter
 				return strings.HasPrefix(strVal, criteria)
 			}
 		}
-
 		return false
+	},
+	"matchWildcard": func(item interface{}, fieldName string, criteria string) bool {
+		// Get field value as string
+		var pattern string
+		iv := reflect.ValueOf(item)
+		if iv.Kind() == reflect.Struct {
+			field := iv.FieldByName(fieldName)
+			if !field.IsValid() {
+				return false
+			}
+
+			// Convert field value to string
+			switch field.Kind() {
+			case reflect.String:
+				pattern = field.String()
+			default:
+				pattern = fmt.Sprintf("%v", field.Interface())
+			}
+		} else if m, ok := item.(map[string]interface{}); ok {
+			if val, exists := m[fieldName]; exists {
+				pattern = fmt.Sprintf("%v", val)
+			} else {
+				return false
+			}
+		} else {
+			return false
+		}
+
+		// Check if pattern contains wildcard
+		if strings.Contains(pattern, "%") {
+			// Convert pattern to regex
+			regexPattern := strings.ReplaceAll(pattern, ".", "\\.")
+			regexPattern = strings.ReplaceAll(regexPattern, "%", ".*")
+			regexPattern = "^" + regexPattern + "$"
+			
+			// Compile regex
+			reg, err := regexp.Compile(regexPattern)
+			if err != nil {
+				return false
+			}
+			
+			// Match criteria against pattern
+			return reg.MatchString(criteria)
+		}
+		
+		// No wildcard, use exact match
+		return pattern == criteria
 	},
 }
 
