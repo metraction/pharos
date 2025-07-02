@@ -52,3 +52,4 @@ role:
 
 prometheus:
   url: "http://rancher-monitoring-prometheus.cattle-monitoring-system.svc.cluster.local:9090"
+  query: 'kube_pod_container_info{image_spec=~"ghcr.*|nextcloud.*"}'

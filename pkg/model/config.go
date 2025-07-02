@@ -49,6 +49,7 @@ type PrometheusReporterConfig struct {
 	PharosURL     string   `mapstructure:"pharosUrl"`     // Root URL of the Pharos server for Prometheus metrics
 	ContextLabels []string `mapstructure:"contextLabels"` // Labels to add to the Prometheus context
 	TTL           string   `mapstructure:"ttl"`           // Time to live for the scan results
+	Query         string   `mapstructure:"query"`         // Query to use for fetching metrics
 }
 
 // Redis holds Redis-specific configuration.
