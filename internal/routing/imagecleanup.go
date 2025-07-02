@@ -11,7 +11,6 @@ func NewImageCleanupFlow(databaseContext *model.DatabaseContext, config *model.C
 	imageDbSource := db.NewImageDbSource(databaseContext, config)
 	imageDbHandler := db.NewImageDbHandler(databaseContext)
 	imageDbSource.
-		Via(flow.NewPassThrough()).
 		Via(flow.NewMap(imageDbHandler.RemoveImagesWithoutContext, 1)).
 		Via(flow.NewMap(imageDbHandler.RemoveExpiredContexts, 1)).
 		To(extension.NewIgnoreSink())
