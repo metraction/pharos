@@ -25,11 +25,11 @@ type PrometheusReporter struct {
 
 func NewPrometheusReporter(ctx *context.Context, config *model.Config) *PrometheusReporter {
 	logger := logging.NewLogger("info", "component", "PrometheusReporter")
-
 	hwModelConfig := hwmodel.Config{
 		Prometheus: hwmodel.PrometheusConfig{
 			Interval: config.Prometheus.Interval,
 			URL:      config.Prometheus.URL,
+			Query:    config.Prometheus.Query,
 		},
 	}
 	return &PrometheusReporter{
