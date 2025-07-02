@@ -2,9 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"net/http"
-	"path/filepath"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
@@ -51,20 +49,18 @@ These submissions are then published to a Redis stream for further processing by
 		api.UseMiddleware(databaseContext.DatabaseMiddleware())
 		publisher, err := routing.NewPublisher(cmd.Context(), config)
 		if err != nil {
-			log.Fatal("Failed to create publisher flow:", err)
 			logger.Fatal().Err(err).Msg("Failed to create publisher flow")
 			return
 		}
 		priorityPublisher, err := routing.NewPriorityPublisher(cmd.Context(), config)
 		if err != nil {
-			log.Fatal("Failed to create publisher flow:", err)
 			logger.Fatal().Err(err).Msg("Failed to create publisher flow")
 			return
 		}
 		rdb := integrations.NewRedis(cmd.Context(), config)
-
+		logger.Debug().Str("basePath", config.Mapper.BasePath).Msg("Loading mapper from")
 		enricher := mappers.EnricherConfig{
-			BasePath: filepath.Join("..", "..", "testdata", "enrichers"),
+			BasePath: config.Mapper.BasePath,
 			Configs: []mappers.MapperConfig{
 				{Name: "file", Config: "eos.yaml"},
 				{Name: "hbs", Config: "eos_v1.hbs"},
