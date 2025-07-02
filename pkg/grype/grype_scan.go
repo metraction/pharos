@@ -3,6 +3,7 @@ package grype
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/dustin/go-humanize"
 	"github.com/metraction/pharos/internal/integrations/cache"
@@ -41,7 +42,7 @@ func ScanImage(task model.PharosScanTask2, scanEngine *GrypeScanner, kvc *cache.
 	indexDigest, manifestDigest, rxPlatform, err := images.GetImageDigests(task)
 	if err != nil {
 		result.ScanTask.SetError(err)
-		return result, nil, nil, err
+		return result, nil, nil, fmt.Errorf("image:%s %w", task.ImageSpec, err)
 	}
 	result.ScanTask.RxDigest = manifestDigest
 	result.ScanTask.RxPlatform = rxPlatform
@@ -68,7 +69,7 @@ func ScanImage(task model.PharosScanTask2, scanEngine *GrypeScanner, kvc *cache.
 	sbomData, err = kvc.GetExpireUnpack(ctx, key, task.CacheTTL)
 	if err != nil && !errors.Is(err, cache.ErrKeyNotFound) {
 		result.ScanTask.SetError(err)
-		return result, nil, nil, err
+		return result, nil, nil, fmt.Errorf("image:%s %w", task.ImageSpec, err)
 	}
 
 	if errors.Is(err, cache.ErrKeyNotFound) {
@@ -77,12 +78,12 @@ func ScanImage(task model.PharosScanTask2, scanEngine *GrypeScanner, kvc *cache.
 		result.ScanTask.Status = cacheState
 		if sbomProd, sbomData, err = sbomEngine.CreateSbom(task, "syft-json"); err != nil {
 			result.ScanTask.SetError(err)
-			return result, nil, nil, err
+			return result, nil, nil, fmt.Errorf("image:%s %w", task.ImageSpec, err)
 		}
 		// cache sbom
 		if err := kvc.SetExpirePack(ctx, key, sbomData, task.CacheTTL); err != nil {
 			result.ScanTask.SetError(err)
-			return result, nil, nil, err
+			return result, nil, nil, fmt.Errorf("image:%s %w", task.ImageSpec, err)
 		}
 	} else {
 		// cache hit, parse []byte
@@ -90,7 +91,7 @@ func ScanImage(task model.PharosScanTask2, scanEngine *GrypeScanner, kvc *cache.
 		result.ScanTask.Status = cacheState
 		if err := sbomProd.FromBytes(sbomData); err != nil {
 			result.ScanTask.SetError(err)
-			return result, nil, nil, err
+			return result, nil, nil, fmt.Errorf("image:%s %w", task.ImageSpec, err)
 		}
 	}
 
@@ -103,7 +104,7 @@ func ScanImage(task model.PharosScanTask2, scanEngine *GrypeScanner, kvc *cache.
 	result.ScanTask.Status = "parse-scan"
 	if err = result.LoadGrypeImageScan(sbomProd, scanProd); err != nil {
 		result.ScanTask.SetError(err)
-		return result, nil, nil, err
+		return result, nil, nil, fmt.Errorf("image:%s %w", task.ImageSpec, err)
 	}
 
 	result.ScanTask.Status = "done"
