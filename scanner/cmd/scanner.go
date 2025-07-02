@@ -23,9 +23,10 @@ import (
 
 // command line arguments of command
 type ScannerArgsType = struct {
-	OutDir string // results dump dir
-	Engine string // scan engine to use
-	Worker string // scanner consumer name (MQ)
+	OutDir    string // results dump dir
+	VulnDbDir string
+	Engine    string // scan engine to use
+	Worker    string // scanner consumer name (MQ)
 
 	QueueMax      string // task queue max size
 	MqEndpoint    string // redis://user:pwd@localhost:6379/1
@@ -38,6 +39,7 @@ func init() {
 	rootCmd.AddCommand(scannerCmd)
 
 	scannerCmd.Flags().StringVar(&ScannerArgs.OutDir, "outdir", EnvOrDefault("outdir", ""), "Output directory for results")
+	scannerCmd.Flags().StringVar(&ScannerArgs.VulnDbDir, "vulndbdir", EnvOrDefault("vulndbdir", ""), "Scanner vuln db dir")
 	scannerCmd.Flags().StringVar(&ScannerArgs.Engine, "engine", EnvOrDefault("engine", ""), "Scan engine [grype,trivy]")
 	scannerCmd.Flags().StringVar(&ScannerArgs.Worker, "worker", EnvOrDefault("worker", ""), "scanner worker name (consumer)")
 	scannerCmd.Flags().StringVar(&ScannerArgs.QueueMax, "queue_max", EnvOrDefault("queue_max", "1000"), "redis max queue stream size")
@@ -58,12 +60,12 @@ var scannerCmd = &cobra.Command{
 
 		queueMaxLen := utils.ToNumOr[int64](ScannerArgs.QueueMax, 1000)
 
-		ExecuteScanner(ScannerArgs.Engine, ScannerArgs.Worker, ScannerArgs.MqEndpoint, ScannerArgs.CacheEndpoint, ScannerArgs.OutDir, queueMaxLen, logger)
+		ExecuteScanner(ScannerArgs.Engine, ScannerArgs.Worker, ScannerArgs.MqEndpoint, ScannerArgs.CacheEndpoint, ScannerArgs.OutDir, ScannerArgs.VulnDbDir, queueMaxLen, logger)
 
 	},
 }
 
-func ExecuteScanner(engine, worker, mqEndpoint, cacheEndpoint, outDir string, queueMaxLen int64, logger *zerolog.Logger) {
+func ExecuteScanner(engine, worker, mqEndpoint, cacheEndpoint, outDir, vulnDbDir string, queueMaxLen int64, logger *zerolog.Logger) {
 
 	logger.Info().Msg("-----< Scanner sender >-----")
 	logger.Info().
@@ -73,6 +75,7 @@ func ExecuteScanner(engine, worker, mqEndpoint, cacheEndpoint, outDir string, qu
 		Any("queue_max", queueMaxLen).
 		Str("cache_endpoint", utils.MaskDsn(cacheEndpoint)).
 		Str("outdir", outDir).
+		Str("vulndbdir", vulnDbDir).
 		Msg("")
 
 	// check
@@ -118,11 +121,11 @@ func ExecuteScanner(engine, worker, mqEndpoint, cacheEndpoint, outDir string, qu
 	scanTimeout := 180 * time.Second // default timeout
 	var scanner scanning.ScanEngineInterface
 	if engine == "grype" {
-		if scanner, err = scanning.NewGrypeScannerEngine(scanTimeout, true, kvCache, logger); err != nil {
+		if scanner, err = scanning.NewGrypeScannerEngine(scanTimeout, true, vulnDbDir, kvCache, logger); err != nil {
 			logger.Fatal().Err(err).Msg("NewGrypeScannerEngine()")
 		}
 	} else if engine == "trivy" {
-		if scanner, err = scanning.NewTrivyScannerEngine(scanTimeout, true, kvCache, logger); err != nil {
+		if scanner, err = scanning.NewTrivyScannerEngine(scanTimeout, true, vulnDbDir, kvCache, logger); err != nil {
 			logger.Fatal().Err(err).Msg("NewTrivyScannerEngine()")
 		}
 	} else {

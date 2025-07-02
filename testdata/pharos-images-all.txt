@@ -1,3 +1,9 @@
+# auth: $PHAROS_REPO_AUTH
+# platform: linux/amd64
+# cachettl: 2h
+# scanttl: 5m
+# maxpressure: 0.2
+
 pharos.secimo.net/alpine:3.16
 pharos.secimo.net/alpine:3.17
 pharos.secimo.net/alpine:3.18

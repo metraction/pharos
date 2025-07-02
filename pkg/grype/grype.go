@@ -35,7 +35,7 @@ type GrypeScanner struct {
 }
 
 // create grype scanner
-func NewGrypeScanner(scanTimeout time.Duration, updateDb bool, logger *zerolog.Logger) (*GrypeScanner, error) {
+func NewGrypeScanner(scanTimeout time.Duration, updateDb bool, vulnDbDir string, logger *zerolog.Logger) (*GrypeScanner, error) {
 
 	var err error
 	var grypeBin string
@@ -52,9 +52,11 @@ func NewGrypeScanner(scanTimeout time.Duration, updateDb bool, logger *zerolog.L
 		return nil, err
 	}
 	// get vuln db prod directory
-	dbProdDir := os.Getenv("GRYPE_DB_CACHE_DIR")
-	dbProdDir = lo.Ternary(dbProdDir != "", dbProdDir, filepath.Join(homeDir, ".cache", "grype", "db"))
-
+	dbProdDir := vulnDbDir
+	if vulnDbDir == "" {
+		dbProdDir = os.Getenv("GRYPE_DB_CACHE_DIR")
+		dbProdDir = lo.Ternary(dbProdDir != "", dbProdDir, filepath.Join(homeDir, ".cache", "grype", "db"))
+	}
 	// get vuln db staging directory (create if required to ensure all works at startup)
 	dbStageDir := filepath.Join(os.TempDir(), "grype-db-stage")
 	if err := os.Mkdir(dbStageDir, 0755); err != nil {

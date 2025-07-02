@@ -42,7 +42,8 @@ func NewScannerFlow(ctx context.Context, cfg *model.Config) error {
 	if err != nil {
 		logger.Fatal().Err(err).Msg("time.ParseDuration()")
 	}
-	if scanEngine, err = grype.NewGrypeScanner(scanTimeout, true, logger); err != nil {
+	vulnDbDir := "" // empty -> use default
+	if scanEngine, err = grype.NewGrypeScanner(scanTimeout, true, vulnDbDir, logger); err != nil {
 		dbCacheDir := os.Getenv("GRYPE_DB_CACHE_DIR")
 		logger.Debug().Str("GRYPE_DB_CACHE_DIR", dbCacheDir).Msg("Grype settings: ")
 		logger.Fatal().Err(err).Msg("NewGrypeScanner()")
