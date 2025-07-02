@@ -140,8 +140,7 @@ jobs:
         env:
           PHAROS_REDIS_DSN: redis:6379
           PHAROS_SCANNER_CACHEENDPOINT: redis://redis:6379
-        options: >-
-          http 
+          PHAROS_COMMAND: http
 
     steps:
       - name: Checkout code

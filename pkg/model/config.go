@@ -11,6 +11,7 @@ type Config struct {
 	Prometheus      PrometheusReporterConfig `mapstructure:"prometheus"`
 	ResultCollector ResultCollectorConfig    `mapstructure:"collector"`
 	Mapper          MapperConfig             `mapstructure:"mapper"`
+	Command         string                   `mapstructure:"command"`
 }
 
 // ScannerConfig holds scanner-specific configuration.

@@ -9,14 +9,11 @@ import (
 	"io"
 	"log"
 	"os"
-	"os/signal"
 	"path/filepath"
 	"strconv"
 	"strings"
-	"syscall"
 	"time"
 
-	"github.com/metraction/pharos/internal/routing"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -36,25 +33,21 @@ var rootCmd = &cobra.Command{
 		cmd.SetContext(ctx)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("This is the root command that does nothing.\n  Run go run . scanner")
 		// TODO: this is duplicate code of scanner.go
 		// Create a new context that can be cancelled.
-		ctx, cancel := context.WithCancel(cmd.Context())
-		defer cancel() // Ensure cancel is called on exit to clean up resources
-
-		err := routing.NewScannerFlow(ctx, config)
-		if err != nil {
-			fmt.Printf("Error creating scanner flow: %v\n", err)
-			return
+		if os.Getenv("CI") == "true" {
+			fmt.Println("CI mode", config.Command)
+			switch config.Command {
+			case "scanner":
+				scannerCmd.Run(cmd, args)
+			case "http":
+				httpCmd.Run(cmd, args)
+			default:
+				fmt.Println("Unknown CI command: " + config.Command)
+			}
+		} else {
+			fmt.Println("This is the root command that does nothing.\n  Run go run . scanner")
 		}
-		fmt.Println("Scanner started successfully. Press Ctrl+C to exit.")
-
-		// Wait for interrupt signal to gracefully shut down.
-		quit := make(chan os.Signal, 1)
-		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-		<-quit
-
-		fmt.Println("Shutting down scanner...")
 	},
 }
 
@@ -145,6 +138,8 @@ func initConfig() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
+
+	rootCmd.PersistentFlags().String("command", "scanner", "CI command") // Use dot-notation for Viper key compatibility with nested structs.
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.pharos.yaml)") // cfgFile is handled specially for file loading, so direct binding is fine.
 	rootCmd.PersistentFlags().String("redis.dsn", "localhost:6379", "Redis address")                           // Use dot-notation for Viper key compatibility with nested structs.
