@@ -36,8 +36,8 @@ func (ph *PharosScanTaskHandler) UpdateScanTime(item model.PharosScanResult) mod
 	return item
 }
 
-func (ph *PharosScanTaskHandler) CreateRootContext(result model.PharosScanResult) model.PharosScanResult {
-	contextRoot := result.GetContextRoot("pharos controller", time.Minute*30) // TODO: Need to make this configurable
-	result.Image.ContextRoots = []model.ContextRoot{contextRoot}
-	return result
+func (ph *PharosScanTaskHandler) CreateRootContext(item model.PharosScanResult) model.PharosScanResult {
+	contextRoot := item.GetContextRoot("pharos controller", time.Minute*30) // TODO: Need to make this configurable
+	item.Image.ContextRoots = []model.ContextRoot{contextRoot}
+	return item
 }

@@ -12,6 +12,11 @@ type ContextRoot struct {
 	Contexts  []Context `gorm:"foreignKey:ContextRootKey,ImageId;references:Key,ImageId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
+func (cr *ContextRoot) IsExpired() bool {
+	// Check if the context root is expired based on the TTL
+	return time.Since(cr.UpdatedAt) > cr.TTL
+}
+
 type Context struct {
 	ID             uint   `gorm:"primaryKey"` // Auto-incrementing primary key
 	ContextRootKey string // Composite Foreign Key to the ContextRoot Table
