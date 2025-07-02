@@ -62,6 +62,6 @@ func (ph *PharosScanTaskHandler) AddSampleData(item model.PharosScanResult) mode
 			"sampleTime": time.Now(), // we can also add a time here, whatever.
 		},
 	})
-	ph.Logger.Info().Str("ImageId", item.Image.ImageId).Str("urltocheck", "http://localhost//api/pharosimagemeta/contexts/"+item.Image.ImageId).Msg("Sample data added to scan result")
+	ph.Logger.Info().Str("ImageId", item.Image.ImageId).Str("urltocheck", "http://localhost:8080/api/pharosimagemeta/contexts/"+item.Image.ImageId).Msg("Sample data added to scan result")
 	return item
 }

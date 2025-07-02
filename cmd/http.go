@@ -64,11 +64,11 @@ These submissions are then published to a Redis stream for further processing by
 		rdb := integrations.NewRedis(cmd.Context(), config)
 
 		enricher := mappers.EnricherConfig{
-			BasePath: filepath.Join("..", "..", "testdata", "enrichers"),
+			BasePath: filepath.Join("testdata", "enrichers"),
 			Configs: []mappers.MapperConfig{
-				{Name: "file", Config: "eos.yaml"},
-				{Name: "hbs", Config: "eos_v1.hbs"},
-				//	{Name: "debug", Config: ""},
+				// {Name: "file", Config: "eos.yaml"},
+				// {Name: "hbs", Config: "eos_v1.hbs"},
+				{Name: "debug", Config: ""},
 			},
 		}
 
