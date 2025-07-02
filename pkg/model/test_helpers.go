@@ -32,6 +32,12 @@ func NewTestScanResult(task PharosScanTask2, engineName string) PharosScanResult
 			ArchOS:         "linux",
 			DistroName:     "debian",
 			DistroVersion:  "12",
+			ContextRoots: []ContextRoot{
+				{
+					Key:      "test-context-root",
+					Contexts: []Context{},
+				},
+			},
 		},
 		Findings:        []PharosScanFinding{},
 		Vulnerabilities: []PharosVulnerability{},

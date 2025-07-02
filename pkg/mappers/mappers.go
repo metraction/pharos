@@ -113,7 +113,6 @@ func ToUnWrappedResult(result WrappedResult) model.PharosScanResult {
 	logger := logging.NewLogger("info", "component", "cmd.http")
 
 	item := result.Result
-	logger.Info().Str("ImageId", item.Image.ImageId).Msg("Adding sample data to scan result")
 	if len(item.Image.ContextRoots) == 0 {
 		logger.Warn().Msg("No context roots found in scan result, I cannot add anything.")
 		return item
@@ -122,8 +121,6 @@ func ToUnWrappedResult(result WrappedResult) model.PharosScanResult {
 		logger.Warn().Msg("Wow, this should not happen either, only one context root is expected, but found multiple.")
 		return item
 	}
-	fmt.Println(result.Context)
-
 	item.Image.ContextRoots[0].Contexts = append(item.Image.ContextRoots[0].Contexts, model.Context{
 		ContextRootKey: item.Image.ContextRoots[0].Key,
 		ImageId:        item.Image.ImageId,
@@ -131,7 +128,7 @@ func ToUnWrappedResult(result WrappedResult) model.PharosScanResult {
 		UpdatedAt:      time.Now(),
 		Data:           result.Context,
 	})
-	logger.Info().Str("ImageId", item.Image.ImageId).Str("urltocheck", "http://localhost:8080/api/pharosimagemeta/contexts/"+item.Image.ImageId).Msg("Sample data added to scan result")
+	logger.Debug().Str("ImageId", item.Image.ImageId).Str("urltocheck", "http://localhost:8080/api/pharosimagemeta/contexts/"+item.Image.ImageId).Msg("Context added")
 
 	return item
 }

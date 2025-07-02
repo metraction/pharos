@@ -89,7 +89,7 @@ func TestDynamicWrapperStream(t *testing.T) {
 	}
 
 	// Assert that the result contains the expected structure
-	data, ok := result.ScanTask.Context["data"].(map[string]interface{})
+	data, ok := result.Image.ContextRoots[0].Contexts[0].Data["data"].(map[string]interface{})
 	if !ok {
 		t.Fatalf("Expected result.ScanTask.Context to contain 'data' as map[string]interface{}, got %T", result.ScanTask.Context["data"])
 	}
