@@ -134,7 +134,7 @@ jobs:
           PHAROS_REDIS_DSN: redis:6379
           PHAROS_SCANNER_CACHEENDPOINT: redis://redis:6379
 
-      http:
+      controller:
         # The image is tagged with the version from semver.sh
         image: ghcr.io/metraction/pharos/pharos-c52785725d1132c2f91e01422b7f40ba:${{ needs.get-version.outputs.version }}
         env:
@@ -158,32 +158,58 @@ jobs:
           echo "Waiting for services to initialize..."
           sleep 15 # Adjust as needed, or implement a more robust health check for the scanner
 
+      - name: Run http integration tests
+        run: |
+          # Wait for HTTP service to be ready
+          echo "Waiting for HTTP service to be available..."
+          timeout 30 bash -c 'until curl -s http://controller:8080/health; do sleep 1; done'
+          
+          # Send request and capture response
+          echo "Sending test request to API..."
+          response=$(curl -s -w "\n%{http_code}" -X POST http://controller:8080/api/pharosscantask/asyncscan \
+            -H "Content-Type: application/json" \
+            -d '{
+              "jobId": "2",
+              "status": "",
+              "engine": "",
+              "error": "",
+              "authdsn": "registry:///?tlscheck=false",
+              "imagespec": "rancher/nginx-ingress-controller:nginx-1.11.3-rancher1",
+              "platform": "linux/amd64",
+              "context": {
+                "namespace": "ingress-nginx"
+              },
+              "contextRootKey": "namespace=ingress-nginx,",
+              "rxdigest": "",
+              "rxplatform": "",
+              "cachettl": 0,
+              "scanttl": 60000000000,
+              "timeout": 180000000000,
+              "created": "2025-07-02T10:20:35.784021+02:00",
+              "updated": "2025-07-02T10:20:35.784021+02:00"
+            }')
+          
+          # Extract status code
+          status_code=$(echo "$response" | tail -n1)
+          response_body=$(echo "$response" | sed '$d')
+          
+          # Check if request was successful
+          echo "Response body: $response_body"
+          echo "Status code: $status_code"
+          
+          if [[ "$status_code" -ge 200 && "$status_code" -lt 300 ]]; then
+            echo "HTTP request successful"
+          else
+            echo "HTTP request failed with status $status_code"
+            exit 1
+          fi
+
       - name: Run controller integration tests
         env:
           DATABASE_DSN: "postgres://postgres:postgres@localhost:5432?sslmode=disable"
           DATABASE_DRIVER: "postgres"
         run: |
           go test ./internal/controllers -timeout=5m -v
-
-      - name: Run benchmark tests
-        env:
-          DOCKER_REGISTRIES_AUTH: "registry://spastai\\@gmail.com:${{ secrets.GITHUB_TOKEN }}@ghcr.io/metraction"
-        run: |
-          # These tests should publish to Redis, and the scanner service should consume.
-          # The benchmark test (routing/publish_test.go) is configured to use localhost:6379 for Redis.
-          go test ./internal/routing -bench=. -benchmem -timeout=5m
-
-      - name: Show scanner service logs
-        run: |
-          echo "Scanner service logs:"
-          docker logs ${{ job.services.scanner.id }}
-
-      - name: Check scanner service logs on failure
-        if: failure()
-        run: |
-          echo "Tests failed. Scanner logs are available in the 'scanner' service logs in the GitHub Actions UI."
-          # The logs for services are automatically collected by the runner and displayed in the UI.
-          # This step is just a pointer for easier debugging.    
 
   benchmark-test:
     if: github.event.inputs.run_benchmark_tests == 'true' || contains(github.event.head_commit.message, 'run_benchmark_tests')
@@ -237,13 +263,6 @@ jobs:
         run: |
           echo "Waiting for services to initialize..."
           sleep 15 # Adjust as needed, or implement a more robust health check for the scanner
-
-      - name: Run controller integration tests
-        env:
-          DATABASE_DSN: "postgres://postgres:postgres@localhost:5432?sslmode=disable"
-          DATABASE_DRIVER: "postgres"
-        run: |
-          go test ./internal/controllers -timeout=5m -v
 
       - name: Run benchmark tests
         env:
