@@ -117,7 +117,7 @@ func TestIntegrationClientServer(t *testing.T) {
 		time.Sleep(50 * time.Millisecond)
 
 		// Create a simple scan result
-		return newTestScanResult(task, "test-engine")
+		return model.NewTestScanResult(task, "test-engine")
 	}
 
 	// Start the server in a goroutine
@@ -153,7 +153,7 @@ func TestIntegrationClientServer(t *testing.T) {
 			taskID := uuid.New().String()
 
 			// Create a scan task
-			task := newTestScanTask(t, taskID, fmt.Sprintf("test-image-%d", index))
+			task := model.NewTestScanTask(t, taskID, fmt.Sprintf("test-image-%d", index))
 
 			// Send the request
 			response, err := client.RequestReply(ctx, task)
@@ -258,7 +258,7 @@ func TestMessageConsumedOnlyOnce(t *testing.T) {
 			// Simulate some processing time
 			time.Sleep(50 * time.Millisecond)
 
-			return newTestScanResult(task, fmt.Sprintf("test-engine-%d", serverIdx))
+			return model.NewTestScanResult(task, fmt.Sprintf("test-engine-%d", serverIdx))
 		}
 
 		// Start each server in its own goroutine
@@ -283,7 +283,7 @@ func TestMessageConsumedOnlyOnce(t *testing.T) {
 	results := make(map[string]model.PharosScanResult, numRequestsToSend)
 	for i := 0; i < numRequestsToSend; i++ {
 		taskID := fmt.Sprintf("%d", i)
-		task := newTestScanTask(t, taskID, fmt.Sprintf("test-image-%d", i))
+		task := model.NewTestScanTask(t, taskID, fmt.Sprintf("test-image-%d", i))
 		resp, err := client.RequestReply(ctx, task)
 		require.NoError(t, err)
 		results[taskID] = resp
@@ -393,7 +393,7 @@ func TestRedisConsumerGroupSource(t *testing.T) {
 						mutex.Unlock()
 
 						// Create a scan result from the task
-						result := newTestScanResult(scanTask, consumerID)
+						result := model.NewTestScanResult(scanTask, consumerID)
 
 						// Mark message as processed
 						wg.Done()
@@ -410,7 +410,7 @@ func TestRedisConsumerGroupSource(t *testing.T) {
 		taskID := fmt.Sprintf("task-%d", i)
 		imageRef := fmt.Sprintf("test-image:%d", i)
 
-		scanTask := newTestScanTask(t, taskID, imageRef)
+		scanTask := model.NewTestScanTask(t, taskID, imageRef)
 		// Send the task to the channel
 		messageChan <- scanTask
 		t.Logf("Published scan task: %s for image %s", taskID, imageRef)
@@ -494,7 +494,7 @@ func TestRedisQueueLimit(t *testing.T) {
 	// Send messages to the channel
 	for i := 0; i < 10; i++ {
 		taskID := fmt.Sprintf("%d", i)
-		task := newTestScanTask(t, taskID, fmt.Sprintf("test-image-%d", i))
+		task := model.NewTestScanTask(t, taskID, fmt.Sprintf("test-image-%d", i))
 		fmt.Println("Sending message:", task.JobId)
 		time.Sleep(50 * time.Millisecond)
 		messageChan <- task

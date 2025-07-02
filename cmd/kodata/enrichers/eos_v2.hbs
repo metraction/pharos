@@ -1,0 +1,6 @@
+version: v2
+kind: EosPolicy
+
+spec:
+  eos: {{ index .eos .data.Image.DistroName | filter "version" "startsWith" .data.Image.DistroVersion | map "field" "eos" | first }}
+  

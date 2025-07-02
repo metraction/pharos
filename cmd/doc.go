@@ -1,0 +1,2 @@
+// Assembles application
+package cmd

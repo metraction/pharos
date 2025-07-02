@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"syscall"
@@ -176,6 +177,10 @@ func init() {
 	rootCmd.PersistentFlags().String("database.driver", "postgres", "Database driver for the scanner, righ now, only 'postgres' is implemented.")
 	defaultDSN := fmt.Sprintf("postgres://postgres:postgres@localhost:5432/pharos?sslmode=disable") // run `brew install db-browser-for-sqlite` to view the database.
 	rootCmd.PersistentFlags().String("database.dsn", defaultDSN, "Database DSN for the scanner, for postgres it is the connection string.")
+
+	// It should work for dev, docker and k8s: files located in cmd/kodada; $KO_DATA_PATH; configMap
+	basePath := filepath.Join(".", "cmd", "kodata", "enrichers")
+	rootCmd.PersistentFlags().String("mapper.basePath", basePath, "Base path for the mappers")
 
 	rootCmd.AddCommand(scannerCmd)
 }
