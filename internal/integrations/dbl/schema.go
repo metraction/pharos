@@ -56,11 +56,11 @@ func InitPharosDbSchema(db *sql.DB) error {
             Updated             timestamptz,
             ScanDate            timestamptz,
             DbBuiltDate         timestamptz,
-            Engine              string
-            EngineVersion       string
-            foreign key (image_id) references vdb_images(id),
+            Engine              string,
+            EngineVersion       string,
+            foreign key (image_id) references vdb_images(id)
         )`,
-		`create unique index if not exists scans_imageengine_idx on vdb_findings (image_id, Engine)`,
+		`create unique index if not exists scansunique_idx on vdb_scans (image_id, Engine)`,
 
 		// Vulnerabilities
 		`create table if not exists vdb_vulns (
@@ -89,22 +89,19 @@ func InitPharosDbSchema(db *sql.DB) error {
 		// Findings
 		`create table if not exists vdb_findings (
             id                  integer primary key autoincrement,
-            image_id            integer,
-            vuln_id             integer
+            scan_id             integer,
+            vuln_id             integer,
             Created             timestamptz,
             Updated             timestamptz,
-            AdvId               text,
-            AdvSource           text,
-            ScanDate            timestamptz,
             DueDate             timestamptz,
             Severity            text,
             FixState            text,
-            FixVersion          text,
+            FixVersions         text,
             FoundIn             jsonb,
-            foreign key (image_id) references vdb_images(id),
+            foreign key (scan_id) references vdb_scans(id),
             foreign key (vuln_id) references vdb_vulns(id)
         )`,
-		`create unique index if not exists findings_advs_idx on vdb_findings (image_id, vuln_id)`,
+		`create unique index if not exists findings_uniqe_idx on vdb_findings (scan_id, vuln_id)`,
 
 		// ContextRoot
 		`create table if not exists vdb_contextroot (

@@ -7,11 +7,9 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"strings"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/metraction/pharos/internal/utils"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/rs/zerolog"
 )
@@ -73,34 +71,41 @@ func (rx *PharosLocalDb) Close() {
 func (rx *PharosLocalDb) AddScanResult(ctx context.Context, result model.PharosScanResult) (uint64, error) {
 
 	var err error
+	var scan_id uint64
 	var image_id uint64
 
 	task := result.ScanTask
-	// TODO: Use provided task.ContextRootKey
-	contextKey := strings.ToLower(utils.PropOr(task.Context, "cluster", "nope") + "/" + utils.PropOr(task.Context, "namespace", "nope"))
 
 	// add image
 	if image_id, err = rx.AddImage(ctx, result.Image); err != nil {
 		return 0, fmt.Errorf("addImage: %w", err)
 	}
+	// TODO: add scan, use new ScanEngine onject
+	if scan_id, err = rx.AddScan(ctx, image_id, result.ScanTask); err != nil {
+		return 0, fmt.Errorf("addScan: %w", err)
+	}
+
 	// add rootcontext & context
-	if _, err = rx.AddContext(ctx, image_id, "scan", contextKey, task.Context); err != nil {
+	if _, err = rx.AddContext(ctx, image_id, "scan", task.ContextRootKey, task.Context); err != nil {
 		return 0, fmt.Errorf("addContext: %w", err)
 	}
+
+	// TODO: add packages
 
 	// add vulnerabilities
 	if err := rx.AddVulns(ctx, result.Vulnerabilities); err != nil {
 		return 0, fmt.Errorf("addVulns: %w", err)
 	}
-	// TODO: add packages
+
 	// add findings
-	if err := rx.AddFindings(ctx, image_id, result.Findings); err != nil {
+	if err := rx.AddFindings(ctx, scan_id, result.Findings); err != nil {
 		return 0, fmt.Errorf("addFindings: %w", err)
 	}
 
 	return image_id, nil
 }
 
+// add image
 func (rx *PharosLocalDb) AddImage(ctx context.Context, image model.PharosImageMeta) (uint64, error) {
 
 	sqlcmd := `
@@ -117,10 +122,10 @@ func (rx *PharosLocalDb) AddImage(ctx context.Context, image model.PharosImageMe
 			updated = excluded.Updated
 		returning id
 	`
+	now := time.Now().UTC()
+
 	var err error
 	var id uint64
-
-	now := time.Now().UTC()
 
 	err = rx.db.QueryRow(sqlcmd,
 		now, now, image.ManifestDigest, image.ImageSpec, image.ImageId,
@@ -129,7 +134,36 @@ func (rx *PharosLocalDb) AddImage(ctx context.Context, image model.PharosImageMe
 	if err != nil {
 		return 0, err
 	}
+	return id, err
+}
 
+// add scan
+func (rx *PharosLocalDb) AddScan(ctx context.Context, imageId uint64, task model.PharosScanTask2) (uint64, error) {
+
+	sqlcmd := `
+		insert into vdb_scans (
+			image_id, Created, Updated, ScanDate, DbBuiltDate,
+			Engine, EngineVersion
+		) values (
+			?, ?, ?, ?, ?,
+			?, ?
+		)
+		on conflict (image_id, Engine) do update set
+			Updated = excluded.Updated,
+			ScanDate = excluded.ScanDate,
+			DbBuiltDate = excluded.DbBuiltDate
+		returning id
+	`
+	now := time.Now().UTC()
+	noDate := time.Time{}
+
+	var err error
+	var id uint64
+
+	err = rx.db.QueryRow(sqlcmd, imageId, now, now, noDate, noDate, task.Engine, "vx").Scan(&id)
+	if err != nil {
+		return 0, err
+	}
 	return id, err
 }
 
@@ -186,7 +220,6 @@ func (rx *PharosLocalDb) AddContext(ctx context.Context, image_id uint64, source
 // add vulnerabilities
 func (rx *PharosLocalDb) AddVulns(ctx context.Context, vulns []model.PharosVulnerability) error {
 
-	now := time.Now().UTC()
 	sqlcmd := `
 		insert into vdb_vulns (
 			Created, Updated, AdvId, AdvSource, AdvAliases,
@@ -203,6 +236,7 @@ func (rx *PharosLocalDb) AddVulns(ctx context.Context, vulns []model.PharosVulne
 			updated = excluded.Updated
 		returning id
 	`
+	now := time.Now().UTC()
 	var err error
 
 	for _, vuln := range vulns {
@@ -219,37 +253,41 @@ func (rx *PharosLocalDb) AddVulns(ctx context.Context, vulns []model.PharosVulne
 }
 
 // add findings
-func (rx *PharosLocalDb) AddFindings(ctx context.Context, image_id uint64, findings []model.PharosScanFinding) error {
-
-	now := time.Now().UTC()
+func (rx *PharosLocalDb) AddFindings(ctx context.Context, scan_id uint64, findings []model.PharosScanFinding) error {
 	sqlcmd := `
 		insert into vdb_findings (
-			i
-			Created, Updated, AdvId, AdvSource, AdvAliases,
-			CreateDate, PubDate, ModDate, KevDate, Severity,
-			CvssVectors, CvssBase, RiskScore, Cpes, Cwes,
-			Refs, Ransomware, Description
-		) values (
-			?, ?, ?, ?, ?,
-			?, ?, ?, ?, ?,
-			?, ?, ?, ?, ?,
-			?, ?, ?
+			scan_id, vuln_id,
+			Created, Updated, DueDate,
+			Severity, FixState, FixVersions, FoundIn
 		)
-		on conflict (AdvId,AdvSource) do update set
-			updated = excluded.Updated
-		returning id
+		select
+			? 				as scan_id,
+			v.id			as vuln_id,
+			datetime('now') as Created,
+			datetime('now') as Updated,
+			?				as DueDate,
+			?				as Severity,
+			?				as FixState,
+			?				as FixVersions,
+			?				as FoundIn
+		from vdb_vulns v
+		where
+			v.AdvId=? and v.AdvSource=?
+		on conflict (scan_id, vuln_id) do update set
+			Updated = excluded.Updated,
+			DueDate = excluded.DueDate
+		returning *
 	`
 	var err error
 
-	for _, vuln := range vulns {
-		_, err = rx.db.Exec(sqlcmd,
-			now, now, vuln.AdvId, vuln.AdvSource, vuln.AdvAliases,
-			vuln.CreateDate, vuln.PubDate, vuln.ModDate, vuln.KevDate, vuln.Severity,
-			dbStrList(vuln.CvssVectors), vuln.CvssBase, vuln.RiskScoce, dbStrList(vuln.Cpes), dbStrList(vuln.Cwes),
-			dbStrList(vuln.References), vuln.RansomwareUsed, vuln.Description)
+	for _, finding := range findings {
+		_, err = rx.db.Exec(sqlcmd, scan_id, finding.DueDate, finding.Severity,
+			finding.FixState, dbStrList(finding.FixVersions), dbStrList(finding.FoundIn),
+			finding.AdvId, finding.AdvSource)
 		if err != nil {
 			return err
 		}
 	}
 	return nil
+
 }

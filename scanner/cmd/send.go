@@ -132,16 +132,18 @@ func ExecuteSend(tasksFile, mqEndpoint, outDir string, logger *zerolog.Logger) {
 			continue
 		}
 		count++
+		assetContext := mq.ContextGenerator()
 		task := model.PharosScanTask2{
-			JobId:     fmt.Sprintf("job-%v-%v", utils.Hostname(), count),
-			Status:    "new",
-			Error:     "",
-			AuthDsn:   auth,
-			ImageSpec: line,
-			Platform:  platform,
-			ScanTTL:   utils.DurationOr(scanTTL, 3*time.Minute),
-			CacheTTL:  utils.DurationOr(cacheTTL, 15*time.Minute),
-			Context:   mq.ContextGenerator(),
+			JobId:          fmt.Sprintf("job-%v-%v", utils.Hostname(), count),
+			Status:         "new",
+			Error:          "",
+			AuthDsn:        auth,
+			ImageSpec:      line,
+			Platform:       platform,
+			ScanTTL:        utils.DurationOr(scanTTL, 3*time.Minute),
+			CacheTTL:       utils.DurationOr(cacheTTL, 15*time.Minute),
+			ContextRootKey: utils.ResolveMap("{{.cluster}}/{{.namespace}}", assetContext),
+			Context:        assetContext,
 		}
 		//utils.SetPath(task.Context, "scan/jobid", task.JobId)
 

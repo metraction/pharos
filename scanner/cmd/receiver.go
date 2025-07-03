@@ -39,7 +39,7 @@ func init() {
 
 	receiverCmd.Flags().StringVar(&ReceiverArgs.OutDir, "outdir", EnvOrDefault("outdir", ""), "Output directory for results")
 	receiverCmd.Flags().StringVar(&ReceiverArgs.Worker, "worker", EnvOrDefault("worker", ""), "receiver worker name (consumer)")
-	receiverCmd.Flags().StringVar(&ReceiverArgs.DbEndpoint, "db_endpoint", EnvOrDefault("db_endpoint", "receiver.db"), "Local db endpoint")
+	receiverCmd.Flags().StringVar(&ReceiverArgs.DbEndpoint, "db_endpoint", EnvOrDefault("db_endpoint", "_data/receiver.db"), "Local db endpoint")
 	receiverCmd.Flags().StringVar(&ReceiverArgs.MqEndpoint, "mq_endpoint", EnvOrDefault("mq_endpoint", ""), "Redis message queue, e.g. redis://:pwd@localhost:6379/1")
 
 }

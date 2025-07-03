@@ -1,6 +1,42 @@
 package utils
 
-import "strings"
+import (
+	"fmt"
+	"regexp"
+	"strings"
+)
+
+// resolve {{.alfa.bravo}} with data context
+func ResolveMap(input string, data map[string]any) string {
+
+	re := regexp.MustCompile(`{{\.(\w+(?:\.\w+)*)}}`)
+	result := input
+
+	for _, match := range re.FindAllStringSubmatch(input, -1) {
+		// resolve key/path
+		key := strings.Replace(match[1], ".", "/", -1)
+		val := PathStrOr[any](key, "", data)
+		result = strings.Replace(result, match[0], val, -1)
+	}
+	return result
+}
+
+// return element at path "alfa/bravo" or default
+func PathStrOr[T any](path, defval string, data map[string]any) string {
+	keys := strings.Split(path, "/")
+	var current any = data
+	for _, key := range keys {
+		m, ok := current.(map[string]any)
+		if !ok {
+			return defval
+		}
+		current, ok = m[key]
+		if !ok {
+			return defval
+		}
+	}
+	return fmt.Sprintf("%v", current)
+}
 
 // return value at key or default
 func PropOr[T any](xc map[string]any, key string, defval T) T {
@@ -11,6 +47,7 @@ func PropOr[T any](xc map[string]any, key string, defval T) T {
 	return value
 }
 
+// set element at path "alfa/bravo"
 func SetPath(m map[string]any, path string, value any) {
 	keys := strings.Split(path, "/")
 	last := len(keys) - 1
