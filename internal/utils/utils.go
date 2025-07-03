@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"log"
@@ -19,6 +21,17 @@ import (
 // return left of digest, e.g. "sha256:f85340bf132ae1"
 func ShortDigest(input string) string {
 	return lo.Substring(input, 0, 19)
+}
+
+// return random string of given length
+func RandomStr(len uint) string {
+	randomBytes := make([]byte, len)
+	_, err := rand.Read(randomBytes)
+	if err != nil {
+		panic("Error generating random bytes")
+	}
+	return hex.EncodeToString(randomBytes)
+
 }
 
 // return true if input string is one of 1, t, true, on, yes

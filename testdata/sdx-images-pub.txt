@@ -1,0 +1,82 @@
+# auth: registry://$ARTIFACTORY_USER:$ARTIFACTORY_PASSWORD@artifactory.sdx.corp/?checktls=no
+# cachettl: 2h
+# scanttl: 5m
+# maxpressure: 0.5
+
+# HEAVY HITTER
+# testpub.azurecr.io/jfrog/artifactory-pro:7.104.12
+# platform: linux/amd64
+
+# AUTH registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:5fe72773375c3f5e9352d3e7b65ecf5dd854c3329119f8143b05171cada946b2
+# AUTH quay.io/argoproj/argocd:v2.12.0
+
+
+# exit
+
+# OK
+ghcr.io/chaos-mesh/chaos-coredns:v0.2.6
+ghcr.io/chaos-mesh/chaos-daemon:v2.6.3
+ghcr.io/chaos-mesh/chaos-dashboard:v2.6.3
+ghcr.io/chaos-mesh/chaos-mesh:v2.6.3
+ghcr.io/jimmidyson/configmap-reload:v0.12.0
+ghcr.io/metacontroller/metacontroller:v4.11.21
+
+
+mcr.microsoft.com/aks/acc/sgx-plugin:1.0.0
+mcr.microsoft.com/aks/acc/sgx-webhook:1.2.2
+mcr.microsoft.com/azuredefender/stable/low-level-collector:2.0.205
+mcr.microsoft.com/azuredefender/stable/pod-collector:1.0.177
+mcr.microsoft.com/azuredefender/stable/security-publisher:1.0.219
+mcr.microsoft.com/azure-policy/policy-kubernetes-addon-prod:1.11.1
+mcr.microsoft.com/azure-policy/policy-kubernetes-webhook:1.11.1
+mcr.microsoft.com/containernetworking/azure-cns:v1.6.25
+mcr.microsoft.com/containernetworking/cilium/cilium:v1.14.20-250320
+mcr.microsoft.com/containernetworking/cilium/cilium:v1.16.8-250325
+mcr.microsoft.com/containernetworking/cilium/dns-proxy:v1.14.20-250320
+mcr.microsoft.com/containernetworking/cilium/dns-proxy:v1.16.8-250522
+mcr.microsoft.com/containernetworking/cilium/operator-generic:v1.14.20-250320
+mcr.microsoft.com/containernetworking/cilium/operator-generic:v1.16.8-250325
+mcr.microsoft.com/k8s/azureserviceoperator:v2.9.0
+mcr.microsoft.com/oss/azure/workload-identity/webhook:v1.5.0
+mcr.microsoft.com/oss/cilium/certgen:v0.1.9
+mcr.microsoft.com/oss/cilium/hubble-relay:v1.15.0
+mcr.microsoft.com/oss/eraser/eraser-manager:v1.3.1
+mcr.microsoft.com/oss/kubernetes/apiserver-network-proxy/agent:v0.30.3-hotfix.20240819
+mcr.microsoft.com/oss/kubernetes/azure-cloud-node-manager:v1.31.6
+mcr.microsoft.com/oss/kubernetes-csi/azuredisk-csi:v1.31.10
+mcr.microsoft.com/oss/kubernetes-csi/azurefile-csi:v1.31.5
+mcr.microsoft.com/oss/kubernetes-csi/csi-node-driver-registrar:v2.11.1
+mcr.microsoft.com/oss/kubernetes-csi/csi-node-driver-registrar:v2.13.0
+mcr.microsoft.com/oss/kubernetes-csi/livenessprobe:v2.13.1
+mcr.microsoft.com/oss/kubernetes-csi/livenessprobe:v2.15.0
+mcr.microsoft.com/oss/kubernetes-csi/secrets-store/driver:v1.4.8
+mcr.microsoft.com/oss/v2/azure/ip-masq-agent-v2:v0.1.15-2
+mcr.microsoft.com/oss/v2/kubernetes/autoscaler/addon-resizer:v1.8.23-2
+mcr.microsoft.com/oss/v2/kubernetes/autoscaler/cluster-proportional-autoscaler:v1.8.11-5
+mcr.microsoft.com/oss/v2/kubernetes/coredns:v1.9.4-5
+mcr.microsoft.com/oss/v2/kubernetes/metrics-server:v0.6.3-5
+mcr.microsoft.com/oss/v2/open-policy-agent/gatekeeper:v3.19.1-1
+
+
+testpub.azurecr.io/argoproj/argocd:v2.14.14
+testpub.azurecr.io/argoproj/argocd:v2.14.9
+testpub.azurecr.io/argoprojlabs/argocd-operator:v0.14.0
+testpub.azurecr.io/bitnami/sealed-secrets-controller:0.29.0
+testpub.azurecr.io/busybox:1.37.0
+testpub.azurecr.io/dexidp/dex:v2.42.0
+testpub.azurecr.io/dexidp/dex:v2.43.1
+testpub.azurecr.io/ingress-nginx/controller:v1.12.1
+testpub.azurecr.io/jfrog/artifactory-pro:7.104.12
+testpub.azurecr.io/jfrog/router:7.149.1
+testpub.azurecr.io/kyverno/background-controller:v1.13.6
+testpub.azurecr.io/kyverno/cleanup-controller:v1.13.6
+testpub.azurecr.io/kyverno/kyverno:v1.13.6
+testpub.azurecr.io/kyverno/reports-controller:v1.13.6
+testpub.azurecr.io/pause:3.1
+testpub.azurecr.io/postgres:15.12
+testpub.azurecr.io/valkey/valkey:7.2.6-alpine3.20
+
+
+# OK
+xpkg.upbound.io/crossplane/crossplane:v1.19.0
+xpkg.upbound.io/crossplane-contrib/provider-sql:v0.9.0

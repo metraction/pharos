@@ -90,7 +90,7 @@ func ExecuteSend(tasksFile, mqEndpoint, outDir string, logger *zerolog.Logger) {
 
 	// -----< prepare sending scan jobs >-----
 
-	images := readLines(tasksFile, true)
+	images := readLines(tasksFile)
 	logger.Info().
 		Str("tasks(file)", tasksFile).
 		Any("lines", len(images)).
@@ -122,6 +122,9 @@ func ExecuteSend(tasksFile, mqEndpoint, outDir string, logger *zerolog.Logger) {
 	var pressure float64
 
 	for _, line := range images {
+		if line == "# exit" {
+			break
+		}
 		// read task commands/settings
 		if strings.HasPrefix(line, "#") {
 			auth = os.ExpandEnv(utils.RightOfPrefixOr(line, "# auth:", auth))
@@ -208,7 +211,7 @@ func ParseAuths(input string) []model.PharosRepoAuth {
 }
 
 // helper: return lines of file, ignore comments
-func readLines(infile string, unique bool) []string {
+func readLines(infile string) []string {
 
 	data, err := os.ReadFile(infile)
 	if err != nil {

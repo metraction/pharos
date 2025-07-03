@@ -58,7 +58,7 @@ func NewGrypeScanner(scanTimeout time.Duration, updateDb bool, vulnDbDir string,
 		dbProdDir = lo.Ternary(dbProdDir != "", dbProdDir, filepath.Join(homeDir, ".cache", "grype", "db"))
 	}
 	// get vuln db staging directory (create if required to ensure all works at startup)
-	dbStageDir := filepath.Join(os.TempDir(), "grype-db-stage")
+	dbStageDir := filepath.Join(os.TempDir(), "grype-db-stage-"+utils.RandomStr(8))
 	if err := os.Mkdir(dbStageDir, 0755); err != nil {
 		if !os.IsExist(err) {
 			return nil, fmt.Errorf("unable to create stage dir %v: %v", dbStageDir, err)

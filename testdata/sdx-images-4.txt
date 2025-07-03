@@ -1,0 +1,13 @@
+# auth: registry://$ARTIFACTORY_USER:$ARTIFACTORY_PASSWORD@artifactory.sdx.corp/?checktls=no
+# cachettl: 2h
+# scanttl: 5m
+# maxpressure: 0.2
+
+# platform: linux/amd64
+artifactory.sdx.corp/sdx-docker-dev-virtual/busybox:1.37.0
+artifactory.sdx.corp/sdx-docker-dev-virtual/busybox:1.37.0
+artifactory.sdx.corp/sdx-docker-dev-virtual/busybox:1.37.0
+artifactory.sdx.corp/sdx-docker-dev-virtual/busybox:1.37.0
+
+# platform: linux/arm64
+
