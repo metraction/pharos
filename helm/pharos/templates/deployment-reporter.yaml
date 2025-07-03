@@ -32,6 +32,8 @@ spec:
             value: {{ .Values.prometheus.url | quote }}
           - name: PHAROS_PROMETHEUS_QUERY
             value: {{ .Values.prometheus.query }}
+          - name: PHAROS_PROMETHEUS_QUERY_INTERVAL
+            value: {{ .Values.prometheus.interval }}
           - name: PHAROS_PROMETHEUS_NAMESPACE
             valueFrom:
               fieldRef:
