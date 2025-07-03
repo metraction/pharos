@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pharos-mappers
+  labels:
+    app: pharos
+data:
+{{- range $filename, $content := .Values.mappers.hbs }}
+  {{ $filename }}: |
+{{ $content | indent 4 }}
+{{- end }}
+{{- range $filename, $filepath := .Values.mappers.files }}
+  {{ $filename }}: |
+{{ $.Files.Get $filepath | indent 4 }}
+{{- end }}

@@ -53,3 +53,15 @@ role:
 prometheus:
   url: "http://rancher-monitoring-prometheus.cattle-monitoring-system.svc.cluster.local:9090"
   query: 'kube_pod_container_info{image_spec=~"ghcr.*|nextcloud.*"}'
+
+
+mappers:
+  hbs: 
+    eos_v1.hbs: |
+      distro: {{ .data.Image.DistroName }}
+      version: {{ .data.Image.DistroVersion }}
+      eos: {{ index .eos .data.Image.DistroName | filter "version" "matchWildcard" .data.Image.DistroVersion | map "field" "eos" | first }}
+  files:
+    eos.yaml: files/eos.yaml
+    
+    
