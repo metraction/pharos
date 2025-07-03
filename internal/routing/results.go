@@ -25,7 +25,8 @@ func NewScanResultCollectorSink(
 
 	redisFlow := integrations.NewRedisConsumerGroupSource[model.PharosScanResult](ctx, rdb, config.QueueName, config.GroupName, config.ConsumerName, "0", config.BlockTimeout, 1).
 		Via(flow.NewPassThrough()).
-		Via(flow.NewFilter(pharosScanTaskHandler.FilterFailedTasks, 1))
+		Via(flow.NewFilter(pharosScanTaskHandler.FilterFailedTasks, 1)).
+		Via(flow.NewMap(pharosScanTaskHandler.UpdateScanTime, 1))
 
 	NewScanResultsInternalFlow(redisFlow, enricher).
 		To(db.NewImageDbSink(databaseContext))
