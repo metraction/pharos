@@ -81,7 +81,7 @@ func (rx *PharosLocalDb) AddScanResult(ctx context.Context, result model.PharosS
 		return 0, fmt.Errorf("addImage: %w", err)
 	}
 	// TODO: add scan, use new ScanEngine onject
-	if scan_id, err = rx.AddScan(ctx, image_id, result.ScanTask); err != nil {
+	if scan_id, err = rx.AddScanMeta(ctx, image_id, result.ScanMeta); err != nil {
 		return 0, fmt.Errorf("addScan: %w", err)
 	}
 	// add rootcontext & context
@@ -90,7 +90,7 @@ func (rx *PharosLocalDb) AddScanResult(ctx context.Context, result model.PharosS
 	}
 	// add packages
 	if err := rx.AddPackages(ctx, image_id, result.Packages); err != nil {
-		return 0, fmt.Errorf("sddPackages: %w", err)
+		return 0, fmt.Errorf("addPackages: %w", err)
 	}
 	// add vulnerabilities
 	if err := rx.AddVulns(ctx, result.Vulnerabilities); err != nil {
@@ -137,7 +137,7 @@ func (rx *PharosLocalDb) AddImage(ctx context.Context, image model.PharosImageMe
 }
 
 // add scan
-func (rx *PharosLocalDb) AddScan(ctx context.Context, imageId uint64, task model.PharosScanTask2) (uint64, error) {
+func (rx *PharosLocalDb) AddScanMeta(ctx context.Context, imageId uint64, scan model.PharosScanMeta) (uint64, error) {
 
 	sqlcmd := `
 		insert into vdb_scans (
@@ -154,12 +154,11 @@ func (rx *PharosLocalDb) AddScan(ctx context.Context, imageId uint64, task model
 		returning id
 	`
 	now := time.Now().UTC()
-	noDate := time.Time{}
 
 	var err error
 	var id uint64
 
-	err = rx.db.QueryRow(sqlcmd, imageId, now, now, noDate, noDate, task.Engine, "vx").Scan(&id)
+	err = rx.db.QueryRow(sqlcmd, imageId, now, now, scan.ScanDate, scan.DbBuiltDate, scan.Engine, scan.EngineVersion).Scan(&id)
 	if err != nil {
 		return 0, err
 	}
