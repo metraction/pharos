@@ -27,10 +27,8 @@ type PharosScanTask2 struct {
 	CacheTTL time.Duration `json:"cachettl" required:"false" default:"86400000000000" doc:"how long to cache sbom in scanner (nanoseconds)"` // cache expiry in sec
 	ScanTTL  time.Duration `json:"scanttl" required:"false" default:"300000000000" doc:"how long to scan result in scanner (nanoseconds)"`   // cache expiry in sec
 
-	// TODO - this is ORM fields, can we remove this?
-	Timeout time.Duration `json:"timeout" required:"false"`
-	Created time.Time     `json:"created" required:"false"`
-	Updated time.Time     `json:"updated" required:"false"`
+	Created time.Time `json:"created" required:"false"`
+	Updated time.Time `json:"updated" required:"false"`
 }
 
 // set error and status

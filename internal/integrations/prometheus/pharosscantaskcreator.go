@@ -126,7 +126,6 @@ func (pst *PharosScanTaskCreator) Result(metric hwmodel.ImageMetric) []model.Pha
 		AuthDsn:        pharosRepoAuth.ToDsn(),
 		Created:        now,
 		Updated:        now,
-		Timeout:        time.Second * 180, // 3 minutes
 		Context:        context,
 		ContextRootKey: key,
 		ScanTTL:        scanTTL, // 12 hour scan ttl

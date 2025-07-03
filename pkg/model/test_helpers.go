@@ -13,7 +13,6 @@ func NewTestScanTask(t *testing.T, taskID, image string) PharosScanTask2 {
 		ScanTTL:   30 * time.Second,
 		CacheTTL:  1 * time.Hour,
 		Engine:    "test-engine",
-		Timeout:   1 * time.Minute,
 	}
 	return task
 }
