@@ -287,5 +287,5 @@ func (rx *RedisWorkerGroup[T]) getMsgState(ctx context.Context, msgId, groupName
 	if len(pending) > 0 {
 		return pending[0].RetryCount, pending[0].Idle, nil
 	}
-	return 0, 0, fmt.Errorf("error getting retry, idle for %s", pending[0].ID)
+	return 0, 0, fmt.Errorf("error getting retry, idle for msg %s", msgId)
 }

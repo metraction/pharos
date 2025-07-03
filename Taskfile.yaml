@@ -31,10 +31,22 @@ tasks:
       - echo "App down"
       - podman-compose -f docker-compose.yaml down
 
-  grype-db:
-    desc: Show Grype db
+  scanner:
+    desc: Run scanner [id=1,engine=grype]
+    requires:
+      vars: [engine,id]
     cmds:
-      - grype db list
+      -  go run scanner/main.go scanner --engine {{.engine}} --outdir _data/scanner --worker scanner-{{.id}} --vulndbdir ./_data/_{{.engine}}-{{.id}}
+
+  check:
+    desc: Run pharos check
+    cmds:
+      - go run scanner/main.go check  
+
+  receiver:
+    desc: Run receiver
+    cmds:
+      -  go run scanner/main.go receiver --outdir _data/receiver
 
 
   registry-init:
