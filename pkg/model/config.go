@@ -10,6 +10,7 @@ type Config struct {
 	Database        Database                 `mapstructure:"database"`
 	Prometheus      PrometheusReporterConfig `mapstructure:"prometheus"`
 	ResultCollector ResultCollectorConfig    `mapstructure:"collector"`
+	Mapper          MapperConfig             `mapstructure:"mapper"`
 }
 
 // ScannerConfig holds scanner-specific configuration.
@@ -48,6 +49,8 @@ type PrometheusReporterConfig struct {
 	Namespace     string   `mapstructure:"namespace"`     // Namespace for the Prometheus metrics
 	PharosURL     string   `mapstructure:"pharosUrl"`     // Root URL of the Pharos server for Prometheus metrics
 	ContextLabels []string `mapstructure:"contextLabels"` // Labels to add to the Prometheus context
+	TTL           string   `mapstructure:"ttl"`           // Time to live for the scan results
+	Query         string   `mapstructure:"query"`         // Query to use for fetching metrics
 }
 
 // Redis holds Redis-specific configuration.
@@ -64,4 +67,8 @@ const (
 type Database struct {
 	Driver DatabaseDriver `mapstructure:"driver"` // "postgres"
 	Dsn    string         `mapstructure:"dsn"`
+}
+
+type MapperConfig struct {
+	BasePath string `mapstructure:"basePath"` // Base path for the mappers
 }

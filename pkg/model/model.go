@@ -82,22 +82,24 @@ type Delete_PharosScanEngine struct {
 
 // metadata about the asset (image, code, vm, ..)
 type PharosImageMeta struct {
-	ImageSpec       string                `json:"ImageSpec" required:"true" doc:"image url, e.g. docker.io/nginx:latest"` // scan input / image uri
-	ImageId         string                `json:"ImageId" gorm:"primaryKey" hidden:"true" doc:"internal image ID, e.g. sha256:1234.."`
-	IndexDigest     string                `json:"IndexDigest" required:"true"` // internal ID for cache
-	ManifestDigest  string                `json:"ManifestDigest" required:"false"`
-	RepoDigests     StringSlice           `json:"RepoDigests" required:"false" gorm:"type:VARCHAR"`
-	ArchName        string                `json:"ArchName" required:"false" doc:"image platform architecture default: amd64"` // image platform architecture amd64/..
-	ArchOS          string                `json:"ArchOS" required:"false" doc:"image platform OS default: linux"`             // image platform OS
-	DistroName      string                `json:"DistroName" required:"false"`
-	DistroVersion   string                `json:"DistroVersion" required:"false"`
-	Size            uint64                `json:"Size" required:"false"`
-	Tags            StringSlice           `json:"Tags" gorm:"type:VARCHAR" required:"false"`
-	Layers          StringSlice           `json:"Layers" gorm:"type:VARCHAR" required:"false"`
-	Vulnerabilities []PharosVulnerability `json:"Vulnerabilities" required:"false" gorm:"many2many:join_pharos_vulnerability_with_pharos_image_meta;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	Findings        []PharosScanFinding   `json:"Findings" required:"false" gorm:"many2many:join_pharos_scan_finding_with_pharos_image_meta;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	Packages        []PharosPackage       `json:"Packages" required:"false" gorm:"many2many:join_pharos_package_with_pharos_image_meta;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	ContextRoots    []ContextRoot         `json:"ContextRoots" required:"false" gorm:"foreignKey:ImageId;references:ImageId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	ImageSpec          string                `json:"ImageSpec" required:"true" doc:"image url, e.g. docker.io/nginx:latest"` // scan input / image uri
+	ImageId            string                `json:"ImageId" gorm:"primaryKey" hidden:"true" doc:"internal image ID, e.g. sha256:1234.."`
+	IndexDigest        string                `json:"IndexDigest" required:"true"` // internal ID for cache
+	ManifestDigest     string                `json:"ManifestDigest" required:"false"`
+	RepoDigests        StringSlice           `json:"RepoDigests" required:"false" gorm:"type:VARCHAR"`
+	ArchName           string                `json:"ArchName" required:"false" doc:"image platform architecture default: amd64"` // image platform architecture amd64/..
+	ArchOS             string                `json:"ArchOS" required:"false" doc:"image platform OS default: linux"`             // image platform OS
+	DistroName         string                `json:"DistroName" required:"false"`
+	DistroVersion      string                `json:"DistroVersion" required:"false"`
+	Size               uint64                `json:"Size" required:"false"`
+	Tags               StringSlice           `json:"Tags" gorm:"type:VARCHAR" required:"false"`
+	Layers             StringSlice           `json:"Layers" gorm:"type:VARCHAR" required:"false"`
+	Vulnerabilities    []PharosVulnerability `json:"Vulnerabilities" required:"false" gorm:"many2many:join_pharos_vulnerability_with_pharos_image_meta;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Findings           []PharosScanFinding   `json:"Findings" required:"false" gorm:"many2many:join_pharos_scan_finding_with_pharos_image_meta;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Packages           []PharosPackage       `json:"Packages" required:"false" gorm:"many2many:join_pharos_package_with_pharos_image_meta;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	ContextRoots       []ContextRoot         `json:"ContextRoots" required:"false" gorm:"foreignKey:ImageId;references:ImageId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	TTL                time.Duration         `json:"TTL" required:"false" gorm:"default:43200000000"` // context root TTL, default 12 hours (43200 seconds)
+	LastSuccessfulScan time.Time             `json:"LastSuccessfulScan"`                              // last update time
 }
 
 type PharosFindingSummary struct {

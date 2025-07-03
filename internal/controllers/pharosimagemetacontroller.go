@@ -19,6 +19,10 @@ type PharosImageMetaController struct {
 	Logger *zerolog.Logger
 }
 
+type ContextEntries struct {
+	Body []model.ContextEntry `json:"body"`
+}
+
 type PharosImageMetas struct {
 	Body []model.PharosImageMeta `json:"body"`
 }
@@ -50,11 +54,15 @@ func (pc *PharosImageMetaController) AddRoutes() {
 		op, handler := pc.GetAll()
 		huma.Register(*pc.Api, op, handler)
 	}
+	{
+		op, handler := pc.GetContexts()
+		huma.Register(*pc.Api, op, handler)
+	}
 }
 
 func (pc *PharosImageMetaController) Get() (huma.Operation, func(ctx context.Context, input *ImageDigestInput) (*PharosImageMeta, error)) {
 	return huma.Operation{
-			OperationID: "Getimage",
+			OperationID: "GetImage",
 			Method:      "GET",
 			Path:        pc.Path + "/{imageid}",
 			Summary:     "Get one image by ImageId",
@@ -99,6 +107,68 @@ func (pc *PharosImageMetaController) Get() (huma.Operation, func(ctx context.Con
 			}
 			return &PharosImageMeta{
 				Body: value,
+			}, nil
+		}
+}
+
+func (pc *PharosImageMetaController) GetContexts() (huma.Operation, func(ctx context.Context, input *ImageDigestInput) (*ContextEntries, error)) {
+	return huma.Operation{
+			OperationID: "GetContexts",
+			Method:      "GET",
+			Path:        pc.Path + "/contexts/{imageid}",
+			Summary:     "Get Contexts for Image",
+			Description: "Returns a flattened list of contexts for the image, to be used by Grafana.",
+			Tags:        []string{"PharosImageMeta"},
+
+			Responses: map[string]*huma.Response{
+				"200": {
+					Description: "A list of contexts for the image",
+				},
+				"500": {
+					Description: "Internal server error",
+				},
+				"404": {
+					Description: "image not found",
+				},
+			},
+		}, func(ctx context.Context, input *ImageDigestInput) (*ContextEntries, error) {
+			databaseContext, err := getDatabaseContext(ctx)
+			if err != nil {
+				return nil, huma.Error500InternalServerError("Database context not found in request context")
+			}
+			var value model.PharosImageMeta
+			var query = model.PharosImageMeta{
+				ImageId: input.ImageId,
+			}
+			if err := databaseContext.DB.
+				Preload("ContextRoots.Contexts").
+				First(&value, &query).Error; err != nil {
+				pc.Logger.Error().Err(err).Str("imageId", input.ImageId).Msg("Failed to retrieve Docker image")
+				if err == gorm.ErrRecordNotFound {
+					return nil, huma.Error404NotFound("Image with ImageId " + input.ImageId + " not found")
+				} else {
+					return nil, huma.Error500InternalServerError("Failed to retrieve Docker image: " + err.Error())
+				}
+			}
+			if value.IndexDigest == "" {
+				return nil, huma.Error404NotFound("Image with ImageId " + input.ImageId + " not found")
+			}
+			var contextEntries = []model.ContextEntry{}
+			for _, contextRoot := range value.ContextRoots {
+				for _, context := range contextRoot.Contexts {
+					for key, value := range context.Data {
+						contextEntries = append(contextEntries, model.ContextEntry{
+							ContextRootKey: context.ContextRootKey,
+							Key:            key,
+							Value:          value,
+							Owner:          context.Owner,
+							UpdatedAt:      context.UpdatedAt,
+						})
+					}
+				}
+			}
+			return &ContextEntries{
+				Body: contextEntries,
 			}, nil
 		}
 }

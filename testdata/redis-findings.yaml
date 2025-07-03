@@ -1,0 +1,4354 @@
+$schema: http://localhost:8080/api/schemas/PharosScanResult.json
+Version: "1.0"
+ScanTask:
+  jobId: c29e9178-fe71-47ab-b316-41bb3e3aac32
+  auth:
+    authority: ""
+    username: ""
+    password: ""
+    token: ""
+    tlscheck: false
+  imageSpec:
+    image: redis:latest
+    platform: linux/amd64
+    cacheExpiry: 86400000000000
+    context: null
+  timeout: 300000000000
+  created: "2025-06-30T08:12:09.265923Z"
+  updated: "2025-06-30T08:12:10.753662Z"
+  sbomEngine: syft
+  scanEngine: grype 0.94.0
+  status: done
+  error: ""
+ScanEngine:
+  Name: grype
+  Version: 0.94.0
+  ScanTime: "2025-06-30T10:12:10.74254+02:00"
+Image:
+  ImageSpec: redis:latest
+  ImageId: sha256:c09c2832ba40218aa04945cc748a4e6b397690f4476e7de42a00cf6449acc17d
+  IndexDigest: sha256:1b835e5a8d5db58e8b718850bf43a68ef5a576fc68301fd08a789b20b4eecb61
+  ManifestDigest: sha256:62b6b206d9514119fc410baf83ee96314e9f328790fdf934b24ffa88a240bbb3
+  RepoDigests:
+    - sha256:1b835e5a8d5db58e8b718850bf43a68ef5a576fc68301fd08a789b20b4eecb61
+  ArchName: amd64
+  ArchOS: linux
+  DistroName: debian
+  DistroVersion: "12"
+  Size: 127846087
+  Tags: []
+  Layers:
+    - sha256:7fb72a7d1a8e984ccd01277432de660162a547a00de77151518dc9033cfb8cb4
+    - sha256:d9ec53339447f719ded1c47f6199c31e38266bf65623119dda92c976e4a7c93f
+    - sha256:cd84e155597c81f37cfcbfb3f3c1229ead0d6d9e7d62d0d1e6eb60c0143b0bb2
+    - sha256:f95a9acccb157322100b9aaef450d2bc0be45179920ecf65d8ce8093e2662426
+    - sha256:0e2c9c69f53d67978a8e8007f57cdfb5a0a6d14322df5d3965a29843310ada62
+    - sha256:5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef
+    - sha256:c452d4fe8f5aa4a0e7afeeefc2dd43551f55877c56fa1b0deff094f7cb195f20
+  Vulnerabilities:
+    - AdvId: CVE-2023-31484
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753041Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: High
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H
+      CvssBase: 8.1
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: CPAN.pm before 2.35 does not verify TLS certificates when downloading distributions over HTTPS.
+    - AdvId: CVE-2024-56433
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753043Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Low
+      CvssVectors:
+        - CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:L/I:L/A:N
+      CvssBase: 3.6
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: 'shadow-utils (aka shadow) 4.4 through 4.17.0 establishes a default /etc/subuid behavior (e.g., uid 100000 through 165535 for the first user account) that can realistically conflict with the uids of users defined on locally administered networks, potentially leading to account takeover, e.g., by leveraging newuidmap for access to an NFS home directory (or same-host resources in the case of remote logins by these local network users). NOTE: it may also be argued that system administrators should not have assigned uids, within local networks, that are within the range that can occur in /etc/subuid.'
+    - AdvId: CVE-2011-3389
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753049Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Negligible
+      CvssVectors: []
+      CvssBase: 0
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: The SSL protocol, as used in certain configurations in Microsoft Windows and Microsoft Internet Explorer, Mozilla Firefox, Google Chrome, Opera, and other products, encrypts data by using CBC mode with chained initialization vectors, which allows man-in-the-middle attackers to obtain plaintext HTTP headers via a blockwise chosen-boundary attack (BCBA) on an HTTPS session, in conjunction with JavaScript code that uses (1) the HTML5 WebSocket API, (2) the Java URLConnection API, or (3) the Silverlight WebClient API, aka a "BEAST" attack.
+    - AdvId: CVE-2005-2541
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.75305Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Negligible
+      CvssVectors: []
+      CvssBase: 0
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: Tar 1.15.1 does not properly warn the user when extracting setuid or setgid files, which may allow local users or remote attackers to gain privileges.
+    - AdvId: CVE-2018-20796
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753053Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Negligible
+      CvssVectors: []
+      CvssBase: 0
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: In the GNU C Library (aka glibc or libc6) through 2.29, check_dst_limits_calc_pos_1 in posix/regexec.c has Uncontrolled Recursion, as demonstrated by '(\227|)(\\1\\1|t1|\\\2537)+' in grep.
+    - AdvId: CVE-2011-3374
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753062Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Negligible
+      CvssVectors: []
+      CvssBase: 0
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: It was found that apt-key in apt, all versions, do not correctly validate gpg keys with the master keyring, leading to a potential man-in-the-middle attack.
+    - AdvId: CVE-2018-6829
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753067Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Negligible
+      CvssVectors: []
+      CvssBase: 0
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: cipher/elgamal.c in Libgcrypt through 1.8.2, when used to encrypt messages directly, improperly encodes plaintexts, which allows attackers to obtain sensitive information by reading ciphertext data (i.e., it does not have semantic security in face of a ciphertext-only attack). The Decisional Diffie-Hellman (DDH) assumption does not hold for Libgcrypt's ElGamal implementation.
+    - AdvId: CVE-2024-22365
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753067Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Medium
+      CvssVectors:
+        - CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:H
+      CvssBase: 5.5
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: linux-pam (aka Linux PAM) before 1.6.0 allows attackers to cause a denial of service (blocked login process) via mkfifo because the openat call (for protect_dir) lacks O_DIRECTORY.
+    - AdvId: CVE-2011-4116
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.75307Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Negligible
+      CvssVectors: []
+      CvssBase: 0
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: _is_safe in the File::Temp module for Perl does not properly handle symlinks.
+    - AdvId: CVE-2023-31486
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753078Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Negligible
+      CvssVectors: []
+      CvssBase: 0
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: HTTP::Tiny before 0.083, a Perl core module since 5.13.9 and available standalone on CPAN, has an insecure default TLS configuration where users must opt in to verify certificates.
+    - AdvId: CVE-2019-1010023
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753078Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Negligible
+      CvssVectors: []
+      CvssBase: 0
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: 'GNU Libc current is affected by: Re-mapping current loaded library with malicious ELF file. The impact is: In worst case attacker may evaluate privileges. The component is: libld. The attack vector is: Attacker sends 2 ELF files to victim and asks to run ldd on it. ldd execute code. NOTE: Upstream comments indicate "this is being treated as a non-security bug and no real threat.'
+    - AdvId: CVE-2023-50495
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753084Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Medium
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+      CvssBase: 6.5
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: NCurse v6.4-20230418 was discovered to contain a segmentation fault via the component _nc_wrap_entry().
+    - AdvId: CVE-2016-2781
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753086Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Low
+      CvssVectors: []
+      CvssBase: 0
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: chroot in GNU coreutils, when used with --userspec, allows local users to escape to the parent session via a crafted TIOCSTI ioctl call, which pushes characters to the terminal's input buffer.
+    - AdvId: CVE-2019-1010024
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753087Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Negligible
+      CvssVectors: []
+      CvssBase: 0
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: 'GNU Libc current is affected by: Mitigation bypass. The impact is: Attacker may bypass ASLR using cache of thread stack and heap. The component is: glibc. NOTE: Upstream comments indicate "this is being treated as a non-security bug and no real threat.'
+    - AdvId: CVE-2010-4756
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753088Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Negligible
+      CvssVectors: []
+      CvssBase: 0
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: The glob implementation in the GNU C Library (aka glibc or libc6) allows remote authenticated users to cause a denial of service (CPU and memory consumption) via crafted glob expressions that do not match any pathnames, as demonstrated by glob expressions in STAT commands to an FTP daemon, a different vulnerability than CVE-2010-2632.
+    - AdvId: CVE-2025-6020
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.75309Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: High
+      CvssVectors:
+        - CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H
+      CvssBase: 7.8
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: A flaw was found in linux-pam. The module pam_namespace may use access user-controlled paths without proper protection, allowing local users to elevate their privileges to root via multiple symlink attacks and race conditions.
+    - AdvId: CVE-2024-10041
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753092Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Medium
+      CvssVectors:
+        - CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:N/A:N
+      CvssBase: 4.7
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: A vulnerability was found in PAM. The secret information is stored in memory, where the attacker can trigger the victim program to execute by sending characters to its standard input (stdin). As this occurs, the attacker can train the branch predictor to execute an ROP chain speculatively. This flaw could result in leaked passwords, such as those found in /etc/shadow while performing authentications.
+    - AdvId: CVE-2007-5686
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753104Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Negligible
+      CvssVectors: []
+      CvssBase: 0
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: 'initscripts in rPath Linux 1 sets insecure permissions for the /var/log/btmp file, which allows local users to obtain sensitive information regarding authentication attempts.  NOTE: because sshd detects the insecure permissions and does not log certain events, this also prevents sshd from logging failed authentication attempts by remote attackers.'
+    - AdvId: CVE-2019-1010025
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.75311Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Negligible
+      CvssVectors: []
+      CvssBase: 0
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: 'GNU Libc current is affected by: Mitigation bypass. The impact is: Attacker may guess the heap addresses of pthread_created thread. The component is: glibc. NOTE: the vendor''s position is "ASLR bypass itself is not a vulnerability.'
+    - AdvId: CVE-2024-2236
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753111Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Negligible
+      CvssVectors: []
+      CvssBase: 0
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: A timing-based side-channel flaw was found in libgcrypt's RSA implementation. This issue may allow a remote attacker to initiate a Bleichenbacher-style attack, which can lead to the decryption of RSA ciphertexts.
+    - AdvId: CVE-2019-9192
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753111Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Negligible
+      CvssVectors: []
+      CvssBase: 0
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: 'In the GNU C Library (aka glibc or libc6) through 2.29, check_dst_limits_calc_pos_1 in posix/regexec.c has Uncontrolled Recursion, as demonstrated by ''(|)(\\1\\1)*'' in grep, a different issue than CVE-2018-20796. NOTE: the software maintainer disputes that this is a vulnerability because the behavior occurs only with a crafted pattern'
+    - AdvId: CVE-2025-40909
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753112Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Medium
+      CvssVectors:
+        - CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L
+      CvssBase: 5.9
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: Perl threads have a working directory race condition where file operations may target unintended paths.  If a directory handle is open at thread creation, the process-wide current working directory is temporarily changed in order to clone that handle for the new thread, which is visible from any third (or more) thread already running.   This may lead to unintended operations such as loading code or accessing files from unexpected locations, which a local attacker may be able to exploit.  The bug was introduced in commit 11a11ecf4bea72b17d250cfb43c897be1341861e and released in Perl version 5.13.6
+    - AdvId: CVE-2019-1010022
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753113Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Negligible
+      CvssVectors: []
+      CvssBase: 0
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: 'GNU Libc current is affected by: Mitigation bypass. The impact is: Attacker may bypass stack guard protection. The component is: nptl. The attack vector is: Exploit stack buffer overflow vulnerability and use this bypass vulnerability to bypass stack guard. NOTE: Upstream comments indicate "this is being treated as a non-security bug and no real threat.'
+    - AdvId: CVE-2025-4802
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753114Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: High
+      CvssVectors:
+        - CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+      CvssBase: 7.8
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: Untrusted LD_LIBRARY_PATH environment variable vulnerability in the GNU C Library version 2.27 to 2.38 allows attacker controlled loading of dynamically shared library in statically compiled setuid binaries that call dlopen (including internal dlopen calls after setlocale or calls to NSS functions such as getaddrinfo).
+    - AdvId: CVE-2023-31437
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753115Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Negligible
+      CvssVectors: []
+      CvssBase: 0
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: 'An issue was discovered in systemd 253. An attacker can modify a sealed log file such that, in some views, not all existing and sealed log messages are displayed. NOTE: the vendor reportedly sent "a reply denying that any of the finding was a security vulnerability."'
+    - AdvId: CVE-2023-31438
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753116Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Negligible
+      CvssVectors: []
+      CvssBase: 0
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: 'An issue was discovered in systemd 253. An attacker can truncate a sealed log file and then resume log sealing such that checking the integrity shows no error, despite modifications. NOTE: the vendor reportedly sent "a reply denying that any of the finding was a security vulnerability."'
+    - AdvId: CVE-2023-31439
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753117Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Negligible
+      CvssVectors: []
+      CvssBase: 0
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: 'An issue was discovered in systemd 253. An attacker can modify the contents of past events in a sealed log file and then adjust the file such that checking the integrity shows no error, despite modifications. NOTE: the vendor reportedly sent "a reply denying that any of the finding was a security vulnerability."'
+    - AdvId: CVE-2025-6141
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753118Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Low
+      CvssVectors:
+        - CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:L
+      CvssBase: 3.3
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: A vulnerability has been found in GNU ncurses up to 6.5-20250322 and classified as problematic. This vulnerability affects the function postprocess_termcap of the file tinfo/parse_entry.c. The manipulation leads to stack-based buffer overflow. The attack needs to be approached locally. Upgrading to version 6.5-20250329 is able to address this issue. It is recommended to upgrade the affected component.
+    - AdvId: CVE-2013-4392
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.75312Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Negligible
+      CvssVectors: []
+      CvssBase: 0
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: systemd, when updating file permissions, allows local users to change the permissions and SELinux security contexts for arbitrary files via a symlink attack on unspecified files.
+    - AdvId: CVE-2025-30258
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753127Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Low
+      CvssVectors:
+        - CVSS:3.1/AV:L/AC:H/PR:N/UI:R/S:C/C:N/I:N/A:L
+      CvssBase: 2.7
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: In GnuPG before 2.5.5, if a user chooses to import a certificate with certain crafted subkey data that lacks a valid backsig or that has incorrect usage flags, the user loses the ability to verify signatures made from certain other signing keys, aka a "verification DoS."
+    - AdvId: CVE-2017-18018
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753127Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Negligible
+      CvssVectors: []
+      CvssBase: 0
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: In GNU Coreutils through 8.29, chown-core.c in chown and chgrp does not prevent replacement of a plain file with a symlink during use of the POSIX "-R -L" options, which allows local users to modify the ownership of arbitrary files by leveraging a race condition.
+    - AdvId: CVE-2022-27943
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753128Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Negligible
+      CvssVectors: []
+      CvssBase: 0
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: libiberty/rust-demangle.c in GNU GCC 11.2 allows stack consumption in demangle_const, as demonstrated by nm-new.
+    - AdvId: CVE-2025-27587
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753129Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Negligible
+      CvssVectors: []
+      CvssBase: 0
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: 'OpenSSL 3.0.0 through 3.3.2 on the PowerPC architecture is vulnerable to a Minerva attack, exploitable by measuring the time of signing of random messages using the EVP_DigestSign API, and then using the private key to extract the K value (nonce) from the signatures. Next, based on the bit size of the extracted nonce, one can compare the signing time of full-sized nonces to signatures that used smaller nonces, via statistical tests. There is a side-channel in the P-364 curve that allows private key extraction (also, there is a dependency between the bit size of K and the size of the side channel). NOTE: This CVE is disputed because the OpenSSL security policy explicitly notes that any side channels which require same physical system to be detected are outside of the threat model for the software. The timing signal is so small that it is infeasible to be detected without having the attacking process running on the same physical system.'
+    - AdvId: CVE-2022-0563
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.75313Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Negligible
+      CvssVectors: []
+      CvssBase: 0
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: A flaw was found in the util-linux chfn and chsh utilities when compiled with Readline support. The Readline library uses an "INPUTRC" environment variable to get a path to the library config file. When the library cannot parse the specified file, it prints an error message containing data from the file. This flaw allows an unprivileged user to read root-owned files, potentially leading to privilege escalation. This flaw affects util-linux versions prior to 2.37.4.
+    - AdvId: CVE-2025-5278
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753144Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Negligible
+      CvssVectors: []
+      CvssBase: 0
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: A flaw was found in GNU Coreutils. The sort utility's begfield() function is vulnerable to a heap buffer under-read. The program may access memory outside the allocated buffer if a user runs a crafted command using the traditional key format. A malicious input could lead to a crash or leak sensitive data.
+    - AdvId: CVE-2022-3219
+      AdvSource: debian:distro:debian:12
+      Aliases: ""
+      CreateDate: "2025-06-30T08:12:10.753144Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      KevDate: "0001-01-01T00:00:00Z"
+      Severity: Negligible
+      CvssVectors: []
+      CvssBase: 0
+      RiskScore: 0
+      Cpes: null
+      Cwes: null
+      References: []
+      RansomwareUsed: ""
+      Description: GnuPG can be made to spin on a relatively small input by (for example) crafting a public key with thousands of signatures attached, compressed down to just a few KB.
+  Findings:
+    - AdvId: CVE-2023-31484
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.75304Z"
+      UpdateDate: "2025-06-30T08:12:10.75304Z"
+      Severity: High
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: wont-fix
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/perl-base/copyright
+        - /var/lib/dpkg/info/perl-base.md5sums
+        - /var/lib/dpkg/info/perl-base.postinst
+        - /var/lib/dpkg/info/perl-base.postrm
+        - /var/lib/dpkg/info/perl-base.preinst
+        - /var/lib/dpkg/info/perl-base.prerm
+        - /var/lib/dpkg/info/perl-base.list
+    - AdvId: CVE-2024-56433
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753043Z"
+      UpdateDate: "2025-06-30T08:12:10.753043Z"
+      Severity: Low
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: wont-fix
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/login/copyright
+        - /var/lib/dpkg/info/login.conffiles
+        - /var/lib/dpkg/info/login.md5sums
+        - /var/lib/dpkg/info/login.list
+        - /var/lib/dpkg/info/login.postinst
+        - /var/lib/dpkg/info/login.postrm
+        - /var/lib/dpkg/info/login.preinst
+        - /var/lib/dpkg/info/login.prerm
+    - AdvId: CVE-2024-56433
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753044Z"
+      UpdateDate: "2025-06-30T08:12:10.753044Z"
+      Severity: Low
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: wont-fix
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/passwd/copyright
+        - /var/lib/dpkg/info/passwd.conffiles
+        - /var/lib/dpkg/info/passwd.md5sums
+        - /var/lib/dpkg/info/passwd.list
+        - /var/lib/dpkg/info/passwd.postinst
+        - /var/lib/dpkg/info/passwd.postrm
+        - /var/lib/dpkg/info/passwd.preinst
+        - /var/lib/dpkg/info/passwd.prerm
+    - AdvId: CVE-2011-3389
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753048Z"
+      UpdateDate: "2025-06-30T08:12:10.753048Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libgnutls30/copyright
+        - /var/lib/dpkg/info/libgnutls30:amd64.md5sums
+    - AdvId: CVE-2005-2541
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753049Z"
+      UpdateDate: "2025-06-30T08:12:10.753049Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/tar/copyright
+        - /var/lib/dpkg/info/tar.md5sums
+        - /var/lib/dpkg/info/tar.list
+        - /var/lib/dpkg/info/tar.postinst
+        - /var/lib/dpkg/info/tar.prerm
+    - AdvId: CVE-2018-20796
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753052Z"
+      UpdateDate: "2025-06-30T08:12:10.753053Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libc-bin/copyright
+        - /var/lib/dpkg/info/libc-bin.conffiles
+        - /var/lib/dpkg/info/libc-bin.md5sums
+        - /var/lib/dpkg/info/libc-bin.list
+        - /var/lib/dpkg/info/libc-bin.postinst
+        - /var/lib/dpkg/info/libc-bin.triggers
+    - AdvId: CVE-2018-20796
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753057Z"
+      UpdateDate: "2025-06-30T08:12:10.753057Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libc6/copyright
+        - /var/lib/dpkg/info/libc6:amd64.conffiles
+        - /var/lib/dpkg/info/libc6:amd64.md5sums
+    - AdvId: CVE-2011-3374
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753058Z"
+      UpdateDate: "2025-06-30T08:12:10.753058Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/apt/copyright
+        - /var/lib/dpkg/info/apt.conffiles
+        - /var/lib/dpkg/info/apt.md5sums
+        - /var/lib/dpkg/info/apt.list
+        - /var/lib/dpkg/info/apt.postinst
+        - /var/lib/dpkg/info/apt.postrm
+        - /var/lib/dpkg/info/apt.preinst
+        - /var/lib/dpkg/info/apt.prerm
+        - /var/lib/dpkg/info/apt.shlibs
+        - /var/lib/dpkg/info/apt.triggers
+    - AdvId: CVE-2011-3374
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753062Z"
+      UpdateDate: "2025-06-30T08:12:10.753062Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libapt-pkg6.0/copyright
+        - /var/lib/dpkg/info/libapt-pkg6.0:amd64.md5sums
+    - AdvId: CVE-2018-6829
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753066Z"
+      UpdateDate: "2025-06-30T08:12:10.753066Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libgcrypt20/copyright
+        - /var/lib/dpkg/info/libgcrypt20:amd64.md5sums
+    - AdvId: CVE-2024-22365
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753067Z"
+      UpdateDate: "2025-06-30T08:12:10.753067Z"
+      Severity: Medium
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: wont-fix
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libpam-modules/copyright
+        - /var/lib/dpkg/info/libpam-modules:amd64.conffiles
+        - /var/lib/dpkg/info/libpam-modules:amd64.md5sums
+    - AdvId: CVE-2024-22365
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753067Z"
+      UpdateDate: "2025-06-30T08:12:10.753068Z"
+      Severity: Medium
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: wont-fix
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libpam-modules-bin/copyright
+        - /var/lib/dpkg/info/libpam-modules-bin.md5sums
+        - /var/lib/dpkg/info/libpam-modules-bin.list
+    - AdvId: CVE-2024-22365
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753068Z"
+      UpdateDate: "2025-06-30T08:12:10.753068Z"
+      Severity: Medium
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: wont-fix
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libpam-runtime/copyright
+        - /var/lib/dpkg/info/libpam-runtime.conffiles
+        - /var/lib/dpkg/info/libpam-runtime.md5sums
+        - /var/lib/dpkg/info/libpam-runtime.list
+        - /var/lib/dpkg/info/libpam-runtime.postinst
+        - /var/lib/dpkg/info/libpam-runtime.postrm
+        - /var/lib/dpkg/info/libpam-runtime.prerm
+        - /var/lib/dpkg/info/libpam-runtime.templates
+    - AdvId: CVE-2024-22365
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753069Z"
+      UpdateDate: "2025-06-30T08:12:10.753069Z"
+      Severity: Medium
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: wont-fix
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libpam0g/copyright
+        - /var/lib/dpkg/info/libpam0g:amd64.md5sums
+    - AdvId: CVE-2011-4116
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753069Z"
+      UpdateDate: "2025-06-30T08:12:10.753069Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/perl-base/copyright
+        - /var/lib/dpkg/info/perl-base.md5sums
+        - /var/lib/dpkg/info/perl-base.postinst
+        - /var/lib/dpkg/info/perl-base.postrm
+        - /var/lib/dpkg/info/perl-base.preinst
+        - /var/lib/dpkg/info/perl-base.prerm
+        - /var/lib/dpkg/info/perl-base.list
+    - AdvId: CVE-2023-31486
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753078Z"
+      UpdateDate: "2025-06-30T08:12:10.753078Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/perl-base/copyright
+        - /var/lib/dpkg/info/perl-base.md5sums
+        - /var/lib/dpkg/info/perl-base.postinst
+        - /var/lib/dpkg/info/perl-base.postrm
+        - /var/lib/dpkg/info/perl-base.preinst
+        - /var/lib/dpkg/info/perl-base.prerm
+        - /var/lib/dpkg/info/perl-base.list
+    - AdvId: CVE-2019-1010023
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753078Z"
+      UpdateDate: "2025-06-30T08:12:10.753078Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libc-bin/copyright
+        - /var/lib/dpkg/info/libc-bin.conffiles
+        - /var/lib/dpkg/info/libc-bin.md5sums
+        - /var/lib/dpkg/info/libc-bin.list
+        - /var/lib/dpkg/info/libc-bin.postinst
+        - /var/lib/dpkg/info/libc-bin.triggers
+    - AdvId: CVE-2019-1010023
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753084Z"
+      UpdateDate: "2025-06-30T08:12:10.753084Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libc6/copyright
+        - /var/lib/dpkg/info/libc6:amd64.conffiles
+        - /var/lib/dpkg/info/libc6:amd64.md5sums
+    - AdvId: CVE-2023-50495
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753084Z"
+      UpdateDate: "2025-06-30T08:12:10.753084Z"
+      Severity: Medium
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: wont-fix
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libtinfo6/copyright
+        - /var/lib/dpkg/info/libtinfo6:amd64.md5sums
+    - AdvId: CVE-2023-50495
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753085Z"
+      UpdateDate: "2025-06-30T08:12:10.753085Z"
+      Severity: Medium
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: wont-fix
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/ncurses-base/copyright
+        - /var/lib/dpkg/info/ncurses-base.conffiles
+        - /var/lib/dpkg/info/ncurses-base.md5sums
+        - /var/lib/dpkg/info/ncurses-base.list
+    - AdvId: CVE-2023-50495
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753085Z"
+      UpdateDate: "2025-06-30T08:12:10.753086Z"
+      Severity: Medium
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: wont-fix
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/ncurses-bin/copyright
+        - /var/lib/dpkg/info/ncurses-bin.md5sums
+        - /var/lib/dpkg/info/ncurses-bin.list
+    - AdvId: CVE-2016-2781
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753086Z"
+      UpdateDate: "2025-06-30T08:12:10.753086Z"
+      Severity: Low
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: wont-fix
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/coreutils/copyright
+        - /var/lib/dpkg/info/coreutils.md5sums
+        - /var/lib/dpkg/info/coreutils.list
+        - /var/lib/dpkg/info/coreutils.postinst
+        - /var/lib/dpkg/info/coreutils.postrm
+    - AdvId: CVE-2019-1010024
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753087Z"
+      UpdateDate: "2025-06-30T08:12:10.753087Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libc-bin/copyright
+        - /var/lib/dpkg/info/libc-bin.conffiles
+        - /var/lib/dpkg/info/libc-bin.md5sums
+        - /var/lib/dpkg/info/libc-bin.list
+        - /var/lib/dpkg/info/libc-bin.postinst
+        - /var/lib/dpkg/info/libc-bin.triggers
+    - AdvId: CVE-2019-1010024
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753087Z"
+      UpdateDate: "2025-06-30T08:12:10.753087Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libc6/copyright
+        - /var/lib/dpkg/info/libc6:amd64.conffiles
+        - /var/lib/dpkg/info/libc6:amd64.md5sums
+    - AdvId: CVE-2010-4756
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753088Z"
+      UpdateDate: "2025-06-30T08:12:10.753088Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libc-bin/copyright
+        - /var/lib/dpkg/info/libc-bin.conffiles
+        - /var/lib/dpkg/info/libc-bin.md5sums
+        - /var/lib/dpkg/info/libc-bin.list
+        - /var/lib/dpkg/info/libc-bin.postinst
+        - /var/lib/dpkg/info/libc-bin.triggers
+    - AdvId: CVE-2010-4756
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753089Z"
+      UpdateDate: "2025-06-30T08:12:10.753089Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libc6/copyright
+        - /var/lib/dpkg/info/libc6:amd64.conffiles
+        - /var/lib/dpkg/info/libc6:amd64.md5sums
+    - AdvId: CVE-2025-6020
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.75309Z"
+      UpdateDate: "2025-06-30T08:12:10.75309Z"
+      Severity: High
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libpam-modules/copyright
+        - /var/lib/dpkg/info/libpam-modules:amd64.conffiles
+        - /var/lib/dpkg/info/libpam-modules:amd64.md5sums
+    - AdvId: CVE-2025-6020
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.75309Z"
+      UpdateDate: "2025-06-30T08:12:10.75309Z"
+      Severity: High
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libpam-modules-bin/copyright
+        - /var/lib/dpkg/info/libpam-modules-bin.md5sums
+        - /var/lib/dpkg/info/libpam-modules-bin.list
+    - AdvId: CVE-2025-6020
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753091Z"
+      UpdateDate: "2025-06-30T08:12:10.753091Z"
+      Severity: High
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libpam-runtime/copyright
+        - /var/lib/dpkg/info/libpam-runtime.conffiles
+        - /var/lib/dpkg/info/libpam-runtime.md5sums
+        - /var/lib/dpkg/info/libpam-runtime.list
+        - /var/lib/dpkg/info/libpam-runtime.postinst
+        - /var/lib/dpkg/info/libpam-runtime.postrm
+        - /var/lib/dpkg/info/libpam-runtime.prerm
+        - /var/lib/dpkg/info/libpam-runtime.templates
+    - AdvId: CVE-2025-6020
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753091Z"
+      UpdateDate: "2025-06-30T08:12:10.753091Z"
+      Severity: High
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libpam0g/copyright
+        - /var/lib/dpkg/info/libpam0g:amd64.md5sums
+    - AdvId: CVE-2024-10041
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753092Z"
+      UpdateDate: "2025-06-30T08:12:10.753092Z"
+      Severity: Medium
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: wont-fix
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libpam-modules/copyright
+        - /var/lib/dpkg/info/libpam-modules:amd64.conffiles
+        - /var/lib/dpkg/info/libpam-modules:amd64.md5sums
+    - AdvId: CVE-2024-10041
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753092Z"
+      UpdateDate: "2025-06-30T08:12:10.753093Z"
+      Severity: Medium
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: wont-fix
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libpam-modules-bin/copyright
+        - /var/lib/dpkg/info/libpam-modules-bin.md5sums
+        - /var/lib/dpkg/info/libpam-modules-bin.list
+    - AdvId: CVE-2024-10041
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753093Z"
+      UpdateDate: "2025-06-30T08:12:10.753093Z"
+      Severity: Medium
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: wont-fix
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libpam-runtime/copyright
+        - /var/lib/dpkg/info/libpam-runtime.conffiles
+        - /var/lib/dpkg/info/libpam-runtime.md5sums
+        - /var/lib/dpkg/info/libpam-runtime.list
+        - /var/lib/dpkg/info/libpam-runtime.postinst
+        - /var/lib/dpkg/info/libpam-runtime.postrm
+        - /var/lib/dpkg/info/libpam-runtime.prerm
+        - /var/lib/dpkg/info/libpam-runtime.templates
+    - AdvId: CVE-2024-10041
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753094Z"
+      UpdateDate: "2025-06-30T08:12:10.753094Z"
+      Severity: Medium
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: wont-fix
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libpam0g/copyright
+        - /var/lib/dpkg/info/libpam0g:amd64.md5sums
+    - AdvId: CVE-2007-5686
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753103Z"
+      UpdateDate: "2025-06-30T08:12:10.753103Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/login/copyright
+        - /var/lib/dpkg/info/login.conffiles
+        - /var/lib/dpkg/info/login.md5sums
+        - /var/lib/dpkg/info/login.list
+        - /var/lib/dpkg/info/login.postinst
+        - /var/lib/dpkg/info/login.postrm
+        - /var/lib/dpkg/info/login.preinst
+        - /var/lib/dpkg/info/login.prerm
+    - AdvId: CVE-2007-5686
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753109Z"
+      UpdateDate: "2025-06-30T08:12:10.753109Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/passwd/copyright
+        - /var/lib/dpkg/info/passwd.conffiles
+        - /var/lib/dpkg/info/passwd.md5sums
+        - /var/lib/dpkg/info/passwd.list
+        - /var/lib/dpkg/info/passwd.postinst
+        - /var/lib/dpkg/info/passwd.postrm
+        - /var/lib/dpkg/info/passwd.preinst
+        - /var/lib/dpkg/info/passwd.prerm
+    - AdvId: CVE-2019-1010025
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753109Z"
+      UpdateDate: "2025-06-30T08:12:10.753109Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libc-bin/copyright
+        - /var/lib/dpkg/info/libc-bin.conffiles
+        - /var/lib/dpkg/info/libc-bin.md5sums
+        - /var/lib/dpkg/info/libc-bin.list
+        - /var/lib/dpkg/info/libc-bin.postinst
+        - /var/lib/dpkg/info/libc-bin.triggers
+    - AdvId: CVE-2019-1010025
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.75311Z"
+      UpdateDate: "2025-06-30T08:12:10.75311Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libc6/copyright
+        - /var/lib/dpkg/info/libc6:amd64.conffiles
+        - /var/lib/dpkg/info/libc6:amd64.md5sums
+    - AdvId: CVE-2024-2236
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.75311Z"
+      UpdateDate: "2025-06-30T08:12:10.753111Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libgcrypt20/copyright
+        - /var/lib/dpkg/info/libgcrypt20:amd64.md5sums
+    - AdvId: CVE-2019-9192
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753111Z"
+      UpdateDate: "2025-06-30T08:12:10.753111Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libc-bin/copyright
+        - /var/lib/dpkg/info/libc-bin.conffiles
+        - /var/lib/dpkg/info/libc-bin.md5sums
+        - /var/lib/dpkg/info/libc-bin.list
+        - /var/lib/dpkg/info/libc-bin.postinst
+        - /var/lib/dpkg/info/libc-bin.triggers
+    - AdvId: CVE-2019-9192
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753112Z"
+      UpdateDate: "2025-06-30T08:12:10.753112Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libc6/copyright
+        - /var/lib/dpkg/info/libc6:amd64.conffiles
+        - /var/lib/dpkg/info/libc6:amd64.md5sums
+    - AdvId: CVE-2025-40909
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753112Z"
+      UpdateDate: "2025-06-30T08:12:10.753112Z"
+      Severity: Medium
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: wont-fix
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/perl-base/copyright
+        - /var/lib/dpkg/info/perl-base.md5sums
+        - /var/lib/dpkg/info/perl-base.postinst
+        - /var/lib/dpkg/info/perl-base.postrm
+        - /var/lib/dpkg/info/perl-base.preinst
+        - /var/lib/dpkg/info/perl-base.prerm
+        - /var/lib/dpkg/info/perl-base.list
+    - AdvId: CVE-2019-1010022
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753113Z"
+      UpdateDate: "2025-06-30T08:12:10.753113Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libc-bin/copyright
+        - /var/lib/dpkg/info/libc-bin.conffiles
+        - /var/lib/dpkg/info/libc-bin.md5sums
+        - /var/lib/dpkg/info/libc-bin.list
+        - /var/lib/dpkg/info/libc-bin.postinst
+        - /var/lib/dpkg/info/libc-bin.triggers
+    - AdvId: CVE-2019-1010022
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753113Z"
+      UpdateDate: "2025-06-30T08:12:10.753113Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libc6/copyright
+        - /var/lib/dpkg/info/libc6:amd64.conffiles
+        - /var/lib/dpkg/info/libc6:amd64.md5sums
+    - AdvId: CVE-2025-4802
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753114Z"
+      UpdateDate: "2025-06-30T08:12:10.753114Z"
+      Severity: High
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: wont-fix
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libc-bin/copyright
+        - /var/lib/dpkg/info/libc-bin.conffiles
+        - /var/lib/dpkg/info/libc-bin.md5sums
+        - /var/lib/dpkg/info/libc-bin.list
+        - /var/lib/dpkg/info/libc-bin.postinst
+        - /var/lib/dpkg/info/libc-bin.triggers
+    - AdvId: CVE-2025-4802
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753114Z"
+      UpdateDate: "2025-06-30T08:12:10.753115Z"
+      Severity: High
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: wont-fix
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libc6/copyright
+        - /var/lib/dpkg/info/libc6:amd64.conffiles
+        - /var/lib/dpkg/info/libc6:amd64.md5sums
+    - AdvId: CVE-2023-31437
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753115Z"
+      UpdateDate: "2025-06-30T08:12:10.753115Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libsystemd0/copyright
+        - /var/lib/dpkg/info/libsystemd0:amd64.md5sums
+    - AdvId: CVE-2023-31437
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753116Z"
+      UpdateDate: "2025-06-30T08:12:10.753116Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libudev1/copyright
+        - /var/lib/dpkg/info/libudev1:amd64.md5sums
+    - AdvId: CVE-2023-31438
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753116Z"
+      UpdateDate: "2025-06-30T08:12:10.753116Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libsystemd0/copyright
+        - /var/lib/dpkg/info/libsystemd0:amd64.md5sums
+    - AdvId: CVE-2023-31438
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753117Z"
+      UpdateDate: "2025-06-30T08:12:10.753117Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libudev1/copyright
+        - /var/lib/dpkg/info/libudev1:amd64.md5sums
+    - AdvId: CVE-2023-31439
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753117Z"
+      UpdateDate: "2025-06-30T08:12:10.753117Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libsystemd0/copyright
+        - /var/lib/dpkg/info/libsystemd0:amd64.md5sums
+    - AdvId: CVE-2023-31439
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753117Z"
+      UpdateDate: "2025-06-30T08:12:10.753118Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libudev1/copyright
+        - /var/lib/dpkg/info/libudev1:amd64.md5sums
+    - AdvId: CVE-2025-6141
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753118Z"
+      UpdateDate: "2025-06-30T08:12:10.753118Z"
+      Severity: Low
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: wont-fix
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libtinfo6/copyright
+        - /var/lib/dpkg/info/libtinfo6:amd64.md5sums
+    - AdvId: CVE-2025-6141
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753119Z"
+      UpdateDate: "2025-06-30T08:12:10.753119Z"
+      Severity: Low
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: wont-fix
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/ncurses-base/copyright
+        - /var/lib/dpkg/info/ncurses-base.conffiles
+        - /var/lib/dpkg/info/ncurses-base.md5sums
+        - /var/lib/dpkg/info/ncurses-base.list
+    - AdvId: CVE-2025-6141
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753119Z"
+      UpdateDate: "2025-06-30T08:12:10.753119Z"
+      Severity: Low
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: wont-fix
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/ncurses-bin/copyright
+        - /var/lib/dpkg/info/ncurses-bin.md5sums
+        - /var/lib/dpkg/info/ncurses-bin.list
+    - AdvId: CVE-2013-4392
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.75312Z"
+      UpdateDate: "2025-06-30T08:12:10.75312Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libsystemd0/copyright
+        - /var/lib/dpkg/info/libsystemd0:amd64.md5sums
+    - AdvId: CVE-2013-4392
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753126Z"
+      UpdateDate: "2025-06-30T08:12:10.753126Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libudev1/copyright
+        - /var/lib/dpkg/info/libudev1:amd64.md5sums
+    - AdvId: CVE-2025-30258
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753126Z"
+      UpdateDate: "2025-06-30T08:12:10.753127Z"
+      Severity: Low
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: wont-fix
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/gpgv/copyright
+        - /var/lib/dpkg/info/gpgv.md5sums
+        - /var/lib/dpkg/info/gpgv.list
+    - AdvId: CVE-2017-18018
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753127Z"
+      UpdateDate: "2025-06-30T08:12:10.753127Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/coreutils/copyright
+        - /var/lib/dpkg/info/coreutils.md5sums
+        - /var/lib/dpkg/info/coreutils.list
+        - /var/lib/dpkg/info/coreutils.postinst
+        - /var/lib/dpkg/info/coreutils.postrm
+    - AdvId: CVE-2022-27943
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753128Z"
+      UpdateDate: "2025-06-30T08:12:10.753128Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/gcc-12-base/copyright
+        - /var/lib/dpkg/info/gcc-12-base:amd64.md5sums
+    - AdvId: CVE-2022-27943
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753128Z"
+      UpdateDate: "2025-06-30T08:12:10.753128Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/gcc-12-base/copyright
+        - /var/lib/dpkg/info/libgcc-s1:amd64.md5sums
+    - AdvId: CVE-2022-27943
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753129Z"
+      UpdateDate: "2025-06-30T08:12:10.753129Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/gcc-12-base/copyright
+        - /var/lib/dpkg/info/libstdc++6:amd64.md5sums
+    - AdvId: CVE-2025-27587
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753129Z"
+      UpdateDate: "2025-06-30T08:12:10.753129Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libssl3/copyright
+        - /var/lib/dpkg/info/libssl3:amd64.md5sums
+    - AdvId: CVE-2022-0563
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.75313Z"
+      UpdateDate: "2025-06-30T08:12:10.75313Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/bsdutils/copyright
+        - /var/lib/dpkg/info/bsdutils.md5sums
+        - /var/lib/dpkg/info/bsdutils.list
+    - AdvId: CVE-2022-0563
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.75313Z"
+      UpdateDate: "2025-06-30T08:12:10.75313Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libblkid1/copyright
+        - /var/lib/dpkg/info/libblkid1:amd64.md5sums
+    - AdvId: CVE-2022-0563
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753131Z"
+      UpdateDate: "2025-06-30T08:12:10.753131Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libmount1/copyright
+        - /var/lib/dpkg/info/libmount1:amd64.md5sums
+    - AdvId: CVE-2022-0563
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753131Z"
+      UpdateDate: "2025-06-30T08:12:10.753131Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libsmartcols1/copyright
+        - /var/lib/dpkg/info/libsmartcols1:amd64.md5sums
+    - AdvId: CVE-2022-0563
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753142Z"
+      UpdateDate: "2025-06-30T08:12:10.753142Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/libuuid1/copyright
+        - /var/lib/dpkg/info/libuuid1:amd64.md5sums
+    - AdvId: CVE-2022-0563
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753142Z"
+      UpdateDate: "2025-06-30T08:12:10.753142Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/mount/copyright
+        - /var/lib/dpkg/info/mount.md5sums
+        - /var/lib/dpkg/info/mount.list
+    - AdvId: CVE-2022-0563
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753143Z"
+      UpdateDate: "2025-06-30T08:12:10.753143Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/util-linux/copyright
+        - /var/lib/dpkg/info/util-linux.conffiles
+        - /var/lib/dpkg/info/util-linux.md5sums
+        - /var/lib/dpkg/info/util-linux.list
+        - /var/lib/dpkg/info/util-linux.postinst
+        - /var/lib/dpkg/info/util-linux.postrm
+        - /var/lib/dpkg/info/util-linux.prerm
+    - AdvId: CVE-2022-0563
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753143Z"
+      UpdateDate: "2025-06-30T08:12:10.753143Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/util-linux-extra/copyright
+        - /var/lib/dpkg/info/util-linux-extra.conffiles
+        - /var/lib/dpkg/info/util-linux-extra.md5sums
+        - /var/lib/dpkg/info/util-linux-extra.list
+        - /var/lib/dpkg/info/util-linux-extra.postinst
+        - /var/lib/dpkg/info/util-linux-extra.postrm
+        - /var/lib/dpkg/info/util-linux-extra.preinst
+    - AdvId: CVE-2025-5278
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753144Z"
+      UpdateDate: "2025-06-30T08:12:10.753144Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/coreutils/copyright
+        - /var/lib/dpkg/info/coreutils.md5sums
+        - /var/lib/dpkg/info/coreutils.list
+        - /var/lib/dpkg/info/coreutils.postinst
+        - /var/lib/dpkg/info/coreutils.postrm
+    - AdvId: CVE-2022-3219
+      AdvSource: debian:distro:debian:12
+      ScanDate: "2025-06-30T08:12:10.753144Z"
+      UpdateDate: "2025-06-30T08:12:10.753144Z"
+      Severity: Negligible
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: not-fixed
+      FixVersions: []
+      FoundIn:
+        - /var/lib/dpkg/status
+        - /usr/share/doc/gpgv/copyright
+        - /var/lib/dpkg/info/gpgv.md5sums
+        - /var/lib/dpkg/info/gpgv.list
+  Packages:
+    - Key: ""
+      Name: adduser
+      Version: "3.134"
+      Type: deb
+      Purl: pkg:deb/debian/adduser@3.134?arch=all&distro=debian-12
+      Cpes: null
+    - Key: ""
+      Name: apt
+      Version: 2.6.1
+      Type: deb
+      Purl: pkg:deb/debian/apt@2.6.1?arch=amd64&distro=debian-12
+      Cpes: null
+    - Key: ""
+      Name: base-files
+      Version: 12.4+deb12u11
+      Type: deb
+      Purl: pkg:deb/debian/base-files@12.4%2Bdeb12u11?arch=amd64&distro=debian-12
+      Cpes: null
+    - Key: ""
+      Name: base-passwd
+      Version: 3.6.1
+      Type: deb
+      Purl: pkg:deb/debian/base-passwd@3.6.1?arch=amd64&distro=debian-12
+      Cpes: null
+    - Key: ""
+      Name: bash
+      Version: 5.2.15-2+b8
+      Type: deb
+      Purl: pkg:deb/debian/bash@5.2.15-2%2Bb8?arch=amd64&distro=debian-12&upstream=bash%405.2.15-2
+      Cpes: null
+    - Key: ""
+      Name: bsdutils
+      Version: 1:2.38.1-5+deb12u3
+      Type: deb
+      Purl: pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12&upstream=util-linux%402.38.1-5%2Bdeb12u3
+      Cpes: null
+    - Key: ""
+      Name: coreutils
+      Version: 9.1-1
+      Type: deb
+      Purl: pkg:deb/debian/coreutils@9.1-1?arch=amd64&distro=debian-12
+      Cpes: null
+    - Key: ""
+      Name: dash
+      Version: 0.5.12-2
+      Type: deb
+      Purl: pkg:deb/debian/dash@0.5.12-2?arch=amd64&distro=debian-12
+      Cpes: null
+    - Key: ""
+      Name: debconf
+      Version: 1.5.82
+      Type: deb
+      Purl: pkg:deb/debian/debconf@1.5.82?arch=all&distro=debian-12
+      Cpes: null
+    - Key: ""
+      Name: debian-archive-keyring
+      Version: 2023.3+deb12u2
+      Type: deb
+      Purl: pkg:deb/debian/debian-archive-keyring@2023.3%2Bdeb12u2?arch=all&distro=debian-12
+      Cpes: null
+    - Key: ""
+      Name: debianutils
+      Version: 5.7-0.5~deb12u1
+      Type: deb
+      Purl: pkg:deb/debian/debianutils@5.7-0.5~deb12u1?arch=amd64&distro=debian-12
+      Cpes: null
+    - Key: ""
+      Name: diffutils
+      Version: 1:3.8-4
+      Type: deb
+      Purl: pkg:deb/debian/diffutils@1%3A3.8-4?arch=amd64&distro=debian-12
+      Cpes: null
+    - Key: ""
+      Name: dpkg
+      Version: 1.21.22
+      Type: deb
+      Purl: pkg:deb/debian/dpkg@1.21.22?arch=amd64&distro=debian-12
+      Cpes: null
+    - Key: ""
+      Name: e2fsprogs
+      Version: 1.47.0-2
+      Type: deb
+      Purl: pkg:deb/debian/e2fsprogs@1.47.0-2?arch=amd64&distro=debian-12
+      Cpes: null
+    - Key: ""
+      Name: findutils
+      Version: 4.9.0-4
+      Type: deb
+      Purl: pkg:deb/debian/findutils@4.9.0-4?arch=amd64&distro=debian-12
+      Cpes: null
+    - Key: ""
+      Name: gcc-12-base
+      Version: 12.2.0-14+deb12u1
+      Type: deb
+      Purl: pkg:deb/debian/gcc-12-base@12.2.0-14%2Bdeb12u1?arch=amd64&distro=debian-12&upstream=gcc-12
+      Cpes: null
+    - Key: ""
+      Name: gpgv
+      Version: 2.2.40-1.1
+      Type: deb
+      Purl: pkg:deb/debian/gpgv@2.2.40-1.1?arch=amd64&distro=debian-12&upstream=gnupg2
+      Cpes: null
+    - Key: ""
+      Name: grep
+      Version: 3.8-5
+      Type: deb
+      Purl: pkg:deb/debian/grep@3.8-5?arch=amd64&distro=debian-12
+      Cpes: null
+    - Key: ""
+      Name: gzip
+      Version: 1.12-1
+      Type: deb
+      Purl: pkg:deb/debian/gzip@1.12-1?arch=amd64&distro=debian-12
+      Cpes: null
+    - Key: ""
+      Name: hostname
+      Version: 3.23+nmu1
+      Type: deb
+      Purl: pkg:deb/debian/hostname@3.23%2Bnmu1?arch=amd64&distro=debian-12
+      Cpes: null
+    - Key: ""
+      Name: init-system-helpers
+      Version: 1.65.2
+      Type: deb
+      Purl: pkg:deb/debian/init-system-helpers@1.65.2?arch=all&distro=debian-12
+      Cpes: null
+    - Key: ""
+      Name: libacl1
+      Version: 2.3.1-3
+      Type: deb
+      Purl: pkg:deb/debian/libacl1@2.3.1-3?arch=amd64&distro=debian-12&upstream=acl
+      Cpes: null
+    - Key: ""
+      Name: libapt-pkg6.0
+      Version: 2.6.1
+      Type: deb
+      Purl: pkg:deb/debian/libapt-pkg6.0@2.6.1?arch=amd64&distro=debian-12&upstream=apt
+      Cpes: null
+    - Key: ""
+      Name: libattr1
+      Version: 1:2.5.1-4
+      Type: deb
+      Purl: pkg:deb/debian/libattr1@1%3A2.5.1-4?arch=amd64&distro=debian-12&upstream=attr
+      Cpes: null
+    - Key: ""
+      Name: libaudit-common
+      Version: 1:3.0.9-1
+      Type: deb
+      Purl: pkg:deb/debian/libaudit-common@1%3A3.0.9-1?arch=all&distro=debian-12&upstream=audit
+      Cpes: null
+    - Key: ""
+      Name: libaudit1
+      Version: 1:3.0.9-1
+      Type: deb
+      Purl: pkg:deb/debian/libaudit1@1%3A3.0.9-1?arch=amd64&distro=debian-12&upstream=audit
+      Cpes: null
+    - Key: ""
+      Name: libblkid1
+      Version: 2.38.1-5+deb12u3
+      Type: deb
+      Purl: pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12&upstream=util-linux
+      Cpes: null
+    - Key: ""
+      Name: libbz2-1.0
+      Version: 1.0.8-5+b1
+      Type: deb
+      Purl: pkg:deb/debian/libbz2-1.0@1.0.8-5%2Bb1?arch=amd64&distro=debian-12&upstream=bzip2%401.0.8-5
+      Cpes: null
+    - Key: ""
+      Name: libc-bin
+      Version: 2.36-9+deb12u10
+      Type: deb
+      Purl: pkg:deb/debian/libc-bin@2.36-9%2Bdeb12u10?arch=amd64&distro=debian-12&upstream=glibc
+      Cpes: null
+    - Key: ""
+      Name: libc6
+      Version: 2.36-9+deb12u10
+      Type: deb
+      Purl: pkg:deb/debian/libc6@2.36-9%2Bdeb12u10?arch=amd64&distro=debian-12&upstream=glibc
+      Cpes: null
+    - Key: ""
+      Name: libcap-ng0
+      Version: 0.8.3-1+b3
+      Type: deb
+      Purl: pkg:deb/debian/libcap-ng0@0.8.3-1%2Bb3?arch=amd64&distro=debian-12&upstream=libcap-ng%400.8.3-1
+      Cpes: null
+    - Key: ""
+      Name: libcap2
+      Version: 1:2.66-4+deb12u1
+      Type: deb
+      Purl: pkg:deb/debian/libcap2@1%3A2.66-4%2Bdeb12u1?arch=amd64&distro=debian-12
+      Cpes: null
+    - Key: ""
+      Name: libcom-err2
+      Version: 1.47.0-2
+      Type: deb
+      Purl: pkg:deb/debian/libcom-err2@1.47.0-2?arch=amd64&distro=debian-12&upstream=e2fsprogs
+      Cpes: null
+    - Key: ""
+      Name: libcrypt1
+      Version: 1:4.4.33-2
+      Type: deb
+      Purl: pkg:deb/debian/libcrypt1@1%3A4.4.33-2?arch=amd64&distro=debian-12&upstream=libxcrypt
+      Cpes: null
+    - Key: ""
+      Name: libdb5.3
+      Version: 5.3.28+dfsg2-1
+      Type: deb
+      Purl: pkg:deb/debian/libdb5.3@5.3.28%2Bdfsg2-1?arch=amd64&distro=debian-12&upstream=db5.3
+      Cpes: null
+    - Key: ""
+      Name: libdebconfclient0
+      Version: "0.270"
+      Type: deb
+      Purl: pkg:deb/debian/libdebconfclient0@0.270?arch=amd64&distro=debian-12&upstream=cdebconf
+      Cpes: null
+    - Key: ""
+      Name: libext2fs2
+      Version: 1.47.0-2
+      Type: deb
+      Purl: pkg:deb/debian/libext2fs2@1.47.0-2?arch=amd64&distro=debian-12&upstream=e2fsprogs
+      Cpes: null
+    - Key: ""
+      Name: libffi8
+      Version: 3.4.4-1
+      Type: deb
+      Purl: pkg:deb/debian/libffi8@3.4.4-1?arch=amd64&distro=debian-12&upstream=libffi
+      Cpes: null
+    - Key: ""
+      Name: libgcc-s1
+      Version: 12.2.0-14+deb12u1
+      Type: deb
+      Purl: pkg:deb/debian/libgcc-s1@12.2.0-14%2Bdeb12u1?arch=amd64&distro=debian-12&upstream=gcc-12
+      Cpes: null
+    - Key: ""
+      Name: libgcrypt20
+      Version: 1.10.1-3
+      Type: deb
+      Purl: pkg:deb/debian/libgcrypt20@1.10.1-3?arch=amd64&distro=debian-12
+      Cpes: null
+    - Key: ""
+      Name: libgmp10
+      Version: 2:6.2.1+dfsg1-1.1
+      Type: deb
+      Purl: pkg:deb/debian/libgmp10@2%3A6.2.1%2Bdfsg1-1.1?arch=amd64&distro=debian-12&upstream=gmp
+      Cpes: null
+    - Key: ""
+      Name: libgnutls30
+      Version: 3.7.9-2+deb12u4
+      Type: deb
+      Purl: pkg:deb/debian/libgnutls30@3.7.9-2%2Bdeb12u4?arch=amd64&distro=debian-12&upstream=gnutls28
+      Cpes: null
+    - Key: ""
+      Name: libgpg-error0
+      Version: 1.46-1
+      Type: deb
+      Purl: pkg:deb/debian/libgpg-error0@1.46-1?arch=amd64&distro=debian-12&upstream=libgpg-error
+      Cpes: null
+    - Key: ""
+      Name: libhogweed6
+      Version: 3.8.1-2
+      Type: deb
+      Purl: pkg:deb/debian/libhogweed6@3.8.1-2?arch=amd64&distro=debian-12&upstream=nettle
+      Cpes: null
+    - Key: ""
+      Name: libidn2-0
+      Version: 2.3.3-1+b1
+      Type: deb
+      Purl: pkg:deb/debian/libidn2-0@2.3.3-1%2Bb1?arch=amd64&distro=debian-12&upstream=libidn2%402.3.3-1
+      Cpes: null
+    - Key: ""
+      Name: liblz4-1
+      Version: 1.9.4-1
+      Type: deb
+      Purl: pkg:deb/debian/liblz4-1@1.9.4-1?arch=amd64&distro=debian-12&upstream=lz4
+      Cpes: null
+    - Key: ""
+      Name: liblzma5
+      Version: 5.4.1-1
+      Type: deb
+      Purl: pkg:deb/debian/liblzma5@5.4.1-1?arch=amd64&distro=debian-12&upstream=xz-utils
+      Cpes: null
+    - Key: ""
+      Name: libmd0
+      Version: 1.0.4-2
+      Type: deb
+      Purl: pkg:deb/debian/libmd0@1.0.4-2?arch=amd64&distro=debian-12&upstream=libmd
+      Cpes: null
+    - Key: ""
+      Name: libmount1
+      Version: 2.38.1-5+deb12u3
+      Type: deb
+      Purl: pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12&upstream=util-linux
+      Cpes: null
+    - Key: ""
+      Name: libnettle8
+      Version: 3.8.1-2
+      Type: deb
+      Purl: pkg:deb/debian/libnettle8@3.8.1-2?arch=amd64&distro=debian-12&upstream=nettle
+      Cpes: null
+    - Key: ""
+      Name: libp11-kit0
+      Version: 0.24.1-2
+      Type: deb
+      Purl: pkg:deb/debian/libp11-kit0@0.24.1-2?arch=amd64&distro=debian-12&upstream=p11-kit
+      Cpes: null
+    - Key: ""
+      Name: libpam-modules
+      Version: 1.5.2-6+deb12u1
+      Type: deb
+      Purl: pkg:deb/debian/libpam-modules@1.5.2-6%2Bdeb12u1?arch=amd64&distro=debian-12&upstream=pam
+      Cpes: null
+    - Key: ""
+      Name: libpam-modules-bin
+      Version: 1.5.2-6+deb12u1
+      Type: deb
+      Purl: pkg:deb/debian/libpam-modules-bin@1.5.2-6%2Bdeb12u1?arch=amd64&distro=debian-12&upstream=pam
+      Cpes: null
+    - Key: ""
+      Name: libpam-runtime
+      Version: 1.5.2-6+deb12u1
+      Type: deb
+      Purl: pkg:deb/debian/libpam-runtime@1.5.2-6%2Bdeb12u1?arch=all&distro=debian-12&upstream=pam
+      Cpes: null
+    - Key: ""
+      Name: libpam0g
+      Version: 1.5.2-6+deb12u1
+      Type: deb
+      Purl: pkg:deb/debian/libpam0g@1.5.2-6%2Bdeb12u1?arch=amd64&distro=debian-12&upstream=pam
+      Cpes: null
+    - Key: ""
+      Name: libpcre2-8-0
+      Version: 10.42-1
+      Type: deb
+      Purl: pkg:deb/debian/libpcre2-8-0@10.42-1?arch=amd64&distro=debian-12&upstream=pcre2
+      Cpes: null
+    - Key: ""
+      Name: libseccomp2
+      Version: 2.5.4-1+deb12u1
+      Type: deb
+      Purl: pkg:deb/debian/libseccomp2@2.5.4-1%2Bdeb12u1?arch=amd64&distro=debian-12&upstream=libseccomp
+      Cpes: null
+    - Key: ""
+      Name: libselinux1
+      Version: 3.4-1+b6
+      Type: deb
+      Purl: pkg:deb/debian/libselinux1@3.4-1%2Bb6?arch=amd64&distro=debian-12&upstream=libselinux%403.4-1
+      Cpes: null
+    - Key: ""
+      Name: libsemanage-common
+      Version: 3.4-1
+      Type: deb
+      Purl: pkg:deb/debian/libsemanage-common@3.4-1?arch=all&distro=debian-12&upstream=libsemanage
+      Cpes: null
+    - Key: ""
+      Name: libsemanage2
+      Version: 3.4-1+b5
+      Type: deb
+      Purl: pkg:deb/debian/libsemanage2@3.4-1%2Bb5?arch=amd64&distro=debian-12&upstream=libsemanage%403.4-1
+      Cpes: null
+    - Key: ""
+      Name: libsepol2
+      Version: 3.4-2.1
+      Type: deb
+      Purl: pkg:deb/debian/libsepol2@3.4-2.1?arch=amd64&distro=debian-12&upstream=libsepol
+      Cpes: null
+    - Key: ""
+      Name: libsmartcols1
+      Version: 2.38.1-5+deb12u3
+      Type: deb
+      Purl: pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12&upstream=util-linux
+      Cpes: null
+    - Key: ""
+      Name: libss2
+      Version: 1.47.0-2
+      Type: deb
+      Purl: pkg:deb/debian/libss2@1.47.0-2?arch=amd64&distro=debian-12&upstream=e2fsprogs
+      Cpes: null
+    - Key: ""
+      Name: libssl3
+      Version: 3.0.16-1~deb12u1
+      Type: deb
+      Purl: pkg:deb/debian/libssl3@3.0.16-1~deb12u1?arch=amd64&distro=debian-12&upstream=openssl
+      Cpes: null
+    - Key: ""
+      Name: libstdc++6
+      Version: 12.2.0-14+deb12u1
+      Type: deb
+      Purl: pkg:deb/debian/libstdc%2B%2B6@12.2.0-14%2Bdeb12u1?arch=amd64&distro=debian-12&upstream=gcc-12
+      Cpes: null
+    - Key: ""
+      Name: libsystemd0
+      Version: 252.38-1~deb12u1
+      Type: deb
+      Purl: pkg:deb/debian/libsystemd0@252.38-1~deb12u1?arch=amd64&distro=debian-12&upstream=systemd
+      Cpes: null
+    - Key: ""
+      Name: libtasn1-6
+      Version: 4.19.0-2+deb12u1
+      Type: deb
+      Purl: pkg:deb/debian/libtasn1-6@4.19.0-2%2Bdeb12u1?arch=amd64&distro=debian-12
+      Cpes: null
+    - Key: ""
+      Name: libtinfo6
+      Version: 6.4-4
+      Type: deb
+      Purl: pkg:deb/debian/libtinfo6@6.4-4?arch=amd64&distro=debian-12&upstream=ncurses
+      Cpes: null
+    - Key: ""
+      Name: libudev1
+      Version: 252.38-1~deb12u1
+      Type: deb
+      Purl: pkg:deb/debian/libudev1@252.38-1~deb12u1?arch=amd64&distro=debian-12&upstream=systemd
+      Cpes: null
+    - Key: ""
+      Name: libunistring2
+      Version: 1.0-2
+      Type: deb
+      Purl: pkg:deb/debian/libunistring2@1.0-2?arch=amd64&distro=debian-12&upstream=libunistring
+      Cpes: null
+    - Key: ""
+      Name: libuuid1
+      Version: 2.38.1-5+deb12u3
+      Type: deb
+      Purl: pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12&upstream=util-linux
+      Cpes: null
+    - Key: ""
+      Name: libxxhash0
+      Version: 0.8.1-1
+      Type: deb
+      Purl: pkg:deb/debian/libxxhash0@0.8.1-1?arch=amd64&distro=debian-12&upstream=xxhash
+      Cpes: null
+    - Key: ""
+      Name: libzstd1
+      Version: 1.5.4+dfsg2-5
+      Type: deb
+      Purl: pkg:deb/debian/libzstd1@1.5.4%2Bdfsg2-5?arch=amd64&distro=debian-12&upstream=libzstd
+      Cpes: null
+    - Key: ""
+      Name: login
+      Version: 1:4.13+dfsg1-1+deb12u1
+      Type: deb
+      Purl: pkg:deb/debian/login@1%3A4.13%2Bdfsg1-1%2Bdeb12u1?arch=amd64&distro=debian-12&upstream=shadow
+      Cpes: null
+    - Key: ""
+      Name: logsave
+      Version: 1.47.0-2
+      Type: deb
+      Purl: pkg:deb/debian/logsave@1.47.0-2?arch=amd64&distro=debian-12&upstream=e2fsprogs
+      Cpes: null
+    - Key: ""
+      Name: mawk
+      Version: 1.3.4.20200120-3.1
+      Type: deb
+      Purl: pkg:deb/debian/mawk@1.3.4.20200120-3.1?arch=amd64&distro=debian-12
+      Cpes: null
+    - Key: ""
+      Name: mount
+      Version: 2.38.1-5+deb12u3
+      Type: deb
+      Purl: pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12&upstream=util-linux
+      Cpes: null
+    - Key: ""
+      Name: ncurses-base
+      Version: 6.4-4
+      Type: deb
+      Purl: pkg:deb/debian/ncurses-base@6.4-4?arch=all&distro=debian-12&upstream=ncurses
+      Cpes: null
+    - Key: ""
+      Name: ncurses-bin
+      Version: 6.4-4
+      Type: deb
+      Purl: pkg:deb/debian/ncurses-bin@6.4-4?arch=amd64&distro=debian-12&upstream=ncurses
+      Cpes: null
+    - Key: ""
+      Name: passwd
+      Version: 1:4.13+dfsg1-1+deb12u1
+      Type: deb
+      Purl: pkg:deb/debian/passwd@1%3A4.13%2Bdfsg1-1%2Bdeb12u1?arch=amd64&distro=debian-12&upstream=shadow
+      Cpes: null
+    - Key: ""
+      Name: perl-base
+      Version: 5.36.0-7+deb12u2
+      Type: deb
+      Purl: pkg:deb/debian/perl-base@5.36.0-7%2Bdeb12u2?arch=amd64&distro=debian-12&upstream=perl
+      Cpes: null
+    - Key: ""
+      Name: redis
+      Version: 8.0.2
+      Type: binary
+      Purl: pkg:generic/redis@8.0.2
+      Cpes: null
+    - Key: ""
+      Name: sed
+      Version: 4.9-1
+      Type: deb
+      Purl: pkg:deb/debian/sed@4.9-1?arch=amd64&distro=debian-12
+      Cpes: null
+    - Key: ""
+      Name: sysvinit-utils
+      Version: 3.06-4
+      Type: deb
+      Purl: pkg:deb/debian/sysvinit-utils@3.06-4?arch=amd64&distro=debian-12&upstream=sysvinit
+      Cpes: null
+    - Key: ""
+      Name: tar
+      Version: 1.34+dfsg-1.2+deb12u1
+      Type: deb
+      Purl: pkg:deb/debian/tar@1.34%2Bdfsg-1.2%2Bdeb12u1?arch=amd64&distro=debian-12
+      Cpes: null
+    - Key: ""
+      Name: tzdata
+      Version: 2025b-0+deb12u1
+      Type: deb
+      Purl: pkg:deb/debian/tzdata@2025b-0%2Bdeb12u1?arch=all&distro=debian-12
+      Cpes: null
+    - Key: ""
+      Name: usr-is-merged
+      Version: 37~deb12u1
+      Type: deb
+      Purl: pkg:deb/debian/usr-is-merged@37~deb12u1?arch=all&distro=debian-12&upstream=usrmerge
+      Cpes: null
+    - Key: ""
+      Name: util-linux
+      Version: 2.38.1-5+deb12u3
+      Type: deb
+      Purl: pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12
+      Cpes: null
+    - Key: ""
+      Name: util-linux-extra
+      Version: 2.38.1-5+deb12u3
+      Type: deb
+      Purl: pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12&upstream=util-linux
+      Cpes: null
+    - Key: ""
+      Name: zlib1g
+      Version: 1:1.2.13.dfsg-1
+      Type: deb
+      Purl: pkg:deb/debian/zlib1g@1%3A1.2.13.dfsg-1?arch=amd64&distro=debian-12&upstream=zlib
+      Cpes: null
+  ContextRoots: null
+Findings:
+  - AdvId: CVE-2023-31484
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.75304Z"
+    UpdateDate: "2025-06-30T08:12:10.75304Z"
+    Severity: High
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: wont-fix
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/perl-base/copyright
+      - /var/lib/dpkg/info/perl-base.md5sums
+      - /var/lib/dpkg/info/perl-base.postinst
+      - /var/lib/dpkg/info/perl-base.postrm
+      - /var/lib/dpkg/info/perl-base.preinst
+      - /var/lib/dpkg/info/perl-base.prerm
+      - /var/lib/dpkg/info/perl-base.list
+  - AdvId: CVE-2024-56433
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753043Z"
+    UpdateDate: "2025-06-30T08:12:10.753043Z"
+    Severity: Low
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: wont-fix
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/login/copyright
+      - /var/lib/dpkg/info/login.conffiles
+      - /var/lib/dpkg/info/login.md5sums
+      - /var/lib/dpkg/info/login.list
+      - /var/lib/dpkg/info/login.postinst
+      - /var/lib/dpkg/info/login.postrm
+      - /var/lib/dpkg/info/login.preinst
+      - /var/lib/dpkg/info/login.prerm
+  - AdvId: CVE-2024-56433
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753044Z"
+    UpdateDate: "2025-06-30T08:12:10.753044Z"
+    Severity: Low
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: wont-fix
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/passwd/copyright
+      - /var/lib/dpkg/info/passwd.conffiles
+      - /var/lib/dpkg/info/passwd.md5sums
+      - /var/lib/dpkg/info/passwd.list
+      - /var/lib/dpkg/info/passwd.postinst
+      - /var/lib/dpkg/info/passwd.postrm
+      - /var/lib/dpkg/info/passwd.preinst
+      - /var/lib/dpkg/info/passwd.prerm
+  - AdvId: CVE-2011-3389
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753048Z"
+    UpdateDate: "2025-06-30T08:12:10.753048Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libgnutls30/copyright
+      - /var/lib/dpkg/info/libgnutls30:amd64.md5sums
+  - AdvId: CVE-2005-2541
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753049Z"
+    UpdateDate: "2025-06-30T08:12:10.753049Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/tar/copyright
+      - /var/lib/dpkg/info/tar.md5sums
+      - /var/lib/dpkg/info/tar.list
+      - /var/lib/dpkg/info/tar.postinst
+      - /var/lib/dpkg/info/tar.prerm
+  - AdvId: CVE-2018-20796
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753052Z"
+    UpdateDate: "2025-06-30T08:12:10.753053Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libc-bin/copyright
+      - /var/lib/dpkg/info/libc-bin.conffiles
+      - /var/lib/dpkg/info/libc-bin.md5sums
+      - /var/lib/dpkg/info/libc-bin.list
+      - /var/lib/dpkg/info/libc-bin.postinst
+      - /var/lib/dpkg/info/libc-bin.triggers
+  - AdvId: CVE-2018-20796
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753057Z"
+    UpdateDate: "2025-06-30T08:12:10.753057Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libc6/copyright
+      - /var/lib/dpkg/info/libc6:amd64.conffiles
+      - /var/lib/dpkg/info/libc6:amd64.md5sums
+  - AdvId: CVE-2011-3374
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753058Z"
+    UpdateDate: "2025-06-30T08:12:10.753058Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/apt/copyright
+      - /var/lib/dpkg/info/apt.conffiles
+      - /var/lib/dpkg/info/apt.md5sums
+      - /var/lib/dpkg/info/apt.list
+      - /var/lib/dpkg/info/apt.postinst
+      - /var/lib/dpkg/info/apt.postrm
+      - /var/lib/dpkg/info/apt.preinst
+      - /var/lib/dpkg/info/apt.prerm
+      - /var/lib/dpkg/info/apt.shlibs
+      - /var/lib/dpkg/info/apt.triggers
+  - AdvId: CVE-2011-3374
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753062Z"
+    UpdateDate: "2025-06-30T08:12:10.753062Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libapt-pkg6.0/copyright
+      - /var/lib/dpkg/info/libapt-pkg6.0:amd64.md5sums
+  - AdvId: CVE-2018-6829
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753066Z"
+    UpdateDate: "2025-06-30T08:12:10.753066Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libgcrypt20/copyright
+      - /var/lib/dpkg/info/libgcrypt20:amd64.md5sums
+  - AdvId: CVE-2024-22365
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753067Z"
+    UpdateDate: "2025-06-30T08:12:10.753067Z"
+    Severity: Medium
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: wont-fix
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libpam-modules/copyright
+      - /var/lib/dpkg/info/libpam-modules:amd64.conffiles
+      - /var/lib/dpkg/info/libpam-modules:amd64.md5sums
+  - AdvId: CVE-2024-22365
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753067Z"
+    UpdateDate: "2025-06-30T08:12:10.753068Z"
+    Severity: Medium
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: wont-fix
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libpam-modules-bin/copyright
+      - /var/lib/dpkg/info/libpam-modules-bin.md5sums
+      - /var/lib/dpkg/info/libpam-modules-bin.list
+  - AdvId: CVE-2024-22365
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753068Z"
+    UpdateDate: "2025-06-30T08:12:10.753068Z"
+    Severity: Medium
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: wont-fix
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libpam-runtime/copyright
+      - /var/lib/dpkg/info/libpam-runtime.conffiles
+      - /var/lib/dpkg/info/libpam-runtime.md5sums
+      - /var/lib/dpkg/info/libpam-runtime.list
+      - /var/lib/dpkg/info/libpam-runtime.postinst
+      - /var/lib/dpkg/info/libpam-runtime.postrm
+      - /var/lib/dpkg/info/libpam-runtime.prerm
+      - /var/lib/dpkg/info/libpam-runtime.templates
+  - AdvId: CVE-2024-22365
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753069Z"
+    UpdateDate: "2025-06-30T08:12:10.753069Z"
+    Severity: Medium
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: wont-fix
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libpam0g/copyright
+      - /var/lib/dpkg/info/libpam0g:amd64.md5sums
+  - AdvId: CVE-2011-4116
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753069Z"
+    UpdateDate: "2025-06-30T08:12:10.753069Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/perl-base/copyright
+      - /var/lib/dpkg/info/perl-base.md5sums
+      - /var/lib/dpkg/info/perl-base.postinst
+      - /var/lib/dpkg/info/perl-base.postrm
+      - /var/lib/dpkg/info/perl-base.preinst
+      - /var/lib/dpkg/info/perl-base.prerm
+      - /var/lib/dpkg/info/perl-base.list
+  - AdvId: CVE-2023-31486
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753078Z"
+    UpdateDate: "2025-06-30T08:12:10.753078Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/perl-base/copyright
+      - /var/lib/dpkg/info/perl-base.md5sums
+      - /var/lib/dpkg/info/perl-base.postinst
+      - /var/lib/dpkg/info/perl-base.postrm
+      - /var/lib/dpkg/info/perl-base.preinst
+      - /var/lib/dpkg/info/perl-base.prerm
+      - /var/lib/dpkg/info/perl-base.list
+  - AdvId: CVE-2019-1010023
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753078Z"
+    UpdateDate: "2025-06-30T08:12:10.753078Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libc-bin/copyright
+      - /var/lib/dpkg/info/libc-bin.conffiles
+      - /var/lib/dpkg/info/libc-bin.md5sums
+      - /var/lib/dpkg/info/libc-bin.list
+      - /var/lib/dpkg/info/libc-bin.postinst
+      - /var/lib/dpkg/info/libc-bin.triggers
+  - AdvId: CVE-2019-1010023
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753084Z"
+    UpdateDate: "2025-06-30T08:12:10.753084Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libc6/copyright
+      - /var/lib/dpkg/info/libc6:amd64.conffiles
+      - /var/lib/dpkg/info/libc6:amd64.md5sums
+  - AdvId: CVE-2023-50495
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753084Z"
+    UpdateDate: "2025-06-30T08:12:10.753084Z"
+    Severity: Medium
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: wont-fix
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libtinfo6/copyright
+      - /var/lib/dpkg/info/libtinfo6:amd64.md5sums
+  - AdvId: CVE-2023-50495
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753085Z"
+    UpdateDate: "2025-06-30T08:12:10.753085Z"
+    Severity: Medium
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: wont-fix
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/ncurses-base/copyright
+      - /var/lib/dpkg/info/ncurses-base.conffiles
+      - /var/lib/dpkg/info/ncurses-base.md5sums
+      - /var/lib/dpkg/info/ncurses-base.list
+  - AdvId: CVE-2023-50495
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753085Z"
+    UpdateDate: "2025-06-30T08:12:10.753086Z"
+    Severity: Medium
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: wont-fix
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/ncurses-bin/copyright
+      - /var/lib/dpkg/info/ncurses-bin.md5sums
+      - /var/lib/dpkg/info/ncurses-bin.list
+  - AdvId: CVE-2016-2781
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753086Z"
+    UpdateDate: "2025-06-30T08:12:10.753086Z"
+    Severity: Low
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: wont-fix
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/coreutils/copyright
+      - /var/lib/dpkg/info/coreutils.md5sums
+      - /var/lib/dpkg/info/coreutils.list
+      - /var/lib/dpkg/info/coreutils.postinst
+      - /var/lib/dpkg/info/coreutils.postrm
+  - AdvId: CVE-2019-1010024
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753087Z"
+    UpdateDate: "2025-06-30T08:12:10.753087Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libc-bin/copyright
+      - /var/lib/dpkg/info/libc-bin.conffiles
+      - /var/lib/dpkg/info/libc-bin.md5sums
+      - /var/lib/dpkg/info/libc-bin.list
+      - /var/lib/dpkg/info/libc-bin.postinst
+      - /var/lib/dpkg/info/libc-bin.triggers
+  - AdvId: CVE-2019-1010024
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753087Z"
+    UpdateDate: "2025-06-30T08:12:10.753087Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libc6/copyright
+      - /var/lib/dpkg/info/libc6:amd64.conffiles
+      - /var/lib/dpkg/info/libc6:amd64.md5sums
+  - AdvId: CVE-2010-4756
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753088Z"
+    UpdateDate: "2025-06-30T08:12:10.753088Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libc-bin/copyright
+      - /var/lib/dpkg/info/libc-bin.conffiles
+      - /var/lib/dpkg/info/libc-bin.md5sums
+      - /var/lib/dpkg/info/libc-bin.list
+      - /var/lib/dpkg/info/libc-bin.postinst
+      - /var/lib/dpkg/info/libc-bin.triggers
+  - AdvId: CVE-2010-4756
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753089Z"
+    UpdateDate: "2025-06-30T08:12:10.753089Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libc6/copyright
+      - /var/lib/dpkg/info/libc6:amd64.conffiles
+      - /var/lib/dpkg/info/libc6:amd64.md5sums
+  - AdvId: CVE-2025-6020
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.75309Z"
+    UpdateDate: "2025-06-30T08:12:10.75309Z"
+    Severity: High
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libpam-modules/copyright
+      - /var/lib/dpkg/info/libpam-modules:amd64.conffiles
+      - /var/lib/dpkg/info/libpam-modules:amd64.md5sums
+  - AdvId: CVE-2025-6020
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.75309Z"
+    UpdateDate: "2025-06-30T08:12:10.75309Z"
+    Severity: High
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libpam-modules-bin/copyright
+      - /var/lib/dpkg/info/libpam-modules-bin.md5sums
+      - /var/lib/dpkg/info/libpam-modules-bin.list
+  - AdvId: CVE-2025-6020
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753091Z"
+    UpdateDate: "2025-06-30T08:12:10.753091Z"
+    Severity: High
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libpam-runtime/copyright
+      - /var/lib/dpkg/info/libpam-runtime.conffiles
+      - /var/lib/dpkg/info/libpam-runtime.md5sums
+      - /var/lib/dpkg/info/libpam-runtime.list
+      - /var/lib/dpkg/info/libpam-runtime.postinst
+      - /var/lib/dpkg/info/libpam-runtime.postrm
+      - /var/lib/dpkg/info/libpam-runtime.prerm
+      - /var/lib/dpkg/info/libpam-runtime.templates
+  - AdvId: CVE-2025-6020
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753091Z"
+    UpdateDate: "2025-06-30T08:12:10.753091Z"
+    Severity: High
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libpam0g/copyright
+      - /var/lib/dpkg/info/libpam0g:amd64.md5sums
+  - AdvId: CVE-2024-10041
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753092Z"
+    UpdateDate: "2025-06-30T08:12:10.753092Z"
+    Severity: Medium
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: wont-fix
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libpam-modules/copyright
+      - /var/lib/dpkg/info/libpam-modules:amd64.conffiles
+      - /var/lib/dpkg/info/libpam-modules:amd64.md5sums
+  - AdvId: CVE-2024-10041
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753092Z"
+    UpdateDate: "2025-06-30T08:12:10.753093Z"
+    Severity: Medium
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: wont-fix
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libpam-modules-bin/copyright
+      - /var/lib/dpkg/info/libpam-modules-bin.md5sums
+      - /var/lib/dpkg/info/libpam-modules-bin.list
+  - AdvId: CVE-2024-10041
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753093Z"
+    UpdateDate: "2025-06-30T08:12:10.753093Z"
+    Severity: Medium
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: wont-fix
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libpam-runtime/copyright
+      - /var/lib/dpkg/info/libpam-runtime.conffiles
+      - /var/lib/dpkg/info/libpam-runtime.md5sums
+      - /var/lib/dpkg/info/libpam-runtime.list
+      - /var/lib/dpkg/info/libpam-runtime.postinst
+      - /var/lib/dpkg/info/libpam-runtime.postrm
+      - /var/lib/dpkg/info/libpam-runtime.prerm
+      - /var/lib/dpkg/info/libpam-runtime.templates
+  - AdvId: CVE-2024-10041
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753094Z"
+    UpdateDate: "2025-06-30T08:12:10.753094Z"
+    Severity: Medium
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: wont-fix
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libpam0g/copyright
+      - /var/lib/dpkg/info/libpam0g:amd64.md5sums
+  - AdvId: CVE-2007-5686
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753103Z"
+    UpdateDate: "2025-06-30T08:12:10.753103Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/login/copyright
+      - /var/lib/dpkg/info/login.conffiles
+      - /var/lib/dpkg/info/login.md5sums
+      - /var/lib/dpkg/info/login.list
+      - /var/lib/dpkg/info/login.postinst
+      - /var/lib/dpkg/info/login.postrm
+      - /var/lib/dpkg/info/login.preinst
+      - /var/lib/dpkg/info/login.prerm
+  - AdvId: CVE-2007-5686
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753109Z"
+    UpdateDate: "2025-06-30T08:12:10.753109Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/passwd/copyright
+      - /var/lib/dpkg/info/passwd.conffiles
+      - /var/lib/dpkg/info/passwd.md5sums
+      - /var/lib/dpkg/info/passwd.list
+      - /var/lib/dpkg/info/passwd.postinst
+      - /var/lib/dpkg/info/passwd.postrm
+      - /var/lib/dpkg/info/passwd.preinst
+      - /var/lib/dpkg/info/passwd.prerm
+  - AdvId: CVE-2019-1010025
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753109Z"
+    UpdateDate: "2025-06-30T08:12:10.753109Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libc-bin/copyright
+      - /var/lib/dpkg/info/libc-bin.conffiles
+      - /var/lib/dpkg/info/libc-bin.md5sums
+      - /var/lib/dpkg/info/libc-bin.list
+      - /var/lib/dpkg/info/libc-bin.postinst
+      - /var/lib/dpkg/info/libc-bin.triggers
+  - AdvId: CVE-2019-1010025
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.75311Z"
+    UpdateDate: "2025-06-30T08:12:10.75311Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libc6/copyright
+      - /var/lib/dpkg/info/libc6:amd64.conffiles
+      - /var/lib/dpkg/info/libc6:amd64.md5sums
+  - AdvId: CVE-2024-2236
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.75311Z"
+    UpdateDate: "2025-06-30T08:12:10.753111Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libgcrypt20/copyright
+      - /var/lib/dpkg/info/libgcrypt20:amd64.md5sums
+  - AdvId: CVE-2019-9192
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753111Z"
+    UpdateDate: "2025-06-30T08:12:10.753111Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libc-bin/copyright
+      - /var/lib/dpkg/info/libc-bin.conffiles
+      - /var/lib/dpkg/info/libc-bin.md5sums
+      - /var/lib/dpkg/info/libc-bin.list
+      - /var/lib/dpkg/info/libc-bin.postinst
+      - /var/lib/dpkg/info/libc-bin.triggers
+  - AdvId: CVE-2019-9192
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753112Z"
+    UpdateDate: "2025-06-30T08:12:10.753112Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libc6/copyright
+      - /var/lib/dpkg/info/libc6:amd64.conffiles
+      - /var/lib/dpkg/info/libc6:amd64.md5sums
+  - AdvId: CVE-2025-40909
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753112Z"
+    UpdateDate: "2025-06-30T08:12:10.753112Z"
+    Severity: Medium
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: wont-fix
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/perl-base/copyright
+      - /var/lib/dpkg/info/perl-base.md5sums
+      - /var/lib/dpkg/info/perl-base.postinst
+      - /var/lib/dpkg/info/perl-base.postrm
+      - /var/lib/dpkg/info/perl-base.preinst
+      - /var/lib/dpkg/info/perl-base.prerm
+      - /var/lib/dpkg/info/perl-base.list
+  - AdvId: CVE-2019-1010022
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753113Z"
+    UpdateDate: "2025-06-30T08:12:10.753113Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libc-bin/copyright
+      - /var/lib/dpkg/info/libc-bin.conffiles
+      - /var/lib/dpkg/info/libc-bin.md5sums
+      - /var/lib/dpkg/info/libc-bin.list
+      - /var/lib/dpkg/info/libc-bin.postinst
+      - /var/lib/dpkg/info/libc-bin.triggers
+  - AdvId: CVE-2019-1010022
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753113Z"
+    UpdateDate: "2025-06-30T08:12:10.753113Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libc6/copyright
+      - /var/lib/dpkg/info/libc6:amd64.conffiles
+      - /var/lib/dpkg/info/libc6:amd64.md5sums
+  - AdvId: CVE-2025-4802
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753114Z"
+    UpdateDate: "2025-06-30T08:12:10.753114Z"
+    Severity: High
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: wont-fix
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libc-bin/copyright
+      - /var/lib/dpkg/info/libc-bin.conffiles
+      - /var/lib/dpkg/info/libc-bin.md5sums
+      - /var/lib/dpkg/info/libc-bin.list
+      - /var/lib/dpkg/info/libc-bin.postinst
+      - /var/lib/dpkg/info/libc-bin.triggers
+  - AdvId: CVE-2025-4802
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753114Z"
+    UpdateDate: "2025-06-30T08:12:10.753115Z"
+    Severity: High
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: wont-fix
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libc6/copyright
+      - /var/lib/dpkg/info/libc6:amd64.conffiles
+      - /var/lib/dpkg/info/libc6:amd64.md5sums
+  - AdvId: CVE-2023-31437
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753115Z"
+    UpdateDate: "2025-06-30T08:12:10.753115Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libsystemd0/copyright
+      - /var/lib/dpkg/info/libsystemd0:amd64.md5sums
+  - AdvId: CVE-2023-31437
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753116Z"
+    UpdateDate: "2025-06-30T08:12:10.753116Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libudev1/copyright
+      - /var/lib/dpkg/info/libudev1:amd64.md5sums
+  - AdvId: CVE-2023-31438
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753116Z"
+    UpdateDate: "2025-06-30T08:12:10.753116Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libsystemd0/copyright
+      - /var/lib/dpkg/info/libsystemd0:amd64.md5sums
+  - AdvId: CVE-2023-31438
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753117Z"
+    UpdateDate: "2025-06-30T08:12:10.753117Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libudev1/copyright
+      - /var/lib/dpkg/info/libudev1:amd64.md5sums
+  - AdvId: CVE-2023-31439
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753117Z"
+    UpdateDate: "2025-06-30T08:12:10.753117Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libsystemd0/copyright
+      - /var/lib/dpkg/info/libsystemd0:amd64.md5sums
+  - AdvId: CVE-2023-31439
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753117Z"
+    UpdateDate: "2025-06-30T08:12:10.753118Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libudev1/copyright
+      - /var/lib/dpkg/info/libudev1:amd64.md5sums
+  - AdvId: CVE-2025-6141
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753118Z"
+    UpdateDate: "2025-06-30T08:12:10.753118Z"
+    Severity: Low
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: wont-fix
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libtinfo6/copyright
+      - /var/lib/dpkg/info/libtinfo6:amd64.md5sums
+  - AdvId: CVE-2025-6141
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753119Z"
+    UpdateDate: "2025-06-30T08:12:10.753119Z"
+    Severity: Low
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: wont-fix
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/ncurses-base/copyright
+      - /var/lib/dpkg/info/ncurses-base.conffiles
+      - /var/lib/dpkg/info/ncurses-base.md5sums
+      - /var/lib/dpkg/info/ncurses-base.list
+  - AdvId: CVE-2025-6141
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753119Z"
+    UpdateDate: "2025-06-30T08:12:10.753119Z"
+    Severity: Low
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: wont-fix
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/ncurses-bin/copyright
+      - /var/lib/dpkg/info/ncurses-bin.md5sums
+      - /var/lib/dpkg/info/ncurses-bin.list
+  - AdvId: CVE-2013-4392
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.75312Z"
+    UpdateDate: "2025-06-30T08:12:10.75312Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libsystemd0/copyright
+      - /var/lib/dpkg/info/libsystemd0:amd64.md5sums
+  - AdvId: CVE-2013-4392
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753126Z"
+    UpdateDate: "2025-06-30T08:12:10.753126Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libudev1/copyright
+      - /var/lib/dpkg/info/libudev1:amd64.md5sums
+  - AdvId: CVE-2025-30258
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753126Z"
+    UpdateDate: "2025-06-30T08:12:10.753127Z"
+    Severity: Low
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: wont-fix
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/gpgv/copyright
+      - /var/lib/dpkg/info/gpgv.md5sums
+      - /var/lib/dpkg/info/gpgv.list
+  - AdvId: CVE-2017-18018
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753127Z"
+    UpdateDate: "2025-06-30T08:12:10.753127Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/coreutils/copyright
+      - /var/lib/dpkg/info/coreutils.md5sums
+      - /var/lib/dpkg/info/coreutils.list
+      - /var/lib/dpkg/info/coreutils.postinst
+      - /var/lib/dpkg/info/coreutils.postrm
+  - AdvId: CVE-2022-27943
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753128Z"
+    UpdateDate: "2025-06-30T08:12:10.753128Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/gcc-12-base/copyright
+      - /var/lib/dpkg/info/gcc-12-base:amd64.md5sums
+  - AdvId: CVE-2022-27943
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753128Z"
+    UpdateDate: "2025-06-30T08:12:10.753128Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/gcc-12-base/copyright
+      - /var/lib/dpkg/info/libgcc-s1:amd64.md5sums
+  - AdvId: CVE-2022-27943
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753129Z"
+    UpdateDate: "2025-06-30T08:12:10.753129Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/gcc-12-base/copyright
+      - /var/lib/dpkg/info/libstdc++6:amd64.md5sums
+  - AdvId: CVE-2025-27587
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753129Z"
+    UpdateDate: "2025-06-30T08:12:10.753129Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libssl3/copyright
+      - /var/lib/dpkg/info/libssl3:amd64.md5sums
+  - AdvId: CVE-2022-0563
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.75313Z"
+    UpdateDate: "2025-06-30T08:12:10.75313Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/bsdutils/copyright
+      - /var/lib/dpkg/info/bsdutils.md5sums
+      - /var/lib/dpkg/info/bsdutils.list
+  - AdvId: CVE-2022-0563
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.75313Z"
+    UpdateDate: "2025-06-30T08:12:10.75313Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libblkid1/copyright
+      - /var/lib/dpkg/info/libblkid1:amd64.md5sums
+  - AdvId: CVE-2022-0563
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753131Z"
+    UpdateDate: "2025-06-30T08:12:10.753131Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libmount1/copyright
+      - /var/lib/dpkg/info/libmount1:amd64.md5sums
+  - AdvId: CVE-2022-0563
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753131Z"
+    UpdateDate: "2025-06-30T08:12:10.753131Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libsmartcols1/copyright
+      - /var/lib/dpkg/info/libsmartcols1:amd64.md5sums
+  - AdvId: CVE-2022-0563
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753142Z"
+    UpdateDate: "2025-06-30T08:12:10.753142Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/libuuid1/copyright
+      - /var/lib/dpkg/info/libuuid1:amd64.md5sums
+  - AdvId: CVE-2022-0563
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753142Z"
+    UpdateDate: "2025-06-30T08:12:10.753142Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/mount/copyright
+      - /var/lib/dpkg/info/mount.md5sums
+      - /var/lib/dpkg/info/mount.list
+  - AdvId: CVE-2022-0563
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753143Z"
+    UpdateDate: "2025-06-30T08:12:10.753143Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/util-linux/copyright
+      - /var/lib/dpkg/info/util-linux.conffiles
+      - /var/lib/dpkg/info/util-linux.md5sums
+      - /var/lib/dpkg/info/util-linux.list
+      - /var/lib/dpkg/info/util-linux.postinst
+      - /var/lib/dpkg/info/util-linux.postrm
+      - /var/lib/dpkg/info/util-linux.prerm
+  - AdvId: CVE-2022-0563
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753143Z"
+    UpdateDate: "2025-06-30T08:12:10.753143Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/util-linux-extra/copyright
+      - /var/lib/dpkg/info/util-linux-extra.conffiles
+      - /var/lib/dpkg/info/util-linux-extra.md5sums
+      - /var/lib/dpkg/info/util-linux-extra.list
+      - /var/lib/dpkg/info/util-linux-extra.postinst
+      - /var/lib/dpkg/info/util-linux-extra.postrm
+      - /var/lib/dpkg/info/util-linux-extra.preinst
+  - AdvId: CVE-2025-5278
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753144Z"
+    UpdateDate: "2025-06-30T08:12:10.753144Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/coreutils/copyright
+      - /var/lib/dpkg/info/coreutils.md5sums
+      - /var/lib/dpkg/info/coreutils.list
+      - /var/lib/dpkg/info/coreutils.postinst
+      - /var/lib/dpkg/info/coreutils.postrm
+  - AdvId: CVE-2022-3219
+    AdvSource: debian:distro:debian:12
+    ScanDate: "2025-06-30T08:12:10.753144Z"
+    UpdateDate: "2025-06-30T08:12:10.753144Z"
+    Severity: Negligible
+    DueDate: "0001-01-01T00:00:00Z"
+    FixState: not-fixed
+    FixVersions: []
+    FoundIn:
+      - /var/lib/dpkg/status
+      - /usr/share/doc/gpgv/copyright
+      - /var/lib/dpkg/info/gpgv.md5sums
+      - /var/lib/dpkg/info/gpgv.list
+Vulnerabilities:
+  - AdvId: CVE-2023-31484
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753041Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: High
+    CvssVectors:
+      - CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H
+    CvssBase: 8.1
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: CPAN.pm before 2.35 does not verify TLS certificates when downloading distributions over HTTPS.
+  - AdvId: CVE-2024-56433
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753043Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Low
+    CvssVectors:
+      - CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:L/I:L/A:N
+    CvssBase: 3.6
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: 'shadow-utils (aka shadow) 4.4 through 4.17.0 establishes a default /etc/subuid behavior (e.g., uid 100000 through 165535 for the first user account) that can realistically conflict with the uids of users defined on locally administered networks, potentially leading to account takeover, e.g., by leveraging newuidmap for access to an NFS home directory (or same-host resources in the case of remote logins by these local network users). NOTE: it may also be argued that system administrators should not have assigned uids, within local networks, that are within the range that can occur in /etc/subuid.'
+  - AdvId: CVE-2011-3389
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753049Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Negligible
+    CvssVectors: []
+    CvssBase: 0
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: The SSL protocol, as used in certain configurations in Microsoft Windows and Microsoft Internet Explorer, Mozilla Firefox, Google Chrome, Opera, and other products, encrypts data by using CBC mode with chained initialization vectors, which allows man-in-the-middle attackers to obtain plaintext HTTP headers via a blockwise chosen-boundary attack (BCBA) on an HTTPS session, in conjunction with JavaScript code that uses (1) the HTML5 WebSocket API, (2) the Java URLConnection API, or (3) the Silverlight WebClient API, aka a "BEAST" attack.
+  - AdvId: CVE-2005-2541
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.75305Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Negligible
+    CvssVectors: []
+    CvssBase: 0
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: Tar 1.15.1 does not properly warn the user when extracting setuid or setgid files, which may allow local users or remote attackers to gain privileges.
+  - AdvId: CVE-2018-20796
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753053Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Negligible
+    CvssVectors: []
+    CvssBase: 0
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: In the GNU C Library (aka glibc or libc6) through 2.29, check_dst_limits_calc_pos_1 in posix/regexec.c has Uncontrolled Recursion, as demonstrated by '(\227|)(\\1\\1|t1|\\\2537)+' in grep.
+  - AdvId: CVE-2011-3374
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753062Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Negligible
+    CvssVectors: []
+    CvssBase: 0
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: It was found that apt-key in apt, all versions, do not correctly validate gpg keys with the master keyring, leading to a potential man-in-the-middle attack.
+  - AdvId: CVE-2018-6829
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753067Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Negligible
+    CvssVectors: []
+    CvssBase: 0
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: cipher/elgamal.c in Libgcrypt through 1.8.2, when used to encrypt messages directly, improperly encodes plaintexts, which allows attackers to obtain sensitive information by reading ciphertext data (i.e., it does not have semantic security in face of a ciphertext-only attack). The Decisional Diffie-Hellman (DDH) assumption does not hold for Libgcrypt's ElGamal implementation.
+  - AdvId: CVE-2024-22365
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753067Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Medium
+    CvssVectors:
+      - CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:H
+    CvssBase: 5.5
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: linux-pam (aka Linux PAM) before 1.6.0 allows attackers to cause a denial of service (blocked login process) via mkfifo because the openat call (for protect_dir) lacks O_DIRECTORY.
+  - AdvId: CVE-2011-4116
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.75307Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Negligible
+    CvssVectors: []
+    CvssBase: 0
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: _is_safe in the File::Temp module for Perl does not properly handle symlinks.
+  - AdvId: CVE-2023-31486
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753078Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Negligible
+    CvssVectors: []
+    CvssBase: 0
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: HTTP::Tiny before 0.083, a Perl core module since 5.13.9 and available standalone on CPAN, has an insecure default TLS configuration where users must opt in to verify certificates.
+  - AdvId: CVE-2019-1010023
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753078Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Negligible
+    CvssVectors: []
+    CvssBase: 0
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: 'GNU Libc current is affected by: Re-mapping current loaded library with malicious ELF file. The impact is: In worst case attacker may evaluate privileges. The component is: libld. The attack vector is: Attacker sends 2 ELF files to victim and asks to run ldd on it. ldd execute code. NOTE: Upstream comments indicate "this is being treated as a non-security bug and no real threat.'
+  - AdvId: CVE-2023-50495
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753084Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Medium
+    CvssVectors:
+      - CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+    CvssBase: 6.5
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: NCurse v6.4-20230418 was discovered to contain a segmentation fault via the component _nc_wrap_entry().
+  - AdvId: CVE-2016-2781
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753086Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Low
+    CvssVectors: []
+    CvssBase: 0
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: chroot in GNU coreutils, when used with --userspec, allows local users to escape to the parent session via a crafted TIOCSTI ioctl call, which pushes characters to the terminal's input buffer.
+  - AdvId: CVE-2019-1010024
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753087Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Negligible
+    CvssVectors: []
+    CvssBase: 0
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: 'GNU Libc current is affected by: Mitigation bypass. The impact is: Attacker may bypass ASLR using cache of thread stack and heap. The component is: glibc. NOTE: Upstream comments indicate "this is being treated as a non-security bug and no real threat.'
+  - AdvId: CVE-2010-4756
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753088Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Negligible
+    CvssVectors: []
+    CvssBase: 0
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: The glob implementation in the GNU C Library (aka glibc or libc6) allows remote authenticated users to cause a denial of service (CPU and memory consumption) via crafted glob expressions that do not match any pathnames, as demonstrated by glob expressions in STAT commands to an FTP daemon, a different vulnerability than CVE-2010-2632.
+  - AdvId: CVE-2025-6020
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.75309Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: High
+    CvssVectors:
+      - CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H
+    CvssBase: 7.8
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: A flaw was found in linux-pam. The module pam_namespace may use access user-controlled paths without proper protection, allowing local users to elevate their privileges to root via multiple symlink attacks and race conditions.
+  - AdvId: CVE-2024-10041
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753092Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Medium
+    CvssVectors:
+      - CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:N/A:N
+    CvssBase: 4.7
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: A vulnerability was found in PAM. The secret information is stored in memory, where the attacker can trigger the victim program to execute by sending characters to its standard input (stdin). As this occurs, the attacker can train the branch predictor to execute an ROP chain speculatively. This flaw could result in leaked passwords, such as those found in /etc/shadow while performing authentications.
+  - AdvId: CVE-2007-5686
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753104Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Negligible
+    CvssVectors: []
+    CvssBase: 0
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: 'initscripts in rPath Linux 1 sets insecure permissions for the /var/log/btmp file, which allows local users to obtain sensitive information regarding authentication attempts.  NOTE: because sshd detects the insecure permissions and does not log certain events, this also prevents sshd from logging failed authentication attempts by remote attackers.'
+  - AdvId: CVE-2019-1010025
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.75311Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Negligible
+    CvssVectors: []
+    CvssBase: 0
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: 'GNU Libc current is affected by: Mitigation bypass. The impact is: Attacker may guess the heap addresses of pthread_created thread. The component is: glibc. NOTE: the vendor''s position is "ASLR bypass itself is not a vulnerability.'
+  - AdvId: CVE-2024-2236
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753111Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Negligible
+    CvssVectors: []
+    CvssBase: 0
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: A timing-based side-channel flaw was found in libgcrypt's RSA implementation. This issue may allow a remote attacker to initiate a Bleichenbacher-style attack, which can lead to the decryption of RSA ciphertexts.
+  - AdvId: CVE-2019-9192
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753111Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Negligible
+    CvssVectors: []
+    CvssBase: 0
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: 'In the GNU C Library (aka glibc or libc6) through 2.29, check_dst_limits_calc_pos_1 in posix/regexec.c has Uncontrolled Recursion, as demonstrated by ''(|)(\\1\\1)*'' in grep, a different issue than CVE-2018-20796. NOTE: the software maintainer disputes that this is a vulnerability because the behavior occurs only with a crafted pattern'
+  - AdvId: CVE-2025-40909
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753112Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Medium
+    CvssVectors:
+      - CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L
+    CvssBase: 5.9
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: Perl threads have a working directory race condition where file operations may target unintended paths.  If a directory handle is open at thread creation, the process-wide current working directory is temporarily changed in order to clone that handle for the new thread, which is visible from any third (or more) thread already running.   This may lead to unintended operations such as loading code or accessing files from unexpected locations, which a local attacker may be able to exploit.  The bug was introduced in commit 11a11ecf4bea72b17d250cfb43c897be1341861e and released in Perl version 5.13.6
+  - AdvId: CVE-2019-1010022
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753113Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Negligible
+    CvssVectors: []
+    CvssBase: 0
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: 'GNU Libc current is affected by: Mitigation bypass. The impact is: Attacker may bypass stack guard protection. The component is: nptl. The attack vector is: Exploit stack buffer overflow vulnerability and use this bypass vulnerability to bypass stack guard. NOTE: Upstream comments indicate "this is being treated as a non-security bug and no real threat.'
+  - AdvId: CVE-2025-4802
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753114Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: High
+    CvssVectors:
+      - CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+    CvssBase: 7.8
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: Untrusted LD_LIBRARY_PATH environment variable vulnerability in the GNU C Library version 2.27 to 2.38 allows attacker controlled loading of dynamically shared library in statically compiled setuid binaries that call dlopen (including internal dlopen calls after setlocale or calls to NSS functions such as getaddrinfo).
+  - AdvId: CVE-2023-31437
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753115Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Negligible
+    CvssVectors: []
+    CvssBase: 0
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: 'An issue was discovered in systemd 253. An attacker can modify a sealed log file such that, in some views, not all existing and sealed log messages are displayed. NOTE: the vendor reportedly sent "a reply denying that any of the finding was a security vulnerability."'
+  - AdvId: CVE-2023-31438
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753116Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Negligible
+    CvssVectors: []
+    CvssBase: 0
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: 'An issue was discovered in systemd 253. An attacker can truncate a sealed log file and then resume log sealing such that checking the integrity shows no error, despite modifications. NOTE: the vendor reportedly sent "a reply denying that any of the finding was a security vulnerability."'
+  - AdvId: CVE-2023-31439
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753117Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Negligible
+    CvssVectors: []
+    CvssBase: 0
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: 'An issue was discovered in systemd 253. An attacker can modify the contents of past events in a sealed log file and then adjust the file such that checking the integrity shows no error, despite modifications. NOTE: the vendor reportedly sent "a reply denying that any of the finding was a security vulnerability."'
+  - AdvId: CVE-2025-6141
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753118Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Low
+    CvssVectors:
+      - CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:L
+    CvssBase: 3.3
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: A vulnerability has been found in GNU ncurses up to 6.5-20250322 and classified as problematic. This vulnerability affects the function postprocess_termcap of the file tinfo/parse_entry.c. The manipulation leads to stack-based buffer overflow. The attack needs to be approached locally. Upgrading to version 6.5-20250329 is able to address this issue. It is recommended to upgrade the affected component.
+  - AdvId: CVE-2013-4392
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.75312Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Negligible
+    CvssVectors: []
+    CvssBase: 0
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: systemd, when updating file permissions, allows local users to change the permissions and SELinux security contexts for arbitrary files via a symlink attack on unspecified files.
+  - AdvId: CVE-2025-30258
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753127Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Low
+    CvssVectors:
+      - CVSS:3.1/AV:L/AC:H/PR:N/UI:R/S:C/C:N/I:N/A:L
+    CvssBase: 2.7
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: In GnuPG before 2.5.5, if a user chooses to import a certificate with certain crafted subkey data that lacks a valid backsig or that has incorrect usage flags, the user loses the ability to verify signatures made from certain other signing keys, aka a "verification DoS."
+  - AdvId: CVE-2017-18018
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753127Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Negligible
+    CvssVectors: []
+    CvssBase: 0
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: In GNU Coreutils through 8.29, chown-core.c in chown and chgrp does not prevent replacement of a plain file with a symlink during use of the POSIX "-R -L" options, which allows local users to modify the ownership of arbitrary files by leveraging a race condition.
+  - AdvId: CVE-2022-27943
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753128Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Negligible
+    CvssVectors: []
+    CvssBase: 0
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: libiberty/rust-demangle.c in GNU GCC 11.2 allows stack consumption in demangle_const, as demonstrated by nm-new.
+  - AdvId: CVE-2025-27587
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753129Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Negligible
+    CvssVectors: []
+    CvssBase: 0
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: 'OpenSSL 3.0.0 through 3.3.2 on the PowerPC architecture is vulnerable to a Minerva attack, exploitable by measuring the time of signing of random messages using the EVP_DigestSign API, and then using the private key to extract the K value (nonce) from the signatures. Next, based on the bit size of the extracted nonce, one can compare the signing time of full-sized nonces to signatures that used smaller nonces, via statistical tests. There is a side-channel in the P-364 curve that allows private key extraction (also, there is a dependency between the bit size of K and the size of the side channel). NOTE: This CVE is disputed because the OpenSSL security policy explicitly notes that any side channels which require same physical system to be detected are outside of the threat model for the software. The timing signal is so small that it is infeasible to be detected without having the attacking process running on the same physical system.'
+  - AdvId: CVE-2022-0563
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.75313Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Negligible
+    CvssVectors: []
+    CvssBase: 0
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: A flaw was found in the util-linux chfn and chsh utilities when compiled with Readline support. The Readline library uses an "INPUTRC" environment variable to get a path to the library config file. When the library cannot parse the specified file, it prints an error message containing data from the file. This flaw allows an unprivileged user to read root-owned files, potentially leading to privilege escalation. This flaw affects util-linux versions prior to 2.37.4.
+  - AdvId: CVE-2025-5278
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753144Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Negligible
+    CvssVectors: []
+    CvssBase: 0
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: A flaw was found in GNU Coreutils. The sort utility's begfield() function is vulnerable to a heap buffer under-read. The program may access memory outside the allocated buffer if a user runs a crafted command using the traditional key format. A malicious input could lead to a crash or leak sensitive data.
+  - AdvId: CVE-2022-3219
+    AdvSource: debian:distro:debian:12
+    Aliases: ""
+    CreateDate: "2025-06-30T08:12:10.753144Z"
+    PubDate: "0001-01-01T00:00:00Z"
+    ModDate: "0001-01-01T00:00:00Z"
+    KevDate: "0001-01-01T00:00:00Z"
+    Severity: Negligible
+    CvssVectors: []
+    CvssBase: 0
+    RiskScore: 0
+    Cpes: null
+    Cwes: null
+    References: []
+    RansomwareUsed: ""
+    Description: GnuPG can be made to spin on a relatively small input by (for example) crafting a public key with thousands of signatures attached, compressed down to just a few KB.
+Packages:
+  - Key: ""
+    Name: adduser
+    Version: "3.134"
+    Type: deb
+    Purl: pkg:deb/debian/adduser@3.134?arch=all&distro=debian-12
+    Cpes: null
+  - Key: ""
+    Name: apt
+    Version: 2.6.1
+    Type: deb
+    Purl: pkg:deb/debian/apt@2.6.1?arch=amd64&distro=debian-12
+    Cpes: null
+  - Key: ""
+    Name: base-files
+    Version: 12.4+deb12u11
+    Type: deb
+    Purl: pkg:deb/debian/base-files@12.4%2Bdeb12u11?arch=amd64&distro=debian-12
+    Cpes: null
+  - Key: ""
+    Name: base-passwd
+    Version: 3.6.1
+    Type: deb
+    Purl: pkg:deb/debian/base-passwd@3.6.1?arch=amd64&distro=debian-12
+    Cpes: null
+  - Key: ""
+    Name: bash
+    Version: 5.2.15-2+b8
+    Type: deb
+    Purl: pkg:deb/debian/bash@5.2.15-2%2Bb8?arch=amd64&distro=debian-12&upstream=bash%405.2.15-2
+    Cpes: null
+  - Key: ""
+    Name: bsdutils
+    Version: 1:2.38.1-5+deb12u3
+    Type: deb
+    Purl: pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12&upstream=util-linux%402.38.1-5%2Bdeb12u3
+    Cpes: null
+  - Key: ""
+    Name: coreutils
+    Version: 9.1-1
+    Type: deb
+    Purl: pkg:deb/debian/coreutils@9.1-1?arch=amd64&distro=debian-12
+    Cpes: null
+  - Key: ""
+    Name: dash
+    Version: 0.5.12-2
+    Type: deb
+    Purl: pkg:deb/debian/dash@0.5.12-2?arch=amd64&distro=debian-12
+    Cpes: null
+  - Key: ""
+    Name: debconf
+    Version: 1.5.82
+    Type: deb
+    Purl: pkg:deb/debian/debconf@1.5.82?arch=all&distro=debian-12
+    Cpes: null
+  - Key: ""
+    Name: debian-archive-keyring
+    Version: 2023.3+deb12u2
+    Type: deb
+    Purl: pkg:deb/debian/debian-archive-keyring@2023.3%2Bdeb12u2?arch=all&distro=debian-12
+    Cpes: null
+  - Key: ""
+    Name: debianutils
+    Version: 5.7-0.5~deb12u1
+    Type: deb
+    Purl: pkg:deb/debian/debianutils@5.7-0.5~deb12u1?arch=amd64&distro=debian-12
+    Cpes: null
+  - Key: ""
+    Name: diffutils
+    Version: 1:3.8-4
+    Type: deb
+    Purl: pkg:deb/debian/diffutils@1%3A3.8-4?arch=amd64&distro=debian-12
+    Cpes: null
+  - Key: ""
+    Name: dpkg
+    Version: 1.21.22
+    Type: deb
+    Purl: pkg:deb/debian/dpkg@1.21.22?arch=amd64&distro=debian-12
+    Cpes: null
+  - Key: ""
+    Name: e2fsprogs
+    Version: 1.47.0-2
+    Type: deb
+    Purl: pkg:deb/debian/e2fsprogs@1.47.0-2?arch=amd64&distro=debian-12
+    Cpes: null
+  - Key: ""
+    Name: findutils
+    Version: 4.9.0-4
+    Type: deb
+    Purl: pkg:deb/debian/findutils@4.9.0-4?arch=amd64&distro=debian-12
+    Cpes: null
+  - Key: ""
+    Name: gcc-12-base
+    Version: 12.2.0-14+deb12u1
+    Type: deb
+    Purl: pkg:deb/debian/gcc-12-base@12.2.0-14%2Bdeb12u1?arch=amd64&distro=debian-12&upstream=gcc-12
+    Cpes: null
+  - Key: ""
+    Name: gpgv
+    Version: 2.2.40-1.1
+    Type: deb
+    Purl: pkg:deb/debian/gpgv@2.2.40-1.1?arch=amd64&distro=debian-12&upstream=gnupg2
+    Cpes: null
+  - Key: ""
+    Name: grep
+    Version: 3.8-5
+    Type: deb
+    Purl: pkg:deb/debian/grep@3.8-5?arch=amd64&distro=debian-12
+    Cpes: null
+  - Key: ""
+    Name: gzip
+    Version: 1.12-1
+    Type: deb
+    Purl: pkg:deb/debian/gzip@1.12-1?arch=amd64&distro=debian-12
+    Cpes: null
+  - Key: ""
+    Name: hostname
+    Version: 3.23+nmu1
+    Type: deb
+    Purl: pkg:deb/debian/hostname@3.23%2Bnmu1?arch=amd64&distro=debian-12
+    Cpes: null
+  - Key: ""
+    Name: init-system-helpers
+    Version: 1.65.2
+    Type: deb
+    Purl: pkg:deb/debian/init-system-helpers@1.65.2?arch=all&distro=debian-12
+    Cpes: null
+  - Key: ""
+    Name: libacl1
+    Version: 2.3.1-3
+    Type: deb
+    Purl: pkg:deb/debian/libacl1@2.3.1-3?arch=amd64&distro=debian-12&upstream=acl
+    Cpes: null
+  - Key: ""
+    Name: libapt-pkg6.0
+    Version: 2.6.1
+    Type: deb
+    Purl: pkg:deb/debian/libapt-pkg6.0@2.6.1?arch=amd64&distro=debian-12&upstream=apt
+    Cpes: null
+  - Key: ""
+    Name: libattr1
+    Version: 1:2.5.1-4
+    Type: deb
+    Purl: pkg:deb/debian/libattr1@1%3A2.5.1-4?arch=amd64&distro=debian-12&upstream=attr
+    Cpes: null
+  - Key: ""
+    Name: libaudit-common
+    Version: 1:3.0.9-1
+    Type: deb
+    Purl: pkg:deb/debian/libaudit-common@1%3A3.0.9-1?arch=all&distro=debian-12&upstream=audit
+    Cpes: null
+  - Key: ""
+    Name: libaudit1
+    Version: 1:3.0.9-1
+    Type: deb
+    Purl: pkg:deb/debian/libaudit1@1%3A3.0.9-1?arch=amd64&distro=debian-12&upstream=audit
+    Cpes: null
+  - Key: ""
+    Name: libblkid1
+    Version: 2.38.1-5+deb12u3
+    Type: deb
+    Purl: pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12&upstream=util-linux
+    Cpes: null
+  - Key: ""
+    Name: libbz2-1.0
+    Version: 1.0.8-5+b1
+    Type: deb
+    Purl: pkg:deb/debian/libbz2-1.0@1.0.8-5%2Bb1?arch=amd64&distro=debian-12&upstream=bzip2%401.0.8-5
+    Cpes: null
+  - Key: ""
+    Name: libc-bin
+    Version: 2.36-9+deb12u10
+    Type: deb
+    Purl: pkg:deb/debian/libc-bin@2.36-9%2Bdeb12u10?arch=amd64&distro=debian-12&upstream=glibc
+    Cpes: null
+  - Key: ""
+    Name: libc6
+    Version: 2.36-9+deb12u10
+    Type: deb
+    Purl: pkg:deb/debian/libc6@2.36-9%2Bdeb12u10?arch=amd64&distro=debian-12&upstream=glibc
+    Cpes: null
+  - Key: ""
+    Name: libcap-ng0
+    Version: 0.8.3-1+b3
+    Type: deb
+    Purl: pkg:deb/debian/libcap-ng0@0.8.3-1%2Bb3?arch=amd64&distro=debian-12&upstream=libcap-ng%400.8.3-1
+    Cpes: null
+  - Key: ""
+    Name: libcap2
+    Version: 1:2.66-4+deb12u1
+    Type: deb
+    Purl: pkg:deb/debian/libcap2@1%3A2.66-4%2Bdeb12u1?arch=amd64&distro=debian-12
+    Cpes: null
+  - Key: ""
+    Name: libcom-err2
+    Version: 1.47.0-2
+    Type: deb
+    Purl: pkg:deb/debian/libcom-err2@1.47.0-2?arch=amd64&distro=debian-12&upstream=e2fsprogs
+    Cpes: null
+  - Key: ""
+    Name: libcrypt1
+    Version: 1:4.4.33-2
+    Type: deb
+    Purl: pkg:deb/debian/libcrypt1@1%3A4.4.33-2?arch=amd64&distro=debian-12&upstream=libxcrypt
+    Cpes: null
+  - Key: ""
+    Name: libdb5.3
+    Version: 5.3.28+dfsg2-1
+    Type: deb
+    Purl: pkg:deb/debian/libdb5.3@5.3.28%2Bdfsg2-1?arch=amd64&distro=debian-12&upstream=db5.3
+    Cpes: null
+  - Key: ""
+    Name: libdebconfclient0
+    Version: "0.270"
+    Type: deb
+    Purl: pkg:deb/debian/libdebconfclient0@0.270?arch=amd64&distro=debian-12&upstream=cdebconf
+    Cpes: null
+  - Key: ""
+    Name: libext2fs2
+    Version: 1.47.0-2
+    Type: deb
+    Purl: pkg:deb/debian/libext2fs2@1.47.0-2?arch=amd64&distro=debian-12&upstream=e2fsprogs
+    Cpes: null
+  - Key: ""
+    Name: libffi8
+    Version: 3.4.4-1
+    Type: deb
+    Purl: pkg:deb/debian/libffi8@3.4.4-1?arch=amd64&distro=debian-12&upstream=libffi
+    Cpes: null
+  - Key: ""
+    Name: libgcc-s1
+    Version: 12.2.0-14+deb12u1
+    Type: deb
+    Purl: pkg:deb/debian/libgcc-s1@12.2.0-14%2Bdeb12u1?arch=amd64&distro=debian-12&upstream=gcc-12
+    Cpes: null
+  - Key: ""
+    Name: libgcrypt20
+    Version: 1.10.1-3
+    Type: deb
+    Purl: pkg:deb/debian/libgcrypt20@1.10.1-3?arch=amd64&distro=debian-12
+    Cpes: null
+  - Key: ""
+    Name: libgmp10
+    Version: 2:6.2.1+dfsg1-1.1
+    Type: deb
+    Purl: pkg:deb/debian/libgmp10@2%3A6.2.1%2Bdfsg1-1.1?arch=amd64&distro=debian-12&upstream=gmp
+    Cpes: null
+  - Key: ""
+    Name: libgnutls30
+    Version: 3.7.9-2+deb12u4
+    Type: deb
+    Purl: pkg:deb/debian/libgnutls30@3.7.9-2%2Bdeb12u4?arch=amd64&distro=debian-12&upstream=gnutls28
+    Cpes: null
+  - Key: ""
+    Name: libgpg-error0
+    Version: 1.46-1
+    Type: deb
+    Purl: pkg:deb/debian/libgpg-error0@1.46-1?arch=amd64&distro=debian-12&upstream=libgpg-error
+    Cpes: null
+  - Key: ""
+    Name: libhogweed6
+    Version: 3.8.1-2
+    Type: deb
+    Purl: pkg:deb/debian/libhogweed6@3.8.1-2?arch=amd64&distro=debian-12&upstream=nettle
+    Cpes: null
+  - Key: ""
+    Name: libidn2-0
+    Version: 2.3.3-1+b1
+    Type: deb
+    Purl: pkg:deb/debian/libidn2-0@2.3.3-1%2Bb1?arch=amd64&distro=debian-12&upstream=libidn2%402.3.3-1
+    Cpes: null
+  - Key: ""
+    Name: liblz4-1
+    Version: 1.9.4-1
+    Type: deb
+    Purl: pkg:deb/debian/liblz4-1@1.9.4-1?arch=amd64&distro=debian-12&upstream=lz4
+    Cpes: null
+  - Key: ""
+    Name: liblzma5
+    Version: 5.4.1-1
+    Type: deb
+    Purl: pkg:deb/debian/liblzma5@5.4.1-1?arch=amd64&distro=debian-12&upstream=xz-utils
+    Cpes: null
+  - Key: ""
+    Name: libmd0
+    Version: 1.0.4-2
+    Type: deb
+    Purl: pkg:deb/debian/libmd0@1.0.4-2?arch=amd64&distro=debian-12&upstream=libmd
+    Cpes: null
+  - Key: ""
+    Name: libmount1
+    Version: 2.38.1-5+deb12u3
+    Type: deb
+    Purl: pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12&upstream=util-linux
+    Cpes: null
+  - Key: ""
+    Name: libnettle8
+    Version: 3.8.1-2
+    Type: deb
+    Purl: pkg:deb/debian/libnettle8@3.8.1-2?arch=amd64&distro=debian-12&upstream=nettle
+    Cpes: null
+  - Key: ""
+    Name: libp11-kit0
+    Version: 0.24.1-2
+    Type: deb
+    Purl: pkg:deb/debian/libp11-kit0@0.24.1-2?arch=amd64&distro=debian-12&upstream=p11-kit
+    Cpes: null
+  - Key: ""
+    Name: libpam-modules
+    Version: 1.5.2-6+deb12u1
+    Type: deb
+    Purl: pkg:deb/debian/libpam-modules@1.5.2-6%2Bdeb12u1?arch=amd64&distro=debian-12&upstream=pam
+    Cpes: null
+  - Key: ""
+    Name: libpam-modules-bin
+    Version: 1.5.2-6+deb12u1
+    Type: deb
+    Purl: pkg:deb/debian/libpam-modules-bin@1.5.2-6%2Bdeb12u1?arch=amd64&distro=debian-12&upstream=pam
+    Cpes: null
+  - Key: ""
+    Name: libpam-runtime
+    Version: 1.5.2-6+deb12u1
+    Type: deb
+    Purl: pkg:deb/debian/libpam-runtime@1.5.2-6%2Bdeb12u1?arch=all&distro=debian-12&upstream=pam
+    Cpes: null
+  - Key: ""
+    Name: libpam0g
+    Version: 1.5.2-6+deb12u1
+    Type: deb
+    Purl: pkg:deb/debian/libpam0g@1.5.2-6%2Bdeb12u1?arch=amd64&distro=debian-12&upstream=pam
+    Cpes: null
+  - Key: ""
+    Name: libpcre2-8-0
+    Version: 10.42-1
+    Type: deb
+    Purl: pkg:deb/debian/libpcre2-8-0@10.42-1?arch=amd64&distro=debian-12&upstream=pcre2
+    Cpes: null
+  - Key: ""
+    Name: libseccomp2
+    Version: 2.5.4-1+deb12u1
+    Type: deb
+    Purl: pkg:deb/debian/libseccomp2@2.5.4-1%2Bdeb12u1?arch=amd64&distro=debian-12&upstream=libseccomp
+    Cpes: null
+  - Key: ""
+    Name: libselinux1
+    Version: 3.4-1+b6
+    Type: deb
+    Purl: pkg:deb/debian/libselinux1@3.4-1%2Bb6?arch=amd64&distro=debian-12&upstream=libselinux%403.4-1
+    Cpes: null
+  - Key: ""
+    Name: libsemanage-common
+    Version: 3.4-1
+    Type: deb
+    Purl: pkg:deb/debian/libsemanage-common@3.4-1?arch=all&distro=debian-12&upstream=libsemanage
+    Cpes: null
+  - Key: ""
+    Name: libsemanage2
+    Version: 3.4-1+b5
+    Type: deb
+    Purl: pkg:deb/debian/libsemanage2@3.4-1%2Bb5?arch=amd64&distro=debian-12&upstream=libsemanage%403.4-1
+    Cpes: null
+  - Key: ""
+    Name: libsepol2
+    Version: 3.4-2.1
+    Type: deb
+    Purl: pkg:deb/debian/libsepol2@3.4-2.1?arch=amd64&distro=debian-12&upstream=libsepol
+    Cpes: null
+  - Key: ""
+    Name: libsmartcols1
+    Version: 2.38.1-5+deb12u3
+    Type: deb
+    Purl: pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12&upstream=util-linux
+    Cpes: null
+  - Key: ""
+    Name: libss2
+    Version: 1.47.0-2
+    Type: deb
+    Purl: pkg:deb/debian/libss2@1.47.0-2?arch=amd64&distro=debian-12&upstream=e2fsprogs
+    Cpes: null
+  - Key: ""
+    Name: libssl3
+    Version: 3.0.16-1~deb12u1
+    Type: deb
+    Purl: pkg:deb/debian/libssl3@3.0.16-1~deb12u1?arch=amd64&distro=debian-12&upstream=openssl
+    Cpes: null
+  - Key: ""
+    Name: libstdc++6
+    Version: 12.2.0-14+deb12u1
+    Type: deb
+    Purl: pkg:deb/debian/libstdc%2B%2B6@12.2.0-14%2Bdeb12u1?arch=amd64&distro=debian-12&upstream=gcc-12
+    Cpes: null
+  - Key: ""
+    Name: libsystemd0
+    Version: 252.38-1~deb12u1
+    Type: deb
+    Purl: pkg:deb/debian/libsystemd0@252.38-1~deb12u1?arch=amd64&distro=debian-12&upstream=systemd
+    Cpes: null
+  - Key: ""
+    Name: libtasn1-6
+    Version: 4.19.0-2+deb12u1
+    Type: deb
+    Purl: pkg:deb/debian/libtasn1-6@4.19.0-2%2Bdeb12u1?arch=amd64&distro=debian-12
+    Cpes: null
+  - Key: ""
+    Name: libtinfo6
+    Version: 6.4-4
+    Type: deb
+    Purl: pkg:deb/debian/libtinfo6@6.4-4?arch=amd64&distro=debian-12&upstream=ncurses
+    Cpes: null
+  - Key: ""
+    Name: libudev1
+    Version: 252.38-1~deb12u1
+    Type: deb
+    Purl: pkg:deb/debian/libudev1@252.38-1~deb12u1?arch=amd64&distro=debian-12&upstream=systemd
+    Cpes: null
+  - Key: ""
+    Name: libunistring2
+    Version: 1.0-2
+    Type: deb
+    Purl: pkg:deb/debian/libunistring2@1.0-2?arch=amd64&distro=debian-12&upstream=libunistring
+    Cpes: null
+  - Key: ""
+    Name: libuuid1
+    Version: 2.38.1-5+deb12u3
+    Type: deb
+    Purl: pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12&upstream=util-linux
+    Cpes: null
+  - Key: ""
+    Name: libxxhash0
+    Version: 0.8.1-1
+    Type: deb
+    Purl: pkg:deb/debian/libxxhash0@0.8.1-1?arch=amd64&distro=debian-12&upstream=xxhash
+    Cpes: null
+  - Key: ""
+    Name: libzstd1
+    Version: 1.5.4+dfsg2-5
+    Type: deb
+    Purl: pkg:deb/debian/libzstd1@1.5.4%2Bdfsg2-5?arch=amd64&distro=debian-12&upstream=libzstd
+    Cpes: null
+  - Key: ""
+    Name: login
+    Version: 1:4.13+dfsg1-1+deb12u1
+    Type: deb
+    Purl: pkg:deb/debian/login@1%3A4.13%2Bdfsg1-1%2Bdeb12u1?arch=amd64&distro=debian-12&upstream=shadow
+    Cpes: null
+  - Key: ""
+    Name: logsave
+    Version: 1.47.0-2
+    Type: deb
+    Purl: pkg:deb/debian/logsave@1.47.0-2?arch=amd64&distro=debian-12&upstream=e2fsprogs
+    Cpes: null
+  - Key: ""
+    Name: mawk
+    Version: 1.3.4.20200120-3.1
+    Type: deb
+    Purl: pkg:deb/debian/mawk@1.3.4.20200120-3.1?arch=amd64&distro=debian-12
+    Cpes: null
+  - Key: ""
+    Name: mount
+    Version: 2.38.1-5+deb12u3
+    Type: deb
+    Purl: pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12&upstream=util-linux
+    Cpes: null
+  - Key: ""
+    Name: ncurses-base
+    Version: 6.4-4
+    Type: deb
+    Purl: pkg:deb/debian/ncurses-base@6.4-4?arch=all&distro=debian-12&upstream=ncurses
+    Cpes: null
+  - Key: ""
+    Name: ncurses-bin
+    Version: 6.4-4
+    Type: deb
+    Purl: pkg:deb/debian/ncurses-bin@6.4-4?arch=amd64&distro=debian-12&upstream=ncurses
+    Cpes: null
+  - Key: ""
+    Name: passwd
+    Version: 1:4.13+dfsg1-1+deb12u1
+    Type: deb
+    Purl: pkg:deb/debian/passwd@1%3A4.13%2Bdfsg1-1%2Bdeb12u1?arch=amd64&distro=debian-12&upstream=shadow
+    Cpes: null
+  - Key: ""
+    Name: perl-base
+    Version: 5.36.0-7+deb12u2
+    Type: deb
+    Purl: pkg:deb/debian/perl-base@5.36.0-7%2Bdeb12u2?arch=amd64&distro=debian-12&upstream=perl
+    Cpes: null
+  - Key: ""
+    Name: redis
+    Version: 8.0.2
+    Type: binary
+    Purl: pkg:generic/redis@8.0.2
+    Cpes: null
+  - Key: ""
+    Name: sed
+    Version: 4.9-1
+    Type: deb
+    Purl: pkg:deb/debian/sed@4.9-1?arch=amd64&distro=debian-12
+    Cpes: null
+  - Key: ""
+    Name: sysvinit-utils
+    Version: 3.06-4
+    Type: deb
+    Purl: pkg:deb/debian/sysvinit-utils@3.06-4?arch=amd64&distro=debian-12&upstream=sysvinit
+    Cpes: null
+  - Key: ""
+    Name: tar
+    Version: 1.34+dfsg-1.2+deb12u1
+    Type: deb
+    Purl: pkg:deb/debian/tar@1.34%2Bdfsg-1.2%2Bdeb12u1?arch=amd64&distro=debian-12
+    Cpes: null
+  - Key: ""
+    Name: tzdata
+    Version: 2025b-0+deb12u1
+    Type: deb
+    Purl: pkg:deb/debian/tzdata@2025b-0%2Bdeb12u1?arch=all&distro=debian-12
+    Cpes: null
+  - Key: ""
+    Name: usr-is-merged
+    Version: 37~deb12u1
+    Type: deb
+    Purl: pkg:deb/debian/usr-is-merged@37~deb12u1?arch=all&distro=debian-12&upstream=usrmerge
+    Cpes: null
+  - Key: ""
+    Name: util-linux
+    Version: 2.38.1-5+deb12u3
+    Type: deb
+    Purl: pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12
+    Cpes: null
+  - Key: ""
+    Name: util-linux-extra
+    Version: 2.38.1-5+deb12u3
+    Type: deb
+    Purl: pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12&upstream=util-linux
+    Cpes: null
+  - Key: ""
+    Name: zlib1g
+    Version: 1:1.2.13.dfsg-1
+    Type: deb
+    Purl: pkg:deb/debian/zlib1g@1%3A1.2.13.dfsg-1?arch=amd64&distro=debian-12&upstream=zlib
+    Cpes: null

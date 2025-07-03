@@ -4,6 +4,7 @@ package controllers
 
 import (
 	"context"
+	"math/rand"
 	"strings"
 	"time"
 
@@ -22,6 +23,7 @@ type PharosScanTaskController struct {
 	PriorityPublisher *integrations.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult]
 	Config            *model.Config
 	Logger            *zerolog.Logger
+	ResultChannel     chan any
 }
 
 // TODO: Rename as PharosScanTask2 is know from model, leads to confusion
@@ -29,13 +31,15 @@ type PharosScanTask2 struct {
 	Body model.PharosScanTask2 `json:"body"`
 }
 
-func NewPharosScanTaskController(api *huma.API, config *model.Config) *PharosScanTaskController {
+func NewPharosScanTaskController(api *huma.API, config *model.Config, resultChannel chan any) *PharosScanTaskController {
 	pc := &PharosScanTaskController{
-		Path:   "/pharosscantask",
-		Api:    api,
-		Config: config,
-		Logger: logging.NewLogger("info", "component", "PharosScanTaskController"),
+		Path:          "/pharosscantask",
+		Api:           api,
+		Config:        config,
+		Logger:        logging.NewLogger("info", "component", "PharosScanTaskController"),
+		ResultChannel: resultChannel, // Channel to handle scan
 	}
+
 	return pc
 }
 
@@ -103,13 +107,11 @@ func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx contex
 			Path:        pc.Path + "/asyncscan",
 			Summary:     "Do an async scan of an image",
 			Description: `
-				Submits an async scan of an image, and waits fo the scan to complete after returning the result.
+				Submits an async scan of an image, and puts the scan task in the queue scanner queue if there is not existing result, otherwise it will update the context in the database.
 				Example:
-				  {
-				    "imageSpec": {
-				      "image": "redis:latest"
-				    }	
-				  }
+					{
+					"imageSpec": "redis:latest"
+					}
 				`,
 			Tags: []string{"PharosScanTask"},
 			Responses: map[string]*huma.Response{
@@ -152,14 +154,25 @@ func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx contex
 				return nil, huma.Error500InternalServerError("Failed to retrieve Docker images: " + err.Error())
 			}
 			if value.ImageId != "" {
-				pc.Logger.Info().Str("imageId", value.ImageId).Msg("Image already exists in database, using existing image metadata")
-				// TODO: We must create a scanresult and send that to the results stream here.
-				// PharosScanResult := model.PharosScanResult{
-				// 	ScanTask: input.Body,
-				// 	Image:    value,
-				// }
-
-				return nil, huma.Error409Conflict("Image with ImageSpec " + input.Body.ImageSpec + " already exists in database")
+				age := time.Since(value.LastSuccessfulScan)
+				randomValue := 0
+				if value.TTL.Seconds() != 0 {
+					randomValue = rand.Intn(int(value.TTL.Seconds())) - int(value.TTL.Seconds()/2)
+				}
+				if age > value.TTL+time.Duration(randomValue)*time.Second {
+					pc.Logger.Info().Str("ImageId", value.ImageId).Msg("Image exists but is too old, re-scanning")
+				} else {
+					// If the image is not too old, we can return the existing image metadata
+					pc.Logger.Info().Str("ImageId", value.ImageId).Msg("Image already exists in database, using existing image metadata")
+					// TODO: We must create a scanresult and send that to the results stream here.
+					PharosScanResult := model.PharosScanResult{
+						ScanTask: input.Body,
+						Image:    value,
+					}
+					// Send the scan result to the results channel
+					pc.ResultChannel <- PharosScanResult
+					return nil, huma.Error409Conflict("Image with ImageSpec " + input.Body.ImageSpec + " already exists in database")
+				}
 			}
 			_, pharosScanTask, err := pc.sendScanRequest(ctx, pc.AsyncPublisher, &input.Body)
 			if err != nil {
@@ -183,11 +196,9 @@ func (pc *PharosScanTaskController) SyncScan() (huma.Operation, func(ctx context
 			Description: `
 				Submits a sync scan of an image, adds the image to the database and returns the scan result.
 				Example:
-				  {
-				    "imageSpec": {
-				      "image": "redis:latest"
-				    }	
-				  }
+					{
+					"imageSpec": "redis:latest"
+					}
 				`,
 			Tags: []string{"PharosScanTask"},
 			Responses: map[string]*huma.Response{
@@ -199,14 +210,7 @@ func (pc *PharosScanTaskController) SyncScan() (huma.Operation, func(ctx context
 				},
 			},
 		}, func(ctx context.Context, input *PharosScanTask2) (*PharosScanResult, error) {
-			databaseContext, err := getDatabaseContext(ctx)
-			if err != nil {
-				return nil, huma.Error500InternalServerError("Database context not found in request context")
-			}
 			timeout, err := time.ParseDuration(pc.Config.Publisher.Timeout)
-			if err != nil {
-				timeout = 30 * time.Second
-			}
 			corrId, _, err := pc.sendScanRequest(ctx, pc.PriorityPublisher, &input.Body)
 			if err != nil {
 				pc.Logger.Error().Err(err).Msg("Failed to send scan request")
@@ -216,14 +220,11 @@ func (pc *PharosScanTaskController) SyncScan() (huma.Operation, func(ctx context
 			if pharosScanResult.ScanTask.Error != "" {
 				pc.Logger.Warn().Str("corrId", corrId).Str("error", pharosScanResult.ScanTask.Error).Msg("Scan task failed")
 				return nil, huma.Error500InternalServerError("Error during scan: " + pharosScanResult.ScanTask.Error)
-			} else {
-				if err := integrations.SaveScanResult(databaseContext, &pharosScanResult); err != nil {
-					huma.Error500InternalServerError("Error saving result:", err)
-				}
 			}
 			if err != nil {
-				return nil, err
+				return nil, huma.Error500InternalServerError("Error during scan: " + err.Error())
 			}
+			pc.Logger.Info().Str("corrId", corrId).Str("ImageId", pharosScanResult.Image.ImageId).Msg("Received sync scan result for image")
 			return &PharosScanResult{
 				Body: pharosScanResult,
 			}, nil

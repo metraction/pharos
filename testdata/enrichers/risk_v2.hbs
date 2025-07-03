@@ -1,0 +1,10 @@
+version: v2
+kind: RiskPolicy
+spec:
+{{ if eq .Namespace "frontend" }}
+  risk: {{ add (map "field" "L1" .Vulnerabilities | sum) (map "field" "L2" .Vulnerabilities | sum) }}
+  reason: Interet facing image
+{{- else }}
+  risk: {{ map "field" "L1" .Vulnerabilities | sum }}
+  reason: DMZ protected image
+{{- end -}}

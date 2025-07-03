@@ -41,7 +41,7 @@ func (d *PharosScanTaskDedup) FilterDuplicates(task model.PharosScanTask2) bool 
 	// 	return false
 	// }
 	// d.seen[key] = task
-	// match, _ := regexp.MatchString(`.*nextcloud-exporter.*`, task.ImageSpec)
+	// match, _ := regexp.MatchString(`ghcr.io|nextcloud`, task.ImageSpec)
 	// if match {
 	// 	return true
 	// } else {

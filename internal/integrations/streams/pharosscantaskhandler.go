@@ -30,8 +30,14 @@ func (ph *PharosScanTaskHandler) FilterFailedTasks(item model.PharosScanResult) 
 	}
 }
 
-func (ph *PharosScanTaskHandler) CreateRootContext(result model.PharosScanResult) model.PharosScanResult {
-	contextRoot := result.GetContextRoot("pharos controller", time.Minute*30) // TODO: Need to make this configurable
-	result.Image.ContextRoots = []model.ContextRoot{contextRoot}
-	return result
+func (ph *PharosScanTaskHandler) UpdateScanTime(item model.PharosScanResult) model.PharosScanResult {
+	ph.Logger.Info().Str("ImageId", item.Image.ImageId).Msg("Updating scan time for image")
+	item.Image.LastSuccessfulScan = time.Now()
+	return item
+}
+
+func (ph *PharosScanTaskHandler) CreateRootContext(item model.PharosScanResult) model.PharosScanResult {
+	contextRoot := item.GetContextRoot("pharos controller", time.Minute*30) // TODO: Need to make this configurable
+	item.Image.ContextRoots = []model.ContextRoot{contextRoot}
+	return item
 }
