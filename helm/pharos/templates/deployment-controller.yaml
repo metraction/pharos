@@ -32,12 +32,19 @@ spec:
               secretKeyRef:
                 name: postgres-connection
                 key: dsn
+          - name: PHAROS_MAPPER_BASEPATH
+            value: "/mappers"
         volumeMounts:
           - name: config-volume
             mountPath: /config/.pharos.yaml
             subPath: .pharos.yaml
+          - name: mappers-volume
+            mountPath: /mappers
       volumes:
         - name: config-volume
           configMap:
             name: pharos-config
+        - name: mappers-volume
+          configMap:
+            name: pharos-mappers
 
