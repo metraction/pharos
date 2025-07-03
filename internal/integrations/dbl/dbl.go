@@ -26,7 +26,6 @@ func dbStrList(input []string) string {
 type PharosLocalDb struct {
 	Endpoint string
 
-	//conn   driver.Conn
 	db     *sql.DB
 	logger *zerolog.Logger
 }
@@ -61,6 +60,7 @@ func (rx *PharosLocalDb) Connect(ctx context.Context) error {
 	return nil
 }
 
+// safely close connection
 func (rx *PharosLocalDb) Close() {
 	if rx.db != nil {
 		rx.db.Close()
@@ -84,19 +84,18 @@ func (rx *PharosLocalDb) AddScanResult(ctx context.Context, result model.PharosS
 	if scan_id, err = rx.AddScan(ctx, image_id, result.ScanTask); err != nil {
 		return 0, fmt.Errorf("addScan: %w", err)
 	}
-
 	// add rootcontext & context
 	if _, err = rx.AddContext(ctx, image_id, "scan", task.ContextRootKey, task.Context); err != nil {
 		return 0, fmt.Errorf("addContext: %w", err)
 	}
-
-	// TODO: add packages
-
+	// add packages
+	if err := rx.AddPackages(ctx, image_id, result.Packages); err != nil {
+		return 0, fmt.Errorf("sddPackages: %w", err)
+	}
 	// add vulnerabilities
 	if err := rx.AddVulns(ctx, result.Vulnerabilities); err != nil {
 		return 0, fmt.Errorf("addVulns: %w", err)
 	}
-
 	// add findings
 	if err := rx.AddFindings(ctx, scan_id, result.Findings); err != nil {
 		return 0, fmt.Errorf("addFindings: %w", err)
@@ -287,6 +286,46 @@ func (rx *PharosLocalDb) AddFindings(ctx context.Context, scan_id uint64, findin
 		if err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+// add packages
+func (rx *PharosLocalDb) AddPackages(ctx context.Context, image_id uint64, packages []model.PharosPackage) error {
+
+	sqlcmd1 := `
+		insert into vdb_packages (
+			Key, Name, Version, Type, Purl, Cpes
+		) values (
+			?, ?, ?, ?, ?, ?
+		)
+		on conflict (Key) do update set
+			Cpes = excluded.Cpes
+		returning id
+	`
+	sqlcmd2 := `
+		insert into vdb_image2package (
+			image_id, pack_id
+		) values (
+			?, ?
+		)
+		on conflict (image_id, pack_id) do nothing
+	`
+	var err error
+	var pack_id uint64
+	for _, pack := range packages {
+		if pack.Key == "" {
+			pack.Key = pack.Purl
+		}
+		err = rx.db.QueryRow(sqlcmd1, pack.Key, pack.Name, pack.Version, pack.Type, pack.Purl, dbStrList(pack.Cpes)).Scan(&pack_id)
+		if err != nil {
+			return err
+		}
+		_, err = rx.db.Exec(sqlcmd2, image_id, pack_id)
+		if err != nil {
+			return err
+		}
+
 	}
 	return nil
 
