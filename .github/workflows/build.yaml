@@ -162,9 +162,9 @@ jobs:
 
       - name: Run http integration tests
         run: |
-          # Wait for HTTP service to be ready
-          echo "Waiting for HTTP service to be available..."
-          timeout 15 bash -c 'until curl -s http://controller:8080/api/docs; do sleep 1; done'
+          # # Wait for HTTP service to be ready
+          # echo "Waiting for HTTP service to be available..."
+          # timeout 15 bash -c 'until curl -s http://controller:8080/api/docs; do sleep 1; done'
           
           # Send request and capture response
           echo "Sending test request to API..."
