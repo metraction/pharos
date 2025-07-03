@@ -53,12 +53,12 @@ func NewPureHbs[T any, R any](rule string) flow.MapFunction[T, R] {
 
 	return func(img T) R {
 		buf, err := rp.Evaluate(img)
-		if err != nil {
-			log.Fatalf("Evaluate returned error: %v", err)
-		}
-
 		// Create a zero value of R to check its type
 		var r R
+		if err != nil {
+			log.Printf("Evaluate returned error: %v", err)
+			return r // Return zero value of R on error
+		}
 
 		// Use reflection to check if R is a string type
 		rType := reflect.TypeOf(r)

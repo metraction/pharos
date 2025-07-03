@@ -10,25 +10,25 @@ import "time"
 
 type PharosScanTask2 struct {
 	// task status
-	JobId  string `json:"jobId" required:"false"` // jobid for batch jobs tracking
-	Status string `json:"status" required:"false"`
-	Engine string `json:"engine" required:"false"`
-	Error  string `json:"error" required:"false"`
+	JobId  string `json:"jobId" required:"false" default:"" doc:"you can give a job id here to track the job."` // jobid for batch jobs tracking
+	Status string `json:"status" required:"false" readOnly:"true"`
+	Engine string `json:"engine" required:"false" default:"grype" doc:"scanner engine used for the scan, e.g. trivy, grype, .."` // scanner engine used for the scan
+	Error  string `json:"error" required:"false" readOnly:"true"`
 	// image
-	AuthDsn        string         `json:"authdsn"`
+	AuthDsn        string         `json:"authdsn" required:"false" default:"registry:///?tlscheck=false"` // TODO: has to be documented.
 	ImageSpec      string         `json:"imagespec" required:"true"`
-	Platform       string         `json:"platform" required:"false"`
-	Context        map[string]any `json:"context" required:"false"`
-	ContextRootKey string         `json:"contextRootKey" required:"false"` // key to the context root, if any
-	RxDigest       string         `json:"rxdigest" required:"false"`       // manifest digest retrieved from repo
-	RxPlatform     string         `json:"rxplatform" required:"false"`     // platform retrieved from repo
+	Platform       string         `json:"platform" required:"false" default:"linux/amd64"`
+	Context        map[string]any `json:"context" required:"false" doc:"context data for the scan, e.g. namespace, labels, .." default:"{}"`
+	ContextRootKey string         `json:"contextRootKey" required:"false" default:""`  // key to the context root, if any
+	RxDigest       string         `json:"rxdigest" required:"false" readOnly:"true"`   // manifest digest retrieved from repo
+	RxPlatform     string         `json:"rxplatform" required:"false" readOnly:"true"` // platform retrieved from repo
 
 	// scanner
-	CacheTTL time.Duration `json:"cachettl" required:"false"` // cache expiry in sec
-	ScanTTL  time.Duration `json:"scanttl" required:"false"`  // cache expiry in sec
+	CacheTTL time.Duration `json:"cachettl" required:"false" default:"86400000000000" doc:"how long to cache sbom in scanner (nanoseconds)"` // cache expiry in sec
+	ScanTTL  time.Duration `json:"scanttl" required:"false" default:"300000000000" doc:"how long to scan result in scanner (nanoseconds)"`   // cache expiry in sec
 
 	// TODO - this is ORM fields, can we remove this?
-	Timeout time.Duration `json:"timeout" required:"false"` // scan timeout in sec
+	Timeout time.Duration `json:"timeout" required:"false"`
 	Created time.Time     `json:"created" required:"false"`
 	Updated time.Time     `json:"updated" required:"false"`
 }
@@ -53,30 +53,6 @@ type XXPharosScanTask struct {
 	Status     string          `json:"status" required:"false"`
 	Error      string          `json:"error" required:"false"`
 }
-
-// func DeleteNewPharosScanTask(jobId, imageRef, platform string, auth PharosRepoAuth, cacheExpiry, scanTimeout time.Duration) (PharosScanTask, error) {
-// 	now := time.Now().UTC()
-
-// 	task := PharosScanTask{
-// 		JobId: jobId,
-// 		Auth:  auth,
-// 		ImageSpec: PharosImageSpec{
-// 			Image:       imageRef,
-// 			Platform:    platform,
-// 			CacheExpiry: cacheExpiry,
-// 		},
-// 		Timeout: scanTimeout,
-// 		Created: now,
-// 		Updated: now,
-// 		Status:  "new",
-// 	}
-// 	return task, nil
-// }
-
-// func (rx *PharosScanTask) SetStatus(status string) {
-// 	rx.Status = status
-// 	rx.Updated = time.Now().UTC()
-// }
 
 type PharosImageSpec struct {
 	Image       string         `json:"image" required:"true"`
