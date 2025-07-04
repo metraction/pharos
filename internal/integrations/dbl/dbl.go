@@ -142,15 +142,16 @@ func (rx *PharosLocalDb) AddScanMeta(ctx context.Context, imageId uint64, scan m
 	sqlcmd := `
 		insert into vdb_scans (
 			image_id, Created, Updated, ScanDate, DbBuiltDate,
-			Engine, EngineVersion
+			Elapsed, Engine, EngineVersion
 		) values (
 			?, ?, ?, ?, ?,
-			?, ?
+			?, ?, ?
 		)
 		on conflict (image_id, Engine) do update set
 			Updated = excluded.Updated,
 			ScanDate = excluded.ScanDate,
-			DbBuiltDate = excluded.DbBuiltDate
+			DbBuiltDate = excluded.DbBuiltDate,
+			Elapsed = excluded.Elapsed
 		returning id
 	`
 	now := time.Now().UTC()
@@ -158,7 +159,7 @@ func (rx *PharosLocalDb) AddScanMeta(ctx context.Context, imageId uint64, scan m
 	var err error
 	var id uint64
 
-	err = rx.db.QueryRow(sqlcmd, imageId, now, now, scan.ScanDate, scan.DbBuiltDate, scan.Engine, scan.EngineVersion).Scan(&id)
+	err = rx.db.QueryRow(sqlcmd, imageId, now, now, scan.ScanDate, scan.DbBuiltDate, scan.ScanElapsed.Seconds(), scan.Engine, scan.EngineVersion).Scan(&id)
 	if err != nil {
 		return 0, err
 	}

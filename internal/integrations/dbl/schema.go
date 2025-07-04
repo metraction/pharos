@@ -56,6 +56,7 @@ func InitPharosDbSchema(db *sql.DB) error {
             Updated             timestamptz,
             ScanDate            timestamptz,
             DbBuiltDate         timestamptz,
+            Elapsed             double,     -- scan time in sec
             Engine              text,
             EngineVersion       text,
             foreign key (image_id) references vdb_images(id)

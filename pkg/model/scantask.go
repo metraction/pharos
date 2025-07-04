@@ -33,8 +33,10 @@ type PharosScanTask2 struct {
 
 // set error and status
 func (rx *PharosScanTask2) SetError(err error) *PharosScanTask2 {
-	rx.Status = "error"
-	rx.Error = err.Error()
+	if err != nil {
+		rx.Status = "error"
+		rx.Error = err.Error()
+	}
 	return rx
 }
 

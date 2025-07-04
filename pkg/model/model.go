@@ -29,6 +29,20 @@ type PharosScanMeta struct {
 	ScanElapsed   time.Duration `json:"ScanElapsed"`
 }
 
+func (rx *PharosScanResult) SetTaskStatus(status string) *PharosScanResult {
+	rx.ScanTask.Status = status
+	return rx
+}
+
+func (rx *PharosScanResult) SetTaskError(err error) *PharosScanResult {
+	rx.ScanTask.SetError(err)
+	return rx
+}
+func (rx *PharosScanResult) SetScanElapsed(elapsed time.Duration) *PharosScanResult {
+	rx.ScanMeta.ScanElapsed = elapsed
+	return rx
+}
+
 // ContextRootKey string // Composite Foreign Key to the ContextRoot Table
 // ImageId        string // Composite Foreign Key to the ContextRoot Table
 // Owner          string // The owner of the Context, this is the plugin that has created / changed it. Will be a Foreign Key to the Plugins Table
