@@ -5,8 +5,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/metraction/pharos/internal/integrations"
 	"github.com/metraction/pharos/internal/integrations/cache"
+	"github.com/metraction/pharos/internal/integrations/redis"
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/pkg/grype"
 	"github.com/metraction/pharos/pkg/model"
@@ -18,7 +18,7 @@ var logger *zerolog.Logger
 func NewScannerFlow(ctx context.Context, cfg *model.Config) error {
 	logger = logging.NewLogger("info")
 
-	server, err := integrations.NewRedisGtrsServer[model.PharosScanTask2, model.PharosScanResult](
+	server, err := redis.NewRedisGtrsServer[model.PharosScanTask2, model.PharosScanResult](
 		ctx, cfg.Redis, cfg.Scanner.RequestQueue, cfg.Scanner.ResponseQueue)
 	if err != nil {
 		return err

@@ -9,8 +9,8 @@ import (
 	"github.com/reugn/go-streams/extension"
 
 	"github.com/metraction/pharos/internal/controllers"
-	"github.com/metraction/pharos/internal/integrations"
 	"github.com/metraction/pharos/internal/integrations/db"
+	"github.com/metraction/pharos/internal/integrations/redis"
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/internal/routing"
 	"github.com/metraction/pharos/pkg/mappers"
@@ -57,7 +57,7 @@ These submissions are then published to a Redis stream for further processing by
 			logger.Fatal().Err(err).Msg("Failed to create publisher flow")
 			return
 		}
-		rdb := integrations.NewRedis(cmd.Context(), config)
+		rdb := redis.NewRedis(cmd.Context(), config)
 		logger.Debug().Str("basePath", config.Mapper.BasePath).Msg("Loading mapper from")
 		enricher := mappers.EnricherConfig{
 			BasePath: config.Mapper.BasePath,

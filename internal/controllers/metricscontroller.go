@@ -8,7 +8,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
-	"github.com/metraction/pharos/internal/integrations"
+	"github.com/metraction/pharos/internal/integrations/redis"
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/prometheus/client_golang/prometheus"
@@ -21,8 +21,8 @@ type MetricsController struct {
 	Path              string
 	Vulnerabilities   prometheus.GaugeVec
 	Api               *huma.API
-	AsyncPublisher    *integrations.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult]
-	PriorityPublisher *integrations.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult]
+	AsyncPublisher    *redis.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult]
+	PriorityPublisher *redis.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult]
 	Config            *model.Config
 	Logger            *zerolog.Logger
 }

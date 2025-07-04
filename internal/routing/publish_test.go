@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/metraction/pharos/internal/integrations"
+	"github.com/metraction/pharos/internal/integrations/redis"
 	"github.com/metraction/pharos/pkg/model"
 )
 
@@ -88,7 +88,7 @@ func BenchmarkSubmit1000Images(b *testing.B) {
 	ctx := context.Background()
 
 	// Create Redis client for request-reply
-	client, err := integrations.NewRedisGtrsClient[model.PharosScanTask2, model.PharosScanResult](ctx, cfg, cfg.Publisher.RequestQueue, cfg.Publisher.ResponseQueue)
+	client, err := redis.NewRedisGtrsClient[model.PharosScanTask2, model.PharosScanResult](ctx, cfg, cfg.Publisher.RequestQueue, cfg.Publisher.ResponseQueue)
 	if err != nil {
 		b.Fatalf("Failed to create Redis client: %v", err)
 	}
