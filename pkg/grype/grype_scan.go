@@ -17,10 +17,10 @@ import (
 	"github.com/samber/lo"
 )
 
-// execute scan with grype scanner
+// execute scan with grype scanner, return engine specific sbom and scan results as []byte
 func ScanImage(task model.PharosScanTask2, scanEngine *GrypeScanner, kvc *cache.PharosCache, logger *zerolog.Logger) (model.PharosScanResult, []byte, []byte, error) {
 
-	logger.Debug().Msg("ScanImage() ..")
+	logger.Debug().Msg("GrypeScan() ..")
 
 	// return sbom cache key for given digest
 	CacheKey := func(digest string) string {
@@ -41,9 +41,11 @@ func ScanImage(task model.PharosScanTask2, scanEngine *GrypeScanner, kvc *cache.
 			Engine: scanEngine.Engine,
 		},
 	}
-	result.ScanTask.Engine = scanEngine.Engine // TODO: Remove as covered in result.ScanMeta
 
-	// get manifestDigest to have a platform unique key for caching
+	// TODO: obseolete, Engine is in result.ScanMeta
+	result.ScanTask.Engine = scanEngine.Engine
+
+	// get manifest and manifest Digest, this also ensures the image still exists, or is updated if image behind tag (latest) has changed
 	result.SetTaskStatus("get-digest")
 	indexDigest, manifestDigest, rxPlatform, err := images.GetImageDigests(task)
 	if err != nil {
@@ -110,14 +112,16 @@ func ScanImage(task model.PharosScanTask2, scanEngine *GrypeScanner, kvc *cache.
 
 	// map engine results to generic PharosResult
 	result.SetTaskStatus("parse-scan")
-	if err = result.LoadGrypeImageScan(task, sbomProd, scanProd); err != nil {
+	if err = result.LoadGrypeImageScan(manifestDigest, task, sbomProd, scanProd); err != nil {
 		result.SetTaskError(err).SetScanElapsed(elapsed())
 		return result, nil, nil, fmt.Errorf("image:%s %w", task.ImageSpec, err)
 	}
 
 	result.SetTaskStatus("done").SetScanElapsed(elapsed())
-	logger.Debug().
+	logger.Info().
 		Str("cache", cacheState).
+		Str("manDigest1", utils.ShortDigest(manifestDigest)).
+		Str("manDigest2", utils.ShortDigest(result.Image.ManifestDigest)).
 		Any("t.scan_timeout", task.ScanTTL.String()).
 		Any("t.cache_expiry", task.CacheTTL.String()).
 		Any("i.distro", result.Image.DistroName+" "+result.Image.DistroVersion).
@@ -125,7 +129,7 @@ func ScanImage(task model.PharosScanTask2, scanEngine *GrypeScanner, kvc *cache.
 		Any("s.findings", len(result.Findings)).
 		Any("s.vulns", len(result.Vulnerabilities)).
 		Any("s.packages", len(result.Packages)).
-		Msg("ScanImage() OK")
+		Msg("GrypeScan() OK")
 
 	return result, sbomData, scanData, nil
 

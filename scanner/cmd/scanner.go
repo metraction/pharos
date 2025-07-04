@@ -169,11 +169,14 @@ func ExecuteScanner(engine, worker, mqEndpoint, cacheEndpoint, outDir, vulnDbDir
 
 		logger.Info().
 			Any(" image", image).Str("job", task.JobId).Any("retry", x.RetryCount).
+			Str(" imageid", result.Image.ImageId).
 			Str("os", result.Image.DistroName+" "+result.Image.DistroVersion).
+			Str("platform", result.Image.ArchOS+"/"+result.Image.ArchName).
 			Any("size", humanize.Bytes(result.Image.Size)).
 			Any("findings", len(result.Findings)).
 			Any("vulns", len(result.Vulnerabilities)).
 			Any("packages", len(result.Packages)).
+			Any("elapsed", result.ScanMeta.ScanElapsed.Seconds()).
 			Msg("ScanTask() OK")
 
 		// submit scan results

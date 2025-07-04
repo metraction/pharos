@@ -82,19 +82,30 @@ type Delete_PharosScanEngine struct {
 }
 
 // metadata about the asset (image, code, vm, ..)
+// digest naming is confusing between products.
+// ImageId:        uique Id per image assigned by scanner (this digest is not found with scopeo inspect, unknown how it is created)
+// ManifestDigest: unique digest per image and platform (we should use the manifestDigest as cache key and to correlte in db)
+// IndexDigest:    digest per image, stays the same accross platforms
+// RepoDigests:	   aribtrarily ordered list of digests reported by scanner
+
 type PharosImageMeta struct {
-	ImageSpec          string                `json:"ImageSpec" required:"true" doc:"image url, e.g. docker.io/nginx:latest"` // scan input / image uri
-	ImageId            string                `json:"ImageId" gorm:"primaryKey" hidden:"true" doc:"internal image ID, e.g. sha256:1234.."`
-	IndexDigest        string                `json:"IndexDigest" required:"true"` // internal ID for cache
-	ManifestDigest     string                `json:"ManifestDigest" required:"false"`
-	RepoDigests        StringSlice           `json:"RepoDigests" required:"false" gorm:"type:VARCHAR"`
-	ArchName           string                `json:"ArchName" required:"false" doc:"image platform architecture default: amd64"` // image platform architecture amd64/..
-	ArchOS             string                `json:"ArchOS" required:"false" doc:"image platform OS default: linux"`             // image platform OS
-	DistroName         string                `json:"DistroName" required:"false"`
-	DistroVersion      string                `json:"DistroVersion" required:"false"`
-	Size               uint64                `json:"Size" required:"false"`
-	Tags               StringSlice           `json:"Tags" gorm:"type:VARCHAR" required:"false"`
-	Layers             StringSlice           `json:"Layers" gorm:"type:VARCHAR" required:"false"`
+	ImageSpec      string      `json:"ImageSpec" required:"true" doc:"image url, e.g. docker.io/nginx:latest"` // scan input / image uri
+	ImageId        string      `json:"ImageId" gorm:"primaryKey" hidden:"true" doc:"internal image ID, e.g. sha256:1234.."`
+	IndexDigest    string      `json:"IndexDigest" required:"true"` // internal ID for cache
+	ManifestDigest string      `json:"ManifestDigest" required:"false"`
+	RepoDigests    StringSlice `json:"RepoDigests" required:"false" gorm:"type:VARCHAR"`
+	ArchName       string      `json:"ArchName" required:"false" doc:"image platform architecture default: amd64"` // image platform architecture amd64/..
+	ArchOS         string      `json:"ArchOS" required:"false" doc:"image platform OS default: linux"`             // image platform OS
+	DistroName     string      `json:"DistroName" required:"false"`
+	DistroVersion  string      `json:"DistroVersion" required:"false"`
+	Size           uint64      `json:"Size" required:"false"`
+	Tags           StringSlice `json:"Tags" gorm:"type:VARCHAR" required:"false"`
+	Layers         StringSlice `json:"Layers" gorm:"type:VARCHAR" required:"false"`
+
+	// TODO: The below are ORL artifacts and must be removed from this struct
+	// -> Context is in PharosScanTask
+	// -> TTLs are in PharosScanTask
+	// -> Vulns/Packages/Findings are in PharosResult
 	Vulnerabilities    []PharosVulnerability `json:"Vulnerabilities" required:"false" gorm:"many2many:join_pharos_vulnerability_with_pharos_image_meta;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Findings           []PharosScanFinding   `json:"Findings" required:"false" gorm:"many2many:join_pharos_scan_finding_with_pharos_image_meta;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Packages           []PharosPackage       `json:"Packages" required:"false" gorm:"many2many:join_pharos_package_with_pharos_image_meta;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

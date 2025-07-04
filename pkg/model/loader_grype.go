@@ -12,7 +12,8 @@ import (
 )
 
 // populate model from grype scan
-func (rx *PharosScanResult) LoadGrypeImageScan(task PharosScanTask2, sbom syfttype.SyftSbomType, scan grypetype.GrypeScanType) error {
+// digest is the manifest digest used as uniq ID for image
+func (rx *PharosScanResult) LoadGrypeImageScan(digest string, task PharosScanTask2, sbom syfttype.SyftSbomType, scan grypetype.GrypeScanType) error {
 
 	// result version
 	// 1.1 added ScanMeta{}
@@ -31,8 +32,9 @@ func (rx *PharosScanResult) LoadGrypeImageScan(task PharosScanTask2, sbom syftty
 
 	// (1) load image metadata
 	rx.Image.ImageSpec = utils.MaskDsn(rx.ScanTask.ImageSpec)
-	rx.Image.ImageId = target.ImageId
-	rx.Image.ManifestDigest = target.ManifestDigest
+	rx.Image.ImageId = utils.ShortDigest(digest) + "-grype" // was target.ImageId
+	rx.Image.ManifestDigest = digest                        // was target.ManifestDigest)
+
 	if len(target.RepoDigests) > 0 {
 		re := regexp.MustCompile(`@(.+)$`)
 		matches := re.FindStringSubmatch(target.RepoDigests[0])

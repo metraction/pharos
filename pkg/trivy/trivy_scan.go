@@ -14,10 +14,10 @@ import (
 	"github.com/samber/lo"
 )
 
-// execute scan with grype scanner
+// execute scan with trivy scanner, return engine specific sbom and scan results as []byte
 func ScanImage(task model.PharosScanTask2, scanEngine *TrivyScanner, kvc *cache.PharosCache, logger *zerolog.Logger) (model.PharosScanResult, []byte, []byte, error) {
 
-	logger.Debug().Msg("Trivy.ScanImage()")
+	logger.Debug().Msg("TrivyScan() ..")
 
 	// return sbom cache key for given digest
 	CacheKey := func(digest string) string {
@@ -25,23 +25,27 @@ func ScanImage(task model.PharosScanTask2, scanEngine *TrivyScanner, kvc *cache.
 	}
 
 	ctx := context.Background()
+	elapsed := utils.ElapsedFunc()
+
 	var scanData []byte
 	var scanProd trivytype.TrivyScanType
 	var sbomEngine *TrivySbomCreator
 
 	result := model.PharosScanResult{
 		ScanTask: task,
+		ScanMeta: model.PharosScanMeta{
+			Engine: scanEngine.Engine,
+		},
 	}
-	result.ScanTask.Status = "get-digest"
-	result.ScanTask.Engine = scanEngine.Engine
+	result.ScanTask.Engine = scanEngine.Engine // TODO: Remove as covered in result.ScanMeta
 
-	// get manifestDigest to have a platform unique key for caching
+	// get manifest and manifest Digest, this also ensures the image still exists, or is updated if image behind tag (latest) has changed
+	result.SetTaskStatus("get-digest")
 	indexDigest, manifestDigest, rxPlatform, err := images.GetImageDigests(task)
 	if err != nil {
-		result.ScanTask.SetError(err)
+		result.SetTaskError(err).SetScanElapsed(elapsed())
 		return result, nil, nil, err
 	}
-
 	result.ScanTask.RxDigest = manifestDigest
 	result.ScanTask.RxPlatform = rxPlatform
 
@@ -64,51 +68,53 @@ func ScanImage(task model.PharosScanTask2, scanEngine *TrivyScanner, kvc *cache.
 	key := CacheKey(manifestDigest)
 
 	// try cache, else create
+	result.SetTaskStatus("get-sbom")
 	sbomData, err = kvc.GetExpire(ctx, key, task.CacheTTL)
 	if err != nil && !errors.Is(err, cache.ErrKeyNotFound) {
-		result.ScanTask.SetError(err)
+		result.SetTaskError(err).SetScanElapsed(elapsed())
 		return result, nil, nil, err
 	}
 
 	if errors.Is(err, cache.ErrKeyNotFound) {
 		// cache miss: generate sbom
 		cacheState = "cache miss"
-		result.ScanTask.Status = cacheState
+		result.SetTaskStatus(cacheState)
 		if sbomProd, sbomData, err = sbomEngine.CreateSbom(task, "cyclonedx"); err != nil {
-			result.ScanTask.SetError(err)
+			result.SetTaskError(err).SetScanElapsed(elapsed())
 			return result, nil, nil, err
 		}
 		// cache sbom
 		if err := kvc.SetExpire(ctx, key, sbomData, task.CacheTTL); err != nil {
-			result.ScanTask.SetError(err)
+			result.SetTaskError(err).SetScanElapsed(elapsed())
 			return result, nil, nil, err
 
 		}
 	} else {
 		// cache hit, parse []byte
 		cacheState = "cache hit"
-		result.ScanTask.Status = cacheState
+		result.SetTaskStatus(cacheState)
 		if err := sbomProd.FromBytes(sbomData); err != nil {
-			result.ScanTask.SetError(err)
+			result.SetTaskError(err).SetScanElapsed(elapsed())
 			return result, nil, nil, err
-
 		}
 	}
 
 	// scan sbom for vulns
-	result.ScanTask.Status = "scan"
+	result.SetTaskStatus("scan")
 	if scanProd, scanData, err = scanEngine.VulnScanSbom(sbomData); err != nil {
 		logger.Fatal().Err(err).Msg("VulnScanSbom()")
 	}
 	// map produce result to pharos result type
-	result.ScanTask.Status = "scan-parse"
-	if err = result.LoadTrivyImageScan(sbomProd, scanProd); err != nil {
-		result.ScanTask.SetError(err)
+	result.SetTaskStatus("scan-parse")
+	if err = result.LoadTrivyImageScan(manifestDigest, task, sbomProd, scanProd); err != nil {
+		result.SetTaskError(err).SetScanElapsed(elapsed())
 		return result, nil, nil, err
 	}
-	result.ScanTask.Status = "done"
-	logger.Debug().
+	result.SetTaskStatus("done")
+	logger.Info().
 		Str("cache", cacheState).
+		Str("manDigest1", utils.ShortDigest(manifestDigest)).
+		Str("manDigest2", utils.ShortDigest(result.Image.ManifestDigest)).
 		Any("t.scan_timeout", task.ScanTTL.String()).
 		Any("t.cache_expiry", task.CacheTTL.String()).
 		Any("i.distro", result.Image.DistroName+" "+result.Image.DistroVersion).
@@ -116,7 +122,7 @@ func ScanImage(task model.PharosScanTask2, scanEngine *TrivyScanner, kvc *cache.
 		Any("s.findings", len(result.Findings)).
 		Any("s.vulns", len(result.Vulnerabilities)).
 		Any("s.packages", len(result.Packages)).
-		Msg("ScanImage() OK")
+		Msg("TrivyScan() OK")
 
 	return result, sbomData, scanData, nil
 

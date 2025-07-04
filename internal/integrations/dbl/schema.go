@@ -32,21 +32,20 @@ func InitPharosDbSchema(db *sql.DB) error {
             id                  integer primary key autoincrement,
             Created             timestamptz,
             Updated             timestamptz,
-            Digest              text,
-            ImageSpec           text,
             ImageId             text,
-            IndexDigest         text,
-            ManifestDigest      text,
-            RepoDigests         jsonb,
+            ImageSpec           text,
             ArchName            text,
             ArchOS              text,
             DistroName          text,
             DistroVersion       text,
             Size                integer,
             Tags                jsonb,
+            IndexDigest         text,
+            ManifestDigest      text,
+            RepoDigests         jsonb,
             Layers              jsonb
         )`,
-		`create unique index if not exists images_digest_idx on vdb_images (Digest)`,
+		`create unique index if not exists images_uniqu_idx on vdb_images (ImageId)`,
 
 		// ScanMeta
 		`create table if not exists vdb_scans (

@@ -3,6 +3,7 @@ package trivytype
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"time"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
@@ -21,6 +22,17 @@ func FilterComponentType(typeVal string, data []cdx.Component) []cdx.Component {
 func GetAppVersion(data []cdx.Component) (string, string) {
 	appComponent := lo.FirstOrEmpty(FilterComponentType("application", data))
 	return appComponent.Name, appComponent.Version
+}
+
+// parse image arch from BomRef
+// e.g. pkg:oci/alpine@sha256%3Af85873713008c1a4d303d3a741fcf7fc30801b70111aa910af76a81aaadc838b?arch=amd64&repository_url=pharos.secimo.net%2Fdocker.io%2Falpine
+func GetArchOr(bomref, defval string) string {
+	re := regexp.MustCompile(`[?&]arch=([^&#]*)`)
+	match := re.FindStringSubmatch(bomref)
+	if len(match) > 1 {
+		return match[1]
+	}
+	return defval
 }
 
 type TrivySbomType struct {

@@ -21,6 +21,15 @@ func ShortDigest(input string) string {
 	return lo.Substring(input, 0, 19)
 }
 
+// split "linux/amd64" or "linux/arm/v6" to OS, architecture, variant
+func SplitPlatformStr(input string) (string, string, string) {
+	parts := strings.Split(strings.TrimSpace(input)+"/", "/")
+	if len(parts) > 2 {
+		return parts[0], parts[1], parts[2]
+	}
+	return "", "", ""
+}
+
 // return true if input string is one of 1, t, true, on, yes
 func ToBool(input string) bool {
 	input = strings.TrimSpace(input)

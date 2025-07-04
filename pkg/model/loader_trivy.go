@@ -10,33 +10,33 @@ import (
 )
 
 // populate model from trivy scan
-func (rx *PharosScanResult) LoadTrivyImageScan(sbom trivytype.TrivySbomType, scan trivytype.TrivyScanType) error {
+func (rx *PharosScanResult) LoadTrivyImageScan(digest string, task PharosScanTask2, sbom trivytype.TrivySbomType, scan trivytype.TrivyScanType) error {
 
 	// unique
 	vulnsList := map[string]int{}
 	packagesList := map[string]int{}
 
-	component := sbom.Metadata.Component
 	properties := sbom.Metadata.Component.Properties
 
 	// scan engine
-	rx.Version = "1.0"
+	rx.Version = "1.1"
 
-	rx.ScanMeta = PharosScanMeta{
-		ScanDate:    scan.CreatedAt,
-		DbBuiltDate: scan.CreatedAt, // no better data available
-		ScanElapsed: 0 * time.Second,
-	}
 	rx.ScanMeta.Engine, rx.ScanMeta.EngineVersion = trivytype.GetAppVersion(*sbom.Metadata.Tools.Components)
+	rx.ScanMeta.ScanDate = scan.CreatedAt
+	rx.ScanMeta.DbBuiltDate = scan.CreatedAt // no better data available
 
 	// (1) load image metadata
 	rx.Image.ImageSpec = sbom.Metadata.Component.Name
-	rx.Image.ImageId = cdxFilterPropertyFirstOr("aquasecurity:trivy:ImageID", "", *properties)
-	rx.Image.ManifestDigest = ParseDigest(component.BOMRef)
+	rx.Image.ImageId = utils.ShortDigest(digest) + "-trivy" // was target.ImageId
+	//rx.Image.ImageId = digest        // was cdxFilterPropertyFirstOr("aquasecurity:trivy:ImageID", "", *properties)
+	rx.Image.ManifestDigest = digest // was target.ManifestDigest)
 	rx.Image.RepoDigests = scan.Metadata.RepoDigests
 
-	rx.Image.ArchName = scan.Metadata.ImageConfig.Architecture
-	rx.Image.ArchOS = scan.Metadata.ImageConfig.OS
+	// ATTN: architecture non populated in scan, take it from BOMRef
+	os, arch, _ := utils.SplitPlatformStr(task.Platform)
+	rx.Image.ArchOS = lo.CoalesceOrEmpty(scan.Metadata.ImageConfig.OS, os)
+	rx.Image.ArchName = lo.CoalesceOrEmpty(scan.Metadata.ImageConfig.Architecture, arch)
+
 	rx.Image.DistroName = scan.Metadata.OS.Famile
 	rx.Image.DistroVersion = scan.Metadata.OS.Name
 	rx.Image.Size = utils.ToNumOr[uint64](cdxFilterPropertyFirstOr("aquasecurity:trivy:Size", "", *properties), 0)

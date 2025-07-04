@@ -77,6 +77,8 @@ func (rx *PharosLocalDb) AddScanResult(ctx context.Context, result model.PharosS
 	task := result.ScanTask
 
 	// add image
+
+	rx.logger.Info().Any("image", result.Image).Msg("Image")
 	if image_id, err = rx.AddImage(ctx, result.Image); err != nil {
 		return 0, fmt.Errorf("addImage: %w", err)
 	}
@@ -109,15 +111,15 @@ func (rx *PharosLocalDb) AddImage(ctx context.Context, image model.PharosImageMe
 
 	sqlcmd := `
 		insert into vdb_images (
-			Created, Updated, Digest, ImageSpec, ImageId,
-			IndexDigest, ManifestDigest, RepoDigests, ArchName, ArchOS,
-			DistroName, DistroVersion, Size, Tags, Layers
+			Created, Updated, ImageId, ImageSpec, ArchName, 
+			ArchOS, DistroName, DistroVersion, Size, Tags, 
+			IndexDigest, ManifestDigest, RepoDigests, Layers
 		) values (
 			?, ?, ?, ?, ?,
 			?, ?, ?, ?, ?,
-			?, ?, ?, ?, ?
+			?, ?, ?, ?
 		)
-		on conflict (Digest) do update set
+		on conflict (ImageId) do update set
 			updated = excluded.Updated
 		returning id
 	`
@@ -127,9 +129,9 @@ func (rx *PharosLocalDb) AddImage(ctx context.Context, image model.PharosImageMe
 	var id uint64
 
 	err = rx.db.QueryRow(sqlcmd,
-		now, now, image.ManifestDigest, image.ImageSpec, image.ImageId,
-		image.IndexDigest, image.ManifestDigest, dbStrList(image.RepoDigests), image.ArchName, image.ArchOS,
-		image.DistroName, image.DistroVersion, image.Size, dbStrList(image.Tags), dbStrList(image.Layers)).Scan(&id)
+		now, now, image.ImageId, image.ImageSpec, image.ArchName,
+		image.ArchOS, image.DistroName, image.DistroVersion, image.Size, dbStrList(image.Tags),
+		image.IndexDigest, image.ManifestDigest, dbStrList(image.RepoDigests), dbStrList(image.Layers)).Scan(&id)
 	if err != nil {
 		return 0, err
 	}

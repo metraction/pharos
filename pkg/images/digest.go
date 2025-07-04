@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/name"
@@ -13,15 +12,6 @@ import (
 	"github.com/metraction/pharos/internal/utils"
 	"github.com/metraction/pharos/pkg/model"
 )
-
-// split "linux/amd64" or "linux/arm/v6" to OS, architecture, variant
-func SplitPlatformStr(input string) (string, string, string) {
-	parts := strings.Split(strings.TrimSpace(input)+"/", "/")
-	if len(parts) > 2 {
-		return parts[0], parts[1], parts[2]
-	}
-	return "", "", ""
-}
 
 // return platform specific digests for image given imageRef (docker.io/redis:latest) and platform ("linux/amd64")
 // return
@@ -41,7 +31,7 @@ func GetImageDigests(task model.PharosScanTask2) (string, string, string, error)
 
 	// add platform option if given
 	if platform != "" {
-		os, arch, variant := SplitPlatformStr(platform)
+		os, arch, variant := utils.SplitPlatformStr(platform)
 		if os == "" || arch == "" {
 			return "", "", "", fmt.Errorf("invalid platform '%s'", platform)
 		}
