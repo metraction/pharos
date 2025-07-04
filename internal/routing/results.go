@@ -23,20 +23,16 @@ func NewScanResultCollectorSink(
 	log *zerolog.Logger) {
 	pharosScanTaskHandler := pharosstreams.NewPharosScanTaskHandler()
 
-	redisFlow := integrations.NewRedisConsumerGroupSource[model.PharosScanResult](ctx, rdb, config.QueueName, config.GroupName, config.ConsumerName, "0", config.BlockTimeout, 1).
+	integrations.NewRedisConsumerGroupSource[model.PharosScanResult](ctx, rdb, config.QueueName, config.GroupName, config.ConsumerName, "0", config.BlockTimeout, 1).
 		Via(flow.NewPassThrough()).
-		Via(flow.NewFilter(pharosScanTaskHandler.FilterFailedTasks, 1))
-
-	NewScanResultsInternalFlow(redisFlow, enricher).
+		Via(flow.NewFilter(pharosScanTaskHandler.FilterFailedTasks, 1)).
+		Via(NewScanResultsInternalFlow(enricher)).
 		To(db.NewImageDbSink(databaseContext))
 }
 
-func NewScanResultsInternalFlow(source streams.Source, enricher mappers.EnricherConfig) streams.Flow {
+func NewScanResultsInternalFlow(enricher mappers.EnricherConfig) streams.Flow {
 	pharosScanTaskHandler := pharosstreams.NewPharosScanTaskHandler()
-	contextFlow := source.
-		Via(flow.NewFilter(pharosScanTaskHandler.FilterFailedTasks, 1)).
-		Via(flow.NewMap(pharosScanTaskHandler.CreateRootContext, 1))
-	stream := mappers.NewResultEnricherStream(contextFlow, enricher)
-
-	return stream
+	return flow.NewFilter(pharosScanTaskHandler.FilterFailedTasks, 1).
+		Via(flow.NewMap(pharosScanTaskHandler.CreateRootContext, 1)).
+		Via(mappers.NewResultEnricherStream(enricher))
 }

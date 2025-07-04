@@ -80,9 +80,9 @@ These submissions are then published to a Redis stream for further processing by
 		)
 
 		resultChannel := make(chan any)
-		source := extension.NewChanSource(resultChannel)
 		// Create results flow without redis
-		go routing.NewScanResultsInternalFlow(source, enricher).
+		go extension.NewChanSource(resultChannel).
+			Via(routing.NewScanResultsInternalFlow(enricher)).
 			To(db.NewImageDbSink(databaseContext))
 
 		// Add routes for the API

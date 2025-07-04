@@ -33,20 +33,18 @@ func NewEnricherStream(stream streams.Source, enricher EnricherConfig) streams.F
 	return result
 }
 
-func NewResultEnricherStream(stream streams.Source, enricher EnricherConfig) streams.Flow {
-	var result streams.Flow
-	stream = stream.Via(flow.NewMap(ToWrappedResult, 1))
+func NewResultEnricherStream(enricher EnricherConfig) streams.Flow {
+	var result streams.Flow = flow.NewMap(ToWrappedResult, 1)
 	for _, mapper := range enricher.Configs {
 		config := filepath.Join(enricher.BasePath, mapper.Config)
 		switch mapper.Name {
 		case "file":
-			stream = stream.Via(flow.NewMap(Wrap(NewAppendFile[map[string]interface{}](config)), 1))
+			result = result.Via(flow.NewMap(Wrap(NewAppendFile[map[string]interface{}](config)), 1))
 		case "hbs":
-			stream = stream.Via(flow.NewMap(Wrap(NewPureHbs[map[string]interface{}, map[string]interface{}](config)), 1))
+			result = result.Via(flow.NewMap(Wrap(NewPureHbs[map[string]interface{}, map[string]interface{}](config)), 1))
 		case "debug":
-			stream = stream.Via(flow.NewMap(Wrap(NewDebug(config)), 1))
+			result = result.Via(flow.NewMap(Wrap(NewDebug(config)), 1))
 		}
-		result = stream.(streams.Flow)
 	}
 	result = result.Via(flow.NewMap(ToUnWrappedResult, 1))
 	return result
