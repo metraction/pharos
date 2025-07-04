@@ -14,11 +14,16 @@ import (
 // populate model from grype scan
 func (rx *PharosScanResult) LoadGrypeImageScan(sbom syfttype.SyftSbomType, scan grypetype.GrypeScanType) error {
 
-	// scan engine
-	rx.Version = "1.0"
-	//rx.ScanEngine.Name = scan.Descriptor.Name
-	//rx.ScanEngine.Version = scan.Descriptor.Version
-	//rx.ScanEngine.ScanTime = scan.Descriptor.ScanTime
+	// result version
+	rx.Version = "1.1"
+
+	rx.ScanMeta = PharosScanMeta{
+		Engine:        scan.Descriptor.Name,
+		EngineVersion: scan.Descriptor.Version,
+		ScanDate:      scan.Descriptor.ScanTime,
+		DbBuiltDate:   scan.Descriptor.Db.Status.Built,
+		ScanElapsed:   0 * time.Second,
+	}
 
 	// unique lists
 	vulnsList := map[string]int{}

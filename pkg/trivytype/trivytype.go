@@ -2,11 +2,26 @@ package trivytype
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/samber/lo"
 )
+
+// SBOM accessors for nested properties
+func FilterComponentType(typeVal string, data []cdx.Component) []cdx.Component {
+	return lo.Filter(
+		data,
+		func(x cdx.Component, k int) bool { return fmt.Sprintf("%v", x.Type) == typeVal },
+	)
+}
+
+// get scanner engine and version from SBOM
+func GetAppVersion(data []cdx.Component) (string, string) {
+	appComponent := lo.FirstOrEmpty(FilterComponentType("application", data))
+	return appComponent.Name, appComponent.Version
+}
 
 type TrivySbomType struct {
 	cdx.BOM
@@ -19,16 +34,6 @@ func (rx *TrivySbomType) FromBytes(input []byte) error {
 		return err
 	}
 	return nil
-}
-
-// SBOM accessors for nexted properties
-func GetToolVersion(sbom TrivySbomType) string {
-	values := lo.Map(
-		*sbom.Metadata.Tools.Components,
-		func(x cdx.Component, k int) string { return x.Version },
-	)
-
-	return lo.FirstOr(values, "")
 }
 
 type TrivyScanType struct {

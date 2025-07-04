@@ -1,45 +1,32 @@
 package model
 
 import (
-	"database/sql/driver"
 	"encoding/json"
-	"errors"
-	"strings"
 	"time"
 
 	"github.com/metraction/pharos/internal/utils"
 )
 
-type StringSlice []string
-
-func (ss *StringSlice) Scan(src any) error {
-	str, ok := src.(string)
-	if !ok {
-		return errors.New("src value cannot cast to string")
-	}
-	*ss = strings.Split(str, ",")
-	return nil
-}
-func (ss StringSlice) Value() (driver.Value, error) {
-	if len(ss) == 0 {
-		return nil, nil
-	}
-	return strings.Join(ss, ","), nil
-}
-
 // hold results if images scans returned from a variety of scanner engines
 // Update: Stefan 2025-06-29
 // Context and scanner info is in ScanTask
 type PharosScanResult struct {
-	Version  string          `json:"Version"`
-	ScanTask PharosScanTask2 `json:"ScanTask"`
-
-	//ScanEngine PharosScanEngine `json:"ScanEngine"` // scanner info in scan task
-
+	Version         string                `json:"Version"`
+	ScanTask        PharosScanTask2       `json:"ScanTask"`
+	ScanMeta        PharosScanMeta        `json:"ScanMeta"` // scanner info in scan task
 	Image           PharosImageMeta       `json:"Image"`
 	Findings        []PharosScanFinding   `json:"Findings"`        // instatiation of vulnerabilities in packages
 	Vulnerabilities []PharosVulnerability `json:"Vulnerabilities"` // vulnerabilities found with vuln metadata (description, CVSS, ..)
 	Packages        []PharosPackage       `json:"Packages"`
+}
+
+// scanner engine and scan execution metadata
+type PharosScanMeta struct {
+	Engine        string        `json:"Engine"`
+	EngineVersion string        `json:"EngineVersion"`
+	ScanDate      time.Time     `json:"ScanDate"`
+	DbBuiltDate   time.Time     `json:"DbBuiltDate"`
+	ScanElapsed   time.Duration `json:"ScanElapsed"`
 }
 
 // ContextRootKey string // Composite Foreign Key to the ContextRoot Table

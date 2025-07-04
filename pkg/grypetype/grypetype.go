@@ -13,6 +13,7 @@ type GrypeScanType struct {
 	Distro     GrypeDistro      `json:"distro"`
 	Descriptor GrypeDescriptor  `json:"descriptor"`
 	Source     GrypeSourceImage `json:"source"` // code/image scan fill different fields
+
 }
 
 // // used to unmarshal image scans
@@ -174,4 +175,11 @@ type GrypeDescriptor struct {
 	Name     string    `json:"name"`
 	Version  string    `json:"version"`
 	ScanTime time.Time `json:"timestamp"`
+	Db       struct {
+		Status GrypeDescriptorDbStatus `json:"status"`
+	} `json:"db"`
+}
+type GrypeDescriptorDbStatus struct {
+	SchemaVersion string    `json:"schemaVersion"`
+	Built         time.Time `json:"built"`
 }

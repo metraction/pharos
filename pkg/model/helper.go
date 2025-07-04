@@ -1,6 +1,8 @@
 package model
 
 import (
+	"database/sql/driver"
+	"errors"
 	"net/url"
 	"regexp"
 	"strings"
@@ -8,6 +10,23 @@ import (
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/samber/lo"
 )
+
+type StringSlice []string
+
+func (ss *StringSlice) Scan(src any) error {
+	str, ok := src.(string)
+	if !ok {
+		return errors.New("src value cannot cast to string")
+	}
+	*ss = strings.Split(str, ",")
+	return nil
+}
+func (ss StringSlice) Value() (driver.Value, error) {
+	if len(ss) == 0 {
+		return nil, nil
+	}
+	return strings.Join(ss, ","), nil
+}
 
 // extract repot digest from uri
 // index.docker.io/library/nginx@sha256:38f8c1d9613f3f42e7969c3b1dd5c3277e635d4576713e6453c6193e66270a6d
