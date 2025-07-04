@@ -1,5 +1,0 @@
-docker.io/busybox:1.37
-docker.io/busybox:1.30
-docker.io/nginx:1.27
-docker.io/axigen/axigen:10.6.12
-nope.io/alfa:latest

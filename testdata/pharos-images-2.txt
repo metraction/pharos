@@ -1,3 +1,0 @@
-pharos.secimo.net/busybox:1.35
-pharos.secimo.net/alpine:3.16
-

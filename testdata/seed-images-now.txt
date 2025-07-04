@@ -1,0 +1,11 @@
+# images to seed Pharos respo
+
+docker.io/alpine:3.22.0
+
+
+# ghcr.io/chaos-mesh/chaos-coredns:v0.2.6
+# ghcr.io/chaos-mesh/chaos-daemon:v2.6.3
+# ghcr.io/chaos-mesh/chaos-dashboard:v2.6.3
+# ghcr.io/chaos-mesh/chaos-mesh:v2.6.3
+# ghcr.io/jimmidyson/configmap-reload:v0.12.0
+# ghcr.io/metacontroller/metacontroller:v4.11.21

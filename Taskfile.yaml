@@ -31,6 +31,14 @@ tasks:
       - echo "App down"
       - podman-compose -f docker-compose.yaml down
 
+  inspect:
+    desc: Scopeo inspect image [image,arch]
+    requires:
+      vars: [image,arch]    
+    cmds:
+      - skopeo inspect --raw --override-arch={{.arch}} --override-os=linux docker://{{.image}} | jq
+      
+
   scanner:
     desc: Run scanner [id=1,engine=grype]
     requires:

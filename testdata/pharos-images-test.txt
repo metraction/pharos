@@ -1,0 +1,14 @@
+# auth: $PHAROS_REPO_AUTH
+# cachettl: 1m
+# scanttl: 5m
+# maxpressure: 0.2
+
+# platform: linux/amd64
+# pharos.secimo.net/ghcr.io/chaos-mesh/chaos-coredns:v0.2.6
+# docker.io/alpine:3.22.0
+pharos.secimo.net/docker.io/alpine:3.22.0
+
+# platform: linux/arm64
+# pharos.secimo.net/ghcr.io/chaos-mesh/chaos-coredns:v0.2.6
+# docker.io/alpine:3.22.0
+pharos.secimo.net/docker.io/alpine:3.22.0
