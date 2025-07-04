@@ -30,7 +30,7 @@ func (rx *PharosScanResult) LoadGrypeImageScan(task PharosScanTask2, sbom syftty
 	target := scan.Source.Target
 
 	// (1) load image metadata
-	rx.Image.ImageSpec = target.UserInput
+	rx.Image.ImageSpec = utils.MaskDsn(rx.ScanTask.ImageSpec)
 	rx.Image.ImageId = target.ImageId
 	rx.Image.ManifestDigest = target.ManifestDigest
 	if len(target.RepoDigests) > 0 {
