@@ -21,6 +21,10 @@ redis:
   enabled: true
   auth:
     enabled: false
+  replica:
+    ## @param replica.replicaCount Number of Redis&reg; replicas to deploy
+    ##
+    replicaCount: 1
 
 priorityScannerPod:
   enabled: true
@@ -53,6 +57,7 @@ role:
 prometheus:
   url: "http://rancher-monitoring-prometheus.cattle-monitoring-system.svc.cluster.local:9090"
   query: 'kube_pod_container_info{image_spec=~"ghcr.*|nextcloud.*"}'
+  interval: 10m
 
 
 mappers:
