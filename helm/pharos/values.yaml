@@ -21,6 +21,10 @@ redis:
   enabled: true
   auth:
     enabled: false
+  replica:
+    ## @param replica.replicaCount Number of Redis&reg; replicas to deploy
+    ##
+    replicaCount: 1
 
 priorityScannerPod:
   enabled: true
