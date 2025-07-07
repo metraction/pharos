@@ -23,9 +23,8 @@ import (
 
 // command line arguments of command
 type SendArgsType = struct {
-	Tasks  string // file with scan tasks to send
-	OutDir string // results dump dir
-
+	Tasks      string // file with scan tasks to send
+	OutDir     string // results dump dir
 	MqEndpoint string // redis://user:pwd@localhost:6379/1
 
 }
@@ -118,19 +117,28 @@ func ExecuteSend(tasksFile, mqEndpoint, outDir string, logger *zerolog.Logger) {
 	cacheTTL := "60m"
 	scanTTL := "3m"
 	maxpressure := "0.1"
+	priority := "2"
 	count := 0
 	var pressure float64
 
-	for _, line := range images {
+	for k, line := range images {
+		logger.Info().Msg(line)
+
 		// read task commands/settings
+		if strings.HasPrefix(line, "# exit") {
+			logger.Info().Any("line", k+1).Msg("exit")
+			break
+		}
 		if strings.HasPrefix(line, "#") {
 			auth = os.ExpandEnv(utils.RightOfPrefixOr(line, "# auth:", auth))
 			scanTTL = os.ExpandEnv(utils.RightOfPrefixOr(line, "# scanttl:", scanTTL))
 			cacheTTL = os.ExpandEnv(utils.RightOfPrefixOr(line, "# cachettl:", cacheTTL))
 			platform = os.ExpandEnv(utils.RightOfPrefixOr(line, "# platform:", platform))
 			maxpressure = os.ExpandEnv(utils.RightOfPrefixOr(line, "# maxpressure:", maxpressure))
+			priority = os.ExpandEnv(utils.RightOfPrefixOr(line, "# priority:", priority))
 			continue
 		}
+
 		count++
 		assetContext := mq.ContextGenerator()
 		task := model.PharosScanTask2{
@@ -145,8 +153,6 @@ func ExecuteSend(tasksFile, mqEndpoint, outDir string, logger *zerolog.Logger) {
 			ContextRootKey: utils.ResolveMap("{{.cluster}}/{{.namespace}}", assetContext),
 			Context:        assetContext,
 		}
-		//utils.SetPath(task.Context, "scan/jobid", task.JobId)
-
 		// wait on queue backpressure
 		for {
 			pressure = taskMq.PressureOr(ctx, 0)

@@ -26,9 +26,10 @@ func (rx *PharosScanResult) LoadTrivyImageScan(digest string, task PharosScanTas
 	rx.ScanMeta.DbBuiltDate = scan.CreatedAt // no better data available
 
 	// (1) load image metadata
+	rx.Image.ImageKey = "trivy-" + utils.ShortDigest(digest)
 	rx.Image.ImageSpec = sbom.Metadata.Component.Name
-	rx.Image.ImageId = utils.ShortDigest(digest) + "-trivy" // was target.ImageId
-	//rx.Image.ImageId = digest        // was cdxFilterPropertyFirstOr("aquasecurity:trivy:ImageID", "", *properties)
+	rx.Image.ImageId = cdxFilterPropertyFirstOr("aquasecurity:trivy:ImageID", "", *properties)
+
 	rx.Image.ManifestDigest = digest // was target.ManifestDigest)
 	rx.Image.RepoDigests = scan.Metadata.RepoDigests
 

@@ -1,1 +1,0 @@
-pharos.secimo.net/alpine:nope

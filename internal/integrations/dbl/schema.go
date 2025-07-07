@@ -32,6 +32,7 @@ func InitPharosDbSchema(db *sql.DB) error {
             id                  integer primary key autoincrement,
             Created             timestamptz,
             Updated             timestamptz,
+            ImageKey            text,
             ImageId             text,
             ImageSpec           text,
             ArchName            text,

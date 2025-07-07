@@ -73,7 +73,7 @@ func (rx *RedisWorkerGroup[T]) Connect(ctx context.Context) error {
 	if err := rx.rdb.Ping(ctx).Err(); err != nil {
 		return fmt.Errorf("redis connect (ping): %v", err)
 	}
-	return nil
+	return rx.CreateGroup(ctx)
 }
 
 // return service name

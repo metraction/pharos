@@ -39,6 +39,9 @@ func (rx *PharosScanTask2) SetError(err error) *PharosScanTask2 {
 	}
 	return rx
 }
+func (rx *PharosScanTask2) HasError() bool {
+	return rx.Error != ""
+}
 
 // legacy
 type XXPharosScanTask struct {

@@ -24,16 +24,22 @@ if [ ! -f "$IMAGE_FILE" ]; then
   exit 1
 fi
 
+echo ""
 while IFS= read -r IMAGE || [[ -n "$IMAGE" ]]; do
   # skip empty lines and comments
-  [[ -z "$IMAGE" || "$IMAGE" =~ ^# ]] && continue
-
+  if [[ "$IMAGE" == "# exit" ]]; then
+    echo "exit command"
+    exit 0
+  fi
+  if [[ -z "$IMAGE" || "$IMAGE" =~ ^# ]]; then
+    continue
+  fi
   # Extract image name and tag
   IMAGE_BASENAME="${IMAGE%%:*}"
   IMAGE_TAG="${IMAGE##*:}"
   TARGET_IMAGE="${TARGET_REGISTRY}/${IMAGE_BASENAME}:${IMAGE_TAG}"
 
-
+  echo "-----< $IMAGE >-----"
   echo "1. pull and tag single-arch images"
   for ARCH in $ARCHITECTURES; do
     skopeo copy --override-os linux --override-arch=$ARCH docker://$IMAGE docker://$TARGET_IMAGE-$ARCH

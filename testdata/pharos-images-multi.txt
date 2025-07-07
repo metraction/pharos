@@ -1,0 +1,334 @@
+# auth: $PHAROS_REPO_AUTH
+# cachettl: 48h
+# scanttl: 5m
+# maxpressure: 0.5
+
+# -----< SET PLATFORM >-----
+
+# NOTES
+# axigen no arm avbl
+
+
+# platform: linux/amd64
+# -platform: linux/arm64
+
+
+# metasploit
+pharos.secimo.net/docker.io/metasploitframework/metasploit-framework:6.2.33
+pharos.secimo.net/docker.io/metasploitframework/metasploit-framework:6.3.34
+pharos.secimo.net/docker.io/metasploitframework/metasploit-framework:6.3.47
+pharos.secimo.net/docker.io/metasploitframework/metasploit-framework:6.4.0
+
+# exit
+
+# curl
+pharos.secimo.net/docker.io/alpine/curl:8.2.0
+pharos.secimo.net/docker.io/alpine/curl:8.3.0
+pharos.secimo.net/docker.io/alpine/curl:8.4.0
+pharos.secimo.net/docker.io/alpine/curl:8.5.0
+pharos.secimo.net/docker.io/alpine/curl:8.7.1
+pharos.secimo.net/docker.io/alpine/curl:8.8.0
+pharos.secimo.net/docker.io/alpine/curl:8.9.0
+pharos.secimo.net/docker.io/alpine/curl:8.10.0
+pharos.secimo.net/docker.io/alpine/curl:8.11.1
+pharos.secimo.net/docker.io/alpine/curl:8.12.0
+pharos.secimo.net/docker.io/alpine/curl:8.14.1
+
+
+
+# openssl
+pharos.secimo.net/docker.io/alpine/openssl:3.1.3
+pharos.secimo.net/docker.io/alpine/openssl:3.1.4
+pharos.secimo.net/docker.io/alpine/openssl:3.3.0
+pharos.secimo.net/docker.io/alpine/openssl:3.3.1
+pharos.secimo.net/docker.io/alpine/openssl:3.3.2
+pharos.secimo.net/docker.io/alpine/openssl:3.3.3
+pharos.secimo.net/docker.io/alpine/openssl:3.5.0
+pharos.secimo.net/docker.io/alpine/openssl:3.5.1
+
+# exit
+
+# kubectl
+pharos.secimo.net/docker.io/istio/kubectl:1.4.1
+pharos.secimo.net/docker.io/istio/kubectl:1.5.1
+pharos.secimo.net/docker.io/istio/kubectl:1.5.2
+pharos.secimo.net/docker.io/istio/kubectl:1.5.3
+pharos.secimo.net/docker.io/istio/kubectl:1.5.4
+pharos.secimo.net/docker.io/istio/kubectl:1.5.5
+pharos.secimo.net/docker.io/istio/kubectl:1.5.6
+pharos.secimo.net/docker.io/istio/kubectl:1.5.7
+pharos.secimo.net/docker.io/istio/kubectl:1.5.8
+pharos.secimo.net/docker.io/istio/kubectl:1.5.9
+pharos.secimo.net/docker.io/istio/kubectl:1.5.10
+
+# exit
+
+# helm
+pharos.secimo.net/docker.io/alpine/helm:3.10.1
+pharos.secimo.net/docker.io/alpine/helm:3.11.1
+pharos.secimo.net/docker.io/alpine/helm:3.12.1
+pharos.secimo.net/docker.io/alpine/helm:3.13.1
+pharos.secimo.net/docker.io/alpine/helm:3.14.1
+pharos.secimo.net/docker.io/alpine/helm:3.15.1
+pharos.secimo.net/docker.io/alpine/helm:3.16.1
+pharos.secimo.net/docker.io/alpine/helm:3.17.1
+pharos.secimo.net/docker.io/alpine/helm:3.18.1
+
+
+
+# git
+pharos.secimo.net/docker.io/alpine/git:2.43.0
+pharos.secimo.net/docker.io/alpine/git:2.45.1
+pharos.secimo.net/docker.io/alpine/git:2.47.1
+pharos.secimo.net/docker.io/alpine/git:2.49.0
+
+
+
+# hasicorp vault
+pharos.secimo.net/docker.io/hashicorp/vault:1.10
+pharos.secimo.net/docker.io/hashicorp/vault:1.11
+pharos.secimo.net/docker.io/hashicorp/vault:1.12
+pharos.secimo.net/docker.io/hashicorp/vault:1.13
+pharos.secimo.net/docker.io/hashicorp/vault:1.14
+pharos.secimo.net/docker.io/hashicorp/vault:1.15
+pharos.secimo.net/docker.io/hashicorp/vault:1.16
+pharos.secimo.net/docker.io/hashicorp/vault:1.17
+pharos.secimo.net/docker.io/hashicorp/vault:1.18
+pharos.secimo.net/docker.io/hashicorp/vault:1.19
+pharos.secimo.net/docker.io/hashicorp/vault:1.20
+
+# exit
+
+# fluentbit
+pharos.secimo.net/docker.io/fluent/fluent-bit:3.0
+pharos.secimo.net/docker.io/fluent/fluent-bit:3.1
+pharos.secimo.net/docker.io/fluent/fluent-bit:3.2
+pharos.secimo.net/docker.io/fluent/fluent-bit:4.0
+
+# redhat
+pharos.secimo.net/docker.io/redhat/ubi9-minimal:9.1
+pharos.secimo.net/docker.io/redhat/ubi9-minimal:9.2
+pharos.secimo.net/docker.io/redhat/ubi9-minimal:9.3
+pharos.secimo.net/docker.io/redhat/ubi9-minimal:9.4
+pharos.secimo.net/docker.io/redhat/ubi9-minimal:9.5
+pharos.secimo.net/docker.io/redhat/ubi9-minimal:9.6
+
+
+
+pharos.secimo.net/docker.io/redhat/ubi8-minimal:8.1
+pharos.secimo.net/docker.io/redhat/ubi8-minimal:8.2
+pharos.secimo.net/docker.io/redhat/ubi8-minimal:8.3
+pharos.secimo.net/docker.io/redhat/ubi8-minimal:8.4
+pharos.secimo.net/docker.io/redhat/ubi8-minimal:8.5
+pharos.secimo.net/docker.io/redhat/ubi8-minimal:8.6
+pharos.secimo.net/docker.io/redhat/ubi8-minimal:8.7
+pharos.secimo.net/docker.io/redhat/ubi8-minimal:8.8
+pharos.secimo.net/docker.io/redhat/ubi8-minimal:8.9
+pharos.secimo.net/docker.io/redhat/ubi8-minimal:8.10
+
+
+
+# python
+pharos.secimo.net/docker.io/python:3.10-slim
+pharos.secimo.net/docker.io/python:3.10-alpine
+pharos.secimo.net/docker.io/python:3.10-bookworm
+pharos.secimo.net/docker.io/python:3.10-bullseye
+
+pharos.secimo.net/docker.io/python:3.14.0b3-slim
+pharos.secimo.net/docker.io/python:3.14.0b3-alpine
+pharos.secimo.net/docker.io/python:3.14.0b3-bookworm
+pharos.secimo.net/docker.io/python:3.14.0b3-bullseye
+
+# coredns
+pharos.secimo.net/docker.io/coredns/coredns:1.11.0
+pharos.secimo.net/docker.io/coredns/coredns:1.11.1
+pharos.secimo.net/docker.io/coredns/coredns:1.11.3
+pharos.secimo.net/docker.io/coredns/coredns:1.11.4
+pharos.secimo.net/docker.io/coredns/coredns:1.12.0
+pharos.secimo.net/docker.io/coredns/coredns:1.12.1
+pharos.secimo.net/docker.io/coredns/coredns:1.12.2
+
+# nodered
+pharos.secimo.net/docker.io/nodered/node-red:3.0.0-minimal
+pharos.secimo.net/docker.io/nodered/node-red:3.1.0-minimal
+pharos.secimo.net/docker.io/nodered/node-red:4.0.0-minimal
+
+
+# exit 
+
+# ruby
+pharos.secimo.net/docker.io/ruby:2.0
+pharos.secimo.net/docker.io/ruby:3.0
+pharos.secimo.net/docker.io/ruby:3.1
+pharos.secimo.net/docker.io/ruby:3.2
+pharos.secimo.net/docker.io/ruby:3.3
+pharos.secimo.net/docker.io/ruby:3.4
+
+# golang
+pharos.secimo.net/docker.io/golang:1.18.0
+pharos.secimo.net/docker.io/golang:1.19.0
+pharos.secimo.net/docker.io/golang:1.20.0
+pharos.secimo.net/docker.io/golang:1.21.0
+pharos.secimo.net/docker.io/golang:1.22.0
+pharos.secimo.net/docker.io/golang:1.23.0
+pharos.secimo.net/docker.io/golang:1.24.0
+pharos.secimo.net/docker.io/golang:1.24.4
+
+# openjdk
+# MISSING DB pharos.secimo.net/docker.io/openjdk:22-jdk
+pharos.secimo.net/docker.io/openjdk:23-jdk
+pharos.secimo.net/docker.io/openjdk:24-jdk
+pharos.secimo.net/docker.io/openjdk:25-jdk
+pharos.secimo.net/docker.io/openjdk:26-jdk
+
+# docker
+pharos.secimo.net/docker.io/docker:26.0
+pharos.secimo.net/docker.io/docker:27.0
+pharos.secimo.net/docker.io/docker:28.0
+pharos.secimo.net/docker.io/docker:28.1
+pharos.secimo.net/docker.io/docker:28.2
+pharos.secimo.net/docker.io/docker:28.3
+
+# rabbitmq
+pharos.secimo.net/docker.io/rabbitmq:3.9
+pharos.secimo.net/docker.io/rabbitmq:3.10
+pharos.secimo.net/docker.io/rabbitmq:3.11
+pharos.secimo.net/docker.io/rabbitmq:3.12
+pharos.secimo.net/docker.io/rabbitmq:3.13
+
+# memcached
+# ERROR pharos.secimo.net/docker.io/memcached:1.3
+pharos.secimo.net/docker.io/memcached:1.4
+pharos.secimo.net/docker.io/memcached:1.5
+pharos.secimo.net/docker.io/memcached:1.6.38
+
+# nextcloud
+pharos.secimo.net/docker.io/nextcloud:26.0
+pharos.secimo.net/docker.io/nextcloud:27.0
+pharos.secimo.net/docker.io/nextcloud:28.0
+pharos.secimo.net/docker.io/nextcloud:29.0
+pharos.secimo.net/docker.io/nextcloud:30.0
+pharos.secimo.net/docker.io/nextcloud:31.0
+
+# ubuntu
+pharos.secimo.net/docker.io/ubuntu:16.04
+pharos.secimo.net/docker.io/ubuntu:18.04
+pharos.secimo.net/docker.io/ubuntu:20.04
+pharos.secimo.net/docker.io/ubuntu:22.04
+pharos.secimo.net/docker.io/ubuntu:24.04
+
+# alpine
+pharos.secimo.net/docker.io/alpine:3.16
+pharos.secimo.net/docker.io/alpine:3.17
+pharos.secimo.net/docker.io/alpine:3.18
+pharos.secimo.net/docker.io/alpine:3.19
+pharos.secimo.net/docker.io/alpine:3.20
+pharos.secimo.net/docker.io/alpine:3.21
+pharos.secimo.net/docker.io/alpine:3.22
+
+# nginx
+pharos.secimo.net/docker.io/nginx:1.20
+pharos.secimo.net/docker.io/nginx:1.21
+pharos.secimo.net/docker.io/nginx:1.22
+pharos.secimo.net/docker.io/nginx:1.23
+pharos.secimo.net/docker.io/nginx:1.24
+pharos.secimo.net/docker.io/nginx:1.25
+pharos.secimo.net/docker.io/nginx:1.26
+pharos.secimo.net/docker.io/nginx:1.27
+
+# mosquitto
+pharos.secimo.net/docker.io/eclipse-mosquitto:2.0
+pharos.secimo.net/docker.io/eclipse-mosquitto:2.0.17
+pharos.secimo.net/docker.io/eclipse-mosquitto:2.0.18
+pharos.secimo.net/docker.io/eclipse-mosquitto:2.0.19
+pharos.secimo.net/docker.io/eclipse-mosquitto:2.0.20
+pharos.secimo.net/docker.io/eclipse-mosquitto:2.0.21
+
+# axigen
+pharos.secimo.net/docker.io/axigen/axigen:10.4.0
+pharos.secimo.net/docker.io/axigen/axigen:10.5.0
+pharos.secimo.net/docker.io/axigen/axigen:10.6.0
+
+# postgres
+pharos.secimo.net/docker.io/postgres:13.21
+pharos.secimo.net/docker.io/postgres:14.18
+pharos.secimo.net/docker.io/postgres:17.4
+pharos.secimo.net/docker.io/postgres:17.5
+
+# emqx
+pharos.secimo.net/docker.io/emqx:5.6
+pharos.secimo.net/docker.io/emqx:5.7
+pharos.secimo.net/docker.io/emqx:5.8
+
+# redis
+pharos.secimo.net/docker.io/redis:7.4.4-alpine
+pharos.secimo.net/docker.io/redis:8.0.1-alpine
+pharos.secimo.net/docker.io/redis:8.0.2-alpine
+
+# ghcr
+pharos.secimo.net/ghcr.io/chaos-mesh/chaos-coredns:v0.2.6
+pharos.secimo.net/ghcr.io/chaos-mesh/chaos-daemon:v2.6.3
+pharos.secimo.net/ghcr.io/chaos-mesh/chaos-dashboard:v2.6.3
+pharos.secimo.net/ghcr.io/chaos-mesh/chaos-mesh:v2.6.3
+pharos.secimo.net/ghcr.io/jimmidyson/configmap-reload:v0.12.0
+pharos.secimo.net/ghcr.io/metacontroller/metacontroller:v4.11.21
+
+# mcr.microsoft.com
+# ERROR pharos.secimo.net/mcr.microsoft.com/aks/acc/sgx-plugin:1.0.0
+pharos.secimo.net/mcr.microsoft.com/aks/acc/sgx-webhook:1.2.2
+pharos.secimo.net/mcr.microsoft.com/azure-policy/policy-kubernetes-addon-prod:1.11.1
+pharos.secimo.net/mcr.microsoft.com/azure-policy/policy-kubernetes-webhook:1.11.1
+pharos.secimo.net/mcr.microsoft.com/azuredefender/stable/low-level-collector:2.0.205
+pharos.secimo.net/mcr.microsoft.com/azuredefender/stable/pod-collector:1.0.177
+pharos.secimo.net/mcr.microsoft.com/azuredefender/stable/security-publisher:1.0.219
+pharos.secimo.net/mcr.microsoft.com/containernetworking/azure-cns:v1.6.25
+pharos.secimo.net/mcr.microsoft.com/containernetworking/cilium/cilium:v1.14.20-250320
+pharos.secimo.net/mcr.microsoft.com/containernetworking/cilium/cilium:v1.16.8-250325
+pharos.secimo.net/mcr.microsoft.com/containernetworking/cilium/dns-proxy:v1.14.20-250320
+pharos.secimo.net/mcr.microsoft.com/containernetworking/cilium/dns-proxy:v1.16.8-250522
+pharos.secimo.net/mcr.microsoft.com/containernetworking/cilium/operator-generic:v1.14.20-250320
+pharos.secimo.net/mcr.microsoft.com/containernetworking/cilium/operator-generic:v1.16.8-250325
+pharos.secimo.net/mcr.microsoft.com/k8s/azureserviceoperator:v2.9.0
+pharos.secimo.net/mcr.microsoft.com/oss/azure/workload-identity/webhook:v1.5.0
+pharos.secimo.net/mcr.microsoft.com/oss/cilium/certgen:v0.1.9
+pharos.secimo.net/mcr.microsoft.com/oss/cilium/hubble-relay:v1.15.0
+pharos.secimo.net/mcr.microsoft.com/oss/eraser/eraser-manager:v1.3.1
+pharos.secimo.net/mcr.microsoft.com/oss/kubernetes-csi/azuredisk-csi:v1.31.10
+pharos.secimo.net/mcr.microsoft.com/oss/kubernetes-csi/azurefile-csi:v1.31.5
+pharos.secimo.net/mcr.microsoft.com/oss/kubernetes-csi/csi-node-driver-registrar:v2.11.1
+pharos.secimo.net/mcr.microsoft.com/oss/kubernetes-csi/csi-node-driver-registrar:v2.13.0
+pharos.secimo.net/mcr.microsoft.com/oss/kubernetes-csi/livenessprobe:v2.13.1
+pharos.secimo.net/mcr.microsoft.com/oss/kubernetes-csi/livenessprobe:v2.15.0
+pharos.secimo.net/mcr.microsoft.com/oss/kubernetes-csi/secrets-store/driver:v1.4.8
+pharos.secimo.net/mcr.microsoft.com/oss/kubernetes/apiserver-network-proxy/agent:v0.30.3-hotfix.20240819
+pharos.secimo.net/mcr.microsoft.com/oss/kubernetes/azure-cloud-node-manager:v1.31.6
+pharos.secimo.net/mcr.microsoft.com/oss/v2/azure/ip-masq-agent-v2:v0.1.15-2
+pharos.secimo.net/mcr.microsoft.com/oss/v2/kubernetes/autoscaler/addon-resizer:v1.8.23-2
+pharos.secimo.net/mcr.microsoft.com/oss/v2/kubernetes/autoscaler/cluster-proportional-autoscaler:v1.8.11-5
+pharos.secimo.net/mcr.microsoft.com/oss/v2/kubernetes/coredns:v1.9.4-5
+pharos.secimo.net/mcr.microsoft.com/oss/v2/kubernetes/metrics-server:v0.6.3-5
+pharos.secimo.net/mcr.microsoft.com/oss/v2/open-policy-agent/gatekeeper:v3.19.1-1
+
+# testpub.azurecr.io
+pharos.secimo.net/testpub.azurecr.io/argoproj/argocd:v2.14.14
+pharos.secimo.net/testpub.azurecr.io/argoproj/argocd:v2.14.9
+pharos.secimo.net/testpub.azurecr.io/argoprojlabs/argocd-operator:v0.14.0
+pharos.secimo.net/testpub.azurecr.io/bitnami/sealed-secrets-controller:0.29.0
+pharos.secimo.net/testpub.azurecr.io/busybox:1.37.0
+pharos.secimo.net/testpub.azurecr.io/dexidp/dex:v2.42.0
+pharos.secimo.net/testpub.azurecr.io/dexidp/dex:v2.43.1
+pharos.secimo.net/testpub.azurecr.io/ingress-nginx/controller:v1.12.1
+pharos.secimo.net/testpub.azurecr.io/jfrog/artifactory-pro:7.104.12
+pharos.secimo.net/testpub.azurecr.io/jfrog/router:7.149.1
+pharos.secimo.net/testpub.azurecr.io/kyverno/background-controller:v1.13.6
+pharos.secimo.net/testpub.azurecr.io/kyverno/cleanup-controller:v1.13.6
+pharos.secimo.net/testpub.azurecr.io/kyverno/kyverno:v1.13.6
+pharos.secimo.net/testpub.azurecr.io/kyverno/reports-controller:v1.13.6
+pharos.secimo.net/testpub.azurecr.io/pause:3.1
+pharos.secimo.net/testpub.azurecr.io/postgres:15.12
+pharos.secimo.net/testpub.azurecr.io/valkey/valkey:7.2.6-alpine3.20
+
+# xpkg.upbound.io
+pharos.secimo.net/xpkg.upbound.io/crossplane-contrib/provider-sql:v0.9.0
+pharos.secimo.net/xpkg.upbound.io/crossplane/crossplane:v1.19.0
+

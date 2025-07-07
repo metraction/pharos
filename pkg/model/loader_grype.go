@@ -31,9 +31,10 @@ func (rx *PharosScanResult) LoadGrypeImageScan(digest string, task PharosScanTas
 	target := scan.Source.Target
 
 	// (1) load image metadata
+	rx.Image.ImageKey = "grype-" + utils.ShortDigest(digest)
 	rx.Image.ImageSpec = utils.MaskDsn(rx.ScanTask.ImageSpec)
-	rx.Image.ImageId = utils.ShortDigest(digest) + "-grype" // was target.ImageId
-	rx.Image.ManifestDigest = digest                        // was target.ManifestDigest)
+	rx.Image.ImageId = target.ImageId
+	rx.Image.ManifestDigest = digest // was target.ManifestDigest)
 
 	if len(target.RepoDigests) > 0 {
 		re := regexp.MustCompile(`@(.+)$`)

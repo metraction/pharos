@@ -110,11 +110,10 @@ func ScanImage(task model.PharosScanTask2, scanEngine *TrivyScanner, kvc *cache.
 		result.SetTaskError(err).SetScanElapsed(elapsed())
 		return result, nil, nil, err
 	}
-	result.SetTaskStatus("done")
+	result.SetTaskStatus("done").SetScanElapsed(elapsed())
 	logger.Info().
 		Str("cache", cacheState).
-		Str("manDigest1", utils.ShortDigest(manifestDigest)).
-		Str("manDigest2", utils.ShortDigest(result.Image.ManifestDigest)).
+		Str("manDigest", utils.ShortDigest(manifestDigest)).
 		Any("t.scan_timeout", task.ScanTTL.String()).
 		Any("t.cache_expiry", task.CacheTTL.String()).
 		Any("i.distro", result.Image.DistroName+" "+result.Image.DistroVersion).

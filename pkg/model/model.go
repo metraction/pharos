@@ -89,6 +89,7 @@ type Delete_PharosScanEngine struct {
 // RepoDigests:	   aribtrarily ordered list of digests reported by scanner
 
 type PharosImageMeta struct {
+	ImageKey       string      `json:"ImageKey" doc:"unique image key per image, platform and scanner engine"`
 	ImageSpec      string      `json:"ImageSpec" required:"true" doc:"image url, e.g. docker.io/nginx:latest"` // scan input / image uri
 	ImageId        string      `json:"ImageId" gorm:"primaryKey" hidden:"true" doc:"internal image ID, e.g. sha256:1234.."`
 	IndexDigest    string      `json:"IndexDigest" required:"true"` // internal ID for cache

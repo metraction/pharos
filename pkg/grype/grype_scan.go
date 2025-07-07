@@ -117,11 +117,11 @@ func ScanImage(task model.PharosScanTask2, scanEngine *GrypeScanner, kvc *cache.
 		return result, nil, nil, fmt.Errorf("image:%s %w", task.ImageSpec, err)
 	}
 
+	// done
 	result.SetTaskStatus("done").SetScanElapsed(elapsed())
 	logger.Info().
 		Str("cache", cacheState).
-		Str("manDigest1", utils.ShortDigest(manifestDigest)).
-		Str("manDigest2", utils.ShortDigest(result.Image.ManifestDigest)).
+		Str("manDigest", utils.ShortDigest(manifestDigest)).
 		Any("t.scan_timeout", task.ScanTTL.String()).
 		Any("t.cache_expiry", task.CacheTTL.String()).
 		Any("i.distro", result.Image.DistroName+" "+result.Image.DistroVersion).
