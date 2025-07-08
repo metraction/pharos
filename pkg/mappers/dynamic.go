@@ -34,17 +34,51 @@ func NewEnricherStream(stream streams.Source, enricher EnricherConfig) streams.F
 }
 
 func NewResultEnricherStream(enricher EnricherConfig) streams.Flow {
-	var result streams.Flow = flow.NewMap(ToWrappedResult, 1)
+	// Create a source that will be used as the initial flow
+	// In AppendResultEnricherStream, this is provided as a parameter
+	// Here we need to create it ourselves
+	var source streams.Flow = flow.NewMap(ToWrappedResult, 1)
+	var result streams.Flow
+	
+	// Apply all enrichers
 	for _, mapper := range enricher.Configs {
 		config := filepath.Join(enricher.BasePath, mapper.Config)
 		switch mapper.Name {
 		case "file":
-			result = result.Via(flow.NewMap(Wrap(NewAppendFile[map[string]interface{}](config)), 1))
+			source = source.Via(flow.NewMap(Wrap(NewAppendFile[map[string]interface{}](config)), 1))
 		case "hbs":
-			result = result.Via(flow.NewMap(Wrap(NewPureHbs[map[string]interface{}, map[string]interface{}](config)), 1))
+			source = source.Via(flow.NewMap(Wrap(NewPureHbs[map[string]interface{}, map[string]interface{}](config)), 1))
 		case "debug":
-			result = result.Via(flow.NewMap(Wrap(NewDebug(config)), 1))
+			source = source.Via(flow.NewMap(Wrap(NewDebug(config)), 1))
 		}
+		result = source
+	}
+	
+	// If no configs were processed, use the initial source
+	if result == nil {
+		result = source
+	}
+	
+	// Apply final transformation to unwrap the result
+	result = result.Via(flow.NewMap(ToUnWrappedResult, 1))
+	
+	return result
+}
+
+func AppendResultEnricherStream(stream streams.Source, enricher EnricherConfig) streams.Flow {
+	var result streams.Flow
+	stream = stream.Via(flow.NewMap(ToWrappedResult, 1))
+	for _, mapper := range enricher.Configs {
+		config := filepath.Join(enricher.BasePath, mapper.Config)
+		switch mapper.Name {
+		case "file":
+			stream = stream.Via(flow.NewMap(Wrap(NewAppendFile[map[string]interface{}](config)), 1))
+		case "hbs":
+			stream = stream.Via(flow.NewMap(Wrap(NewPureHbs[map[string]interface{}, map[string]interface{}](config)), 1))
+		case "debug":
+			stream = stream.Via(flow.NewMap(Wrap(NewDebug(config)), 1))
+		}
+		result = stream.(streams.Flow)
 	}
 	result = result.Via(flow.NewMap(ToUnWrappedResult, 1))
 	return result

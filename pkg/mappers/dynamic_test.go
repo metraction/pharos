@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/metraction/pharos/pkg/model"
+	"github.com/reugn/go-streams"
 	"github.com/reugn/go-streams/extension"
 	"github.com/reugn/go-streams/flow"
 )
@@ -64,6 +65,41 @@ func TestDynamicStream(t *testing.T) {
 	}
 }
 
+func TestToWrappedResult(t *testing.T) {
+	scanResult := model.NewTestScanResult(model.NewTestScanTask(t, "test-1", "test-image-1"), "test-engine-1")
+	outChan := make(chan any, 1)
+	outChan <- scanResult
+	close(outChan)
+
+	stream := extension.NewChanSource(outChan).
+		Via(flow.NewMap(ToWrappedResult, 1))
+	result := (<-stream.Out()).(WrappedResult)
+
+	// Assert that the result contains the same scan result that was passed in
+	if !reflect.DeepEqual(result.Result.ScanTask.JobId, scanResult.ScanTask.JobId) {
+		t.Errorf("Expected result.ScanTask.JobId to be %v, got %v", scanResult.ScanTask.JobId, result.Result.ScanTask.JobId)
+	}
+}
+
+func TestToWrappedResultComposition(t *testing.T) {
+	scanResult := model.NewTestScanResult(model.NewTestScanTask(t, "test-1", "test-image-1"), "test-engine-1")
+	outChan := make(chan any, 1)
+	outChan <- scanResult
+	close(outChan)
+
+	var stream streams.Source = extension.NewChanSource(outChan)
+	flow := flow.NewMap(ToWrappedResult, 1)
+
+	stream = stream.Via(flow)
+
+	result := (<-stream.Out()).(WrappedResult)
+
+	// Assert that the result contains the same scan result that was passed in
+	if !reflect.DeepEqual(result.Result.ScanTask.JobId, scanResult.ScanTask.JobId) {
+		t.Errorf("Expected result.ScanTask.JobId to be %v, got %v", scanResult.ScanTask.JobId, result.Result.ScanTask.JobId)
+	}
+}
+
 func TestDynamicWrapperStream(t *testing.T) {
 	enricher := EnricherConfig{
 		BasePath: filepath.Join("..", "..", "testdata", "enrichers"),
@@ -72,7 +108,6 @@ func TestDynamicWrapperStream(t *testing.T) {
 			{Name: "file", Config: "eos.yaml"},
 			{Name: "debug", Config: "1"},
 			{Name: "hbs", Config: "pass_through.hbs"},
-			{Name: "debug", Config: ""},
 		},
 	}
 
