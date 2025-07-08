@@ -117,7 +117,7 @@ These submissions are then published to a Redis stream for further processing by
 </body>
 </html>`))
 		})
-
+		// Register the API with the router
 		router.HandleFunc("/submit/image", routing.SubmitImageHandler(publisher, config))
 		serverAddr := fmt.Sprintf(":%d", httpPort)
 		logger.Info().Str("address", serverAddr).Msg("Starting HTTP server")

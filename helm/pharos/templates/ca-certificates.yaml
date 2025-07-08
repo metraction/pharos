@@ -1,0 +1,11 @@
+{{- if .Values.caCertificates.configMapEnabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ca-certificates
+  labels:
+    app.kubernetes.io/name: ca-certificates
+data:
+  ca-certificates.crt: |-
+{{ .Files.Get "files/ca-certificates.crt" | indent 4 }}
+{{- end }}
