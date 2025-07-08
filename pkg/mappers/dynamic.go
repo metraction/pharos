@@ -3,6 +3,7 @@ package mappers
 import (
 	"path/filepath"
 
+	"github.com/metraction/pharos/pkg/model"
 	"github.com/reugn/go-streams"
 	"github.com/reugn/go-streams/flow"
 )
@@ -33,36 +34,29 @@ func NewEnricherStream(stream streams.Source, enricher EnricherConfig) streams.F
 	return result
 }
 
-func NewResultEnricherStream(enricher EnricherConfig) streams.Flow {
-	// Create a source that will be used as the initial flow
-	// In AppendResultEnricherStream, this is provided as a parameter
-	// Here we need to create it ourselves
-	var source streams.Flow = flow.NewMap(ToWrappedResult, 1)
-	var result streams.Flow
-	
-	// Apply all enrichers
-	for _, mapper := range enricher.Configs {
-		config := filepath.Join(enricher.BasePath, mapper.Config)
-		switch mapper.Name {
-		case "file":
-			source = source.Via(flow.NewMap(Wrap(NewAppendFile[map[string]interface{}](config)), 1))
-		case "hbs":
-			source = source.Via(flow.NewMap(Wrap(NewPureHbs[map[string]interface{}, map[string]interface{}](config)), 1))
-		case "debug":
-			source = source.Via(flow.NewMap(Wrap(NewDebug(config)), 1))
+func NewResultEnricherMap(enricher EnricherConfig) streams.Flow {
+	// Create a single functions composition of functions resulting in
+	// WrappedResult and passing it to next function
+	return flow.NewMap(func(scanResult model.PharosScanResult) model.PharosScanResult {
+		// Step 1: Wrap the result
+		wrapped := ToWrappedResult(scanResult)
+
+		// Step 2: Apply all enrichers in sequence
+		for _, mapper := range enricher.Configs {
+			config := filepath.Join(enricher.BasePath, mapper.Config)
+			switch mapper.Name {
+			case "file":
+				wrapped = Wrap(NewAppendFile[map[string]interface{}](config))(wrapped)
+			case "hbs":
+				wrapped = Wrap(NewPureHbs[map[string]interface{}, map[string]interface{}](config))(wrapped)
+			case "debug":
+				wrapped = Wrap(NewDebug(config))(wrapped)
+			}
 		}
-		result = source
-	}
-	
-	// If no configs were processed, use the initial source
-	if result == nil {
-		result = source
-	}
-	
-	// Apply final transformation to unwrap the result
-	result = result.Via(flow.NewMap(ToUnWrappedResult, 1))
-	
-	return result
+
+		// Step 3: Unwrap the result
+		return ToUnWrappedResult(wrapped)
+	}, 1)
 }
 
 func AppendResultEnricherStream(stream streams.Source, enricher EnricherConfig) streams.Flow {

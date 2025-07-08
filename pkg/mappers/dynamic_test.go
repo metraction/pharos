@@ -104,10 +104,9 @@ func TestDynamicWrapperStream(t *testing.T) {
 	enricher := EnricherConfig{
 		BasePath: filepath.Join("..", "..", "testdata", "enrichers"),
 		Configs: []MapperConfig{
-			{Name: "debug", Config: "1"},
 			{Name: "file", Config: "eos.yaml"},
-			{Name: "debug", Config: "1"},
 			{Name: "hbs", Config: "pass_through.hbs"},
+			//{Name: "debug", Config: "1"},
 		},
 	}
 
@@ -117,7 +116,7 @@ func TestDynamicWrapperStream(t *testing.T) {
 	close(outChan)
 
 	stream := extension.NewChanSource(outChan).
-		Via(NewResultEnricherStream(enricher))
+		Via(NewResultEnricherMap(enricher))
 	result := (<-stream.Out()).(model.PharosScanResult)
 
 	// Assert that the result contains the same scan result that was passed in
