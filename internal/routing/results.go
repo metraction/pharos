@@ -3,8 +3,8 @@ package routing
 import (
 	"context"
 
-	"github.com/metraction/pharos/internal/integrations"
 	"github.com/metraction/pharos/internal/integrations/db"
+	fredis "github.com/metraction/pharos/internal/integrations/redis"
 	pharosstreams "github.com/metraction/pharos/internal/integrations/streams"
 	"github.com/metraction/pharos/pkg/mappers"
 	"github.com/metraction/pharos/pkg/model"
@@ -23,7 +23,7 @@ func NewScanResultCollectorSink(
 	log *zerolog.Logger) {
 	pharosScanTaskHandler := pharosstreams.NewPharosScanTaskHandler()
 
-	redisFlow := integrations.NewRedisConsumerGroupSource[model.PharosScanResult](ctx, rdb, config.QueueName, config.GroupName, config.ConsumerName, "0", config.BlockTimeout, 1).
+	redisFlow := fredis.NewRedisConsumerGroupSource[model.PharosScanResult](ctx, rdb, config.QueueName, config.GroupName, config.ConsumerName, "0", config.BlockTimeout, 1).
 		Via(flow.NewPassThrough()).
 		Via(flow.NewFilter(pharosScanTaskHandler.FilterFailedTasks, 1)).
 		Via(flow.NewMap(pharosScanTaskHandler.UpdateScanTime, 1))

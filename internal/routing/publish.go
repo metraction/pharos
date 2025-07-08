@@ -10,22 +10,22 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/metraction/pharos/internal/integrations"
+	"github.com/metraction/pharos/internal/integrations/redis"
 	"github.com/metraction/pharos/pkg/model"
 )
 
-func NewPublisher(ctx context.Context, cfg *model.Config) (*integrations.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult], error) {
-	client, err := integrations.NewRedisGtrsClient[model.PharosScanTask2, model.PharosScanResult](ctx, cfg, cfg.Publisher.RequestQueue, cfg.Publisher.ResponseQueue)
+func NewPublisher(ctx context.Context, cfg *model.Config) (*redis.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult], error) {
+	client, err := redis.NewRedisGtrsClient[model.PharosScanTask2, model.PharosScanResult](ctx, cfg, cfg.Publisher.RequestQueue, cfg.Publisher.ResponseQueue)
 	return client, err
 }
 
-func NewPriorityPublisher(ctx context.Context, cfg *model.Config) (*integrations.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult], error) {
-	client, err := integrations.NewRedisGtrsClient[model.PharosScanTask2, model.PharosScanResult](ctx, cfg, cfg.Publisher.PriorityRequestQueue, cfg.Publisher.PriorityResponseQueue)
+func NewPriorityPublisher(ctx context.Context, cfg *model.Config) (*redis.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult], error) {
+	client, err := redis.NewRedisGtrsClient[model.PharosScanTask2, model.PharosScanResult](ctx, cfg, cfg.Publisher.PriorityRequestQueue, cfg.Publisher.PriorityResponseQueue)
 	return client, err
 }
 
 // SubmitImageHandler handles HTTP requests for submitting Docker image information.
-func SubmitImageHandler(client *integrations.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult], cfg *model.Config) http.HandlerFunc {
+func SubmitImageHandler(client *redis.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult], cfg *model.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)

@@ -10,7 +10,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/google/uuid"
-	"github.com/metraction/pharos/internal/integrations"
+	"github.com/metraction/pharos/internal/integrations/redis"
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/rs/zerolog"
@@ -19,8 +19,8 @@ import (
 type PharosScanTaskController struct {
 	Path              string
 	Api               *huma.API
-	AsyncPublisher    *integrations.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult]
-	PriorityPublisher *integrations.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult]
+	AsyncPublisher    *redis.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult]
+	PriorityPublisher *redis.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult]
 	Config            *model.Config
 	Logger            *zerolog.Logger
 	ResultChannel     chan any
@@ -59,13 +59,13 @@ func (pc *PharosScanTaskController) AddRoutes() {
 }
 
 func (pc *PharosScanTaskController) WithPublisher(
-	publisher *integrations.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult], priorityPublisher *integrations.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult]) *PharosScanTaskController {
+	publisher *redis.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult], priorityPublisher *redis.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult]) *PharosScanTaskController {
 	pc.AsyncPublisher = publisher
 	pc.PriorityPublisher = priorityPublisher
 	return pc
 }
 
-func (pc *PharosScanTaskController) sendScanRequest(ctx context.Context, publisher *integrations.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult], pharosScanTask *model.PharosScanTask2) (string, *model.PharosScanTask2, error) {
+func (pc *PharosScanTaskController) sendScanRequest(ctx context.Context, publisher *redis.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult], pharosScanTask *model.PharosScanTask2) (string, *model.PharosScanTask2, error) {
 	// Set default values for ArchName and ArchOS if not provided
 	//now := time.Now().UTC()
 	if pharosScanTask.Platform == "" {
