@@ -16,12 +16,13 @@ import (
 )
 
 type PharosScanTaskController struct {
-	Path          string
-	Api           *huma.API
-	Config        *model.Config
-	Logger        *zerolog.Logger
-	SourceChannel chan any
-	ResultChannel chan any
+	Path            string
+	Api             *huma.API
+	Config          *model.Config
+	Logger          *zerolog.Logger
+	TaskChannel     chan any
+	ResultChannel   chan any
+	ResponseChannel chan any
 }
 
 // TODO: Rename as PharosScanTask2 is know from model, leads to confusion
@@ -29,14 +30,15 @@ type PharosScanTask2 struct {
 	Body model.PharosScanTask2 `json:"body"`
 }
 
-func NewPharosScanTaskController(api *huma.API, config *model.Config, sourceChannel chan any, resultChannel chan any) *PharosScanTaskController {
+func NewPharosScanTaskController(api *huma.API, config *model.Config, sourceChannel chan any, resultChannel chan any, responseChannel chan any) *PharosScanTaskController {
 	pc := &PharosScanTaskController{
-		Path:          "/pharosscantask",
-		Api:           api,
-		Config:        config,
-		Logger:        logging.NewLogger("info", "component", "PharosScanTaskController"),
-		SourceChannel: sourceChannel,
-		ResultChannel: resultChannel, // Used only for sync scans
+		Path:            "/pharosscantask",
+		Api:             api,
+		Config:          config,
+		Logger:          logging.NewLogger("info", "component", "PharosScanTaskController"),
+		TaskChannel:     sourceChannel,
+		ResultChannel:   resultChannel,
+		ResponseChannel: responseChannel,
 	}
 
 	return pc
@@ -79,7 +81,7 @@ func (pc *PharosScanTaskController) sendScanRequest(ctx context.Context, pharosS
 
 	pc.Logger.Info().Str("image", pharosScanTask.ImageSpec).Msg("Sending image scan request")
 
-	pc.SourceChannel <- *pharosScanTask
+	pc.TaskChannel <- *pharosScanTask
 
 	pc.Logger.Info().Msg("Sent scan task to scanner")
 	if err != nil {
@@ -201,12 +203,20 @@ func (pc *PharosScanTaskController) SyncScan() (huma.Operation, func(ctx context
 				},
 			},
 		}, func(ctx context.Context, input *PharosScanTask2) (*PharosScanResult, error) {
-			_, err := pc.sendScanRequest(ctx, &input.Body)
+			pharosScanTask, err := pc.sendScanRequest(ctx, &input.Body)
 			if err != nil {
 				pc.Logger.Error().Err(err).Msg("Failed to send scan request")
 				return nil, err
 			}
-			pharosScanResult := (<-pc.ResultChannel).(model.PharosScanResult)
+			// Wait for submitted scan task to be processed
+			var pharosScanResult model.PharosScanResult
+			for {
+				pharosScanResult = (<-pc.ResponseChannel).(model.PharosScanResult)
+				if pharosScanResult.ScanTask.JobId == pharosScanTask.JobId {
+					break
+				}
+			}
+
 			if pharosScanResult.ScanTask.Error != "" {
 				pc.Logger.Warn().Str("taskId", pharosScanResult.ScanTask.JobId).Str("error", pharosScanResult.ScanTask.Error).Msg("Scan task failed")
 				return nil, huma.Error500InternalServerError("Error during scan: " + pharosScanResult.ScanTask.Error)
