@@ -32,6 +32,7 @@ type PublisherConfig struct {
 	ResponseQueue         string `mapstructure:"responseQueue"`
 	PriorityResponseQueue string `mapstructure:"priorityResponseQueue"`
 	Timeout               string `mapstructure:"timeout"`
+	QueueSize             int    `mapstructure:"queueSize"`
 }
 
 type ResultCollectorConfig struct {
@@ -39,7 +40,7 @@ type ResultCollectorConfig struct {
 	GroupName    string        `mapstructure:"groupName"`
 	ConsumerName string        `mapstructure:"consumerName"`
 	BlockTimeout time.Duration `mapstructure:"blockTimeout"`
-	MessageCount string        `mapstructure:"messageCount"`
+	QueueSize    int           `mapstructure:"queueSize"`
 }
 
 type PrometheusReporterConfig struct {

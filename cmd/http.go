@@ -7,10 +7,10 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
 	"github.com/reugn/go-streams/extension"
+	"github.com/reugn/go-streams/flow"
 
 	"github.com/metraction/pharos/internal/controllers"
 	"github.com/metraction/pharos/internal/integrations/db"
-	"github.com/metraction/pharos/internal/integrations/redis"
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/internal/routing"
 	"github.com/metraction/pharos/pkg/mappers"
@@ -47,17 +47,7 @@ These submissions are then published to a Redis stream for further processing by
 		api.UseMiddleware(metricsController.MetricsMiddleware())
 
 		api.UseMiddleware(databaseContext.DatabaseMiddleware())
-		publisher, err := routing.NewPublisher(cmd.Context(), config)
-		if err != nil {
-			logger.Fatal().Err(err).Msg("Failed to create publisher flow")
-			return
-		}
-		priorityPublisher, err := routing.NewPriorityPublisher(cmd.Context(), config)
-		if err != nil {
-			logger.Fatal().Err(err).Msg("Failed to create publisher flow")
-			return
-		}
-		rdb := redis.NewRedis(cmd.Context(), config)
+
 		logger.Debug().Str("basePath", config.Mapper.BasePath).Msg("Loading mapper from")
 		enricher := mappers.EnricherConfig{
 			BasePath: config.Mapper.BasePath,
@@ -69,25 +59,31 @@ These submissions are then published to a Redis stream for further processing by
 			},
 		}
 
-		// Results processing stream reading from redis
-		go routing.NewScanResultCollectorSink(
-			cmd.Context(),
-			rdb,
-			databaseContext,
-			&config.ResultCollector,
-			enricher,
-			logger,
-		)
+		// For scan tasks
+		taskChannel := make(chan any, config.Publisher.QueueSize)
+		// For scanning bypass
+		resultChannel := make(chan any, config.ResultCollector.QueueSize)
+		// For responses
+		responseChannel := make(chan any, config.ResultCollector.QueueSize)
 
-		resultChannel := make(chan any)
-		source := extension.NewChanSource(resultChannel)
+		// Results processing stream reading from redis
+		go routing.NewScanResultCollectorFlow(
+			cmd.Context(),
+			config,
+			enricher,
+			extension.NewChanSource(taskChannel),
+			logger,
+		).
+			Via(flow.NewMap(routing.NewNotifier(responseChannel), 1)).
+			To(db.NewImageDbSink(databaseContext))
+
 		// Create results flow without redis
-		go routing.NewScanResultsInternalFlow(source, enricher).
+		go routing.NewScanResultsInternalFlow(extension.NewChanSource(resultChannel), enricher).
 			To(db.NewImageDbSink(databaseContext))
 
 		// Add routes for the API
 		controllers.NewimageController(&api, config).AddRoutes()
-		controllers.NewPharosScanTaskController(&api, config, resultChannel).WithPublisher(publisher, priorityPublisher).AddRoutes()
+		controllers.NewPharosScanTaskController(&api, config, taskChannel, resultChannel, responseChannel).AddRoutes()
 		metricsController.AddRoutes()
 		// Add go streams routes
 		go routing.NewImageCleanupFlow(databaseContext, config)
@@ -117,8 +113,7 @@ These submissions are then published to a Redis stream for further processing by
 </body>
 </html>`))
 		})
-		// Register the API with the router
-		router.HandleFunc("/submit/image", routing.SubmitImageHandler(publisher, config))
+
 		serverAddr := fmt.Sprintf(":%d", httpPort)
 		logger.Info().Str("address", serverAddr).Msg("Starting HTTP server")
 		if err := http.ListenAndServe(serverAddr, router); err != nil {

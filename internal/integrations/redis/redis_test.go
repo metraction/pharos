@@ -3,95 +3,19 @@ package redis
 import (
 	"context"
 	"fmt"
-	"os"
 	"strings"
 	"sync"
 	"testing"
 	"time"
 
-	"github.com/alicebob/miniredis/v2"
 	"github.com/google/uuid"
 	"github.com/metraction/pharos/pkg/model"
-	"github.com/redis/go-redis/v9"
 	"github.com/reugn/go-streams"
 	"github.com/reugn/go-streams/extension"
 	"github.com/reugn/go-streams/flow"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-// We'll use the actual model types for testing
-// PharosScanTask and PharosScanResult are defined in pkg/model
-
-func setupRedisTest(t *testing.T) (*miniredis.Miniredis, *redis.Client, *model.Config) {
-	// Check if REDIS_DSN environment variable is set
-	redisDSN := os.Getenv("REDIS_DSN")
-	if redisDSN != "" {
-		// Use real Redis instance
-		t.Logf("Using real Redis instance at %s", redisDSN)
-		config := &model.Config{
-			Redis:     model.Redis{DSN: redisDSN},
-			Publisher: model.PublisherConfig{Timeout: "5s"},
-		}
-
-		// Create Redis client
-		rdb := redis.NewClient(&redis.Options{
-			Addr: redisDSN,
-		})
-
-		// Test the connection
-		err := rdb.Ping(context.Background()).Err()
-		require.NoError(t, err, "Failed to connect to Redis")
-
-		return nil, rdb, config
-	}
-
-	// Start a mini Redis server for testing
-	t.Log("Using miniredis for testing")
-	mr, err := miniredis.Run()
-	require.NoError(t, err)
-
-	// Create Redis config that points to the mini Redis
-	redisCfg := model.Redis{
-		DSN: mr.Addr(),
-	}
-
-	// Create Redis client
-	rdb := redis.NewClient(&redis.Options{
-		Addr: mr.Addr(),
-	})
-
-	config := &model.Config{
-		Redis:     redisCfg,
-		Publisher: model.PublisherConfig{Timeout: "5s"},
-	}
-	return mr, rdb, config
-}
-
-// newTestScanTask is a test helper that creates a PharosScanTask with standard defaults.
-func newTestScanTask(t *testing.T, taskID, image string) model.PharosScanTask2 {
-	t.Helper()
-	task := model.PharosScanTask2{JobId: taskID, ImageSpec: image, ScanTTL: 30 * time.Second, CacheTTL: 1 * time.Hour}
-	return task
-}
-
-// newTestScanResult is a test helper that creates a PharosScanResult for a given task and engine name.
-func newTestScanResult(task model.PharosScanTask2, engineName string) model.PharosScanResult {
-	task.Engine = engineName
-	task.Status = "done"
-	return model.PharosScanResult{
-		Version:  "1.0",
-		ScanTask: task,
-		Image: model.PharosImageMeta{
-			ImageSpec:   task.ImageSpec,
-			ImageId:     "test-image-id",
-			IndexDigest: "sha256:test",
-		},
-		Findings:        []model.PharosScanFinding{},
-		Vulnerabilities: []model.PharosVulnerability{},
-		Packages:        []model.PharosPackage{},
-	}
-}
 
 func TestIntegrationClientServer(t *testing.T) {
 	// Skip in short mode
@@ -100,7 +24,7 @@ func TestIntegrationClientServer(t *testing.T) {
 	}
 
 	// Setup Redis (mini or real)
-	mr, _, config := setupRedisTest(t)
+	mr, _, config := SetupTestRedis(t)
 	if mr != nil {
 		defer mr.Close()
 	}
@@ -215,7 +139,7 @@ func TestMessageConsumedOnlyOnce(t *testing.T) {
 	}
 
 	// Setup Redis (mini or real)
-	mr, _, config := setupRedisTest(t)
+	mr, _, config := SetupTestRedis(t)
 	if mr != nil {
 		defer mr.Close()
 	}
@@ -312,7 +236,7 @@ func TestRedisConsumerGroupSource(t *testing.T) {
 	}
 
 	// Setup Redis (mini or real)
-	mr, rdb, _ := setupRedisTest(t)
+	mr, rdb, _ := SetupTestRedis(t)
 	if mr != nil {
 		defer mr.Close()
 	}
@@ -470,7 +394,7 @@ func TestRedisQueueLimit(t *testing.T) {
 	limit := 5
 
 	// Create redis for test
-	mr, rdb, _ := setupRedisTest(t)
+	mr, rdb, _ := SetupTestRedis(t)
 	if mr != nil {
 		defer mr.Close()
 	}
