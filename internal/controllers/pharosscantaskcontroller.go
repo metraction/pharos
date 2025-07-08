@@ -10,20 +10,18 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/google/uuid"
-	"github.com/metraction/pharos/internal/integrations/redis"
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/rs/zerolog"
 )
 
 type PharosScanTaskController struct {
-	Path              string
-	Api               *huma.API
-	AsyncPublisher    *redis.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult]
-	PriorityPublisher *redis.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult]
-	Config            *model.Config
-	Logger            *zerolog.Logger
-	ResultChannel     chan any
+	Path          string
+	Api           *huma.API
+	Config        *model.Config
+	Logger        *zerolog.Logger
+	SourceChannel chan any
+	ResultChannel chan any
 }
 
 // TODO: Rename as PharosScanTask2 is know from model, leads to confusion
@@ -31,13 +29,14 @@ type PharosScanTask2 struct {
 	Body model.PharosScanTask2 `json:"body"`
 }
 
-func NewPharosScanTaskController(api *huma.API, config *model.Config, resultChannel chan any) *PharosScanTaskController {
+func NewPharosScanTaskController(api *huma.API, config *model.Config, sourceChannel chan any, resultChannel chan any) *PharosScanTaskController {
 	pc := &PharosScanTaskController{
 		Path:          "/pharosscantask",
 		Api:           api,
 		Config:        config,
 		Logger:        logging.NewLogger("info", "component", "PharosScanTaskController"),
-		ResultChannel: resultChannel, // Channel to handle scan
+		SourceChannel: sourceChannel,
+		ResultChannel: resultChannel, // Used only for sync scans
 	}
 
 	return pc
@@ -58,14 +57,7 @@ func (pc *PharosScanTaskController) AddRoutes() {
 	}
 }
 
-func (pc *PharosScanTaskController) WithPublisher(
-	publisher *redis.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult], priorityPublisher *redis.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult]) *PharosScanTaskController {
-	pc.AsyncPublisher = publisher
-	pc.PriorityPublisher = priorityPublisher
-	return pc
-}
-
-func (pc *PharosScanTaskController) sendScanRequest(ctx context.Context, publisher *redis.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult], pharosScanTask *model.PharosScanTask2) (string, *model.PharosScanTask2, error) {
+func (pc *PharosScanTaskController) sendScanRequest(ctx context.Context, pharosScanTask *model.PharosScanTask2) (*model.PharosScanTask2, error) {
 	// Set default values for ArchName and ArchOS if not provided
 	//now := time.Now().UTC()
 	if pharosScanTask.Platform == "" {
@@ -84,18 +76,17 @@ func (pc *PharosScanTaskController) sendScanRequest(ctx context.Context, publish
 	if pharosScanTask.CacheTTL == 0 {
 		pharosScanTask.CacheTTL = 24 * time.Hour // Default cache expiry
 	}
-	if pc.PriorityPublisher == nil {
-		pc.Logger.Error().Msg("PriorityPublisher is not set, cannot send scan request")
-		return "", nil, huma.Error500InternalServerError("PriorityPublisher is not set, cannot send scan request")
-	}
+
 	pc.Logger.Info().Str("image", pharosScanTask.ImageSpec).Msg("Sending image scan request")
-	err, corrId := publisher.SendRequest(ctx, *pharosScanTask)
-	pc.Logger.Info().Str("corrId", corrId).Msg("Sent scan task to scanner")
+
+	pc.SourceChannel <- *pharosScanTask
+
+	pc.Logger.Info().Msg("Sent scan task to scanner")
 	if err != nil {
 		pc.Logger.Error().Err(err).Msg("Failed to send request to scanner")
-		return "", nil, huma.Error500InternalServerError("Failed to send request to scanner: " + err.Error())
+		return nil, huma.Error500InternalServerError("Failed to send request to scanner: " + err.Error())
 	}
-	return corrId, pharosScanTask, nil
+	return pharosScanTask, nil
 }
 
 // SyncScan handles the creation or update of a Docker image and initiates a scan.
@@ -174,7 +165,7 @@ func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx contex
 					return nil, huma.Error409Conflict("Image with ImageSpec " + input.Body.ImageSpec + " already exists in database")
 				}
 			}
-			_, pharosScanTask, err := pc.sendScanRequest(ctx, pc.AsyncPublisher, &input.Body)
+			pharosScanTask, err := pc.sendScanRequest(ctx, &input.Body)
 			if err != nil {
 				pc.Logger.Error().Err(err).Msg("Failed to send scan request")
 				return nil, err
@@ -210,21 +201,20 @@ func (pc *PharosScanTaskController) SyncScan() (huma.Operation, func(ctx context
 				},
 			},
 		}, func(ctx context.Context, input *PharosScanTask2) (*PharosScanResult, error) {
-			timeout, err := time.ParseDuration(pc.Config.Publisher.Timeout)
-			corrId, _, err := pc.sendScanRequest(ctx, pc.PriorityPublisher, &input.Body)
+			_, err := pc.sendScanRequest(ctx, &input.Body)
 			if err != nil {
 				pc.Logger.Error().Err(err).Msg("Failed to send scan request")
 				return nil, err
 			}
-			pharosScanResult, err := pc.PriorityPublisher.ReceiveResponse(ctx, corrId, timeout)
+			pharosScanResult := (<-pc.ResultChannel).(model.PharosScanResult)
 			if pharosScanResult.ScanTask.Error != "" {
-				pc.Logger.Warn().Str("corrId", corrId).Str("error", pharosScanResult.ScanTask.Error).Msg("Scan task failed")
+				pc.Logger.Warn().Str("taskId", pharosScanResult.ScanTask.JobId).Str("error", pharosScanResult.ScanTask.Error).Msg("Scan task failed")
 				return nil, huma.Error500InternalServerError("Error during scan: " + pharosScanResult.ScanTask.Error)
 			}
 			if err != nil {
 				return nil, huma.Error500InternalServerError("Error during scan: " + err.Error())
 			}
-			pc.Logger.Info().Str("corrId", corrId).Str("ImageId", pharosScanResult.Image.ImageId).Msg("Received sync scan result for image")
+			pc.Logger.Info().Str("taskId", pharosScanResult.ScanTask.JobId).Str("ImageId", pharosScanResult.Image.ImageId).Msg("Received sync scan result for image")
 			return &PharosScanResult{
 				Body: pharosScanResult,
 			}, nil

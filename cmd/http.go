@@ -46,16 +46,6 @@ These submissions are then published to a Redis stream for further processing by
 		api.UseMiddleware(metricsController.MetricsMiddleware())
 
 		api.UseMiddleware(databaseContext.DatabaseMiddleware())
-		publisher, err := routing.NewPublisher(cmd.Context(), config)
-		if err != nil {
-			logger.Fatal().Err(err).Msg("Failed to create publisher flow")
-			return
-		}
-		priorityPublisher, err := routing.NewPriorityPublisher(cmd.Context(), config)
-		if err != nil {
-			logger.Fatal().Err(err).Msg("Failed to create publisher flow")
-			return
-		}
 
 		logger.Debug().Str("basePath", config.Mapper.BasePath).Msg("Loading mapper from")
 		enricher := mappers.EnricherConfig{
@@ -68,23 +58,28 @@ These submissions are then published to a Redis stream for further processing by
 			},
 		}
 
+		// For scan tasks
+		sourceChannel := make(chan any, config.Publisher.QueueSize)
+		// For scanning bypass
+		resultChannel := make(chan any, config.ResultCollector.QueueSize)
+
 		// Results processing stream reading from redis
 		go routing.NewScanResultCollectorFlow(
 			cmd.Context(),
 			config,
 			enricher,
+			extension.NewChanSource(sourceChannel),
 			logger,
-		).To(db.NewImageDbSink(databaseContext))
+		).
+			To(db.NewImageDbSink(databaseContext))
 
-		resultChannel := make(chan any)
-		source := extension.NewChanSource(resultChannel)
 		// Create results flow without redis
-		go routing.NewScanResultsInternalFlow(source, enricher).
+		go routing.NewScanResultsInternalFlow(extension.NewChanSource(resultChannel), enricher).
 			To(db.NewImageDbSink(databaseContext))
 
 		// Add routes for the API
 		controllers.NewimageController(&api, config).AddRoutes()
-		controllers.NewPharosScanTaskController(&api, config, resultChannel).WithPublisher(publisher, priorityPublisher).AddRoutes()
+		controllers.NewPharosScanTaskController(&api, config, sourceChannel, resultChannel).AddRoutes()
 		metricsController.AddRoutes()
 		// Add go streams routes
 		go routing.NewImageCleanupFlow(databaseContext, config)
@@ -115,7 +110,6 @@ These submissions are then published to a Redis stream for further processing by
 </html>`))
 		})
 
-		router.HandleFunc("/submit/image", routing.SubmitImageHandler(publisher, config))
 		serverAddr := fmt.Sprintf(":%d", httpPort)
 		logger.Info().Str("address", serverAddr).Msg("Starting HTTP server")
 		if err := http.ListenAndServe(serverAddr, router); err != nil {
