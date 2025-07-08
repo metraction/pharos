@@ -83,6 +83,18 @@ prometheus:
   query: 'kube_pod_container_info{}'
   # -- Interval for scanning images
   interval: 10m
+  # -- Context labels to add to the Prometheus context
+  contextLabels: "namespace"
+  # -- Time to live for the scan results, defaults to 12 hours
+  ttl: "12h"
+  # -- Authentication for Prometheus
+  auth:
+    # -- Username for Prometheus authentication
+    username: ""
+    # -- Password for Prometheus authentication
+    password: ""
+    # -- Token for Prometheus authentication
+    token: ""
 
 
 # -- Mappers configuration
