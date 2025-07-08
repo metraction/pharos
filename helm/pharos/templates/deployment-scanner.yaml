@@ -1,3 +1,4 @@
+{{- if .Values.scannerPod.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -32,4 +33,4 @@ spec:
         - name: config-volume
           configMap:
             name: pharos-config
-
+{{- end }}

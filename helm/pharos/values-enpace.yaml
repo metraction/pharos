@@ -1,0 +1,43 @@
+replicaCount: 1
+image:
+  # -- registry for pharos-image
+  registry: ghcr.io
+  # -- repository for pharos-image
+  repository: metraction/pharos/pharos-c52785725d1132c2f91e01422b7f40ba
+  # -- pull policy for pharos-image
+  pullPolicy: Always
+
+# -- list of imagePullSecrets to use. These secrets are also used to get the images to scan.
+imagePullSecrets:
+  - name: github-registry
+
+ingress: 
+  enabled: true
+  host: "pharos.enpace.ch"
+  className: nginx
+  tls: true
+  tlsSecretName: "pharos-tls"
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: 'true'
+    nginx.ingress.kubernetes.io/client-body-buffer-size: 400M
+    nginx.ingress.kubernetes.io/proxy-body-size: 8G
+    nginx.org/client-max-body-size: 8G   
+
+
+prometheus:
+  #url: "http://rancher-monitoring-prometheus.cattle-monitoring-system.svc.cluster.local:9090"
+  url: "https://prometheus.enpace.local"
+  query: 'kube_pod_container_info{image_spec=~"ghcr.*|nextcloud.*"}'
+  interval: 10m
+
+caCertificates:
+  # -- Enable CA certificates configMap
+  configMapEnabled: true
+  # -- Enable CA certificates in the reporter pod
+  enabled: true
+  # -- ConfigMap name for CA certificates, bring your own if configMapEnabled is true
+  configMapName: ca-certificates
+
+    
