@@ -44,13 +44,16 @@ spec:
           - name: config-volume
             mountPath: /config/.pharos.yaml
             subPath: .pharos.yaml
+          {{- if .Values.caCertificates.enabled }}
           - name: ca-certificates
             mountPath: /etc/ssl/certs/ca-certificates.crt
+          {{- end }}
       volumes:
         - name: config-volume
           configMap:
             name: pharos-config
+        {{- if .Values.caCertificates.enabled }}
         - name: ca-certificates
           configMap:
-            name: ca-certificates
-
+            name: {{ .Values.caCertificates.configMapName }}
+        {{- end }}

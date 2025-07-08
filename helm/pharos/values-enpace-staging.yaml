@@ -41,7 +41,11 @@ prometheus:
   interval: 10m
 
 caCertificates:
+  # -- Enable CA certificates configMap
+  configMapEnabled: true
+  # -- Enable CA certificates in the reporter pod
   enabled: true
-  source: files/ca-certificates.crt
+  # -- ConfigMap name for CA certificates, bring your own if configMapEnabled is true
+  configMapName: ca-certificates
 
     

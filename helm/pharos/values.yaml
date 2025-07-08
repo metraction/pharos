@@ -94,5 +94,13 @@ mappers:
       eos: {{ index .eos .data.Image.DistroName | filter "version" "matchWildcard" .data.Image.DistroVersion | map "field" "eos" | first }}
   files:
     eos.yaml: files/eos.yaml
+
+caCertificates:
+  # -- Enable CA certificates configMap
+  configMapEnabled: false
+  # -- Enable CA certificates in the reporter pod
+  enabled: false
+  # -- ConfigMap name for CA certificates, bring your own if configMapEnabled is true
+  configMapName: ca-certificates
     
     
