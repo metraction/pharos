@@ -40,4 +40,8 @@ prometheus:
   query: 'kube_pod_container_info{image_spec=~"ghcr.*|nextcloud.*"}'
   interval: 10m
 
+caCertificates:
+  enabled: true
+  source: files/ca-certificates.crt
+
     
