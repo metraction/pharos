@@ -35,7 +35,8 @@ postgres:
       size: 1Gi
 
 prometheus:
-  url: "http://rancher-monitoring-prometheus.cattle-monitoring-system.svc.cluster.local:9090"
+  #url: "http://rancher-monitoring-prometheus.cattle-monitoring-system.svc.cluster.local:9090"
+  url: "https://prometheus.enpace.local"
   query: 'kube_pod_container_info{image_spec=~"ghcr.*|nextcloud.*"}'
   interval: 10m
 
