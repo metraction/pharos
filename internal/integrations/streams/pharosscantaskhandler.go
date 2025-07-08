@@ -41,3 +41,11 @@ func (ph *PharosScanTaskHandler) CreateRootContext(item model.PharosScanResult) 
 	item.Image.ContextRoots = []model.ContextRoot{contextRoot}
 	return item
 }
+
+func (ph *PharosScanTaskHandler) NotifyReceiver(item model.PharosScanResult) model.PharosScanResult {
+	if item.GetReceiver() != nil {
+		ph.Logger.Info().Str("ImageId", item.Image.ImageId).Msg("Notifying receiver of scan result")
+		*item.GetReceiver() <- item
+	}
+	return item
+}

@@ -165,12 +165,12 @@ func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx contex
 					// If the image is not too old, we can return the existing image metadata
 					pc.Logger.Info().Str("ImageId", value.ImageId).Msg("Image already exists in database, using existing image metadata")
 					// TODO: We must create a scanresult and send that to the results stream here.
-					PharosScanResult := model.PharosScanResult{
+					pharosScanResult := model.PharosScanResult{
 						ScanTask: input.Body,
 						Image:    value,
 					}
 					// Send the scan result to the results channel
-					pc.ResultChannel <- PharosScanResult
+					pc.ResultChannel <- pharosScanResult
 					return nil, huma.Error409Conflict("Image with ImageSpec " + input.Body.ImageSpec + " already exists in database")
 				}
 			}
@@ -225,8 +225,15 @@ func (pc *PharosScanTaskController) SyncScan() (huma.Operation, func(ctx context
 				return nil, huma.Error500InternalServerError("Error during scan: " + err.Error())
 			}
 			pc.Logger.Info().Str("corrId", corrId).Str("ImageId", pharosScanResult.Image.ImageId).Msg("Received sync scan result for image")
+			// Create a channel to receive the enriched scan result
+			resultChannel := make(chan model.PharosScanResult, 1)
+			pharosScanResult.SetReceiver(&resultChannel)
+			// Send the scan result to the results channel, so it can be processed by the results handler, it will also be saved to the database
+			pc.ResultChannel <- pharosScanResult
+			// Return the enriched scan result
+			enrichedScanResult := <-resultChannel
 			return &PharosScanResult{
-				Body: pharosScanResult,
+				Body: enrichedScanResult,
 			}, nil
 		}
 }

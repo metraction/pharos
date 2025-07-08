@@ -37,7 +37,7 @@ func NewScanResultsInternalFlow(source streams.Source, enricher mappers.Enricher
 	contextFlow := source.
 		Via(flow.NewFilter(pharosScanTaskHandler.FilterFailedTasks, 1)).
 		Via(flow.NewMap(pharosScanTaskHandler.CreateRootContext, 1))
-	stream := mappers.NewResultEnricherStream(contextFlow, enricher)
+	stream := mappers.NewResultEnricherStream(contextFlow, enricher).Via(flow.NewMap(pharosScanTaskHandler.NotifyReceiver, 1))
 
 	return stream
 }

@@ -36,10 +36,19 @@ type PharosScanResult struct {
 
 	//ScanEngine PharosScanEngine `json:"ScanEngine"` // scanner info in scan task
 
-	Image           PharosImageMeta       `json:"Image"`
-	Findings        []PharosScanFinding   `json:"Findings"`        // instatiation of vulnerabilities in packages
-	Vulnerabilities []PharosVulnerability `json:"Vulnerabilities"` // vulnerabilities found with vuln metadata (description, CVSS, ..)
-	Packages        []PharosPackage       `json:"Packages"`
+	Image           PharosImageMeta        `json:"Image"`
+	Findings        []PharosScanFinding    `json:"Findings"`        // instatiation of vulnerabilities in packages
+	Vulnerabilities []PharosVulnerability  `json:"Vulnerabilities"` // vulnerabilities found with vuln metadata (description, CVSS, ..)
+	Packages        []PharosPackage        `json:"Packages"`
+	receiver        *chan PharosScanResult // receiver channel to send results to
+}
+
+func (pr *PharosScanResult) SetReceiver(receiver *chan PharosScanResult) {
+	pr.receiver = receiver
+}
+
+func (pr *PharosScanResult) GetReceiver() *chan PharosScanResult {
+	return pr.receiver
 }
 
 // ContextRootKey string // Composite Foreign Key to the ContextRoot Table

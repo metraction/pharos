@@ -19,9 +19,9 @@ type PharosScanTask2 struct {
 	ImageSpec      string         `json:"imagespec" required:"true"`
 	Platform       string         `json:"platform" required:"false" default:"linux/amd64"`
 	Context        map[string]any `json:"context" required:"false" doc:"context data for the scan, e.g. namespace, labels, .." default:"{}"`
-	ContextRootKey string         `json:"contextRootKey" required:"false" default:""`  // key to the context root, if any
-	RxDigest       string         `json:"rxdigest" required:"false" readOnly:"true"`   // manifest digest retrieved from repo
-	RxPlatform     string         `json:"rxplatform" required:"false" readOnly:"true"` // platform retrieved from repo
+	ContextRootKey string         `json:"contextRootKey" required:"false" default:"SyncScan"` // key to the context root, if any
+	RxDigest       string         `json:"rxdigest" required:"false" readOnly:"true"`          // manifest digest retrieved from repo
+	RxPlatform     string         `json:"rxplatform" required:"false" readOnly:"true"`        // platform retrieved from repo
 
 	// scanner
 	CacheTTL time.Duration `json:"cachettl" required:"false" default:"86400000000000" doc:"how long to cache sbom in scanner (nanoseconds)"` // cache expiry in sec
