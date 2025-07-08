@@ -6,23 +6,18 @@ import (
 	"time"
 
 	"github.com/metraction/pharos/internal/integrations/cache"
-	"github.com/metraction/pharos/internal/integrations/redis"
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/pkg/grype"
 	"github.com/metraction/pharos/pkg/model"
+	"github.com/reugn/go-streams"
+	"github.com/reugn/go-streams/flow"
 	"github.com/rs/zerolog"
 )
 
 var logger *zerolog.Logger
 
-func NewScannerFlow(ctx context.Context, cfg *model.Config) error {
+func NewScannerFlow(ctx context.Context, cfg *model.Config) streams.Flow {
 	logger = logging.NewLogger("info")
-
-	server, err := redis.NewRedisGtrsServer[model.PharosScanTask2, model.PharosScanResult](
-		ctx, cfg.Redis, cfg.Scanner.RequestQueue, cfg.Scanner.ResponseQueue)
-	if err != nil {
-		return err
-	}
 
 	// connect redis for key value cache
 	kvc, err := cache.NewPharosCache(cfg.Scanner.CacheEndpoint, logger)
@@ -49,7 +44,7 @@ func NewScannerFlow(ctx context.Context, cfg *model.Config) error {
 		logger.Fatal().Err(err).Msg("NewGrypeScanner()")
 	}
 
-	go server.ProcessRequest(ctx, func(task model.PharosScanTask2) model.PharosScanResult {
+	return flow.NewMap(func(task model.PharosScanTask2) model.PharosScanResult {
 		logger.Debug().Msg("Processing scan request: " + task.ImageSpec)
 		result, _, _, err := grype.ScanImage(task, scanEngine, kvc, logger)
 		if err != nil {
@@ -61,6 +56,6 @@ func NewScannerFlow(ctx context.Context, cfg *model.Config) error {
 
 		// Now we can return the original result since we've fixed the serialization at the model level
 		return result
-	})
-	return nil
+	}, 1)
+
 }
