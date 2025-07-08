@@ -110,7 +110,7 @@ func ToWrappedResult(result model.PharosScanResult) WrappedResult {
 }
 
 func ToUnWrappedResult(result WrappedResult) model.PharosScanResult {
-	logger := logging.NewLogger("info", "component", "cmd.http")
+	logger := logging.NewLogger("info", "component", "enricher")
 
 	item := result.Result
 	if len(item.Image.ContextRoots) == 0 {

@@ -68,9 +68,11 @@ func TestDynamicWrapperStream(t *testing.T) {
 	enricher := EnricherConfig{
 		BasePath: filepath.Join("..", "..", "testdata", "enrichers"),
 		Configs: []MapperConfig{
+			{Name: "debug", Config: "1"},
 			{Name: "file", Config: "eos.yaml"},
+			{Name: "debug", Config: "1"},
 			{Name: "hbs", Config: "pass_through.hbs"},
-			//	{Name: "debug", Config: ""},
+			{Name: "debug", Config: ""},
 		},
 	}
 
