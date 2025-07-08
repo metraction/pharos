@@ -6,7 +6,7 @@ on:
     - PH-52/*
     - PH-47/*
     - PH-54/*
-    - PH-72/*
+    - 72/*
     tags:
     - 'v*'
   pull_request:
