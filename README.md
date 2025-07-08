@@ -7,7 +7,31 @@
 See [helm chart](./helm/pharos/) how to install pharos via helm chart.
 
 
-#### Command Line Parameters
+### Grafana
+
+Import the [dashboard](./grafana/pharos-dashboard.json) into your Grafana installation
+
+Create datasources for Pharos:
+
+- Type: Infinity
+- Name: The namespace where it runs in
+- Base URL: The URL defined by the [ingres in values.yaml](./helm/pharos/values.yaml)
+
+## Run and test it.
+
+### How run Pharos from the command line
+
+`go run main.go`
+
+#### Positional Commands
+
+Available Commands:
+
+- **`completion`**: Generate the autocompletion script for the specified shell.
+- **`help`**: Help about any command.
+- **`http`**: Starts an HTTP server to accept image scan requests.
+- **`prometheus-reporter`**: Report images from Prometheus to Pharos.
+- **`scanner`**: Run the Pharos scanner.
 
 The following command line parameters are available:
 
@@ -63,6 +87,8 @@ The following command line parameters are available:
 
 These parameters allow you to configure connectivity, authentication, queueing, and runtime behavior for Pharos.
 
+> **Note:** Each command line parameter can also be set using an environment variable. The environment variable name is derived by converting the parameter to uppercase, replacing dots (`.`) with underscores (`_`), and prefixing with `PHAROS_`. For example, `--database.driver` can be set with `PHAROS_DATABASE_DRIVER`.
+
 ### Test it
 
 Run the controller with: 
@@ -86,7 +112,7 @@ curl --request POST \
 }'
 ```
 
-- The Scanner returns the scan result and saves to the database.
+- The Sanner returns the scan result and saves to the database.
 
 - Do an async scan: http://localhost:8080/api/docs#/operations/AsyncScan
 
@@ -114,4 +140,5 @@ curl --request GET \
 > ImageId is not the digest, but some internal id we get from the scanner. So you have to find it by getting all images. (we will provide a function later.)
 
 You can also use Swagger at http://localhost:8080/api/swagger
+
 
