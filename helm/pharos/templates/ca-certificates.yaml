@@ -6,6 +6,6 @@ metadata:
   labels:
     app.kubernetes.io/name: ca-certificates
 data:
-  ca-certificates.crt: |
+  ca-certificates.crt: |-
 {{ .Files.Get "files/ca-certificates.crt" | indent 4 }}
 {{- end }}

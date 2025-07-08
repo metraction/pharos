@@ -13,7 +13,7 @@ imagePullSecrets:
 
 ingress: 
   enabled: true
-  host: "pharos-staging.enpace.ch"
+  host: "pharos.enpace.ch"
   className: nginx
   tls: true
   tlsSecretName: "pharos-tls"
@@ -24,6 +24,7 @@ ingress:
     nginx.ingress.kubernetes.io/client-body-buffer-size: 400M
     nginx.ingress.kubernetes.io/proxy-body-size: 8G
     nginx.org/client-max-body-size: 8G   
+
 
 prometheus:
   #url: "http://rancher-monitoring-prometheus.cattle-monitoring-system.svc.cluster.local:9090"
