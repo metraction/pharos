@@ -7,17 +7,29 @@ import (
 	"github.com/reugn/go-streams/flow"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
+	"go.starlark.net/syntax"
 )
 
 func NewStarlark(rule string) flow.MapFunction[map[string]interface{}, map[string]interface{}] {
-	thread := &starlark.Thread{Name: "my thread"}
+	thread := &starlark.Thread{Name: "starlark_thread"}
 
 	return func(item map[string]interface{}) map[string]interface{} {
-		globals, err := starlark.ExecFile(thread, rule, nil, nil)
+		// Use ExecFileOptions with the correct signature
+		fileOpts := &syntax.FileOptions{}
+
+		// Create predeclared values if needed
+		predeclared := starlark.StringDict{}
+
+		globals, err := starlark.ExecFileOptions(fileOpts, thread, rule, nil, predeclared)
 		if err != nil {
-			log.Fatalf("Evaluate returned error: %v", err)
+			log.Fatalf("Failed to execute Starlark script: %v", err)
 		}
-		fibonacci := globals["fibonacci"]
+
+		// Get the enrich function from the globals
+		enrich, ok := globals["enrich"]
+		if !ok {
+			log.Fatalf("Function 'enrich' not found in Starlark script")
+		}
 
 		dict, err := toStringDict(item)
 		if err != nil {
@@ -25,7 +37,7 @@ func NewStarlark(rule string) flow.MapFunction[map[string]interface{}, map[strin
 		}
 		st := starlarkstruct.FromStringDict(starlarkstruct.Default, dict)
 
-		v, err := starlark.Call(thread, fibonacci, starlark.Tuple{st}, nil)
+		v, err := starlark.Call(thread, enrich, starlark.Tuple{st}, nil)
 		if err != nil {
 			log.Fatalf("Evaluate returned error: %v", err)
 		}
@@ -61,6 +73,11 @@ func toStringDict(m map[string]interface{}) (starlark.StringDict, error) {
 
 // Recursively converts Go values to starlark.Value
 func goToStarlarkValue(v interface{}) (starlark.Value, error) {
+	// Handle nil values
+	if v == nil {
+		return starlark.None, nil
+	}
+	
 	switch v := v.(type) {
 	case string:
 		return starlark.String(v), nil
@@ -147,7 +164,7 @@ func starlarkValueToGo(v starlark.Value) (interface{}, error) {
 // starlarkStructToMap converts a Starlark struct to a Go map
 func starlarkStructToMap(s *starlarkstruct.Struct) (map[string]interface{}, error) {
 	result := make(map[string]interface{})
-	
+
 	// Get all attributes from the struct
 	attrs := s.AttrNames()
 	for _, name := range attrs {
@@ -155,14 +172,14 @@ func starlarkStructToMap(s *starlarkstruct.Struct) (map[string]interface{}, erro
 		if err != nil {
 			return nil, fmt.Errorf("error getting attribute %s: %v", name, err)
 		}
-		
+
 		goVal, err := starlarkValueToGo(val)
 		if err != nil {
 			return nil, err
 		}
-		
+
 		result[name] = goVal
 	}
-	
+
 	return result, nil
 }

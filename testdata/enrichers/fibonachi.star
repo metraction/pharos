@@ -1,6 +1,6 @@
-def fibonacci(data):
+def enrich(data):
     # Extract n from input data or use attribute access
-    n = data.n
+    n = len(data.Image.ImageSpec)
     
     # Calculate Fibonacci sequence
     seq = list(range(n))

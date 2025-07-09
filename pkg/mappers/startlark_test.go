@@ -3,17 +3,14 @@ package mappers
 import (
 	"fmt"
 	"testing"
+
+	"github.com/metraction/pharos/pkg/model"
 )
 
 func TestStarlark(t *testing.T) {
 
-	//r := model.NewTestScanResult(model.NewTestScanTask(t, "test-1", "test-image-1"), "test-engine-1")
-
-	fn := NewStarlark("../../testdata/enrichers/fibonachi.star")
-
-	result := fn(map[string]interface{}{
-		"n": 10,
-	})
+	item := model.NewTestScanResult(model.NewTestScanTask(t, "test-1", "test-image-1"), "test-engine-1")
+	result := NewStarlark("../../testdata/enrichers/fibonachi.star")(ToMap(item))
 
 	fmt.Println(result)
 }
