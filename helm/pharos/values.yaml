@@ -100,7 +100,7 @@ prometheus:
     token: ""
   authFromSecret:
     # -- Enable authentication from an existing secret
-    enabled: true
+    enabled: false
     # -- Use an existing secret for Prometheus authentication
     existingSecret: ""
     # -- Key in the secret for the username
