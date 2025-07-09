@@ -38,12 +38,36 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.namespace
+          {{- if .Values.prometheus.authFromSecret.enabled }}
+          {{- if .Values.prometheus.authFromSecret.usernameKey }}
+          - name: PHAROS_PROMETHEUS_AUTH_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.prometheus.authFromSecret.existingSecret }}
+                key: {{ .Values.prometheus.authFromSecret.usernameKey }}
+          {{- end }}
+          {{- if .Values.prometheus.authFromSecret.passwordKey }}
+          - name: PHAROS_PROMETHEUS_AUTH_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.prometheus.authFromSecret.existingSecret }}
+                key: {{ .Values.prometheus.authFromSecret.passwordKey }}
+          {{- end }}
+          {{- if .Values.prometheus.authFromSecret.tokenKey }}      
+          - name: PHAROS_PROMETHEUS_AUTH_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.prometheus.authFromSecret.existingSecret }}
+                key: {{ .Values.prometheus.authFromSecret.tokenKey }}
+          {{- end }}
+          {{- else }}
           - name: PHAROS_PROMETHEUS_AUTH_USERNAME
             value: {{ .Values.prometheus.auth.username | quote }}
           - name: PHAROS_PROMETHEUS_AUTH_PASSWORD
             value: {{ .Values.prometheus.auth.password | quote }}
           - name: PHAROS_PROMETHEUS_AUTH_TOKEN
             value: {{ .Values.prometheus.auth.token | quote }}
+          {{- end }}
           - name: PHAROS_PROMETHEUS_PHAROSURL
             value: http://{{ include "pharos.fullname" . }}:{{ .Values.service.port }}
         volumeMounts:

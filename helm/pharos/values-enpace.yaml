@@ -1,4 +1,4 @@
-replicaCount: 1
+
 image:
   # -- registry for pharos-image
   registry: ghcr.io
@@ -25,6 +25,8 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-body-size: 8G
     nginx.org/client-max-body-size: 8G   
 
+controller:
+  replicas: 1
 
 prometheus:
   #url: "http://rancher-monitoring-prometheus.cattle-monitoring-system.svc.cluster.local:9090"

@@ -1,4 +1,3 @@
-replicaCount: 1
 image:
   # -- registry for pharos-image
   registry: ghcr.io
@@ -75,6 +74,10 @@ serviceAccount:
 role:
   create: true
 
+controller:
+  # -- Number of replicas for the controller
+  replicas: 1
+
 # -- Prometheus configuration for scanning images
 prometheus:
   # -- Url of the Prometheus server
@@ -95,7 +98,17 @@ prometheus:
     password: ""
     # -- Token for Prometheus authentication
     token: ""
-
+  authFromSecret:
+    # -- Enable authentication from an existing secret
+    enabled: false
+    # -- Use an existing secret for Prometheus authentication
+    existingSecret: ""
+    # -- Key in the secret for the username
+    usernameKey: "username"
+    # -- Key in the secret for the password
+    passwordKey: "password"
+    # -- Key in the secret for the token
+    tokenKey: ""
 
 # -- Mappers configuration
 mappers:
