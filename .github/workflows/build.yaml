@@ -79,7 +79,7 @@ jobs:
     secrets: inherit
   
   get-version:
-    if: github.event.inputs.run_integration_tests == 'true' || contains(github.event.head_commit.message, 'testit') || contains(github.event.head_commit.message, 'testbe')
+    if: github.event.inputs.run_integration_tests == 'true' || contains(github.event.head_commit.message, 'testit') || contains(github.event.head_commit.message, 'testbe') || contains(github.ref, 'integration-test')
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
@@ -98,7 +98,7 @@ jobs:
           echo "Using version: $VERSION"
 
   integration-test:
-    if: github.event.inputs.run_integration_tests == 'true' || contains(github.event.head_commit.message, 'testit') || startsWith(github.ref, 'refs/heads/PH-38')
+    if: github.event.inputs.run_integration_tests == 'true' || contains(github.event.head_commit.message, 'testit') || contains(github.ref, 'integration-test')
     needs: [get-version, ko-build]
     runs-on: ubuntu-latest
     permissions:
