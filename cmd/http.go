@@ -7,7 +7,6 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
 	"github.com/reugn/go-streams/extension"
-	"github.com/reugn/go-streams/flow"
 
 	"github.com/metraction/pharos/internal/controllers"
 	"github.com/metraction/pharos/internal/integrations/db"
@@ -63,8 +62,6 @@ These submissions are then published to a Redis stream for further processing by
 		taskChannel := make(chan any, config.Publisher.QueueSize)
 		// For scanning bypass
 		resultChannel := make(chan any, config.ResultCollector.QueueSize)
-		// For responses
-		responseChannel := make(chan any, config.ResultCollector.QueueSize)
 
 		// Results processing stream reading from redis
 		go routing.NewScanResultCollectorFlow(
@@ -74,7 +71,7 @@ These submissions are then published to a Redis stream for further processing by
 			extension.NewChanSource(taskChannel),
 			logger,
 		).
-			Via(flow.NewMap(routing.NewNotifier(responseChannel), 1)).
+			//Via(flow.NewMap(routing.NewNotifier(), 1)).
 			To(db.NewImageDbSink(databaseContext))
 
 		// Create results flow without redis
@@ -83,7 +80,7 @@ These submissions are then published to a Redis stream for further processing by
 
 		// Add routes for the API
 		controllers.NewimageController(&api, config).AddRoutes()
-		controllers.NewPharosScanTaskController(&api, config, taskChannel, resultChannel, responseChannel).AddRoutes()
+		controllers.NewPharosScanTaskController(&api, config, taskChannel, resultChannel).AddRoutes()
 		metricsController.AddRoutes()
 		// Add go streams routes
 		go routing.NewImageCleanupFlow(databaseContext, config)

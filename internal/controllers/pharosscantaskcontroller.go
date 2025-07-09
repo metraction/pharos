@@ -16,13 +16,12 @@ import (
 )
 
 type PharosScanTaskController struct {
-	Path            string
-	Api             *huma.API
-	Config          *model.Config
-	Logger          *zerolog.Logger
-	TaskChannel     chan any
-	ResultChannel   chan any
-	ResponseChannel chan any
+	Path          string
+	Api           *huma.API
+	Config        *model.Config
+	Logger        *zerolog.Logger
+	TaskChannel   chan any
+	ResultChannel chan any
 }
 
 // TODO: Rename as PharosScanTask2 is know from model, leads to confusion
@@ -30,15 +29,14 @@ type PharosScanTask2 struct {
 	Body model.PharosScanTask2 `json:"body"`
 }
 
-func NewPharosScanTaskController(api *huma.API, config *model.Config, sourceChannel chan any, resultChannel chan any, responseChannel chan any) *PharosScanTaskController {
+func NewPharosScanTaskController(api *huma.API, config *model.Config, sourceChannel chan any, resultChannel chan any) *PharosScanTaskController {
 	pc := &PharosScanTaskController{
-		Path:            "/pharosscantask",
-		Api:             api,
-		Config:          config,
-		Logger:          logging.NewLogger("info", "component", "PharosScanTaskController"),
-		TaskChannel:     sourceChannel,
-		ResultChannel:   resultChannel,
-		ResponseChannel: responseChannel,
+		Path:          "/pharosscantask",
+		Api:           api,
+		Config:        config,
+		Logger:        logging.NewLogger("info", "component", "PharosScanTaskController"),
+		TaskChannel:   sourceChannel,
+		ResultChannel: resultChannel,
 	}
 
 	return pc
@@ -79,8 +77,8 @@ func (pc *PharosScanTaskController) sendScanRequest(ctx context.Context, pharosS
 		pharosScanTask.CacheTTL = 24 * time.Hour // Default cache expiry
 	}
 
-	pc.Logger.Info().Str("image", pharosScanTask.ImageSpec).Msg("Sending image scan request")
-
+	//pc.Logger.Info().Str("image", pharosScanTask.ImageSpec).Msg("Sending image scan request")
+	pc.Logger.Info().Str("image", pharosScanTask.ImageSpec).Int("queue size", len(pc.TaskChannel)).Msg("Sending image scan request to scanner queue")
 	pc.TaskChannel <- *pharosScanTask
 
 	pc.Logger.Info().Msg("Sent scan task to scanner")
@@ -153,7 +151,7 @@ func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx contex
 					randomValue = rand.Intn(int(value.TTL.Seconds())) - int(value.TTL.Seconds()/2)
 				}
 				if age > value.TTL+time.Duration(randomValue)*time.Second {
-					pc.Logger.Info().Str("ImageId", value.ImageId).Msg("Image exists but is too old, re-scanning")
+					pc.Logger.Info().Str("ImageId", value.ImageId).Str("ImageSpec", value.ImageSpec).Msg("Image exists but is too old, re-scanning")
 				} else {
 					// If the image is not too old, we can return the existing image metadata
 					pc.Logger.Info().Str("ImageId", value.ImageId).Msg("Image already exists in database, using existing image metadata")
@@ -203,19 +201,16 @@ func (pc *PharosScanTaskController) SyncScan() (huma.Operation, func(ctx context
 				},
 			},
 		}, func(ctx context.Context, input *PharosScanTask2) (*PharosScanResult, error) {
-			pharosScanTask, err := pc.sendScanRequest(ctx, &input.Body)
+			// We create one responseChannel per request, and store it in the Scantask.
+			receiver := make(chan model.PharosScanResult, 1)
+			input.Body.SetReceiver(&receiver)
+			_, err := pc.sendScanRequest(ctx, &input.Body)
 			if err != nil {
 				pc.Logger.Error().Err(err).Msg("Failed to send scan request")
 				return nil, err
 			}
 			// Wait for submitted scan task to be processed
-			var pharosScanResult model.PharosScanResult
-			for {
-				pharosScanResult = (<-pc.ResponseChannel).(model.PharosScanResult)
-				if pharosScanResult.ScanTask.JobId == pharosScanTask.JobId {
-					break
-				}
-			}
+			pharosScanResult := <-receiver
 
 			if pharosScanResult.ScanTask.Error != "" {
 				pc.Logger.Warn().Str("taskId", pharosScanResult.ScanTask.JobId).Str("error", pharosScanResult.ScanTask.Error).Msg("Scan task failed")

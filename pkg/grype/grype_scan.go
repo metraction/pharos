@@ -47,7 +47,7 @@ func ScanImage(task model.PharosScanTask2, scanEngine *GrypeScanner, kvc *cache.
 	result.ScanTask.RxDigest = manifestDigest
 	result.ScanTask.RxPlatform = rxPlatform
 
-	logger.Debug().
+	logger.Info().
 		Str("digest.idx", utils.ShortDigest(indexDigest)).
 		Str("digest.man", utils.ShortDigest(manifestDigest)).
 		Str("rxPlatform", rxPlatform).
@@ -108,7 +108,7 @@ func ScanImage(task model.PharosScanTask2, scanEngine *GrypeScanner, kvc *cache.
 	}
 
 	result.ScanTask.Status = "done"
-	logger.Debug().
+	logger.Info().
 		Str("cache", cacheState).
 		Any("t.scan_timeout", task.ScanTTL.String()).
 		Any("t.cache_expiry", task.CacheTTL.String()).

@@ -36,6 +36,7 @@ func NewEnricherStream(stream streams.Source, enricher EnricherConfig) streams.F
 func NewResultEnricherStream(stream streams.Source, enricher EnricherConfig) streams.Flow {
 	var result streams.Flow
 	stream = stream.Via(flow.NewMap(ToWrappedResult, 1))
+	// TODO: If there are no enrichers, it fails.
 	for _, mapper := range enricher.Configs {
 		config := filepath.Join(enricher.BasePath, mapper.Config)
 		switch mapper.Name {
