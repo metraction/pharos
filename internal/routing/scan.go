@@ -45,14 +45,15 @@ func NewScannerFlow(ctx context.Context, cfg *model.Config) streams.Flow {
 	}
 
 	return flow.NewMap(func(task model.PharosScanTask2) model.PharosScanResult {
-		logger.Debug().Msg("Processing scan request: " + task.ImageSpec)
+		logger.Info().Str("ImageSpec", task.ImageSpec).Msg("Processing scan request")
+
 		result, _, _, err := grype.ScanImage(task, scanEngine, kvc, logger)
 		if err != nil {
 			logger.Error().Err(err).Msg("grype.ScanImage()")
 		}
 
 		// Log the number of findings, vulnerabilities, and packages before sending
-		logger.Info().Int("findings", len(result.Findings)).Int("vulns", len(result.Vulnerabilities)).Int("pkgs", len(result.Packages)).Msg("Sending scan results")
+		logger.Info().Str("ImageSpec", result.Image.ImageSpec).Int("findings", len(result.Findings)).Int("vulns", len(result.Vulnerabilities)).Int("pkgs", len(result.Packages)).Msg("Sending scan results")
 
 		// Now we can return the original result since we've fixed the serialization at the model level
 		return result

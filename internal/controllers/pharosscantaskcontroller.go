@@ -79,8 +79,8 @@ func (pc *PharosScanTaskController) sendScanRequest(ctx context.Context, pharosS
 		pharosScanTask.CacheTTL = 24 * time.Hour // Default cache expiry
 	}
 
-	pc.Logger.Info().Str("image", pharosScanTask.ImageSpec).Msg("Sending image scan request")
-
+	//pc.Logger.Info().Str("image", pharosScanTask.ImageSpec).Msg("Sending image scan request")
+	pc.Logger.Info().Str("image", pharosScanTask.ImageSpec).Int("queue size", len(pc.TaskChannel)).Msg("Sending image scan request to scanner queue")
 	pc.TaskChannel <- *pharosScanTask
 
 	pc.Logger.Info().Msg("Sent scan task to scanner")
