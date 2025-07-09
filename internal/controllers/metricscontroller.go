@@ -14,7 +14,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/zerolog"
-	"gorm.io/gorm/clause"
 )
 
 type MetricsController struct {
@@ -75,6 +74,10 @@ func (mc *MetricsController) Metrics() (huma.Operation, func(ctx context.Context
 				},
 			},
 		}, func(ctx context.Context, input *struct{}) (*struct{ Body string }, error) {
+			timer := prometheus.NewTimer(prometheus.ObserverFunc(func(v float64) {
+				mc.Logger.Info().Float64("duration_seconds", v).Msg("Metrics handler duration")
+			}))
+			defer timer.ObserveDuration()
 			databaseContext, err := getDatabaseContext(ctx)
 			if err != nil {
 				return nil, huma.Error500InternalServerError("Database context not found in request context")
@@ -89,7 +92,7 @@ func (mc *MetricsController) Metrics() (huma.Operation, func(ctx context.Context
 			}
 			for _, image := range images {
 				var fullImage model.PharosImageMeta
-				if err := databaseContext.DB.Preload(clause.Associations).First(&fullImage, &image).Error; err != nil {
+				if err := databaseContext.DB.Preload("Findings").First(&fullImage, "image_id = ?", image.ImageId).Error; err != nil {
 					mc.Logger.Warn().Err(err).Str("imageId", image.ImageId).Msg("Failed to retrieve Docker image")
 				} else {
 					summary := fullImage.GetSummary()
