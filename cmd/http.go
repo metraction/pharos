@@ -7,6 +7,7 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
 	"github.com/reugn/go-streams/extension"
+	"github.com/reugn/go-streams/flow"
 
 	"github.com/metraction/pharos/internal/controllers"
 	"github.com/metraction/pharos/internal/integrations/db"
@@ -73,7 +74,7 @@ These submissions are then published to a Redis stream for further processing by
 			extension.NewChanSource(taskChannel),
 			logger,
 		).
-			//Via(flow.NewMap(routing.NewNotifier(responseChannel), 1)).
+			Via(flow.NewMap(routing.NewNotifier(responseChannel), 1)).
 			To(db.NewImageDbSink(databaseContext))
 
 		// Create results flow without redis
