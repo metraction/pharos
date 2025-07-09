@@ -56,7 +56,7 @@ postgres:
   # -- PostgreSQL authentication
   auth:
     # -- Generate a secret for PostgreSQL connection
-    generateSecret: true
+    generateSecret: false
     # -- Use an existing secret for PostgreSQL connection
     existingSecret: "postgres-connection"  
   primary:
