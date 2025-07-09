@@ -125,7 +125,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         env:
-          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_PASSWORD: postgres
 
       scanner:
         # The image is tagged with the version from semver.sh
@@ -142,7 +142,7 @@ jobs:
         env:
           PHAROS_REDIS_DSN: redis:6379
           PHAROS_SCANNER_CACHEENDPOINT: redis://redis:6379
-          PHAROS_DATABASE_DSN: postgres://postgres:5432/pharos?sslmode=disable
+          PHAROS_DATABASE_DSN: postgres://postgres:postgres@postgres:5432/pharos?sslmode=disable
           PHAROS_COMMAND: http
 
     steps:
