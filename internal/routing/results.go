@@ -22,7 +22,8 @@ func NewScanResultCollectorFlow(
 	redisFlow := source.
 		Via(NewScannerFlow(ctx, config)).
 		Via(flow.NewFilter(pharosScanTaskHandler.FilterFailedTasks, 1)).
-		Via(flow.NewMap(pharosScanTaskHandler.UpdateScanTime, 1))
+		Via(flow.NewMap(pharosScanTaskHandler.UpdateScanTime, 1)).
+		Via(flow.NewMap(pharosScanTaskHandler.NotifyReceiver, 1))
 
 	return NewScanResultsInternalFlow(redisFlow, enricher)
 

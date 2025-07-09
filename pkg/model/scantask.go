@@ -27,8 +27,17 @@ type PharosScanTask2 struct {
 	CacheTTL time.Duration `json:"cachettl" required:"false" default:"86400000000000" doc:"how long to cache sbom in scanner (nanoseconds)"` // cache expiry in sec
 	ScanTTL  time.Duration `json:"scanttl" required:"false" default:"300000000000" doc:"how long to scan result in scanner (nanoseconds)"`   // cache expiry in sec
 
-	Created time.Time `json:"created" required:"false"`
-	Updated time.Time `json:"updated" required:"false"`
+	Created  time.Time              `json:"created" required:"false"`
+	Updated  time.Time              `json:"updated" required:"false"`
+	receiver *chan PharosScanResult // receiver channel to send results to when doing async scan
+}
+
+func (pt *PharosScanTask2) SetReceiver(ch *chan PharosScanResult) {
+	pt.receiver = ch
+}
+
+func (pt *PharosScanTask2) GetReceiver() *chan PharosScanResult {
+	return pt.receiver
 }
 
 // set error and status

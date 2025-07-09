@@ -21,10 +21,3 @@ func NewDebug(label string) flow.MapFunction[any, any] {
 		return data
 	}
 }
-
-func NewNotifier(channel chan any) flow.MapFunction[any, any] {
-	return func(data any) any {
-		channel <- data
-		return data
-	}
-}
