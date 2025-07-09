@@ -142,6 +142,7 @@ jobs:
         env:
           PHAROS_REDIS_DSN: redis:6379
           PHAROS_SCANNER_CACHEENDPOINT: redis://redis:6379
+          PHAROS_DATABASE_DSN: postgres://postgres:5432/pharos?sslmode=disable
           PHAROS_COMMAND: http
 
     steps:
