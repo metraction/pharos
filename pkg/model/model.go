@@ -84,11 +84,11 @@ type Delete_PharosScanEngine struct {
 type PharosImageMeta struct {
 	ImageSpec          string                `json:"ImageSpec" required:"true" doc:"image url, e.g. docker.io/nginx:latest"` // scan input / image uri
 	ImageId            string                `json:"ImageId" gorm:"primaryKey" hidden:"true" doc:"internal image ID, e.g. sha256:1234.."`
-	IndexDigest        string                `json:"IndexDigest" required:"true"` // internal ID for cache
-	ManifestDigest     string                `json:"ManifestDigest" required:"false"`
+	IndexDigest        string                `json:"IndexDigest" required:"true" gorm:"index"` // internal ID for cache
+	ManifestDigest     string                `json:"ManifestDigest" required:"false" gorm:"index"`
 	RepoDigests        StringSlice           `json:"RepoDigests" required:"false" gorm:"type:VARCHAR"`
-	ArchName           string                `json:"ArchName" required:"false" doc:"image platform architecture default: amd64"` // image platform architecture amd64/..
-	ArchOS             string                `json:"ArchOS" required:"false" doc:"image platform OS default: linux"`             // image platform OS
+	ArchName           string                `json:"ArchName" required:"false" doc:"image platform architecture default: amd64" gorm:"index"` // image platform architecture amd64/..
+	ArchOS             string                `json:"ArchOS" required:"false" doc:"image platform OS default: linux" gorm:"index"`             // image platform OS
 	DistroName         string                `json:"DistroName" required:"false"`
 	DistroVersion      string                `json:"DistroVersion" required:"false"`
 	Size               uint64                `json:"Size" required:"false"`
