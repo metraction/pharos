@@ -3,7 +3,7 @@ on:
   push:
     branches: 
     - main
-    - PH-52/*
+    - 85-*
     - PH-47/*
     - PH-54/*
     - PH-79/*
