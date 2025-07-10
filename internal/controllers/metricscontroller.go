@@ -151,23 +151,23 @@ func (mc *MetricsController) Metrics() (huma.Operation, func(ctx context.Context
 				if err := databaseContext.DB.Preload("Findings").Preload("ContextRoots.Contexts").First(&fullImage, "image_id = ?", image.ImageId).Error; err != nil {
 					mc.Logger.Warn().Err(err).Str("imageId", image.ImageId).Msg("Failed to retrieve Docker image")
 				} else {
-					// we must reset the labels first
-					// Empty values will be ignored by Prometheus, so we can just set them to empty strings.
-					for label := range labels {
-						labels[label] = ""
-					}
-					labels["image"] = fullImage.ImageSpec
-					labels["digest"] = fullImage.IndexDigest
-					labels["imageid"] = fullImage.ImageId
-					labels["platform"] = fullImage.ArchOS + "/" + fullImage.ArchName
 					for _, contextRoot := range fullImage.ContextRoots {
+						// we must reset the labels first
+						// Empty values will be ignored by Prometheus, so we can just set them to empty strings.
+						for label := range labels {
+							labels[label] = ""
+						}
+						labels["image"] = fullImage.ImageSpec
+						labels["digest"] = fullImage.IndexDigest
+						labels["imageid"] = fullImage.ImageId
+						labels["platform"] = fullImage.ArchOS + "/" + fullImage.ArchName
 						for _, context := range contextRoot.Contexts {
 							for label, value := range context.Data {
 								labels[label] = fmt.Sprintf("%v", value)
 							}
 						}
+						contexts.With(labels).Set(1)
 					}
-					contexts.With(labels).Set(1)
 				}
 			}
 			h.ServeHTTP(writer, request)
