@@ -1105,7 +1105,7 @@
         "showHeader": true,
         "sortBy": [
           {
-            "desc": false,
+            "desc": true,
             "displayName": "image"
           }
         ]
@@ -1206,52 +1206,95 @@
       "title": "Vulnerbilites Overview",
       "transformations": [
         {
+          "filter": {
+            "id": "byRefId",
+            "options": "/^(?:A|B|C|D|E)$/"
+          },
           "id": "merge",
-          "options": {}
+          "options": {},
+          "topic": "series"
+        },
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "imageid",
+            "mode": "inner"
+          }
         },
         {
           "id": "organize",
           "options": {
             "excludeByName": {
               "Time": true,
+              "Time 1": true,
               "Value #F": true,
               "__name__": true,
+              "apps": true,
               "arch": true,
+              "cluster": true,
               "container": true,
+              "container 1": true,
+              "container 2": true,
+              "digest 1": true,
+              "digest 2": true,
               "endpoint": true,
+              "endpoint 1": false,
+              "endpoint 2": true,
               "exported_namespace": false,
+              "image 1": false,
+              "image 2": true,
               "imageid": false,
               "instance": true,
               "job": true,
+              "job 2": true,
               "level": true,
               "namespace": true,
+              "namespace 1": true,
+              "namespace 2": true,
+              "owner": true,
               "platform": true,
+              "platform 1": true,
+              "platform 2": true,
               "pod": true,
               "service": true,
+              "service 1": true,
+              "service 2": true,
               "severity": false
             },
             "includeByName": {},
             "indexByName": {
-              "Time": 0,
-              "Value #A": 14,
-              "Value #B": 15,
-              "Value #C": 16,
-              "Value #D": 17,
-              "Value #E": 18,
-              "Value #F": 19,
-              "container": 1,
-              "digest": 4,
-              "distro": 7,
-              "endpoint": 9,
-              "eos": 6,
-              "exported_namespace": 3,
-              "image": 2,
-              "imageid": 5,
-              "job": 10,
-              "namespace": 11,
-              "platform": 13,
-              "service": 12,
-              "version": 8
+              "Time 1": 12,
+              "Time 2": 20,
+              "Value #A": 6,
+              "Value #B": 7,
+              "Value #C": 8,
+              "Value #D": 9,
+              "Value #E": 10,
+              "Value #F": 11,
+              "apps": 29,
+              "cluster": 30,
+              "container 1": 13,
+              "container 2": 21,
+              "digest 1": 14,
+              "digest 2": 22,
+              "distro": 4,
+              "endpoint 1": 15,
+              "endpoint 2": 23,
+              "eos": 3,
+              "exported_namespace": 1,
+              "image 1": 0,
+              "image 2": 24,
+              "imageid": 2,
+              "job 1": 16,
+              "job 2": 25,
+              "namespace 1": 17,
+              "namespace 2": 26,
+              "owner": 31,
+              "platform 1": 18,
+              "platform 2": 27,
+              "service 1": 19,
+              "service 2": 28,
+              "version": 5
             },
             "renameByName": {
               "Value #A": "Critical",
@@ -1263,7 +1306,9 @@
               "Value #G": "SBOM duration",
               "Value #H": "Grype duration",
               "arch": "",
+              "endpoint 1": "",
               "exported_namespace": "namespace",
+              "image 1": "image",
               "version": ""
             }
           }
@@ -1317,18 +1362,18 @@
       },
       {
         "current": {
-          "text": "sha256:6aeb18dc6ed731d37b2c8f5833d92270b5d0faeab93f82f43a36d70bc1e21e7c",
-          "value": "sha256:6aeb18dc6ed731d37b2c8f5833d92270b5d0faeab93f82f43a36d70bc1e21e7c"
+          "text": "sha256:a31cd51691669c00ec05a957553d8c011951af6936b7446a7c939ecabfa1e409",
+          "value": "sha256:a31cd51691669c00ec05a957553d8c011951af6936b7446a7c939ecabfa1e409"
         },
         "name": "imageid",
         "options": [
           {
             "selected": true,
-            "text": "sha256:6aeb18dc6ed731d37b2c8f5833d92270b5d0faeab93f82f43a36d70bc1e21e7c",
-            "value": "sha256:6aeb18dc6ed731d37b2c8f5833d92270b5d0faeab93f82f43a36d70bc1e21e7c"
+            "text": "sha256:a31cd51691669c00ec05a957553d8c011951af6936b7446a7c939ecabfa1e409",
+            "value": "sha256:a31cd51691669c00ec05a957553d8c011951af6936b7446a7c939ecabfa1e409"
           }
         ],
-        "query": "sha256:6aeb18dc6ed731d37b2c8f5833d92270b5d0faeab93f82f43a36d70bc1e21e7c",
+        "query": "sha256:a31cd51691669c00ec05a957553d8c011951af6936b7446a7c939ecabfa1e409",
         "type": "textbox"
       },
       {
@@ -1395,5 +1440,5 @@
   "timezone": "browser",
   "title": "Vulnerabilities",
   "uid": "c5875242-bfbe-4f7e-a1bf-0885d6ff19e5",
-  "version": 56
+  "version": 59
 }
