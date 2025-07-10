@@ -114,6 +114,9 @@ func (pst *PharosScanTaskCreator) Result(metric hwmodel.ImageMetric) []model.Pha
 			pst.Logger.Warn().Str("label", label).Msgf("Label not found in metric: %s", label)
 		}
 	}
+	if len(key) > 0 && key[len(key)-1] == ',' {
+		key = key[:len(key)-1]
+	}
 	now := time.Now()
 	scanTTL, err := time.ParseDuration(pst.Config.Prometheus.TTL)
 	if err != nil {

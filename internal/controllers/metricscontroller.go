@@ -4,6 +4,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -19,6 +20,7 @@ import (
 type MetricsController struct {
 	Path              string
 	Vulnerabilities   prometheus.GaugeVec
+	Contexts          prometheus.GaugeVec
 	Api               *huma.API
 	AsyncPublisher    *redis.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult]
 	PriorityPublisher *redis.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult]
@@ -32,6 +34,11 @@ func NewMetricsController(api *huma.API, config *model.Config) *MetricsControlle
 		Help: "Vulnerabilites for images",
 	}, []string{"image", "digest", "imageid", "platform", "severity"})
 
+	var contexts = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "pharos_test",
+		Help: "Vulnerabilites for images",
+	}, []string{})
+
 	prometheus.MustRegister(vulnerabilities)
 	mc := &MetricsController{
 		Path:            "/metrics",
@@ -39,6 +46,7 @@ func NewMetricsController(api *huma.API, config *model.Config) *MetricsControlle
 		Config:          config,
 		Logger:          logging.NewLogger("info", "component", "MetricsController"),
 		Vulnerabilities: *vulnerabilities,
+		Contexts:        *contexts,
 	}
 	return mc
 }
@@ -90,16 +98,68 @@ func (mc *MetricsController) Metrics() (huma.Operation, func(ctx context.Context
 			if err := databaseContext.DB.Find(&images).Error; err != nil {
 				return nil, huma.Error500InternalServerError("Failed to retrieve Docker images: " + err.Error())
 			}
+			var labels = map[string]string{
+				"image":    "",
+				"digest":   "",
+				"imageid":  "",
+				"platform": "",
+			}
 			for _, image := range images {
 				var fullImage model.PharosImageMeta
-				if err := databaseContext.DB.Preload("Findings").First(&fullImage, "image_id = ?", image.ImageId).Error; err != nil {
+				if err := databaseContext.DB.Preload("Findings").Preload("ContextRoots.Contexts").First(&fullImage, "image_id = ?", image.ImageId).Error; err != nil {
 					mc.Logger.Warn().Err(err).Str("imageId", image.ImageId).Msg("Failed to retrieve Docker image")
 				} else {
 					summary := fullImage.GetSummary()
 					mc.Logger.Debug().Str("imageId", image.ImageId).Any("summary", summary).Msg("Found image in database")
+
 					for level, count := range summary.Severities {
 						mc.Vulnerabilities.WithLabelValues(fullImage.ImageSpec, fullImage.IndexDigest, fullImage.ImageId, fullImage.ArchOS+"/"+fullImage.ArchName, level).Set(float64(count))
 					}
+					for _, contextRoot := range fullImage.ContextRoots {
+						for _, context := range contextRoot.Contexts {
+							for label := range context.Data {
+								labels[label] = ""
+							}
+						}
+					}
+
+				}
+			}
+			// Now that we have all the labels, we can create the contexts metric
+			desc := prometheus.GaugeOpts{
+				Name: "pharos_contexts",
+				Help: "Contexts for images",
+			}
+			keys := []string{}
+			values := []string{}
+			for i, v := range labels {
+				keys = append(keys, i)
+				values = append(values, v)
+			}
+			contexts := prometheus.NewGaugeVec(desc, keys)
+			prometheus.MustRegister(contexts)
+			// now we have to iterate again, and write the contexts
+			for _, image := range images {
+				var fullImage model.PharosImageMeta
+				if err := databaseContext.DB.Preload("Findings").Preload("ContextRoots.Contexts").First(&fullImage, "image_id = ?", image.ImageId).Error; err != nil {
+					mc.Logger.Warn().Err(err).Str("imageId", image.ImageId).Msg("Failed to retrieve Docker image")
+				} else {
+					// we must reset the labels first
+					for label := range labels {
+						labels[label] = ""
+					}
+					labels["image"] = fullImage.ImageSpec
+					labels["digest"] = fullImage.IndexDigest
+					labels["imageid"] = fullImage.ImageId
+					labels["platform"] = fullImage.ArchOS + "/" + fullImage.ArchName
+					for _, contextRoot := range fullImage.ContextRoots {
+						for _, context := range contextRoot.Contexts {
+							for label, value := range context.Data {
+								labels[label] = fmt.Sprintf("%v", value)
+							}
+						}
+					}
+					contexts.With(labels).Set(1)
 				}
 			}
 			h.ServeHTTP(writer, request)
