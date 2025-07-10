@@ -54,6 +54,10 @@ postgres:
   # -- Enable PostgreSQL deployment
   enabled: true
   # -- PostgreSQL authentication
+
+  passwordUpdateJob:
+    enabled: true
+
   auth:
     # -- Generate a secret for PostgreSQL connection
     generateSecret: false
