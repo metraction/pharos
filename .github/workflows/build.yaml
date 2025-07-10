@@ -8,6 +8,7 @@ on:
     - PH-54/*
     - PH-79/*
     - PH-89/*
+    - PH-92/*
     tags:
     - 'v*'
   pull_request:
