@@ -98,12 +98,16 @@ func (mc *MetricsController) Metrics() (huma.Operation, func(ctx context.Context
 			if err := databaseContext.DB.Find(&images).Error; err != nil {
 				return nil, huma.Error500InternalServerError("Failed to retrieve Docker images: " + err.Error())
 			}
+			// This is a two step process:
+			// 1. We first iterate over all images and collect the labels we need for and set the vulnerabilities metric.
+			// 2. We then create a GaugeVec with the labels we collected and set the values for the contexts metric.
 			var labels = map[string]string{
 				"image":    "",
 				"digest":   "",
 				"imageid":  "",
 				"platform": "",
 			}
+			// step 1: Collect labels and set vulnerabilities metric
 			for _, image := range images {
 				var fullImage model.PharosImageMeta
 				if err := databaseContext.DB.Preload("Findings").Preload("ContextRoots.Contexts").First(&fullImage, "image_id = ?", image.ImageId).Error; err != nil {
@@ -125,6 +129,8 @@ func (mc *MetricsController) Metrics() (huma.Operation, func(ctx context.Context
 
 				}
 			}
+			// Step 2: Create GaugeVec for contexts metric and fill it with data
+			// First we have to know what labels we have to expect, so we can create the GaugeVec with the correct labels.
 			// Now that we have all the labels, we can create the contexts metric
 			desc := prometheus.GaugeOpts{
 				Name: "pharos_contexts",
@@ -146,6 +152,7 @@ func (mc *MetricsController) Metrics() (huma.Operation, func(ctx context.Context
 					mc.Logger.Warn().Err(err).Str("imageId", image.ImageId).Msg("Failed to retrieve Docker image")
 				} else {
 					// we must reset the labels first
+					// Empty values will be ignored by Prometheus, so we can just set them to empty strings.
 					for label := range labels {
 						labels[label] = ""
 					}

@@ -3,11 +3,14 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
+	"regexp"
 	"testing"
 	"time"
 
+	"cuelang.org/go/pkg/strings"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
 	"github.com/metraction/pharos/internal/logging"
@@ -58,9 +61,11 @@ func TestServer(t *testing.T) {
 	}
 	apiConfig.OpenAPIPath = "/openapi"
 	api := humago.NewWithPrefix(router, "/api", apiConfig)
-
+	metricsController := NewMetricsController(&api, config)
+	api.UseMiddleware(metricsController.MetricsMiddleware())
 	api.UseMiddleware(databaseContext.DatabaseMiddleware())
 	NewimageController(&api, config).AddRoutes()
+	metricsController.AddRoutes()
 
 	go func() {
 		err := http.ListenAndServe(":8081", router)
@@ -97,9 +102,7 @@ func TestServer(t *testing.T) {
 
 	t.Run("02 GetDataViaAPI", func(t *testing.T) {
 		resp, err := http.Get("http://localhost:8081/api/pharosimagemeta/test-image-id")
-		if err != nil {
-			t.Fatalf("Failed to make request: %v", err)
-		}
+		require.NoError(t, err)
 		defer resp.Body.Close()
 		if resp.StatusCode != http.StatusOK {
 			t.Errorf("Expected status OK, got %s", resp.Status)
@@ -118,7 +121,37 @@ func TestServer(t *testing.T) {
 		require.Len(t, got.Findings, 1)
 		require.Equal(t, "CVE-2023-12345", got.Findings[0].AdvId)
 	})
-	t.Run("03 Cleanup", func(t *testing.T) {
+	t.Run("02 GetMetrics", func(t *testing.T) {
+		resp, err := http.Get("http://localhost:8081/api/metrics")
+		if err != nil {
+			t.Fatalf("Failed to make request: %v", err)
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode != http.StatusOK {
+			t.Errorf("Expected status OK, got %s", resp.Status)
+		}
+		bodyBytes, err := io.ReadAll(resp.Body)
+		require.NoError(t, err)
+		bodyStr := string(bodyBytes)
+		lines := 0
+		vulnerabilites := 0
+		contexts := 0
+		for _, line := range strings.Split(bodyStr, "\n") {
+			if regexp.MustCompile("^pharos_vulnerabilities").MatchString(line) {
+				t.Logf("Found Pharos vulnerabilites metric: %s", line)
+				vulnerabilites++
+			}
+			if regexp.MustCompile("^pharos_contexts").MatchString(line) {
+				t.Logf("Found Pharos contexts metric: %s", line)
+				contexts++
+			}
+			lines++
+		}
+		require.Greater(t, lines, 0)
+		require.Greater(t, vulnerabilites, 0, "Expected at least one pharos_vulnerabilities metric")
+		require.Greater(t, contexts, 0, "Expected at least one pharos_context metric")
+	})
+	t.Run("04 Cleanup", func(t *testing.T) {
 		go routing.NewImageCleanupFlow(&databaseContext, config)
 		// Allow cleanup to run
 		time.Sleep(10 * time.Second)
