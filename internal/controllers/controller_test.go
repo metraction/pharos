@@ -121,7 +121,7 @@ func TestServer(t *testing.T) {
 		require.Len(t, got.Findings, 1)
 		require.Equal(t, "CVE-2023-12345", got.Findings[0].AdvId)
 	})
-	t.Run("02 GetMetrics", func(t *testing.T) {
+	t.Run("03 GetMetrics", func(t *testing.T) {
 		resp, err := http.Get("http://localhost:8081/api/metrics")
 		if err != nil {
 			t.Fatalf("Failed to make request: %v", err)
