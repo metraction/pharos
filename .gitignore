@@ -35,6 +35,6 @@ go.work.sum
 
 # Dev/Test data
 _data/
-*.json
+scantask.json
 *.db
 *.db.wal
