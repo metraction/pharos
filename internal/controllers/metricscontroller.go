@@ -137,6 +137,7 @@ func (mc *MetricsController) Metrics() (huma.Operation, func(ctx context.Context
 				values = append(values, v)
 			}
 			contexts := prometheus.NewGaugeVec(desc, keys)
+			prometheus.Unregister(contexts) // Unregister if it already exists to avoid duplicate registration
 			prometheus.MustRegister(contexts)
 			// now we have to iterate again, and write the contexts
 			for _, image := range images {
