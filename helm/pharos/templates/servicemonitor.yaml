@@ -7,6 +7,10 @@ spec:
   endpoints:
     - path: /api/metrics
       port: http
+    - path: /api/metrics/contexts # TODO: here we can filter by context later if implemented in controller
+      port: http
+    - path: /api/metrics/lvulnerabilities
+      port: http
   namespaceSelector:
     matchNames:
       - {{ .Release.Namespace }}

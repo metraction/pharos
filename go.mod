@@ -45,10 +45,10 @@ require (
 )
 
 require (
-	cuelang.org/go v0.13.2
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/alicebob/miniredis v2.5.0+incompatible
 	github.com/danielgtaylor/huma/v2 v2.32.0
+	github.com/dustinkirkland/golang-petname v0.0.0-20240428194347-eebcea082ee0
 	github.com/mattn/go-sqlite3 v1.14.28
 	github.com/metraction/handwheel v0.0.3
 	github.com/otiai10/copy v1.14.1
@@ -65,7 +65,6 @@ require (
 	github.com/Masterminds/semver/v3 v3.3.0 // indirect
 	github.com/alicebob/gopher-json v0.0.0-20200520072559-a9ecdc9d1d3a // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/cockroachdb/apd/v3 v3.2.1 // indirect
 	github.com/emicklei/go-restful/v3 v3.11.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.7.0 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
@@ -95,6 +94,7 @@ require (
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.62.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
+	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/yuin/gopher-lua v1.1.1 // indirect
