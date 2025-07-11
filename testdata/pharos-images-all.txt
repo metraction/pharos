@@ -2,7 +2,7 @@
 # cachettl: 48h
 # scanttl: 5m
 # maxpressure: 0.9
-# priority: 2
+# targetapi: https://pharos.enpace.ch/api/pharosscantask/asyncscan
 
 # -platform: linux/amd64
 # platform: linux/arm64

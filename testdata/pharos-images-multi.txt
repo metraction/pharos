@@ -2,15 +2,22 @@
 # cachettl: 48h
 # scanttl: 5m
 # maxpressure: 0.5
-
-# -----< SET PLATFORM >-----
-
-# NOTES
-# axigen no arm avbl
+# targetapi: https://pharos.enpace.ch/api/pharosscantask/asyncscan
 
 
 # platform: linux/amd64
 # -platform: linux/arm64
+
+
+# testpub
+
+pharos.secimo.net/docker.io/alpine:3.16
+pharos.secimo.net/docker.io/alpine:3.17
+pharos.secimo.net/docker.io/alpine:3.18
+pharos.secimo.net/docker.io/alpine:3.19
+pharos.secimo.net/docker.io/alpine:3.20
+pharos.secimo.net/docker.io/alpine:3.21
+pharos.secimo.net/docker.io/alpine:3.22
 
 
 # metasploit
@@ -19,7 +26,6 @@ pharos.secimo.net/docker.io/metasploitframework/metasploit-framework:6.3.34
 pharos.secimo.net/docker.io/metasploitframework/metasploit-framework:6.3.47
 pharos.secimo.net/docker.io/metasploitframework/metasploit-framework:6.4.0
 
-# exit
 
 # curl
 pharos.secimo.net/docker.io/alpine/curl:8.2.0
@@ -46,7 +52,7 @@ pharos.secimo.net/docker.io/alpine/openssl:3.3.3
 pharos.secimo.net/docker.io/alpine/openssl:3.5.0
 pharos.secimo.net/docker.io/alpine/openssl:3.5.1
 
-# exit
+
 
 # kubectl
 pharos.secimo.net/docker.io/istio/kubectl:1.4.1
@@ -61,7 +67,7 @@ pharos.secimo.net/docker.io/istio/kubectl:1.5.8
 pharos.secimo.net/docker.io/istio/kubectl:1.5.9
 pharos.secimo.net/docker.io/istio/kubectl:1.5.10
 
-# exit
+
 
 # helm
 pharos.secimo.net/docker.io/alpine/helm:3.10.1
@@ -97,7 +103,7 @@ pharos.secimo.net/docker.io/hashicorp/vault:1.18
 pharos.secimo.net/docker.io/hashicorp/vault:1.19
 pharos.secimo.net/docker.io/hashicorp/vault:1.20
 
-# exit
+
 
 # fluentbit
 pharos.secimo.net/docker.io/fluent/fluent-bit:3.0
@@ -153,8 +159,6 @@ pharos.secimo.net/docker.io/nodered/node-red:3.0.0-minimal
 pharos.secimo.net/docker.io/nodered/node-red:3.1.0-minimal
 pharos.secimo.net/docker.io/nodered/node-red:4.0.0-minimal
 
-
-# exit 
 
 # ruby
 pharos.secimo.net/docker.io/ruby:2.0
