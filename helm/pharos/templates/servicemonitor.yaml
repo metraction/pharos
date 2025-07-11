@@ -2,7 +2,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: {{ include "pharos.fullname" . }}-default
+  name: {{ include "pharos.fullname" . }}
 spec:
   endpoints:
     - path: /api/metrics
@@ -10,37 +10,11 @@ spec:
       relabelings:
         - targetLabel: type
           replacement: default
-  namespaceSelector:
-    matchNames:
-      - {{ .Release.Namespace }}
-  selector:
-    matchLabels:
-        {{- include "pharos.labels" . | nindent 6 }}
----
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: {{ include "pharos.fullname" . }}-contexts
-spec:
-  endpoints:
     - path: /api/metrics/contexts # TODO: here we can filter by context later if implemented in controller
       port: http
       relabelings:
         - targetLabel: type
           replacement: contexts
-  namespaceSelector:
-    matchNames:
-      - {{ .Release.Namespace }}
-  selector:
-    matchLabels:
-        {{- include "pharos.labels" . | nindent 6 }}
----
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: {{ include "pharos.fullname" . }}-vulnerabilities
-spec:
-  endpoints:
     - path: /api/metrics/vulnerabilities
       port: http
       relabelings:
