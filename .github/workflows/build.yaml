@@ -96,9 +96,6 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Using version: $VERSION"
 
-  scanner-test:     
-          
-
   integration-test:
     if: github.event.inputs.run_integration_tests == 'true' || contains(github.event.head_commit.message, 'run_integration_tests')
     needs: [get-version, ko-build]
