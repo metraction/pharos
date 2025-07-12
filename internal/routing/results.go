@@ -14,7 +14,7 @@ import (
 func NewScanResultCollectorFlow(
 	ctx context.Context,
 	config *model.Config,
-	enricher mappers.EnricherConfig,
+	enricher model.EnricherConfig,
 	source streams.Source,
 	log *zerolog.Logger) streams.Flow {
 	pharosScanTaskHandler := pharosstreams.NewPharosScanTaskHandler()
@@ -29,7 +29,7 @@ func NewScanResultCollectorFlow(
 
 }
 
-func NewScanResultsInternalFlow(source streams.Source, enricher mappers.EnricherConfig) streams.Flow {
+func NewScanResultsInternalFlow(source streams.Source, enricher model.EnricherConfig) streams.Flow {
 	pharosScanTaskHandler := pharosstreams.NewPharosScanTaskHandler()
 	contextFlow := source.
 		Via(flow.NewFilter(pharosScanTaskHandler.FilterFailedTasks, 1)).

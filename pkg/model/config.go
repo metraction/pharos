@@ -1,6 +1,8 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 // Config holds the application configuration.
 type Config struct {
@@ -10,8 +12,9 @@ type Config struct {
 	Database        Database                 `mapstructure:"database"`
 	Prometheus      PrometheusReporterConfig `mapstructure:"prometheus"`
 	ResultCollector ResultCollectorConfig    `mapstructure:"collector"`
-	Mapper          MapperConfig             `mapstructure:"mapper"`
 	Command         string                   `mapstructure:"command"`
+	BasePath        string
+	EnricherPath    string
 }
 
 // ScannerConfig holds scanner-specific configuration.
@@ -71,6 +74,12 @@ type Database struct {
 	Dsn    string         `mapstructure:"dsn"`
 }
 
+type EnricherConfig struct {
+	BasePath string
+	Configs  []MapperConfig
+}
+
 type MapperConfig struct {
-	BasePath string `mapstructure:"basePath"` // Base path for the mappers
+	Name   string
+	Config string
 }

@@ -134,6 +134,13 @@ func initConfig() {
 	if err != nil {
 		log.Fatal("Unable to decode config into struct", err)
 	}
+
+	// Set the base path in the config
+	config.BasePath = deriveBasePath()
+	fmt.Printf("Using BasePath: %s\n", config.BasePath)
+	config.EnricherPath = refineEnricherPath(config, config.EnricherPath)
+	fmt.Printf("Enricher path: %s\n", config.EnricherPath)
+
 }
 
 func init() {
@@ -183,4 +190,31 @@ func init() {
 	rootCmd.PersistentFlags().String("mapper.basePath", basePath, "Base path for the mappers")
 
 	rootCmd.AddCommand(scannerCmd)
+}
+
+// deriveBasePath determines the base path for the application based on environment variables or defaults
+func deriveBasePath() string {
+	// Set BasePath based on environment variables or default to current path
+	appDataPath := os.Getenv("APP_DATA_PATH")
+	if appDataPath != "" {
+		return appDataPath
+	}
+
+	koDataPath := os.Getenv("KO_DATA_PATH")
+	if koDataPath != "" {
+		return koDataPath
+	}
+
+	// Default to current directory
+	currentPath, err := os.Getwd()
+	if err != nil {
+		log.Printf("Warning: Could not determine current directory: %v. Using '.' as BasePath", err)
+		return "."
+	}
+	return filepath.Join(currentPath, "cmd", "kodata", "enrichers")
+}
+
+func refineEnricherPath(config *model.Config, enricherPath string) string {
+	// Append basePath
+	return filepath.Join(config.BasePath, enricherPath)
 }
