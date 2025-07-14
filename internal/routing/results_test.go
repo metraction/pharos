@@ -43,6 +43,10 @@ func TestIntegrationScannerFlow(t *testing.T) {
 }
 
 func TestIntegrationScanResultCollectorFlow(t *testing.T) {
+	if os.Getenv("RUN_SCANNER_TESTS") != "true" {
+		t.Skip("skipping scanner test - make sure it runs on right image and then set RUN_SCANNER_TESTS=true")
+	}
+
 	logger := logging.NewLogger("info")
 
 	// Setup Redis (mini or real)
