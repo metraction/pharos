@@ -1,0 +1,7 @@
+results:
+  - Name: debug
+    Config: "initial"
+  - Name: file
+    Config: path/to/file.yaml
+  - Name: hbs
+    Config: path/to/template.hbs
