@@ -75,11 +75,11 @@ type Database struct {
 }
 
 type EnricherConfig struct {
-	BasePath string
-	Configs  []MapperConfig
+	BasePath string         `yaml:"basePath"`
+	Configs  []MapperConfig `yaml:"configs"`
 }
 
 type MapperConfig struct {
-	Name   string
-	Config string
+	Name   string `yaml:"name"`
+	Config string `yaml:"config"`
 }

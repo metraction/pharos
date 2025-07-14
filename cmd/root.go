@@ -210,7 +210,7 @@ func deriveBasePath() string {
 		log.Printf("Warning: Could not determine current directory: %v. Using '.' as BasePath", err)
 		return "."
 	}
-	return filepath.Join(currentPath, "cmd", "kodata")
+	return filepath.Join(currentPath, "kodata")
 }
 
 func refineEnricherPath(config *model.Config, enricherPath string) string {

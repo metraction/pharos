@@ -9,6 +9,7 @@ import (
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/reugn/go-streams/extension"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
 )
 
 // pluginCmd represents the plugin command
@@ -51,13 +52,27 @@ The test command accepts a URI parameter that points to a directory where it exp
 			return
 		}
 
-		resultChannel := make(chan any, 1)
+		// Load test result
+		testResult, err := model.LoadResultFromFile(filepath.Join(enricherPath, "test-data.yaml"))
+		if err != nil {
+			fmt.Printf("Error: Test result not found at %s\n", filepath.Join(enricherPath, "test-data.yaml"))
+			return
+		}
+
+		inputChannel := make(chan any, 1)
+		inputChannel <- *testResult
+		close(inputChannel)
 
 		// Load the plugin
-		plugin := enricher.LoadPlugin(config, extension.NewChanSource(resultChannel)).Out()
-		result := <-plugin
-		fmt.Printf("Result: %v\n", result)
+		plugin := enricher.LoadPlugin(config, extension.NewChanSource(inputChannel)).Out()
+		result := (<-plugin).(model.PharosScanResult)
 
+		out, err := yaml.Marshal(result.Image.ContextRoots)
+		if err != nil {
+			fmt.Printf("Error: %v\n", err)
+			return
+		}
+		fmt.Printf("Result:\n%v", string(out))
 	},
 }
 

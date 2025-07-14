@@ -1,5 +1,5 @@
 results:
-  - Name: file
-    Config: path/to/file.yaml
-  - Name: hbs
-    Config: path/to/template.hbs
+- name: file
+  config: eos.yaml
+- name: hbs
+  config: eos_v1.hbs
