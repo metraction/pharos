@@ -110,8 +110,8 @@ prometheus:
     # -- Key in the secret for the token
     tokenKey: ""
 
-# -- Mappers configuration
-mappers:
+# -- Enrichers configuration
+enrichers:
   hbs: 
     eos_v1.hbs: |
       distro: {{ .payload.Image.DistroName }}

@@ -2,6 +2,6 @@ results:
   - name: debug
     config: "initial"
   - name: file
-    config: /pharos/mappers/eos.yaml
+    config: eos.yaml
   - name: hbs
-    config: /pharos/mappers/eos_v1.hbs
+    config: eos_v1.hbs
