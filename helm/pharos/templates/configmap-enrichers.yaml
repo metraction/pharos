@@ -5,3 +5,5 @@ metadata:
   labels:
     app: pharos
 data:
+  enricher.yaml: | {{ .Files.Get "files/enricher.yaml" | nindent 4 }}
+    
