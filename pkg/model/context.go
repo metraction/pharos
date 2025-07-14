@@ -27,9 +27,9 @@ type Context struct {
 }
 
 type ContextEntry struct {
-	ContextRootKey string    `json:"ContextRootKey"` // Composite Foreign Key to the ContextRoot Table
-	Owner          string    `json:"Owner"`
-	Key            string    `json:"Key"`       // Composite Key to the ContextRoot Table
-	Value          any       `json:"Value"`     // Value of the context entry
-	UpdatedAt      time.Time `json:"UpdatedAt"` // Last update timestamp
+	ContextRootKey string    `json:"ContextRootKey" yaml:"ContextRootKey"` // Composite Foreign Key to the ContextRoot Table
+	Owner          string    `json:"Owner" yaml:"Owner"`
+	Key            string    `json:"Key" yaml:"Key"`       // Composite Key to the ContextRoot Table
+	Value          any       `json:"Value" yaml:"Value"`     // Value of the context entry
+	UpdatedAt      time.Time `json:"UpdatedAt" yaml:"UpdatedAt"` // Last update timestamp
 }

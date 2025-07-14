@@ -59,8 +59,8 @@ func TestIntegrationScanResultCollectorFlow(t *testing.T) {
 	enricher := model.EnricherConfig{
 		BasePath: filepath.Join("..", "..", "testdata", "enrichers"),
 		Configs: []model.MapperConfig{
+			{Name: "debug", Config: "1"},
 			{Name: "file", Config: "eos.yaml"},
-			//	{Name: "debug", Config: "1"},
 			{Name: "hbs", Config: "eos_v1.hbs"},
 			//	{Name: "debug", Config: "2"},
 		},
