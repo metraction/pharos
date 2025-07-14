@@ -1,7 +1,5 @@
 results:
-  - name: debug
-    config: "initial"
-  - name: file
-    config: eos.yaml
-  - name: hbs
-    config: eos_v1.hbs
+- name: file
+  config: eos.yaml
+- name: hbs
+  config: eos_v1.hbs
