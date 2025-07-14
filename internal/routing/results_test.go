@@ -1,76 +1,84 @@
 package routing
 
-// import (
-// 	"context"
-// 	"path/filepath"
-// 	"reflect"
-// 	"testing"
+import (
+	"context"
+	"os"
+	"path/filepath"
+	"reflect"
+	"testing"
 
-// 	"github.com/metraction/pharos/internal/integrations/redis"
-// 	"github.com/metraction/pharos/internal/logging"
-// 	"github.com/metraction/pharos/pkg/mappers"
-// 	"github.com/metraction/pharos/pkg/model"
-// 	"github.com/reugn/go-streams/extension"
-// )
+	"github.com/metraction/pharos/internal/integrations/redis"
+	"github.com/metraction/pharos/internal/logging"
+	"github.com/metraction/pharos/pkg/mappers"
+	"github.com/metraction/pharos/pkg/model"
+	"github.com/reugn/go-streams/extension"
+)
 
-// func TestIntegrationScannerFlow(t *testing.T) {
-// 	// Setup Redis (mini or real)
-// 	redis, _, config := redis.SetupTestRedis(t)
-// 	if redis != nil {
-// 		defer redis.Close()
-// 	}
-// 	config.Scanner.CacheEndpoint = "redis://" + config.Redis.DSN
-// 	config.Scanner.Timeout = "5s"
+func TestIntegrationScannerFlow(t *testing.T) {
+	if os.Getenv("RUN_SCANNER_TESTS") != "true" {
+		t.Skip("skipping scanner test - make sure it runs on right image and then set RUN_SCANNER_TESTS=true")
+	}
+	// Setup Redis (mini or real)
+	redis, _, config := redis.SetupTestRedis(t)
+	if redis != nil {
+		defer redis.Close()
+	}
+	config.Scanner.CacheEndpoint = "redis://" + config.Redis.DSN
+	config.Scanner.Timeout = "5s"
 
-// 	scanTask := model.NewTestScanTask(t, "test-1", "nginx:latest")
-// 	outChan := make(chan any, 1)
-// 	outChan <- scanTask
-// 	close(outChan)
+	scanTask := model.NewTestScanTask(t, "test-1", "nginx:latest")
+	outChan := make(chan any, 1)
+	outChan <- scanTask
+	close(outChan)
 
-// 	stream := extension.NewChanSource(outChan).
-// 		Via(NewScannerFlow(context.Background(), config))
+	stream := extension.NewChanSource(outChan).
+		Via(NewScannerFlow(context.Background(), config))
 
-// 	result := (<-stream.Out()).(model.PharosScanResult)
+	result := (<-stream.Out()).(model.PharosScanResult)
 
-// 	// Assert that the result contains the same scan result that was passed in
-// 	if !reflect.DeepEqual(result.ScanTask.JobId, scanTask.JobId) {
-// 		t.Errorf("Expected result.ScanTask.JobId to be %v, got %v", scanTask.JobId, result.ScanTask.JobId)
-// 	}
-// }
+	// Assert that the result contains the same scan result that was passed in
+	if !reflect.DeepEqual(result.ScanTask.JobId, scanTask.JobId) {
+		t.Errorf("Expected result.ScanTask.JobId to be %v, got %v", scanTask.JobId, result.ScanTask.JobId)
+	}
+}
 
-// func TestIntegrationScanResultCollectorFlow(t *testing.T) {
-// 	logger := logging.NewLogger("info")
+func TestIntegrationScanResultCollectorFlow(t *testing.T) {
+	if os.Getenv("RUN_SCANNER_TESTS") != "true" {
+		t.Skip("skipping scanner test - make sure it runs on right image and then set RUN_SCANNER_TESTS=true")
+	}
 
-// 	// Setup Redis (mini or real)
-// 	redis, _, config := redis.SetupTestRedis(t)
-// 	if redis != nil {
-// 		defer redis.Close()
-// 	}
-// 	config.Scanner.CacheEndpoint = "redis://" + config.Redis.DSN
-// 	config.Scanner.Timeout = "5s"
+	logger := logging.NewLogger("info")
 
-// 	enricher := mappers.EnricherConfig{
-// 		BasePath: filepath.Join("..", "..", "testdata", "enrichers"),
-// 		Configs: []mappers.MapperConfig{
-// 			{Name: "file", Config: "eos.yaml"},
-// 			//	{Name: "debug", Config: "1"},
-// 			{Name: "hbs", Config: "eos_v1.hbs"},
-// 			//	{Name: "debug", Config: "2"},
-// 		},
-// 	}
+	// Setup Redis (mini or real)
+	redis, _, config := redis.SetupTestRedis(t)
+	if redis != nil {
+		defer redis.Close()
+	}
+	config.Scanner.CacheEndpoint = "redis://" + config.Redis.DSN
+	config.Scanner.Timeout = "5s"
 
-// 	scanTask := model.NewTestScanTask(t, "test-1", "nginx:latest")
-// 	outChan := make(chan any, 1)
-// 	outChan <- scanTask
-// 	close(outChan)
+	enricher := mappers.EnricherConfig{
+		BasePath: filepath.Join("..", "..", "testdata", "enrichers"),
+		Configs: []mappers.MapperConfig{
+			{Name: "file", Config: "eos.yaml"},
+			//	{Name: "debug", Config: "1"},
+			{Name: "hbs", Config: "eos_v1.hbs"},
+			//	{Name: "debug", Config: "2"},
+		},
+	}
 
-// 	source := extension.NewChanSource(outChan)
-// 	stream := NewScanResultCollectorFlow(context.Background(), config, enricher, source, logger)
+	scanTask := model.NewTestScanTask(t, "test-1", "nginx:latest")
+	outChan := make(chan any, 1)
+	outChan <- scanTask
+	close(outChan)
 
-// 	result := (<-stream.Out()).(model.PharosScanResult)
+	source := extension.NewChanSource(outChan)
+	stream := NewScanResultCollectorFlow(context.Background(), config, enricher, source, logger)
 
-// 	// Assert that the result contains the same scan result that was passed in
-// 	if !reflect.DeepEqual(result.ScanTask.JobId, scanTask.JobId) {
-// 		t.Errorf("Expected result.ScanTask.JobId to be %v, got %v", scanTask.JobId, result.ScanTask.JobId)
-// 	}
-// }
+	result := (<-stream.Out()).(model.PharosScanResult)
+
+	// Assert that the result contains the same scan result that was passed in
+	if !reflect.DeepEqual(result.ScanTask.JobId, scanTask.JobId) {
+		t.Errorf("Expected result.ScanTask.JobId to be %v, got %v", scanTask.JobId, result.ScanTask.JobId)
+	}
+}
