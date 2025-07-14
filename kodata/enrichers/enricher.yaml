@@ -1,4 +1,6 @@
 results:
+- name: debug
+  config: first
 - name: file
   config: eos.yaml
 - name: hbs
