@@ -34,7 +34,7 @@ spec:
                 key: dsn
           - name: APP_DATA_PATH
             value: "/pharos"
-          - name: PHAROS_MAPPER_BASEPATH
+          - name: PHAROS_ENRICHERPATH
             value: "/pharos/mappers"
         volumeMounts:
           - name: config-volume
