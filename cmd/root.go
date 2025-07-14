@@ -9,14 +9,11 @@ import (
 	"io"
 	"log"
 	"os"
-	"os/signal"
 	"path/filepath"
 	"strconv"
 	"strings"
-	"syscall"
 	"time"
 
-	"github.com/metraction/pharos/internal/routing"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -36,25 +33,21 @@ var rootCmd = &cobra.Command{
 		cmd.SetContext(ctx)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("This is the root command that does nothing.\n  Run go run . scanner")
 		// TODO: this is duplicate code of scanner.go
 		// Create a new context that can be cancelled.
-		ctx, cancel := context.WithCancel(cmd.Context())
-		defer cancel() // Ensure cancel is called on exit to clean up resources
-
-		err := routing.NewScannerFlow(ctx, config)
-		if err != nil {
-			fmt.Printf("Error creating scanner flow: %v\n", err)
-			return
+		if os.Getenv("CI") == "true" {
+			fmt.Println("CI mode", config.Command)
+			switch config.Command {
+			case "scanner":
+				scannerCmd.Run(cmd, args)
+			case "http":
+				httpCmd.Run(cmd, args)
+			default:
+				fmt.Println("Unknown CI command: " + config.Command)
+			}
+		} else {
+			fmt.Println("This is the root command that does nothing.\n  Run go run . scanner")
 		}
-		fmt.Println("Scanner started successfully. Press Ctrl+C to exit.")
-
-		// Wait for interrupt signal to gracefully shut down.
-		quit := make(chan os.Signal, 1)
-		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-		<-quit
-
-		fmt.Println("Shutting down scanner...")
 	},
 }
 
@@ -141,10 +134,19 @@ func initConfig() {
 	if err != nil {
 		log.Fatal("Unable to decode config into struct", err)
 	}
+
+	// Set the base path in the config
+	config.BasePath = deriveBasePath()
+	fmt.Printf("Using BasePath: %s\n", config.BasePath)
+	config.EnricherPath = refineEnricherPath(config, config.EnricherPath)
+	fmt.Printf("Enricher path: %s\n", config.EnricherPath)
+
 }
 
 func init() {
 	cobra.OnInitialize(initConfig)
+
+	rootCmd.PersistentFlags().String("command", "scanner", "CI command") // Use dot-notation for Viper key compatibility with nested structs.
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.pharos.yaml)") // cfgFile is handled specially for file loading, so direct binding is fine.
 	rootCmd.PersistentFlags().String("redis.dsn", "localhost:6379", "Redis address")                           // Use dot-notation for Viper key compatibility with nested structs.
@@ -184,8 +186,34 @@ func init() {
 	rootCmd.PersistentFlags().String("database.dsn", defaultDSN, "Database DSN for the scanner, for postgres it is the connection string.")
 
 	// It should work for dev, docker and k8s: files located in cmd/kodada; $KO_DATA_PATH; configMap
-	basePath := filepath.Join(".", "cmd", "kodata", "enrichers")
-	rootCmd.PersistentFlags().String("mapper.basePath", basePath, "Base path for the mappers")
+	rootCmd.PersistentFlags().String("enricherPath", "enrichers", "Base path for the enrichers")
 
 	rootCmd.AddCommand(scannerCmd)
+}
+
+// deriveBasePath determines the base path for the application based on environment variables or defaults
+func deriveBasePath() string {
+	// Set BasePath based on environment variables or default to current path
+	appDataPath := os.Getenv("APP_DATA_PATH")
+	if appDataPath != "" {
+		return appDataPath
+	}
+
+	koDataPath := os.Getenv("KO_DATA_PATH")
+	if koDataPath != "" {
+		return koDataPath
+	}
+
+	// Default to current directory
+	currentPath, err := os.Getwd()
+	if err != nil {
+		log.Printf("Warning: Could not determine current directory: %v. Using '.' as BasePath", err)
+		return "."
+	}
+	return filepath.Join(currentPath, "cmd", "kodata")
+}
+
+func refineEnricherPath(config *model.Config, enricherPath string) string {
+	// Append basePath
+	return filepath.Join(config.BasePath, enricherPath)
 }

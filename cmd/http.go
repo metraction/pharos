@@ -47,15 +47,13 @@ These submissions are then published to a Redis stream for further processing by
 
 		api.UseMiddleware(databaseContext.DatabaseMiddleware())
 
-		logger.Debug().Str("basePath", config.Mapper.BasePath).Msg("Loading mapper from")
-		enricher := mappers.EnricherConfig{
-			BasePath: config.Mapper.BasePath,
-			Configs: []mappers.MapperConfig{
-				{Name: "file", Config: "eos.yaml"},
-				//	{Name: "debug", Config: "1"},
-				{Name: "hbs", Config: "eos_v1.hbs"},
-				//	{Name: "debug", Config: "2"},
-			},
+		enricherConfig, err := mappers.LoadMappersConfig("results", config.EnricherPath+"/enricher.yaml")
+		if err != nil {
+			logger.Fatal().Err(err).Msg("Failed to load mappers config")
+		}
+		enricher := model.EnricherConfig{
+			BasePath: config.EnricherPath,
+			Configs:  enricherConfig,
 		}
 
 		// For scan tasks

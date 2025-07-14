@@ -13,9 +13,9 @@ import (
 )
 
 func TestDynamicStream(t *testing.T) {
-	enricher := EnricherConfig{
+	enricher := model.EnricherConfig{
 		BasePath: filepath.Join("..", "..", "testdata", "enrichers"),
-		Configs: []MapperConfig{
+		Configs: []model.MapperConfig{
 			{Name: "file", Config: "eos.yaml"},
 			{Name: "hbs", Config: "eos_v1.hbs"},
 			//	{Name: "debug", Config: ""},
@@ -65,9 +65,9 @@ func TestDynamicStream(t *testing.T) {
 }
 
 func TestDynamicWrapperStream(t *testing.T) {
-	enricher := EnricherConfig{
+	enricher := model.EnricherConfig{
 		BasePath: filepath.Join("..", "..", "testdata", "enrichers"),
-		Configs: []MapperConfig{
+		Configs: []model.MapperConfig{
 			{Name: "file", Config: "eos.yaml"},
 			{Name: "hbs", Config: "pass_through.hbs"},
 			//	{Name: "debug", Config: ""},

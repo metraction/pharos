@@ -1,0 +1,5 @@
+results:
+  - Name: file
+    Config: path/to/file.yaml
+  - Name: hbs
+    Config: path/to/template.hbs

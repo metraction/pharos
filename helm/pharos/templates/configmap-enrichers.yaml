@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pharos-enrichers
+  labels:
+    app: pharos
+data:
+  enricher.yaml: | {{ .Files.Get "files/enricher.yaml" | nindent 4 }}
+    

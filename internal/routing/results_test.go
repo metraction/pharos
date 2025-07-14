@@ -9,7 +9,6 @@ import (
 
 	"github.com/metraction/pharos/internal/integrations/redis"
 	"github.com/metraction/pharos/internal/logging"
-	"github.com/metraction/pharos/pkg/mappers"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/reugn/go-streams/extension"
 )
@@ -57,9 +56,9 @@ func TestIntegrationScanResultCollectorFlow(t *testing.T) {
 	config.Scanner.CacheEndpoint = "redis://" + config.Redis.DSN
 	config.Scanner.Timeout = "5s"
 
-	enricher := mappers.EnricherConfig{
+	enricher := model.EnricherConfig{
 		BasePath: filepath.Join("..", "..", "testdata", "enrichers"),
-		Configs: []mappers.MapperConfig{
+		Configs: []model.MapperConfig{
 			{Name: "file", Config: "eos.yaml"},
 			//	{Name: "debug", Config: "1"},
 			{Name: "hbs", Config: "eos_v1.hbs"},
