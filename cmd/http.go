@@ -47,7 +47,7 @@ These submissions are then published to a Redis stream for further processing by
 
 		api.UseMiddleware(databaseContext.DatabaseMiddleware())
 
-		enricherConfig, err := mappers.LoadMappersConfig("results", config.EnricherPath+"/config.yaml")
+		enricherConfig, err := mappers.LoadMappersConfig("results", config.EnricherPath+"/enricher.yaml")
 		if err != nil {
 			logger.Fatal().Err(err).Msg("Failed to load mappers config")
 		}
