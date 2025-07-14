@@ -2,6 +2,7 @@ package routing
 
 import (
 	"context"
+	"os"
 	"path/filepath"
 	"reflect"
 	"testing"
@@ -14,9 +15,9 @@ import (
 )
 
 func TestIntegrationScannerFlow(t *testing.T) {
-	// if os.Getenv("RUN_SCANNER_TESTS") != "true" {
-	// 	t.Skip("skipping scanner test - make sure it runs on right image and then set RUN_SCANNER_TESTS=true")
-	// }
+	if os.Getenv("RUN_SCANNER_TESTS") != "true" {
+		t.Skip("skipping scanner test - make sure it runs on right image and then set RUN_SCANNER_TESTS=true")
+	}
 	// Setup Redis (mini or real)
 	redis, _, config := redis.SetupTestRedis(t)
 	if redis != nil {
