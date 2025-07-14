@@ -1,7 +1,7 @@
 results:
-  - Name: debug
-    Config: "initial"
-  - Name: file
-    Config: path/to/file.yaml
-  - Name: hbs
-    Config: path/to/template.hbs
+  - name: debug
+    config: "initial"
+  - name: file
+    config: /pharos/mappers/eos.yaml
+  - name: hbs
+    config: /pharos/mappers/eos_v1.hbs
