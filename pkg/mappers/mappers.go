@@ -37,8 +37,10 @@ func NewAppendFile[T any](file string) flow.MapFunction[T, map[string]interface{
 
 		// Create the result map with data and YAML content
 		result := map[string]interface{}{
-			"data":  data,
-			fileKey: yamlContent,
+			"payload": data,
+			"meta": map[string]interface{}{
+				fileKey: yamlContent,
+			},
 		}
 
 		return result

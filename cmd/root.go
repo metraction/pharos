@@ -214,6 +214,10 @@ func deriveBasePath() string {
 }
 
 func refineEnricherPath(config *model.Config, enricherPath string) string {
-	// Append basePath
+	// If enricherPath is absolute, return it as is
+	if filepath.IsAbs(enricherPath) {
+		return enricherPath
+	}
+
 	return filepath.Join(config.BasePath, enricherPath)
 }
