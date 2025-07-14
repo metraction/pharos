@@ -186,8 +186,7 @@ func init() {
 	rootCmd.PersistentFlags().String("database.dsn", defaultDSN, "Database DSN for the scanner, for postgres it is the connection string.")
 
 	// It should work for dev, docker and k8s: files located in cmd/kodada; $KO_DATA_PATH; configMap
-	enricherPath := filepath.Join(".", "cmd", "kodata", "enrichers")
-	rootCmd.PersistentFlags().String("enricherPath", enricherPath, "Base path for the enrichers")
+	rootCmd.PersistentFlags().String("enricherPath", "enrichers", "Base path for the enrichers")
 
 	rootCmd.AddCommand(scannerCmd)
 }
@@ -211,7 +210,7 @@ func deriveBasePath() string {
 		log.Printf("Warning: Could not determine current directory: %v. Using '.' as BasePath", err)
 		return "."
 	}
-	return filepath.Join(currentPath, "cmd", "kodata", "enrichers")
+	return filepath.Join(currentPath, "cmd", "kodata")
 }
 
 func refineEnricherPath(config *model.Config, enricherPath string) string {
