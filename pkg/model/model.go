@@ -90,7 +90,7 @@ type PharosImageMeta struct {
 	ManifestDigest     string                `json:"ManifestDigest" yaml:"ManifestDigest" required:"false" gorm:"index"`
 	RepoDigests        StringSlice           `json:"RepoDigests" yaml:"RepoDigests" required:"false" gorm:"type:VARCHAR"`
 	ArchName           string                `json:"ArchName" yaml:"ArchName" required:"false" doc:"image platform architecture default: amd64" gorm:"index"` // image platform architecture amd64/..
-	ArchOS             string                `json:"ArchOS" yaml:"ArchOS" required:"false" doc:"image platform OS default: linux" gorm:"index"`             // image platform OS
+	ArchOS             string                `json:"ArchOS" yaml:"ArchOS" required:"false" doc:"image platform OS default: linux" gorm:"index"`               // image platform OS
 	DistroName         string                `json:"DistroName" yaml:"DistroName" required:"false"`
 	DistroVersion      string                `json:"DistroVersion" yaml:"DistroVersion" required:"false"`
 	Size               uint64                `json:"Size" yaml:"Size" required:"false"`
@@ -101,7 +101,7 @@ type PharosImageMeta struct {
 	Packages           []PharosPackage       `json:"Packages" yaml:"Packages" required:"false" gorm:"many2many:join_pharos_package_with_pharos_image_meta;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	ContextRoots       []ContextRoot         `json:"ContextRoots" yaml:"ContextRoots" required:"false" gorm:"foreignKey:ImageId;references:ImageId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	TTL                time.Duration         `json:"TTL" yaml:"TTL" required:"false" gorm:"default:43200000000"` // context root TTL, default 12 hours (43200 seconds)
-	LastSuccessfulScan time.Time             `json:"LastSuccessfulScan" yaml:"LastSuccessfulScan"`                              // last update time
+	LastSuccessfulScan time.Time             `json:"LastSuccessfulScan" yaml:"LastSuccessfulScan"`               // last update time
 }
 
 type PharosFindingSummary struct {
@@ -120,10 +120,10 @@ func (pm *PharosImageMeta) GetSummary() PharosFindingSummary {
 
 // a finding is an instantiation of a vulnerability in an asset/package (scan result)
 type PharosScanFinding struct {
-	AdvId       string      `json:"AdvId" yaml:"AdvId" gorm:"primaryKey"`     // finding CVE, GHSA, ..
+	AdvId       string      `json:"AdvId" yaml:"AdvId" gorm:"primaryKey"`         // finding CVE, GHSA, ..
 	AdvSource   string      `json:"AdvSource" yaml:"AdvSource" gorm:"primaryKey"` // advisory source, like NVD, GItHub, Uuntu
-	ScanDate    time.Time   `json:"ScanDate" yaml:"ScanDate"`                    // finding first found
-	UpdateDate  time.Time   `json:"UpdateDate" yaml:"UpdateDate"`                  // finding updated/last scan
+	ScanDate    time.Time   `json:"ScanDate" yaml:"ScanDate"`                     // finding first found
+	UpdateDate  time.Time   `json:"UpdateDate" yaml:"UpdateDate"`                 // finding updated/last scan
 	Severity    string      `json:"Severity" yaml:"Severity"`
 	DueDate     time.Time   `json:"DueDate" yaml:"DueDate"` // needs to be fixed by
 	FixState    string      `json:"FixState" yaml:"FixState"`
@@ -133,21 +133,21 @@ type PharosScanFinding struct {
 
 // a vulnerability is generic description of a weakness, a scan finds vulns in packages
 type PharosVulnerability struct {
-	AdvId          string      `json:"AdvId" yaml:"AdvId" gorm:"primaryKey"`     // finding CVE, GHSA, ..
+	AdvId          string      `json:"AdvId" yaml:"AdvId" gorm:"primaryKey"`         // finding CVE, GHSA, ..
 	AdvSource      string      `json:"AdvSource" yaml:"AdvSource" gorm:"primaryKey"` // advisory source, like NVD, GItHub, Ubuntu
 	AdvAliases     string      `json:"Aliases" yaml:"Aliases"`
 	CreateDate     time.Time   `json:"CreateDate" yaml:"CreateDate"` // finding first found
-	PubDate        time.Time   `json:"PubDate" yaml:"PubDate"`    // vuln publication
-	ModDate        time.Time   `json:"ModDate" yaml:"ModDate"`    // last modified
-	KevDate        time.Time   `json:"KevDate" yaml:"KevDate"`    // known exploited in wild pubdate)
+	PubDate        time.Time   `json:"PubDate" yaml:"PubDate"`       // vuln publication
+	ModDate        time.Time   `json:"ModDate" yaml:"ModDate"`       // last modified
+	KevDate        time.Time   `json:"KevDate" yaml:"KevDate"`       // known exploited in wild pubdate)
 	Severity       string      `json:"Severity" yaml:"Severity"`
 	CvssVectors    StringSlice `json:"CvssVectors" yaml:"CvssVectors" gorm:"type:VARCHAR"`
-	CvssBase       float64     `json:"CvssBase" yaml:"CvssBase"`                       // max cvss score
-	RiskScoce      float64     `json:"RiskScore" yaml:"RiskScore"`                      // from grype
-	Cpes           StringSlice `json:"Cpes" yaml:"Cpes" gorm:"type:VARCHAR"`       // Mitre CPEs
-	Cwes           StringSlice `json:"Cwes" yaml:"Cwes" gorm:"type:VARCHAR"`       // Mitre CWEs
+	CvssBase       float64     `json:"CvssBase" yaml:"CvssBase"`                         // max cvss score
+	RiskScoce      float64     `json:"RiskScore" yaml:"RiskScore"`                       // from grype
+	Cpes           StringSlice `json:"Cpes" yaml:"Cpes" gorm:"type:VARCHAR"`             // Mitre CPEs
+	Cwes           StringSlice `json:"Cwes" yaml:"Cwes" gorm:"type:VARCHAR"`             // Mitre CWEs
 	References     StringSlice `json:"References" yaml:"References" gorm:"type:VARCHAR"` // external references
-	RansomwareUsed string      `json:"RansomwareUsed" yaml:"RansomwareUsed"`                 // Exploit used in ransomware
+	RansomwareUsed string      `json:"RansomwareUsed" yaml:"RansomwareUsed"`             // Exploit used in ransomware
 	Description    string      `json:"Description" yaml:"Description"`
 }
 

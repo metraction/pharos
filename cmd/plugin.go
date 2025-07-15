@@ -44,6 +44,7 @@ The test command accepts a URI parameter that points to a directory where it exp
 		} else {
 			fmt.Printf("Using default enricher path: %s\n", enricherPath)
 		}
+		config.EnricherPath = enricherPath
 
 		// Check if the enricher file exists in the specified path
 		enricherFilePath := filepath.Join(enricherPath, "enricher.yaml")
@@ -52,10 +53,19 @@ The test command accepts a URI parameter that points to a directory where it exp
 			return
 		}
 
+		// Get the data file path from flag or use default
+		dataFile, _ := cmd.Flags().GetString("data")
+		dataFilePath := dataFile
+		// If the data file is not an absolute path, join it with the enricher path
+		if !filepath.IsAbs(dataFile) {
+			dataFilePath = filepath.Join(enricherPath, dataFile)
+		}
+		fmt.Printf("Using data file: %s\n", dataFilePath)
+
 		// Load test result
-		testResult, err := model.LoadResultFromFile(filepath.Join(enricherPath, "test-data.yaml"))
+		testResult, err := model.LoadResultFromFile(dataFilePath)
 		if err != nil {
-			fmt.Printf("Error: Test result not found at %s\n", filepath.Join(enricherPath, "test-data.yaml"))
+			fmt.Printf("Error loading test result from %s: %v\n", dataFilePath, err)
 			return
 		}
 
@@ -82,6 +92,6 @@ func init() {
 	// Add subcommands to the plugin command
 	pluginCmd.AddCommand(testCmd)
 
-	// Add flags specific to the test subcommand if needed
-	// testCmd.Flags().StringVar(&someVar, "flag-name", "default", "Description")
+	// Add flags specific to the test subcommand
+	testCmd.Flags().String("data", "test-data.yaml", "Path to test data file to use instead of test-data.yaml")
 }

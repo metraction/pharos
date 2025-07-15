@@ -5,11 +5,11 @@ import (
 )
 
 type ContextRoot struct {
-	Key       string `gorm:"primaryKey"`
-	ImageId   string `gorm:"primaryKey"`
-	UpdatedAt time.Time
-	TTL       time.Duration
-	Contexts  []Context `gorm:"foreignKey:ContextRootKey,ImageId;references:Key,ImageId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Key       string        `json:"Key" yaml:"Key" gorm:"primaryKey"`
+	ImageId   string        `json:"ImageId" yaml:"ImageId" gorm:"primaryKey"`
+	UpdatedAt time.Time     `json:"UpdatedAt" yaml:"UpdatedAt"`
+	TTL       time.Duration `json:"TTL" yaml:"TTL"`
+	Contexts  []Context     `json:"Contexts" yaml:"Contexts" gorm:"foreignKey:ContextRootKey,ImageId;references:Key,ImageId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 func (cr *ContextRoot) IsExpired() bool {
@@ -18,12 +18,12 @@ func (cr *ContextRoot) IsExpired() bool {
 }
 
 type Context struct {
-	ID             uint   `gorm:"primaryKey"` // Auto-incrementing primary key
-	ContextRootKey string // Composite Foreign Key to the ContextRoot Table
-	ImageId        string // Composite Foreign Key to the ContextRoot Table
-	Owner          string // The owner of the Context, this is the plugin that has created / changed it. Will be a Foreign Key to the Plugins Table
-	UpdatedAt      time.Time
-	Data           map[string]any `gorm:"serializer:json"` // Context data
+	ID             uint          `json:"ID" yaml:"ID" gorm:"primaryKey"` // Auto-incrementing primary key
+	ContextRootKey string        `json:"ContextRootKey" yaml:"ContextRootKey"` // Composite Foreign Key to the ContextRoot Table
+	ImageId        string        `json:"ImageId" yaml:"ImageId"` // Composite Foreign Key to the ContextRoot Table
+	Owner          string        `json:"Owner" yaml:"Owner"` // The owner of the Context, this is the plugin that has created / changed it. Will be a Foreign Key to the Plugins Table
+	UpdatedAt      time.Time     `json:"UpdatedAt" yaml:"UpdatedAt"`
+	Data           map[string]any `json:"Data" yaml:"Data" gorm:"serializer:json"` // Context data
 }
 
 type ContextEntry struct {
