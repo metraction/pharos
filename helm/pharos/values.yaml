@@ -53,7 +53,13 @@ postgres:
   # -- Enable PostgreSQL deployment
   enabled: true
   # -- PostgreSQL authentication
+
+  passwordUpdateJob:
+    enabled: true
+
   auth:
+    # -- Generate a secret for PostgreSQL connection
+    generateSecret: true
     # -- Use an existing secret for PostgreSQL connection
     existingSecret: "postgres-connection"  
   primary:
