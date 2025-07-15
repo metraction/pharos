@@ -23,38 +23,116 @@ func isGitURL(path string) bool {
 	return strings.HasPrefix(path, "http://") || strings.HasPrefix(path, "https://")
 }
 
+func LoadPlugin(config *model.Config, source streams.Source) streams.Flow {
+	enricherPath := config.EnricherPath
+	var cleanup func()
+
+	// Check if enricherPath is a Git repository URL
+	if isGitURL(enricherPath) {
+		// Parse Git URL
+		repoURL, ref, dir, err := parseGitURL(enricherPath)
+		if err != nil {
+			logger.Fatal().Err(err).Msg("Failed to parse Git repository URL")
+		}
+
+		// Clone the repository
+		cloneDir, err := cloneGitRepo(repoURL, ref)
+		if err != nil {
+			logger.Fatal().Err(err).Msg("Failed to clone Git repository")
+		}
+
+		// Set up cleanup function
+		cleanup = func() {
+			if cloneDir != "" {
+				os.RemoveAll(cloneDir)
+			}
+		}
+
+		// Use the cloned repository directory + subdirectory as the enricher path
+		enricherPath = filepath.Join(cloneDir, dir)
+		logger.Debug().Str("path", enricherPath).Msg("Using cloned repository directory")
+	}
+
+	// Load mapper configuration
+	mapperConfig, err := mappers.LoadMappersConfig("results", filepath.Join(enricherPath, "enricher.yaml"))
+	if err != nil {
+		if cleanup != nil {
+			cleanup()
+		}
+		logger.Fatal().Err(err).Msg("Failed to load mappers config")
+	}
+
+	enricherConfig := model.EnricherConfig{
+		BasePath: enricherPath,
+		Configs:  mapperConfig,
+	}
+
+	// Set up cleanup to run after the stream is done
+	if cleanup != nil {
+		// defer cleanup()
+	}
+
+	return mappers.NewResultEnricherStream(source, enricherConfig)
+}
+
 // parseGitURL extracts repository URL, reference, and directory path from a URL
 // Supports formats like:
 // - https://github.com/owner/repo/tree/branch/dir
+// - https://username:token@github.com/owner/repo/tree/branch/dir
 // - https://gitlab.com/owner/repo/-/tree/branch/dir
 // - https://bitbucket.org/owner/repo/src/branch/dir
 // - Any other URL with a reference and directory path pattern
 func parseGitURL(url string) (repoURL, ref, dir string, err error) {
+	// Extract credentials if present
+	var credentials string
+	credentialsPattern := regexp.MustCompile(`^(https?://)([^@]+@)(.+)$`)
+	if matches := credentialsPattern.FindStringSubmatch(url); len(matches) == 4 {
+		credentials = matches[2] // username:password@
+		// Remove credentials from URL for pattern matching
+		url = matches[1] + matches[3] // https:// + rest of URL
+	}
+
 	// Try GitHub format first
 	ghPattern := regexp.MustCompile(`^(https?://github\.com/[^/]+/[^/]+)/tree/([^/]+)/?(.*)$`)
 	if matches := ghPattern.FindStringSubmatch(url); len(matches) == 4 {
+		// Reinsert credentials if they existed
+		if credentials != "" {
+			return matches[1][:8] + credentials + matches[1][8:] + ".git", matches[2], matches[3], nil
+		}
 		return matches[1] + ".git", matches[2], matches[3], nil
 	}
-	
+
 	// Try GitLab format
 	glPattern := regexp.MustCompile(`^(https?://gitlab\.com/[^/]+/[^/]+)/-/tree/([^/]+)/?(.*)$`)
 	if matches := glPattern.FindStringSubmatch(url); len(matches) == 4 {
+		// Reinsert credentials if they existed
+		if credentials != "" {
+			return matches[1][:8] + credentials + matches[1][8:] + ".git", matches[2], matches[3], nil
+		}
 		return matches[1] + ".git", matches[2], matches[3], nil
 	}
-	
+
 	// Try Bitbucket format
 	bbPattern := regexp.MustCompile(`^(https?://bitbucket\.org/[^/]+/[^/]+)/src/([^/]+)/?(.*)$`)
 	if matches := bbPattern.FindStringSubmatch(url); len(matches) == 4 {
+		// Reinsert credentials if they existed
+		if credentials != "" {
+			return matches[1][:8] + credentials + matches[1][8:] + ".git", matches[2], matches[3], nil
+		}
 		return matches[1] + ".git", matches[2], matches[3], nil
 	}
-	
+
 	// Generic pattern for other Git hosting services
 	// This is a fallback and might need adjustment for specific services
 	genericPattern := regexp.MustCompile(`^(https?://[^/]+/[^/]+/[^/]+)/([^/]+)/([^/]+)/?(.*)$`)
 	if matches := genericPattern.FindStringSubmatch(url); len(matches) == 5 {
+		// Reinsert credentials if they existed
+		if credentials != "" {
+			return matches[1][:8] + credentials + matches[1][8:] + ".git", matches[3], matches[4], nil
+		}
 		return matches[1] + ".git", matches[3], matches[4], nil
 	}
-	
+
 	return "", "", "", fmt.Errorf("unable to parse Git URL format: %s", url)
 }
 
@@ -65,7 +143,7 @@ func cloneGitRepo(repoURL, ref string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to create temporary directory: %w", err)
 	}
-	
+
 	// Clone options
 	options := &git.CloneOptions{
 		URL:               repoURL,
@@ -73,12 +151,12 @@ func cloneGitRepo(repoURL, ref string) (string, error) {
 		Depth:             1,
 		RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
 	}
-	
+
 	// If ref is provided, set the reference to checkout
 	if ref != "" {
 		options.ReferenceName = plumbing.ReferenceName(fmt.Sprintf("refs/heads/%s", ref))
 	}
-	
+
 	// Clone the repository
 	_, err = git.PlainClone(tempDir, false, options)
 	if err != nil {
@@ -86,33 +164,33 @@ func cloneGitRepo(repoURL, ref string) (string, error) {
 		if ref != "" && err.Error() == fmt.Sprintf("reference not found: refs/heads/%s", ref) {
 			// Try cloning without branch specification
 			options.ReferenceName = ""
-			
+
 			// Clean up the failed clone attempt
 			os.RemoveAll(tempDir)
 			tempDir, err = os.MkdirTemp("", "pharos-enricher-*")
 			if err != nil {
 				return "", fmt.Errorf("failed to create temporary directory: %w", err)
 			}
-			
+
 			// Clone without branch specification
 			r, err := git.PlainClone(tempDir, false, options)
 			if err != nil {
 				os.RemoveAll(tempDir) // Clean up on error
 				return "", fmt.Errorf("git clone failed: %w", err)
 			}
-			
+
 			// Checkout the commit hash
 			w, err := r.Worktree()
 			if err != nil {
 				os.RemoveAll(tempDir) // Clean up on error
 				return "", fmt.Errorf("failed to get worktree: %w", err)
 			}
-			
+
 			// Checkout options with commit hash
 			checkoutOptions := &git.CheckoutOptions{
 				Hash: plumbing.NewHash(ref),
 			}
-			
+
 			// Checkout the commit
 			err = w.Checkout(checkoutOptions)
 			if err != nil {
@@ -124,62 +202,7 @@ func cloneGitRepo(repoURL, ref string) (string, error) {
 			return "", fmt.Errorf("git clone failed: %w", err)
 		}
 	}
-	
-	logger.Info().Str("tempDir", tempDir).Msg("Cloned Git repository to temporary directory")
-	return tempDir, nil
-}
 
-func LoadPlugin(config *model.Config, source streams.Source) streams.Flow {
-	enricherPath := config.EnricherPath
-	var cleanup func()
-	
-	// Check if enricherPath is a Git repository URL
-	if isGitURL(enricherPath) {
-		logger.Info().Str("url", enricherPath).Msg("Loading enricher from Git repository")
-		
-		// Parse Git URL
-		repoURL, ref, dir, err := parseGitURL(enricherPath)
-		if err != nil {
-			logger.Fatal().Err(err).Msg("Failed to parse Git repository URL")
-		}
-		
-		// Clone the repository
-		cloneDir, err := cloneGitRepo(repoURL, ref)
-		if err != nil {
-			logger.Fatal().Err(err).Msg("Failed to clone Git repository")
-		}
-		
-		// Set up cleanup function
-		cleanup = func() {
-			if cloneDir != "" {
-				os.RemoveAll(cloneDir)
-				logger.Info().Str("dir", cloneDir).Msg("Removed temporary directory")
-			}
-		}
-		
-		// Use the cloned repository directory + subdirectory as the enricher path
-		enricherPath = filepath.Join(cloneDir, dir)
-		logger.Info().Str("path", enricherPath).Msg("Using cloned repository directory")
-	}
-	
-	// Load mapper configuration
-	mapperConfig, err := mappers.LoadMappersConfig("results", filepath.Join(enricherPath, "enricher.yaml"))
-	if err != nil {
-		if cleanup != nil {
-			cleanup()
-		}
-		logger.Fatal().Err(err).Msg("Failed to load mappers config")
-	}
-	
-	enricherConfig := model.EnricherConfig{
-		BasePath: enricherPath,
-		Configs:  mapperConfig,
-	}
-	
-	// Set up cleanup to run after the stream is done
-	if cleanup != nil {
-		defer cleanup()
-	}
-	
-	return mappers.NewResultEnricherStream(source, enricherConfig)
+	logger.Debug().Str("tempDir", tempDir).Msg("Cloned Git repository to temporary directory")
+	return tempDir, nil
 }

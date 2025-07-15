@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 
 	"github.com/metraction/pharos/pkg/enricher"
@@ -45,13 +44,6 @@ The test command accepts a URI parameter that points to a directory where it exp
 			fmt.Printf("Using default enricher path: %s\n", enricherPath)
 		}
 		config.EnricherPath = enricherPath
-
-		// Check if the enricher file exists in the specified path
-		enricherFilePath := filepath.Join(enricherPath, "enricher.yaml")
-		if _, err := os.Stat(enricherFilePath); os.IsNotExist(err) {
-			fmt.Printf("Error: Enricher file not found at %s\n", enricherFilePath)
-			return
-		}
 
 		// Get the data file path from flag or use default
 		dataFile, _ := cmd.Flags().GetString("data")
