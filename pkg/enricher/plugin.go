@@ -43,7 +43,7 @@ func FetchEnricherFromGit(enricherUri string, destination string) (pluginDir str
 }
 
 func LoadEnricher(enricherPath string, name string, source streams.Source) streams.Flow {
-	logger.Info().Str("path", enricherPath).Msg("Loading Enricher " + name)
+	logger.Debug().Str("path", enricherPath).Msg("Loading Enricher " + name)
 
 	mapperConfig, err := mappers.LoadMappersConfig("results", filepath.Join(enricherPath, "enricher.yaml"))
 	if err != nil {

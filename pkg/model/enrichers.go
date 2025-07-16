@@ -20,7 +20,6 @@ func LoadEnrichersFromFile(path string) (*Enrichers, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to deserialize enrichers: %w", err)
 	}
-	fmt.Printf("Enrichers dir %s\n", dir)
 	for i := range enrichers.Sources {
 		if enrichers.Sources[i].Path == "" {
 			enrichers.Sources[i].Path = enrichers.Sources[i].Name

@@ -46,10 +46,8 @@ var testCmd = &cobra.Command{
 		var enricherPath string
 		if len(args) > 0 && args[0] != "" {
 			enricherPath = args[0]
-			fmt.Printf("Using custom enricher path: %s\n", enricherPath)
 		} else {
 			enricherPath = config.EnricherPath
-			fmt.Printf("Using default enricher path: %s\n", enricherPath)
 		}
 
 		var enrichers *model.Enrichers
@@ -94,11 +92,9 @@ var testCmd = &cobra.Command{
 		inputChannel <- *testResult
 		close(inputChannel)
 
-		fmt.Println("Loading sources:", len(enrichers.Sources))
 		var plugin streams.Source = extension.NewChanSource(inputChannel)
 		for _, source := range enrichers.Sources {
 			// Load the plugin
-			fmt.Printf("Loading Enricher from %s\n", source.Name)
 			var enricherPath string
 			if source.Git != "" {
 				enricherPath, err = enricher.FetchEnricherFromGit(source.Git, enricherPath)
