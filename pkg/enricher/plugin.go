@@ -2,7 +2,6 @@ package enricher
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -18,7 +17,7 @@ import (
 
 var logger = logging.NewLogger("info", "component", "plugin")
 
-func FetchEnricherFromGit(enricherUri string, destination string) (pluginDir string, err error) {
+func FetchEnricherFromGit(enricherUri string, destinationDir string) (enricherDir string, err error) {
 	// Check if enricherPath is a Git repository URL
 	if !isGitURL(enricherUri) {
 		return "", fmt.Errorf("Enricher path %s is not supported a Git repository URL", enricherUri)
@@ -31,15 +30,15 @@ func FetchEnricherFromGit(enricherUri string, destination string) (pluginDir str
 	}
 
 	// Clone the repository
-	cloneDir, err := cloneGitRepo(repoURL, ref)
+	cloneDir, err := cloneGitRepo(destinationDir, repoURL, ref)
 	if err != nil {
 		logger.Fatal().Str("url", repoURL).Err(err).Msg("Failed to clone Git repository")
 	}
 
 	// Use the cloned repository directory + subdirectory as the enricher path
-	enricherUri = filepath.Join(cloneDir, dir)
-	logger.Debug().Str("path", enricherUri).Msg("Using cloned repository directory")
-	return dir, nil
+	enricherDir = filepath.Join(cloneDir, dir)
+	logger.Debug().Str("path", enricherDir).Msg("Using cloned repository directory")
+	return enricherDir, nil
 }
 
 func LoadEnricher(enricherPath string, name string, source streams.Source) streams.Flow {
@@ -123,14 +122,7 @@ func parseGitURL(url string) (repoURL, ref, dir string, err error) {
 }
 
 // cloneGitRepo clones a Git repository to a temporary directory using go-git
-func cloneGitRepo(repoURL, ref string) (string, error) {
-	// Create temporary directory
-	// TODO: Use directory for plugins downloads
-	tempDir, err := os.MkdirTemp("", "pharos-enricher-*")
-	if err != nil {
-		return "", fmt.Errorf("failed to create temporary directory: %w", err)
-	}
-
+func cloneGitRepo(destinationDir, repoURL, ref string) (string, error) {
 	// Clone options
 	options := &git.CloneOptions{
 		URL:               repoURL,
@@ -145,31 +137,22 @@ func cloneGitRepo(repoURL, ref string) (string, error) {
 	}
 
 	// Clone the repository
-	_, err = git.PlainClone(tempDir, false, options)
+	_, err := git.PlainClone(destinationDir, false, options)
 	if err != nil {
 		// If branch checkout fails, try with commit hash
 		if ref != "" && err.Error() == fmt.Sprintf("reference not found: refs/heads/%s", ref) {
 			// Try cloning without branch specification
 			options.ReferenceName = ""
 
-			// Clean up the failed clone attempt
-			os.RemoveAll(tempDir)
-			tempDir, err = os.MkdirTemp("", "pharos-enricher-*")
-			if err != nil {
-				return "", fmt.Errorf("failed to create temporary directory: %w", err)
-			}
-
 			// Clone without branch specification
-			r, err := git.PlainClone(tempDir, false, options)
+			r, err := git.PlainClone(destinationDir, false, options)
 			if err != nil {
-				os.RemoveAll(tempDir) // Clean up on error
 				return "", fmt.Errorf("git clone failed: %w", err)
 			}
 
 			// Checkout the commit hash
 			w, err := r.Worktree()
 			if err != nil {
-				os.RemoveAll(tempDir) // Clean up on error
 				return "", fmt.Errorf("failed to get worktree: %w", err)
 			}
 
@@ -180,16 +163,8 @@ func cloneGitRepo(repoURL, ref string) (string, error) {
 
 			// Checkout the commit
 			err = w.Checkout(checkoutOptions)
-			if err != nil {
-				os.RemoveAll(tempDir) // Clean up on error
-				return "", fmt.Errorf("failed to checkout commit %s: %w", ref, err)
-			}
-		} else {
-			os.RemoveAll(tempDir) // Clean up on error
-			return "", fmt.Errorf("git clone failed: %w", err)
 		}
 	}
-
-	logger.Debug().Str("tempDir", tempDir).Msg("Cloned Git repository to temporary directory")
-	return tempDir, nil
+	logger.Debug().Str("dir", destinationDir).Msg("Cloned Git repository to directory")
+	return destinationDir, nil
 }

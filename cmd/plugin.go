@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/metraction/pharos/pkg/enricher"
@@ -97,7 +98,13 @@ var testCmd = &cobra.Command{
 			// Load the plugin
 			var enricherPath string
 			if source.Git != "" {
-				enricherPath, err = enricher.FetchEnricherFromGit(source.Git, enricherPath)
+				tempDir, err := os.MkdirTemp("", "pharos-enricher-*")
+				if err != nil {
+					fmt.Printf("Error creating temporary directory: %v\n", err)
+					return
+				}
+
+				enricherPath, err = enricher.FetchEnricherFromGit(source.Git, tempDir)
 				if err != nil {
 					fmt.Printf("Error loading enricher from Git: %v\n", err)
 					return

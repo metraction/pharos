@@ -15,8 +15,12 @@ func LoadEnrichersFromFile(path string) (*Enrichers, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to read enrichers file: %w", err)
 	}
+
+	// As configuration can contain auth data allow env variables
+	expandedContent := os.ExpandEnv(string(data))
+
 	dir := filepath.Dir(path)
-	enrichers, err := loadEnrichersFromBytes(data)
+	enrichers, err := loadEnrichersFromBytes([]byte(expandedContent))
 	if err != nil {
 		return nil, fmt.Errorf("failed to deserialize enrichers: %w", err)
 	}

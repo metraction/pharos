@@ -5,7 +5,7 @@ enrichers:
   sources: 
     - name: eos 
       # path: eos # If not specified uses name as directory location
-      git: https://github.com/metraction/pharos-plugins/tree/main/eos # Takes precedence over path
+      git: https://$GITHUB_PLUGIN_USER:$GITHUB_PLUGIN_TOKEN@github.com/metraction/pharos-plugins/tree/main/eos # Takes precedence over path
     - name: owner
       # path: owner # If not specified uses name as directory location
-      git: https://github.com/metraction/pharos-plugins/tree/main/owner # Takes precedence over path
+      git: https://$GITHUB_PLUGIN_USER:$GITHUB_PLUGIN_TOKEN@github.com/metraction/pharos-plugins/tree/main/owner # Takes precedence over path
