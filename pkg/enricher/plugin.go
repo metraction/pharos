@@ -33,7 +33,7 @@ func FetchEnricherFromGit(enricherUri string, destination string) (pluginDir str
 	// Clone the repository
 	cloneDir, err := cloneGitRepo(repoURL, ref)
 	if err != nil {
-		logger.Fatal().Err(err).Msg("Failed to clone Git repository")
+		logger.Fatal().Str("url", repoURL).Err(err).Msg("Failed to clone Git repository")
 	}
 
 	// Use the cloned repository directory + subdirectory as the enricher path
