@@ -1,0 +1,5 @@
+byNamespace:
+  - namespace: kube-system
+    owner: john@mail.com
+  - namespace: default
+    owner: jessica@mail.com

@@ -142,7 +142,7 @@ func TestApplyRiskV2Template(t *testing.T) {
 
 	rp, err := NewPolicy[RiskV2](templatePath)
 	if err != nil {
-		t.Fatalf("NewRiskPolicy returned error: %v", err)
+		t.Fatalf(": %v", err)
 	}
 
 	buf, err := rp.Evaluate(img)
@@ -218,8 +218,8 @@ func TestAppendFile(t *testing.T) {
 	}()
 
 	// Use filepath.Join to create a platform-independent path to the test data file
-	eosYamlPath := filepath.Join("..", "..", "testdata", "enrichers", "eos.yaml")
-	templatePath := filepath.Join("..", "..", "testdata", "enrichers", "eos_v1.hbs")
+	eosYamlPath := filepath.Join("..", "..", "testdata", "enrichers", "risk", "eos.yaml")
+	templatePath := filepath.Join("..", "..", "testdata", "enrichers", "risk", "eos_v1.hbs")
 
 	mapper := extension.NewChanSource(outChan).
 		Via(flow.NewMap(NewAppendFile[Image](eosYamlPath), 1)).
@@ -278,7 +278,7 @@ func TestMatchWildcard(t *testing.T) {
 
 			// Check the result
 			if result != tt.expected {
-				t.Errorf("matchWildcard(%q, %q) = %v, want %v", 
+				t.Errorf("matchWildcard(%q, %q) = %v, want %v",
 					tt.pattern, tt.criteria, result, tt.expected)
 			}
 		})
@@ -287,9 +287,9 @@ func TestMatchWildcard(t *testing.T) {
 	// Test with Alpine version patterns from eos.yaml
 	t.Run("Alpine version patterns", func(t *testing.T) {
 		alpinePatterns := []struct {
-			pattern  string
-			version  string
-			matches  bool
+			pattern string
+			version string
+			matches bool
 		}{
 			{"3.16.%", "3.16.0", true},
 			{"3.16.%", "3.16.1", true},
@@ -309,7 +309,7 @@ func TestMatchWildcard(t *testing.T) {
 			result := filterOperators["matchWildcard"](item, "version", tc.version)
 
 			if result != tc.matches {
-				t.Errorf("matchWildcard with pattern %q and version %q = %v, want %v", 
+				t.Errorf("matchWildcard with pattern %q and version %q = %v, want %v",
 					tc.pattern, tc.version, result, tc.matches)
 			}
 		}

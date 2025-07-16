@@ -138,9 +138,6 @@ func initConfig() {
 	// Set the base path in the config
 	config.BasePath = deriveBasePath()
 	fmt.Printf("Using BasePath: %s\n", config.BasePath)
-	config.EnricherPath = refineEnricherPath(config, config.EnricherPath)
-	fmt.Printf("Enricher path: %s\n", config.EnricherPath)
-
 }
 
 func init() {
@@ -211,13 +208,4 @@ func deriveBasePath() string {
 		return "."
 	}
 	return filepath.Join(currentPath, "kodata")
-}
-
-func refineEnricherPath(config *model.Config, enricherPath string) string {
-	// If enricherPath is absolute, return it as is
-	if filepath.IsAbs(enricherPath) {
-		return enricherPath
-	}
-
-	return filepath.Join(config.BasePath, enricherPath)
 }

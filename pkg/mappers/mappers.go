@@ -111,26 +111,29 @@ func ToWrappedResult(result model.PharosScanResult) WrappedResult {
 	}
 }
 
-func ToUnWrappedResult(result WrappedResult) model.PharosScanResult {
-	logger := logging.NewLogger("info", "component", "cmd.http")
+func ToUnWrappedResult(name string) func(result WrappedResult) model.PharosScanResult {
+	logger := logging.NewLogger("info", "component", "pkg.mappers")
 
-	item := result.Result
-	if len(item.Image.ContextRoots) == 0 {
-		logger.Warn().Msg("No context roots found in scan result, I cannot add anything.")
+	return func(result WrappedResult) model.PharosScanResult {
+
+		item := result.Result
+		if len(item.Image.ContextRoots) == 0 {
+			logger.Warn().Msg("No context roots found in scan result, I cannot add anything.")
+			return item
+		}
+		if len(item.Image.ContextRoots) != 1 {
+			logger.Warn().Msg("Wow, this should not happen either, only one context root is expected, but found multiple.")
+			return item
+		}
+		item.Image.ContextRoots[0].Contexts = append(item.Image.ContextRoots[0].Contexts, model.Context{
+			ContextRootKey: item.Image.ContextRoots[0].Key,
+			ImageId:        item.Image.ImageId,
+			Owner:          name,
+			UpdatedAt:      time.Now(),
+			Data:           result.Context,
+		})
+		logger.Debug().Str("ImageId", item.Image.ImageId).Str("urltocheck", "http://localhost:8080/api/pharosimagemeta/contexts/"+item.Image.ImageId).Msg("Context added")
+
 		return item
 	}
-	if len(item.Image.ContextRoots) != 1 {
-		logger.Warn().Msg("Wow, this should not happen either, only one context root is expected, but found multiple.")
-		return item
-	}
-	item.Image.ContextRoots[0].Contexts = append(item.Image.ContextRoots[0].Contexts, model.Context{
-		ContextRootKey: item.Image.ContextRoots[0].Key,
-		ImageId:        item.Image.ImageId,
-		Owner:          "eos-enricher",
-		UpdatedAt:      time.Now(),
-		Data:           result.Context,
-	})
-	logger.Debug().Str("ImageId", item.Image.ImageId).Str("urltocheck", "http://localhost:8080/api/pharosimagemeta/contexts/"+item.Image.ImageId).Msg("Context added")
-
-	return item
 }

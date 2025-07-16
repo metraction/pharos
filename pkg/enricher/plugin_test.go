@@ -53,60 +53,60 @@ func TestIsGitURL(t *testing.T) {
 
 func TestParseGitURL(t *testing.T) {
 	tests := []struct {
-		name       string
-		url        string
+		name        string
+		url         string
 		wantRepoURL string
-		wantRef    string
-		wantDir    string
-		wantErr    bool
+		wantRef     string
+		wantDir     string
+		wantErr     bool
 	}{
 		{
-			name:       "GitHub URL with directory",
-			url:        "https://github.com/metraction/pharos-plugins/tree/main/eos",
+			name:        "GitHub URL with directory",
+			url:         "https://github.com/metraction/pharos-plugins/tree/main/eos",
 			wantRepoURL: "https://github.com/metraction/pharos-plugins.git",
-			wantRef:    "main",
-			wantDir:    "eos",
-			wantErr:    false,
+			wantRef:     "main",
+			wantDir:     "eos",
+			wantErr:     false,
 		},
 		{
-			name:       "GitHub URL with commit hash",
-			url:        "https://github.com/metraction/pharos-plugins/tree/10e1197c1e2e9aca608fa429a28606254aa8a2bf/eos",
+			name:        "GitHub URL with commit hash",
+			url:         "https://github.com/metraction/pharos-plugins/tree/10e1197c1e2e9aca608fa429a28606254aa8a2bf/eos",
 			wantRepoURL: "https://github.com/metraction/pharos-plugins.git",
-			wantRef:    "10e1197c1e2e9aca608fa429a28606254aa8a2bf",
-			wantDir:    "eos",
-			wantErr:    false,
+			wantRef:     "10e1197c1e2e9aca608fa429a28606254aa8a2bf",
+			wantDir:     "eos",
+			wantErr:     false,
 		},
 		{
-			name:       "GitHub URL with nested directory",
-			url:        "https://github.com/metraction/pharos-plugins/tree/main/eos/nested/dir",
+			name:        "GitHub URL with nested directory",
+			url:         "https://github.com/metraction/pharos-plugins/tree/main/eos/nested/dir",
 			wantRepoURL: "https://github.com/metraction/pharos-plugins.git",
-			wantRef:    "main",
-			wantDir:    "eos/nested/dir",
-			wantErr:    false,
+			wantRef:     "main",
+			wantDir:     "eos/nested/dir",
+			wantErr:     false,
 		},
 		{
-			name:       "GitHub URL without directory",
-			url:        "https://github.com/metraction/pharos-plugins/tree/main",
+			name:        "GitHub URL without directory",
+			url:         "https://github.com/metraction/pharos-plugins/tree/main",
 			wantRepoURL: "https://github.com/metraction/pharos-plugins.git",
-			wantRef:    "main",
-			wantDir:    "",
-			wantErr:    false,
+			wantRef:     "main",
+			wantDir:     "",
+			wantErr:     false,
 		},
 		{
-			name:       "GitLab URL with directory",
-			url:        "https://gitlab.com/metraction/pharos-plugins/-/tree/main/eos",
+			name:        "GitLab URL with directory",
+			url:         "https://gitlab.com/metraction/pharos-plugins/-/tree/main/eos",
 			wantRepoURL: "https://gitlab.com/metraction/pharos-plugins.git",
-			wantRef:    "main",
-			wantDir:    "eos",
-			wantErr:    false,
+			wantRef:     "main",
+			wantDir:     "eos",
+			wantErr:     false,
 		},
 		{
-			name:       "Bitbucket URL with directory",
-			url:        "https://bitbucket.org/metraction/pharos-plugins/src/main/eos",
+			name:        "Bitbucket URL with directory",
+			url:         "https://bitbucket.org/metraction/pharos-plugins/src/main/eos",
 			wantRepoURL: "https://bitbucket.org/metraction/pharos-plugins.git",
-			wantRef:    "main",
-			wantDir:    "eos",
-			wantErr:    false,
+			wantRef:     "main",
+			wantDir:     "eos",
+			wantErr:     false,
 		},
 		{
 			name:    "invalid URL format",

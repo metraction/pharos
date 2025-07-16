@@ -18,61 +18,47 @@ import (
 
 var logger = logging.NewLogger("info", "component", "plugin")
 
-// isGitURL checks if the path is a Git repository URL
-func isGitURL(path string) bool {
-	return strings.HasPrefix(path, "http://") || strings.HasPrefix(path, "https://")
+func FetchEnricherFromGit(enricherUri string, destination string) (pluginDir string, err error) {
+	// Check if enricherPath is a Git repository URL
+	if !isGitURL(enricherUri) {
+		return "", fmt.Errorf("Enricher path %s is not supported a Git repository URL", enricherUri)
+	}
+
+	// Parse Git URL
+	repoURL, ref, dir, err := parseGitURL(enricherUri)
+	if err != nil {
+		logger.Fatal().Err(err).Msg("Failed to parse Git repository URL")
+	}
+
+	// Clone the repository
+	cloneDir, err := cloneGitRepo(repoURL, ref)
+	if err != nil {
+		logger.Fatal().Err(err).Msg("Failed to clone Git repository")
+	}
+
+	// Use the cloned repository directory + subdirectory as the enricher path
+	enricherUri = filepath.Join(cloneDir, dir)
+	logger.Debug().Str("path", enricherUri).Msg("Using cloned repository directory")
+	return dir, nil
 }
 
-func LoadPlugin(config *model.Config, source streams.Source) streams.Flow {
-	enricherPath := config.EnricherPath
-	var cleanup func()
+func LoadEnricher(enricherPath string, name string, source streams.Source) streams.Flow {
+	logger.Info().Str("path", enricherPath).Msg("Loading Enricher " + name)
 
-	// Check if enricherPath is a Git repository URL
-	if isGitURL(enricherPath) {
-		// Parse Git URL
-		repoURL, ref, dir, err := parseGitURL(enricherPath)
-		if err != nil {
-			logger.Fatal().Err(err).Msg("Failed to parse Git repository URL")
-		}
-
-		// Clone the repository
-		cloneDir, err := cloneGitRepo(repoURL, ref)
-		if err != nil {
-			logger.Fatal().Err(err).Msg("Failed to clone Git repository")
-		}
-
-		// Set up cleanup function
-		cleanup = func() {
-			if cloneDir != "" {
-				os.RemoveAll(cloneDir)
-			}
-		}
-
-		// Use the cloned repository directory + subdirectory as the enricher path
-		enricherPath = filepath.Join(cloneDir, dir)
-		logger.Debug().Str("path", enricherPath).Msg("Using cloned repository directory")
-	}
-
-	// Load mapper configuration
 	mapperConfig, err := mappers.LoadMappersConfig("results", filepath.Join(enricherPath, "enricher.yaml"))
 	if err != nil {
-		if cleanup != nil {
-			cleanup()
-		}
-		logger.Fatal().Err(err).Msg("Failed to load mappers config")
+		logger.Fatal().Err(err).Str("path", enricherPath).Msg("Failed to load mappers config")
 	}
-
 	enricherConfig := model.EnricherConfig{
 		BasePath: enricherPath,
 		Configs:  mapperConfig,
 	}
+	return mappers.NewResultEnricherStream(source, name, enricherConfig)
+}
 
-	// Set up cleanup to run after the stream is done
-	if cleanup != nil {
-		// defer cleanup()
-	}
-
-	return mappers.NewResultEnricherStream(source, enricherConfig)
+// isGitURL checks if the path is a Git repository URL
+func isGitURL(path string) bool {
+	return strings.HasPrefix(path, "http://") || strings.HasPrefix(path, "https://")
 }
 
 // parseGitURL extracts repository URL, reference, and directory path from a URL
@@ -139,6 +125,7 @@ func parseGitURL(url string) (repoURL, ref, dir string, err error) {
 // cloneGitRepo clones a Git repository to a temporary directory using go-git
 func cloneGitRepo(repoURL, ref string) (string, error) {
 	// Create temporary directory
+	// TODO: Use directory for plugins downloads
 	tempDir, err := os.MkdirTemp("", "pharos-enricher-*")
 	if err != nil {
 		return "", fmt.Errorf("failed to create temporary directory: %w", err)

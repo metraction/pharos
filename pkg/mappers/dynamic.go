@@ -67,7 +67,7 @@ func NewEnricherStream(stream streams.Source, enricher model.EnricherConfig) str
 	return result
 }
 
-func NewResultEnricherStream(stream streams.Source, enricher model.EnricherConfig) streams.Flow {
+func NewResultEnricherStream(stream streams.Source, name string, enricher model.EnricherConfig) streams.Flow {
 	var result streams.Flow
 	stream = stream.Via(flow.NewMap(ToWrappedResult, 1))
 	// TODO: If there are no enrichers, it fails.
@@ -83,6 +83,6 @@ func NewResultEnricherStream(stream streams.Source, enricher model.EnricherConfi
 		}
 		result = stream.(streams.Flow)
 	}
-	result = result.Via(flow.NewMap(ToUnWrappedResult, 1))
+	result = result.Via(flow.NewMap(ToUnWrappedResult(name), 1))
 	return result
 }

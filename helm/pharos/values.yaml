@@ -112,6 +112,15 @@ prometheus:
 
 # -- Enrichers configuration
 enrichers:
+  order: 
+    - eos
+  sources: 
+    - name: eos 
+      # path: eos # If not specified uses name as directory location
+      # git: https://github.com/metraction/pharos-plugins/tree/main/eos # Takes precedence over path
+    - name: owner
+      # path: owner # If not specified uses name as directory location
+      # git: https://github.com/metraction/pharos-plugins/tree/main/owner # Takes precedence over path
   hbs: 
     eos_v1.hbs: |
       distro: {{ .payload.Image.DistroName }}

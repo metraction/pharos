@@ -1,0 +1,4 @@
+distro: {{ .payload.Image.DistroName }}
+version: {{ .payload.Image.DistroVersion }}
+eos: {{ index .meta.eos .payload.Image.DistroName | filter "version" "matchWildcard" .payload.Image.DistroVersion | map "field" "eos" | first }}
+  

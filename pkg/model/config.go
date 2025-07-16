@@ -74,6 +74,23 @@ type Database struct {
 	Dsn    string         `mapstructure:"dsn"`
 }
 
+/*
+ */
+type Enrichers struct {
+	Order   []string         `mapstructure:"order" yaml:"order" json:"order"`
+	Sources []EnricherSource `mapstructure:"sources" yaml:"sources" json:"sources"`
+}
+
+type EnricherSource struct {
+	Name string `mapstructure:"name" yaml:"name" json:"name"`
+	Path string `mapstructure:"path" yaml:"path" json:"path"`
+	Git  string `mapstructure:"git" yaml:"git" json:"git"`
+}
+
+/*
+Enrichers could be loaded from different sources: filesysem, git.
+They are not part of Config structure.
+*/
 type EnricherConfig struct {
 	BasePath string         `yaml:"basePath"`
 	Configs  []MapperConfig `yaml:"configs"`
