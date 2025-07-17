@@ -138,9 +138,6 @@ func initConfig() {
 	// Set the base path in the config
 	config.BasePath = deriveBasePath()
 	fmt.Printf("Using BasePath: %s\n", config.BasePath)
-	config.EnricherPath = refineEnricherPath(config, config.EnricherPath)
-	fmt.Printf("Enricher path: %s\n", config.EnricherPath)
-
 }
 
 func init() {
@@ -182,10 +179,10 @@ func init() {
 	rootCmd.PersistentFlags().String("prometheus.auth.token", "", "Token for Prometheus authentication")
 
 	rootCmd.PersistentFlags().String("database.driver", "postgres", "Database driver for the scanner, righ now, only 'postgres' is implemented.")
-	defaultDSN := fmt.Sprintf("postgres://postgres:postgres@localhost:5432/pharos?sslmode=disable") // run `brew install db-browser-for-sqlite` to view the database.
+	defaultDSN := "postgres://postgres:postgres@localhost:5432/pharos?sslmode=disable" // run `brew install db-browser-for-sqlite` to view the database.
 	rootCmd.PersistentFlags().String("database.dsn", defaultDSN, "Database DSN for the scanner, for postgres it is the connection string.")
 
-	// It should work for dev, docker and k8s: files located in cmd/kodada; $KO_DATA_PATH; configMap
+	// It should work for dev, docker and k8s: files located in kodada; $KO_DATA_PATH; configMap
 	rootCmd.PersistentFlags().String("enricherPath", "enrichers", "Base path for the enrichers")
 
 	rootCmd.AddCommand(scannerCmd)
@@ -210,10 +207,14 @@ func deriveBasePath() string {
 		log.Printf("Warning: Could not determine current directory: %v. Using '.' as BasePath", err)
 		return "."
 	}
-	return filepath.Join(currentPath, "cmd", "kodata")
+	return filepath.Join(currentPath, "kodata")
 }
 
-func refineEnricherPath(config *model.Config, enricherPath string) string {
-	// Append basePath
+func addBasePathToRelative(config *model.Config, enricherPath string) string {
+	// If enricherPath is absolute, return it as is
+	if filepath.IsAbs(enricherPath) {
+		return enricherPath
+	}
+
 	return filepath.Join(config.BasePath, enricherPath)
 }

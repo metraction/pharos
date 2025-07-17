@@ -1,0 +1,1912 @@
+Findings:
+    - AdvId: CVE-2023-44487
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.20.10
+        - 1.21.3
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476362682Z"
+      Severity: High
+      UpdateDate: "2025-07-14T12:47:44.476362752Z"
+    - AdvId: GHSA-qppj-fm5r-hxr3
+      AdvSource: github:language:go
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 0.17.0
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.4763671Z"
+      Severity: Medium
+      UpdateDate: "2025-07-14T12:47:44.47636715Z"
+    - AdvId: GHSA-qppj-fm5r-hxr3
+      AdvSource: github:language:go
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.56.3
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476369033Z"
+      Severity: Medium
+      UpdateDate: "2025-07-14T12:47:44.476369093Z"
+    - AdvId: CVE-2023-45288
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.21.9
+        - 1.22.2
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476371616Z"
+      Severity: High
+      UpdateDate: "2025-07-14T12:47:44.476371697Z"
+    - AdvId: GHSA-4v7x-pqxf-cx7m
+      AdvSource: github:language:go
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 0.23.0
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476372788Z"
+      Severity: Medium
+      UpdateDate: "2025-07-14T12:47:44.476372868Z"
+    - AdvId: CVE-2024-24784
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.21.8
+        - 1.22.1
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476374551Z"
+      Severity: High
+      UpdateDate: "2025-07-14T12:47:44.476374611Z"
+    - AdvId: CVE-2024-24787
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.21.10
+        - 1.22.3
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476375993Z"
+      Severity: Medium
+      UpdateDate: "2025-07-14T12:47:44.476376053Z"
+    - AdvId: CVE-2023-24531
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.21.0-0
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476377065Z"
+      Severity: Critical
+      UpdateDate: "2025-07-14T12:47:44.476377125Z"
+    - AdvId: CVE-2023-24538
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.19.8
+        - 1.20.3
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476377686Z"
+      Severity: Critical
+      UpdateDate: "2025-07-14T12:47:44.476377756Z"
+    - AdvId: CVE-2023-29405
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.19.10
+        - 1.20.5
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476379358Z"
+      Severity: Critical
+      UpdateDate: "2025-07-14T12:47:44.476379428Z"
+    - AdvId: CVE-2023-24540
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.19.9
+        - 1.20.4
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476383164Z"
+      Severity: Critical
+      UpdateDate: "2025-07-14T12:47:44.476383224Z"
+    - AdvId: CVE-2024-24783
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.21.8
+        - 1.22.1
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476384035Z"
+      Severity: Medium
+      UpdateDate: "2025-07-14T12:47:44.476384085Z"
+    - AdvId: CVE-2022-41717
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.18.9
+        - 1.19.4
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476384696Z"
+      Severity: Medium
+      UpdateDate: "2025-07-14T12:47:44.476384756Z"
+    - AdvId: CVE-2023-45289
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.21.8
+        - 1.22.1
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476385257Z"
+      Severity: Medium
+      UpdateDate: "2025-07-14T12:47:44.476385307Z"
+    - AdvId: GHSA-vvpx-j8f3-3w6h
+      AdvSource: github:language:go
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 0.7.0
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476385808Z"
+      Severity: High
+      UpdateDate: "2025-07-14T12:47:44.476385858Z"
+    - AdvId: CVE-2022-41723
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.19.6
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476386439Z"
+      Severity: High
+      UpdateDate: "2025-07-14T12:47:44.476386489Z"
+    - AdvId: CVE-2023-45290
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.21.8
+        - 1.22.1
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476387921Z"
+      Severity: Medium
+      UpdateDate: "2025-07-14T12:47:44.476387981Z"
+    - AdvId: CVE-2024-24790
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.21.11
+        - 1.22.4
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476390314Z"
+      Severity: Critical
+      UpdateDate: "2025-07-14T12:47:44.476390365Z"
+    - AdvId: CVE-2024-24791
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.21.12
+        - 1.22.5
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476390825Z"
+      Severity: High
+      UpdateDate: "2025-07-14T12:47:44.476390885Z"
+    - AdvId: GHSA-8r3f-844c-mc37
+      AdvSource: github:language:go
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.33.0
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476395062Z"
+      Severity: Medium
+      UpdateDate: "2025-07-14T12:47:44.476395112Z"
+    - AdvId: CVE-2023-45287
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.20.0
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476395612Z"
+      Severity: High
+      UpdateDate: "2025-07-14T12:47:44.476395662Z"
+    - AdvId: CVE-2024-34156
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.22.7
+        - 1.23.1
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476396133Z"
+      Severity: High
+      UpdateDate: "2025-07-14T12:47:44.476396193Z"
+    - AdvId: CVE-2023-29402
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.19.10
+        - 1.20.5
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476396724Z"
+      Severity: Critical
+      UpdateDate: "2025-07-14T12:47:44.476396794Z"
+    - AdvId: GHSA-4374-p667-p6c8
+      AdvSource: github:language:go
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 0.17.0
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476397415Z"
+      Severity: High
+      UpdateDate: "2025-07-14T12:47:44.476397475Z"
+    - AdvId: CVE-2024-24785
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.21.8
+        - 1.22.1
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476398106Z"
+      Severity: Medium
+      UpdateDate: "2025-07-14T12:47:44.476398166Z"
+    - AdvId: CVE-2022-27664
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.18.6
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476398677Z"
+      Severity: High
+      UpdateDate: "2025-07-14T12:47:44.476398737Z"
+    - AdvId: CVE-2023-29404
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.19.10
+        - 1.20.5
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476399258Z"
+      Severity: Critical
+      UpdateDate: "2025-07-14T12:47:44.476399318Z"
+    - AdvId: CVE-2023-29406
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.19.11
+        - 1.20.6
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476399749Z"
+      Severity: Medium
+      UpdateDate: "2025-07-14T12:47:44.476399809Z"
+    - AdvId: CVE-2024-34158
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.22.7
+        - 1.23.1
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476400279Z"
+      Severity: High
+      UpdateDate: "2025-07-14T12:47:44.476400339Z"
+    - AdvId: CVE-2022-32190
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.19.1
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.47640084Z"
+      Severity: High
+      UpdateDate: "2025-07-14T12:47:44.4764009Z"
+    - AdvId: CVE-2024-34155
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.22.7
+        - 1.23.1
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476403224Z"
+      Severity: Medium
+      UpdateDate: "2025-07-14T12:47:44.476403274Z"
+    - AdvId: CVE-2023-24536
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.19.8
+        - 1.20.3
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476403935Z"
+      Severity: High
+      UpdateDate: "2025-07-14T12:47:44.476403995Z"
+    - AdvId: CVE-2023-24539
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.19.9
+        - 1.20.4
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476404586Z"
+      Severity: High
+      UpdateDate: "2025-07-14T12:47:44.476404636Z"
+    - AdvId: CVE-2023-39323
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.20.9
+        - 1.21.2
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476405237Z"
+      Severity: High
+      UpdateDate: "2025-07-14T12:47:44.476405297Z"
+    - AdvId: GHSA-2wrh-6pvc-2jm9
+      AdvSource: github:language:go
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 0.13.0
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.4764075Z"
+      Severity: Medium
+      UpdateDate: "2025-07-14T12:47:44.47640756Z"
+    - AdvId: CVE-2023-29409
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.19.12
+        - 1.20.7
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476408091Z"
+      Severity: Medium
+      UpdateDate: "2025-07-14T12:47:44.476408151Z"
+    - AdvId: CVE-2023-45285
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.20.12
+        - 1.21.5
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476408542Z"
+      Severity: High
+      UpdateDate: "2025-07-14T12:47:44.476408592Z"
+    - AdvId: CVE-2022-41725
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.19.6
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476410465Z"
+      Severity: High
+      UpdateDate: "2025-07-14T12:47:44.476410545Z"
+    - AdvId: CVE-2023-29400
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.19.9
+        - 1.20.4
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476411005Z"
+      Severity: High
+      UpdateDate: "2025-07-14T12:47:44.476411066Z"
+    - AdvId: CVE-2023-39319
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.20.8
+        - 1.21.1
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476411576Z"
+      Severity: Medium
+      UpdateDate: "2025-07-14T12:47:44.476411636Z"
+    - AdvId: CVE-2023-24534
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.19.8
+        - 1.20.3
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476412348Z"
+      Severity: High
+      UpdateDate: "2025-07-14T12:47:44.476412408Z"
+    - AdvId: CVE-2023-39318
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.20.8
+        - 1.21.1
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476413149Z"
+      Severity: Medium
+      UpdateDate: "2025-07-14T12:47:44.476413209Z"
+    - AdvId: CVE-2023-39326
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.20.12
+        - 1.21.5
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.47641377Z"
+      Severity: Medium
+      UpdateDate: "2025-07-14T12:47:44.47641383Z"
+    - AdvId: CVE-2025-4673
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.23.10
+        - 1.24.4
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.47641426Z"
+      Severity: Medium
+      UpdateDate: "2025-07-14T12:47:44.47641432Z"
+    - AdvId: CVE-2022-2880
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.18.7
+        - 1.19.2
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476415001Z"
+      Severity: High
+      UpdateDate: "2025-07-14T12:47:44.476415052Z"
+    - AdvId: CVE-2025-22871
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.23.8
+        - 1.24.2
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476415532Z"
+      Severity: Critical
+      UpdateDate: "2025-07-14T12:47:44.476415592Z"
+    - AdvId: CVE-2024-45336
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.22.11
+        - 1.23.5
+        - 1.24.0-rc.2
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476416213Z"
+      Severity: Medium
+      UpdateDate: "2025-07-14T12:47:44.476416263Z"
+    - AdvId: GHSA-vvgc-356p-c3xw
+      AdvSource: github:language:go
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 0.38.0
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476416754Z"
+      Severity: Medium
+      UpdateDate: "2025-07-14T12:47:44.476416814Z"
+    - AdvId: CVE-2023-24537
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.19.8
+        - 1.20.3
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476417245Z"
+      Severity: High
+      UpdateDate: "2025-07-14T12:47:44.476417305Z"
+    - AdvId: CVE-2024-45341
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.22.11
+        - 1.23.5
+        - 1.24.0-rc.2
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476417726Z"
+      Severity: Medium
+      UpdateDate: "2025-07-14T12:47:44.476417786Z"
+    - AdvId: CVE-2023-24532
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.19.7
+        - 1.20.2
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476418176Z"
+      Severity: Medium
+      UpdateDate: "2025-07-14T12:47:44.476418226Z"
+    - AdvId: CVE-2022-41724
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.19.6
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476418727Z"
+      Severity: High
+      UpdateDate: "2025-07-14T12:47:44.476418787Z"
+    - AdvId: CVE-2022-41715
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.18.7
+        - 1.19.2
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476419188Z"
+      Severity: High
+      UpdateDate: "2025-07-14T12:47:44.476419388Z"
+    - AdvId: CVE-2022-2879
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.18.7
+        - 1.19.2
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476419999Z"
+      Severity: High
+      UpdateDate: "2025-07-14T12:47:44.476420059Z"
+    - AdvId: CVE-2023-29403
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.19.10
+        - 1.20.5
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.47642058Z"
+      Severity: High
+      UpdateDate: "2025-07-14T12:47:44.47642063Z"
+    - AdvId: CVE-2024-24789
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.21.11
+        - 1.22.4
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476421161Z"
+      Severity: Medium
+      UpdateDate: "2025-07-14T12:47:44.476421271Z"
+    - AdvId: GHSA-qxp5-gwg8-xv66
+      AdvSource: github:language:go
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 0.36.0
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476421762Z"
+      Severity: Medium
+      UpdateDate: "2025-07-14T12:47:44.476421822Z"
+    - AdvId: CVE-2025-22866
+      AdvSource: nvd:cpe
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.22.12
+        - 1.23.6
+        - 1.24.0-rc.3
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476422212Z"
+      Severity: Medium
+      UpdateDate: "2025-07-14T12:47:44.476422272Z"
+    - AdvId: GHSA-m425-mq94-257g
+      AdvSource: github:language:go
+      DueDate: "0001-01-01T00:00:00Z"
+      FixState: fixed
+      FixVersions:
+        - 1.56.3
+      FoundIn:
+        - /livenessprobe
+      ScanDate: "2025-07-14T12:47:44.476425758Z"
+      Severity: High
+      UpdateDate: "2025-07-14T12:47:44.476425828Z"
+Image:
+    ArchName: amd64
+    ArchOS: linux
+    ContextRoots:
+        - Contexts:
+            - ContextRootKey: namespace=kube-system
+              Data:
+                namespace: kube-system
+              ID: 0
+              ImageId: sha256:8173feec16d28f2811ddb4c82e2eeacb254c0d4b8a3b71ba999d860146a73ac3
+              Owner: pharos-controller
+              UpdatedAt: "2025-07-14T12:47:44.478190123Z"
+          ImageId: sha256:8173feec16d28f2811ddb4c82e2eeacb254c0d4b8a3b71ba999d860146a73ac3
+          Key: namespace=kube-system
+          TTL: 5m
+          UpdatedAt: "2025-07-14T12:47:44.478190053Z"
+    DistroName: debian
+    DistroVersion: "11"
+    Findings: null
+    ImageId: sha256:8173feec16d28f2811ddb4c82e2eeacb254c0d4b8a3b71ba999d860146a73ac3
+    ImageSpec: registry.k8s.io/sig-storage/livenessprobe:v2.9.0
+    IndexDigest: sha256:2b10b24dafdc3ba94a03fc94d9df9941ca9d6a9207b927f5dfd21d59fbe05ba0
+    LastSuccessfulScan: "2025-07-14T12:47:44.478163964Z"
+    Layers:
+        - sha256:cb60fb9b862c6a89f92e484bc3b72bbc0352b41166df5c4a68bfb52f52504a7d
+        - sha256:9018a1ae65ca0b9629ea7cf9f6b263bbe92b38c55f7bf3c2af2606ed51675972
+    ManifestDigest: sha256:9aeda2bc549a8842c47ef0123376255ac7c2a828acbe191317e94a282a2c9b04
+    Packages: null
+    RepoDigests:
+        - sha256:2b10b24dafdc3ba94a03fc94d9df9941ca9d6a9207b927f5dfd21d59fbe05ba0
+    Size: 1.8766823e+07
+    TTL: 0s
+    Tags: []
+    Vulnerabilities: null
+Packages:
+    - Cpes: null
+      Key: ""
+      Name: base-files
+      Purl: pkg:deb/debian/base-files@11.1%2Bdeb11u6?arch=amd64&distro=debian-11
+      Type: deb
+      Version: 11.1+deb11u6
+    - Cpes: null
+      Key: ""
+      Name: github.com/beorn7/perks
+      Purl: pkg:golang/github.com/beorn7/perks@v1.0.1
+      Type: go-module
+      Version: v1.0.1
+    - Cpes: null
+      Key: ""
+      Name: github.com/blang/semver/v4
+      Purl: pkg:golang/github.com/blang/semver@v4.0.0#v4
+      Type: go-module
+      Version: v4.0.0
+    - Cpes: null
+      Key: ""
+      Name: github.com/cespare/xxhash/v2
+      Purl: pkg:golang/github.com/cespare/xxhash@v2.1.2#v2
+      Type: go-module
+      Version: v2.1.2
+    - Cpes: null
+      Key: ""
+      Name: github.com/container-storage-interface/spec
+      Purl: pkg:golang/github.com/container-storage-interface/spec@v1.7.0
+      Type: go-module
+      Version: v1.7.0
+    - Cpes: null
+      Key: ""
+      Name: github.com/go-logr/logr
+      Purl: pkg:golang/github.com/go-logr/logr@v1.2.3
+      Type: go-module
+      Version: v1.2.3
+    - Cpes: null
+      Key: ""
+      Name: github.com/golang/protobuf
+      Purl: pkg:golang/github.com/golang/protobuf@v1.5.2
+      Type: go-module
+      Version: v1.5.2
+    - Cpes: null
+      Key: ""
+      Name: github.com/kubernetes-csi/csi-lib-utils
+      Purl: pkg:golang/github.com/kubernetes-csi/csi-lib-utils@v0.12.0
+      Type: go-module
+      Version: v0.12.0
+    - Cpes: null
+      Key: ""
+      Name: github.com/kubernetes-csi/livenessprobe
+      Purl: pkg:golang/github.com/kubernetes-csi/livenessprobe@v2.9.0
+      Type: go-module
+      Version: v2.9.0
+    - Cpes: null
+      Key: ""
+      Name: github.com/matttproud/golang_protobuf_extensions
+      Purl: pkg:golang/github.com/matttproud/golang_protobuf_extensions@v1.0.2
+      Type: go-module
+      Version: v1.0.2
+    - Cpes: null
+      Key: ""
+      Name: github.com/prometheus/client_golang
+      Purl: pkg:golang/github.com/prometheus/client_golang@v1.14.0
+      Type: go-module
+      Version: v1.14.0
+    - Cpes: null
+      Key: ""
+      Name: github.com/prometheus/client_model
+      Purl: pkg:golang/github.com/prometheus/client_model@v0.3.0
+      Type: go-module
+      Version: v0.3.0
+    - Cpes: null
+      Key: ""
+      Name: github.com/prometheus/common
+      Purl: pkg:golang/github.com/prometheus/common@v0.37.0
+      Type: go-module
+      Version: v0.37.0
+    - Cpes: null
+      Key: ""
+      Name: github.com/prometheus/procfs
+      Purl: pkg:golang/github.com/prometheus/procfs@v0.8.0
+      Type: go-module
+      Version: v0.8.0
+    - Cpes: null
+      Key: ""
+      Name: github.com/spf13/pflag
+      Purl: pkg:golang/github.com/spf13/pflag@v1.0.5
+      Type: go-module
+      Version: v1.0.5
+    - Cpes: null
+      Key: ""
+      Name: golang.org/x/net
+      Purl: pkg:golang/golang.org/x/net@v0.4.0
+      Type: go-module
+      Version: v0.4.0
+    - Cpes: null
+      Key: ""
+      Name: golang.org/x/sys
+      Purl: pkg:golang/golang.org/x/sys@v0.3.0
+      Type: go-module
+      Version: v0.3.0
+    - Cpes: null
+      Key: ""
+      Name: golang.org/x/text
+      Purl: pkg:golang/golang.org/x/text@v0.5.0
+      Type: go-module
+      Version: v0.5.0
+    - Cpes: null
+      Key: ""
+      Name: google.golang.org/genproto
+      Purl: pkg:golang/google.golang.org/genproto@v0.0.0-20220804142021-4e6b2dfa6612
+      Type: go-module
+      Version: v0.0.0-20220804142021-4e6b2dfa6612
+    - Cpes: null
+      Key: ""
+      Name: google.golang.org/grpc
+      Purl: pkg:golang/google.golang.org/grpc@v1.49.0
+      Type: go-module
+      Version: v1.49.0
+    - Cpes: null
+      Key: ""
+      Name: google.golang.org/protobuf
+      Purl: pkg:golang/google.golang.org/protobuf@v1.28.1
+      Type: go-module
+      Version: v1.28.1
+    - Cpes: null
+      Key: ""
+      Name: k8s.io/apimachinery
+      Purl: pkg:golang/k8s.io/apimachinery@v0.26.0
+      Type: go-module
+      Version: v0.26.0
+    - Cpes: null
+      Key: ""
+      Name: k8s.io/component-base
+      Purl: pkg:golang/k8s.io/component-base@v0.26.0
+      Type: go-module
+      Version: v0.26.0
+    - Cpes: null
+      Key: ""
+      Name: k8s.io/klog/v2
+      Purl: pkg:golang/k8s.io/klog/v2@v2.80.1
+      Type: go-module
+      Version: v2.80.1
+    - Cpes: null
+      Key: ""
+      Name: netbase
+      Purl: pkg:deb/debian/netbase@6.3?arch=all&distro=debian-11
+      Type: deb
+      Version: "6.3"
+    - Cpes: null
+      Key: ""
+      Name: stdlib
+      Purl: pkg:golang/stdlib@1.19
+      Type: go-module
+      Version: go1.19
+    - Cpes: null
+      Key: ""
+      Name: tzdata
+      Purl: pkg:deb/debian/tzdata@2021a-1%2Bdeb11u8?arch=all&distro=debian-11
+      Type: deb
+      Version: 2021a-1+deb11u8
+ScanTask:
+    authdsn: registry:///?tlscheck=false
+    cachettl: 300s
+    context:
+        namespace: kube-system
+    contextRootKey: namespace=kube-system
+    created: "2025-07-14T12:47:40.359979139Z"
+    engine: grype
+    error: ""
+    imagespec: registry.k8s.io/sig-storage/livenessprobe:v2.9.0
+    jobId: 7c3ebbf6-cfa0-453b-821f-9c624a2a1efd
+    platform: linux/amd64
+    rxdigest: sha256:9aeda2bc549a8842c47ef0123376255ac7c2a828acbe191317e94a282a2c9b04
+    rxplatform: ""
+    scanttl: 30s
+    status: done
+    updated: "2025-07-14T12:47:40.359979139Z"
+Version: "1.0"
+Vulnerabilities:
+    - AdvId: CVE-2023-44487
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476363153Z"
+      CvssBase: 7.5
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+      Cwes: null
+      Description: The HTTP/2 protocol allows a denial of service (server resource consumption) because request cancellation can reset many streams quickly, as exploited in the wild in August through October 2023.
+      KevDate: "2023-10-10T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: unknown
+      References: []
+      RiskScore: 0
+      Severity: High
+    - AdvId: GHSA-qppj-fm5r-hxr3
+      AdvSource: github:language:go
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.47636743Z"
+      CvssBase: 5.3
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L
+      Cwes: null
+      Description: HTTP/2 Stream Cancellation Attack
+      KevDate: "2023-10-10T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: unknown
+      References: []
+      RiskScore: 0
+      Severity: Medium
+    - AdvId: CVE-2023-45288
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476371817Z"
+      CvssBase: 7.5
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+      Cwes: null
+      Description: An attacker may cause an HTTP/2 endpoint to read arbitrary amounts of header data by sending an excessive number of CONTINUATION frames. Maintaining HPACK state requires parsing and processing all HEADERS and CONTINUATION frames on a connection. When a request's headers exceed MaxHeaderBytes, no memory is allocated to store the excess headers, but they are still parsed. This permits an attacker to cause an HTTP/2 endpoint to read arbitrary amounts of header data, all associated with a request which is going to be rejected. These headers can include Huffman-encoded data which is significantly more expensive for the receiver to decode than for an attacker to send. The fix sets a limit on the amount of excess header frames we will process before closing a connection.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: High
+    - AdvId: GHSA-4v7x-pqxf-cx7m
+      AdvSource: github:language:go
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476372988Z"
+      CvssBase: 5.3
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L
+      Cwes: null
+      Description: 'net/http, x/net/http2: close connections when receiving too many headers'
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Medium
+    - AdvId: CVE-2024-24784
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476374761Z"
+      CvssBase: 7.5
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N
+      Cwes: null
+      Description: The ParseAddressList function incorrectly handles comments (text within parentheses) within display names. Since this is a misalignment with conforming address parsers, it can result in different trust decisions being made by programs using different parsers.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: High
+    - AdvId: CVE-2024-24787
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476376273Z"
+      CvssBase: 6.4
+      CvssVectors:
+        - CVSS:3.1/AV:L/AC:H/PR:H/UI:N/S:U/C:H/I:H/A:H
+      Cwes: null
+      Description: On Darwin, building a Go module which contains CGO can trigger arbitrary code execution when using the Apple version of ld, due to usage of the -lto_library flag in a "#cgo LDFLAGS" directive.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Medium
+    - AdvId: CVE-2023-24531
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476377245Z"
+      CvssBase: 9.8
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
+      Cwes: null
+      Description: Command go env is documented as outputting a shell script containing the Go environment. However, go env doesn't sanitize values, so executing its output as a shell script can cause various bad bahaviors, including executing arbitrary commands or inserting new environment variables. This issue is relatively minor because, in general, if an attacker can set arbitrary environment variables on a system, they have better attack vectors than making "go env" print them out.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Critical
+    - AdvId: CVE-2023-24538
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476377886Z"
+      CvssBase: 9.8
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
+      Cwes: null
+      Description: Templates do not properly consider backticks (`) as Javascript string delimiters, and do not escape them as expected. Backticks are used, since ES6, for JS template literals. If a template contains a Go template action within a Javascript template literal, the contents of the action can be used to terminate the literal, injecting arbitrary Javascript code into the Go template. As ES6 template literals are rather complex, and themselves can do string interpolation, the decision was made to simply disallow Go template actions from being used inside of them (e.g. "var a = {{.}}"), since there is no obviously safe way to allow this behavior. This takes the same approach as github.com/google/safehtml. With fix, Template.Parse returns an Error when it encounters templates like this, with an ErrorCode of value 12. This ErrorCode is currently unexported, but will be exported in the release of Go 1.21. Users who rely on the previous behavior can re-enable it using the GODEBUG flag jstmpllitinterp=1, with the caveat that backticks will now be escaped. This should be used with caution.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Critical
+    - AdvId: CVE-2023-29405
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476379588Z"
+      CvssBase: 9.8
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
+      Cwes: null
+      Description: The go command may execute arbitrary code at build time when using cgo. This may occur when running "go get" on a malicious module, or when running any other command which builds untrusted code. This is can by triggered by linker flags, specified via a "#cgo LDFLAGS" directive. Flags containing embedded spaces are mishandled, allowing disallowed flags to be smuggled through the LDFLAGS sanitization by including them in the argument of another flag. This only affects usage of the gccgo compiler.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Critical
+    - AdvId: CVE-2023-24540
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476383344Z"
+      CvssBase: 9.8
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
+      Cwes: null
+      Description: Not all valid JavaScript whitespace characters are considered to be whitespace. Templates containing whitespace characters outside of the character set "\t\n\f\r\u0020\u2028\u2029" in JavaScript contexts that also contain actions may not be properly sanitized during execution.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Critical
+    - AdvId: CVE-2024-24783
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476384325Z"
+      CvssBase: 5.9
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:H/A:N
+      Cwes: null
+      Description: Verifying a certificate chain which contains a certificate with an unknown public key algorithm will cause Certificate.Verify to panic. This affects all crypto/tls clients, and servers that set Config.ClientAuth to VerifyClientCertIfGiven or RequireAndVerifyClientCert. The default behavior is for TLS servers to not verify client certificates.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Medium
+    - AdvId: CVE-2022-41717
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476384856Z"
+      CvssBase: 5.3
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L
+      Cwes: null
+      Description: An attacker can cause excessive memory growth in a Go server accepting HTTP/2 requests. HTTP/2 server connections contain a cache of HTTP header keys sent by the client. While the total number of entries in this cache is capped, an attacker sending very large keys can cause the server to allocate approximately 64 MiB per open connection.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Medium
+    - AdvId: CVE-2023-45289
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476385387Z"
+      CvssBase: 4.3
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:N/A:N
+      Cwes: null
+      Description: When following an HTTP redirect to a domain which is not a subdomain match or exact match of the initial domain, an http.Client does not forward sensitive headers such as "Authorization" or "Cookie". For example, a redirect from foo.com to www.foo.com will forward the Authorization header, but a redirect to bar.com will not. A maliciously crafted HTTP redirect could cause sensitive headers to be unexpectedly forwarded.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Medium
+    - AdvId: GHSA-vvpx-j8f3-3w6h
+      AdvSource: github:language:go
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476385938Z"
+      CvssBase: 7.5
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+      Cwes: null
+      Description: golang.org/x/net vulnerable to Uncontrolled Resource Consumption
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: High
+    - AdvId: CVE-2022-41723
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476386589Z"
+      CvssBase: 7.5
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+      Cwes: null
+      Description: A maliciously crafted HTTP/2 stream could cause excessive CPU consumption in the HPACK decoder, sufficient to cause a denial of service from a small number of small requests.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: High
+    - AdvId: CVE-2023-45290
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476388191Z"
+      CvssBase: 6.5
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:H
+      Cwes: null
+      Description: When parsing a multipart form (either explicitly with Request.ParseMultipartForm or implicitly with Request.FormValue, Request.PostFormValue, or Request.FormFile), limits on the total size of the parsed form were not applied to the memory consumed while reading a single form line. This permits a maliciously crafted input containing very long lines to cause allocation of arbitrarily large amounts of memory, potentially leading to memory exhaustion. With fix, the ParseMultipartForm function now correctly limits the maximum size of form lines.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Medium
+    - AdvId: CVE-2024-24790
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476390455Z"
+      CvssBase: 9.8
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
+      Cwes: null
+      Description: The various Is methods (IsPrivate, IsLoopback, etc) did not work as expected for IPv4-mapped IPv6 addresses, returning false for addresses which would return true in their traditional IPv4 forms.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Critical
+    - AdvId: CVE-2024-24791
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476390965Z"
+      CvssBase: 7.5
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+      Cwes: null
+      Description: 'The net/http HTTP/1.1 client mishandled the case where a server responds to a request with an "Expect: 100-continue" header with a non-informational (200 or higher) status. This mishandling could leave a client connection in an invalid state, where the next request sent on the connection will fail. An attacker sending a request to a net/http/httputil.ReverseProxy proxy can exploit this mishandling to cause a denial of service by sending "Expect: 100-continue" requests which elicit a non-informational response from the backend. Each such request leaves the proxy with an invalid connection, and causes one subsequent request using that connection to fail.'
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: High
+    - AdvId: GHSA-8r3f-844c-mc37
+      AdvSource: github:language:go
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476395222Z"
+      CvssBase: 7.5
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+      Cwes: null
+      Description: Golang protojson.Unmarshal function infinite loop when unmarshaling certain forms of invalid JSON
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Medium
+    - AdvId: CVE-2023-45287
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476395763Z"
+      CvssBase: 7.5
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N
+      Cwes: null
+      Description: Before Go 1.20, the RSA based TLS key exchanges used the math/big library, which is not constant time. RSA blinding was applied to prevent timing attacks, but analysis shows this may not have been fully effective. In particular it appears as if the removal of PKCS#1 padding may leak timing information, which in turn could be used to recover session key bits. In Go 1.20, the crypto/tls library switched to a fully constant time RSA implementation, which we do not believe exhibits any timing side channels.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: High
+    - AdvId: CVE-2024-34156
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476396293Z"
+      CvssBase: 7.5
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+      Cwes: null
+      Description: Calling Decoder.Decode on a message which contains deeply nested structures can cause a panic due to stack exhaustion. This is a follow-up to CVE-2022-30635.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: High
+    - AdvId: CVE-2023-29402
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476396894Z"
+      CvssBase: 9.8
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
+      Cwes: null
+      Description: The go command may generate unexpected code at build time when using cgo. This may result in unexpected behavior when running a go program which uses cgo. This may occur when running an untrusted module which contains directories with newline characters in their names. Modules which are retrieved using the go command, i.e. via "go get", are not affected (modules retrieved using GOPATH-mode, i.e. GO111MODULE=off, may be affected).
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Critical
+    - AdvId: GHSA-4374-p667-p6c8
+      AdvSource: github:language:go
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476397686Z"
+      CvssBase: 7.5
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+      Cwes: null
+      Description: HTTP/2 rapid reset can cause excessive work in net/http
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: High
+    - AdvId: CVE-2024-24785
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476398256Z"
+      CvssBase: 5.4
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:N
+      Cwes: null
+      Description: If errors returned from MarshalJSON methods contain user controlled data, they may be used to break the contextual auto-escaping behavior of the html/template package, allowing for subsequent actions to inject unexpected content into templates.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Medium
+    - AdvId: CVE-2022-27664
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476398837Z"
+      CvssBase: 7.5
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+      Cwes: null
+      Description: In net/http in Go before 1.18.6 and 1.19.x before 1.19.1, attackers can cause a denial of service because an HTTP/2 connection can hang during closing if shutdown were preempted by a fatal error.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: High
+    - AdvId: CVE-2023-29404
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476399418Z"
+      CvssBase: 9.8
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
+      Cwes: null
+      Description: The go command may execute arbitrary code at build time when using cgo. This may occur when running "go get" on a malicious module, or when running any other command which builds untrusted code. This is can by triggered by linker flags, specified via a "#cgo LDFLAGS" directive. The arguments for a number of flags which are non-optional are incorrectly considered optional, allowing disallowed flags to be smuggled through the LDFLAGS sanitization. This affects usage of both the gc and gccgo compilers.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Critical
+    - AdvId: CVE-2023-29406
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476399899Z"
+      CvssBase: 6.5
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:H/A:N
+      Cwes: null
+      Description: The HTTP/1 client does not fully validate the contents of the Host header. A maliciously crafted Host header can inject additional headers or entire requests. With fix, the HTTP/1 client now refuses to send requests containing an invalid Request.Host or Request.URL.Host value.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Medium
+    - AdvId: CVE-2024-34158
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.47640044Z"
+      CvssBase: 7.5
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+      Cwes: null
+      Description: Calling Parse on a "// +build" build tag line with deeply nested expressions can cause a panic due to stack exhaustion.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: High
+    - AdvId: CVE-2022-32190
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476401Z"
+      CvssBase: 7.5
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N
+      Cwes: null
+      Description: JoinPath and URL.JoinPath do not remove ../ path elements appended to a relative path. For example, JoinPath("https://go.dev", "../go") returns the URL "https://go.dev/../go", despite the JoinPath documentation stating that ../ path elements are removed from the result.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: High
+    - AdvId: CVE-2024-34155
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476403374Z"
+      CvssBase: 4.3
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:L
+      Cwes: null
+      Description: Calling any of the Parse functions on Go source code which contains deeply nested literals can cause a panic due to stack exhaustion.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Medium
+    - AdvId: CVE-2023-24536
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476404085Z"
+      CvssBase: 7.5
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+      Cwes: null
+      Description: 'Multipart form parsing can consume large amounts of CPU and memory when processing form inputs containing very large numbers of parts. This stems from several causes: 1. mime/multipart.Reader.ReadForm limits the total memory a parsed multipart form can consume. ReadForm can undercount the amount of memory consumed, leading it to accept larger inputs than intended. 2. Limiting total memory does not account for increased pressure on the garbage collector from large numbers of small allocations in forms with many parts. 3. ReadForm can allocate a large number of short-lived buffers, further increasing pressure on the garbage collector. The combination of these factors can permit an attacker to cause an program that parses multipart forms to consume large amounts of CPU and memory, potentially resulting in a denial of service. This affects programs that use mime/multipart.Reader.ReadForm, as well as form parsing in the net/http package with the Request methods FormFile, FormValue, ParseMultipartForm, and PostFormValue. With fix, ReadForm now does a better job of estimating the memory consumption of parsed forms, and performs many fewer short-lived allocations. In addition, the fixed mime/multipart.Reader imposes the following limits on the size of parsed forms: 1. Forms parsed with ReadForm may contain no more than 1000 parts. This limit may be adjusted with the environment variable GODEBUG=multipartmaxparts=. 2. Form parts parsed with NextPart and NextRawPart may contain no more than 10,000 header fields. In addition, forms parsed with ReadForm may contain no more than 10,000 header fields across all parts. This limit may be adjusted with the environment variable GODEBUG=multipartmaxheaders=.'
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: High
+    - AdvId: CVE-2023-24539
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476404736Z"
+      CvssBase: 7.3
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L
+      Cwes: null
+      Description: Angle brackets (<>) are not considered dangerous characters when inserted into CSS contexts. Templates containing multiple actions separated by a '/' character can result in unexpectedly closing the CSS context and allowing for injection of unexpected HTML, if executed with untrusted input.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: High
+    - AdvId: CVE-2023-39323
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476405387Z"
+      CvssBase: 8.1
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H
+        - CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H
+      Cwes: null
+      Description: Line directives ("//line") can be used to bypass the restrictions on "//go:cgo_" directives, allowing blocked linker and compiler flags to be passed during compilation. This can result in unexpected execution of arbitrary code when running "go build". The line directive requires the absolute path of the file in which the directive lives, which makes exploiting this issue significantly more complex.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: High
+    - AdvId: GHSA-2wrh-6pvc-2jm9
+      AdvSource: github:language:go
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476407731Z"
+      CvssBase: 6.1
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N
+      Cwes: null
+      Description: Improper rendering of text nodes in golang.org/x/net/html
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Medium
+    - AdvId: CVE-2023-29409
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476408241Z"
+      CvssBase: 5.3
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L
+      Cwes: null
+      Description: Extremely large RSA keys in certificate chains can cause a client/server to expend significant CPU time verifying signatures. With fix, the size of RSA keys transmitted during handshakes is restricted to <= 8192 bits. Based on a survey of publicly trusted RSA keys, there are currently only three certificates in circulation with keys larger than this, and all three appear to be test certificates that are not actively deployed. It is possible there are larger keys in use in private PKIs, but we target the web PKI, so causing breakage here in the interests of increasing the default safety of users of crypto/tls seems reasonable.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Medium
+    - AdvId: CVE-2023-45285
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476408692Z"
+      CvssBase: 7.5
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N
+      Cwes: null
+      Description: Using go get to fetch a module with the ".git" suffix may unexpectedly fallback to the insecure "git://" protocol if the module is unavailable via the secure "https://" and "git+ssh://" protocols, even if GOINSECURE is not set for said module. This only affects users who are not using the module proxy and are fetching modules directly (i.e. GOPROXY=off).
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: High
+    - AdvId: CVE-2022-41725
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476410665Z"
+      CvssBase: 7.5
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+      Cwes: null
+      Description: A denial of service is possible from excessive resource consumption in net/http and mime/multipart. Multipart form parsing with mime/multipart.Reader.ReadForm can consume largely unlimited amounts of memory and disk files. This also affects form parsing in the net/http package with the Request methods FormFile, FormValue, ParseMultipartForm, and PostFormValue. ReadForm takes a maxMemory parameter, and is documented as storing "up to maxMemory bytes +10MB (reserved for non-file parts) in memory". File parts which cannot be stored in memory are stored on disk in temporary files. The unconfigurable 10MB reserved for non-file parts is excessively large and can potentially open a denial of service vector on its own. However, ReadForm did not properly account for all memory consumed by a parsed form, such as map entry overhead, part names, and MIME headers, permitting a maliciously crafted form to consume well over 10MB. In addition, ReadForm contained no limit on the number of disk files created, permitting a relatively small request body to create a large number of disk temporary files. With fix, ReadForm now properly accounts for various forms of memory overhead, and should now stay within its documented limit of 10MB + maxMemory bytes of memory consumption. Users should still be aware that this limit is high and may still be hazardous. In addition, ReadForm now creates at most one on-disk temporary file, combining multiple form parts into a single temporary file. The mime/multipart.File interface type's documentation states, "If stored on disk, the File's underlying concrete type will be an *os.File.". This is no longer the case when a form contains more than one file part, due to this coalescing of parts into a single file. The previous behavior of using distinct files for each form part may be reenabled with the environment variable GODEBUG=multipartfiles=distinct. Users should be aware that multipart.ReadForm and the http.Request methods that call it do not limit the amount of disk consumed by temporary files. Callers can limit the size of form data with http.MaxBytesReader.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: High
+    - AdvId: CVE-2023-29400
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476411166Z"
+      CvssBase: 7.3
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L
+      Cwes: null
+      Description: Templates containing actions in unquoted HTML attributes (e.g. "attr={{.}}") executed with empty input can result in output with unexpected results when parsed due to HTML normalization rules. This may allow injection of arbitrary attributes into tags.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: High
+    - AdvId: CVE-2023-39319
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476411837Z"
+      CvssBase: 6.1
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N
+      Cwes: null
+      Description: The html/template package does not apply the proper rules for handling occurrences of "<script", "<!--", and "</script" within JS literals in <script> contexts. This may cause the template parser to improperly consider script contexts to be terminated early, causing actions to be improperly escaped. This could be leveraged to perform an XSS attack.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Medium
+    - AdvId: CVE-2023-24534
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476412528Z"
+      CvssBase: 7.5
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+      Cwes: null
+      Description: HTTP and MIME header parsing can allocate large amounts of memory, even when parsing small inputs, potentially leading to a denial of service. Certain unusual patterns of input data can cause the common function used to parse HTTP and MIME headers to allocate substantially more memory than required to hold the parsed headers. An attacker can exploit this behavior to cause an HTTP server to allocate large amounts of memory from a small request, potentially leading to memory exhaustion and a denial of service. With fix, header parsing now correctly allocates only the memory required to hold parsed headers.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: High
+    - AdvId: CVE-2023-39318
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476413309Z"
+      CvssBase: 6.1
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N
+      Cwes: null
+      Description: The html/template package does not properly handle HTML-like "" comment tokens, nor hashbang "#!" comment tokens, in <script> contexts. This may cause the template parser to improperly interpret the contents of <script> contexts, causing actions to be improperly escaped. This may be leveraged to perform an XSS attack.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Medium
+    - AdvId: CVE-2023-39326
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.47641394Z"
+      CvssBase: 5.3
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N
+      Cwes: null
+      Description: A malicious HTTP sender can use chunk extensions to cause a receiver reading from a request or response body to read many more bytes from the network than are in the body. A malicious HTTP client can further exploit this to cause a server to automatically read a large amount of data (up to about 1GiB) when a handler fails to read the entire body of a request. Chunk extensions are a little-used HTTP feature which permit including additional metadata in a request or response body sent using the chunked encoding. The net/http chunked encoding reader discards this metadata. A sender can exploit this by inserting a large metadata segment with each byte transferred. The chunk reader now produces an error if the ratio of real body to encoded bytes grows too small.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Medium
+    - AdvId: CVE-2025-4673
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476414491Z"
+      CvssBase: 6.8
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:N/A:N
+      Cwes: null
+      Description: Proxy-Authorization and Proxy-Authenticate headers persisted on cross-origin redirects potentially leaking sensitive information.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Medium
+    - AdvId: CVE-2022-2880
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476415152Z"
+      CvssBase: 7.5
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N
+      Cwes: null
+      Description: Requests forwarded by ReverseProxy include the raw query parameters from the inbound request, including unparsable parameters rejected by net/http. This could permit query parameter smuggling when a Go proxy forwards a parameter with an unparsable value. After fix, ReverseProxy sanitizes the query parameters in the forwarded query when the outbound request's Form field is set after the ReverseProxy. Director function returns, indicating that the proxy has parsed the query parameters. Proxies which do not parse query parameters continue to forward the original query parameters unchanged.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: High
+    - AdvId: CVE-2025-22871
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476415813Z"
+      CvssBase: 9.1
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N
+      Cwes: null
+      Description: The net/http package improperly accepts a bare LF as a line terminator in chunked data chunk-size lines. This can permit request smuggling if a net/http server is used in conjunction with a server that incorrectly accepts a bare LF as part of a chunk-ext.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Critical
+    - AdvId: CVE-2024-45336
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476416364Z"
+      CvssBase: 6.1
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N
+      Cwes: null
+      Description: The HTTP client drops sensitive headers after following a cross-domain redirect. For example, a request to a.com/ containing an Authorization header which is redirected to b.com/ will not send that header to b.com. In the event that the client received a subsequent same-domain redirect, however, the sensitive headers would be restored. For example, a chain of redirects from a.com/, to b.com/1, and finally to b.com/2 would incorrectly send the Authorization header to b.com/2.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Medium
+    - AdvId: GHSA-vvgc-356p-c3xw
+      AdvSource: github:language:go
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476416954Z"
+      CvssBase: 0
+      CvssVectors: []
+      Cwes: null
+      Description: golang.org/x/net vulnerable to Cross-site Scripting
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Medium
+    - AdvId: CVE-2023-24537
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476417395Z"
+      CvssBase: 7.5
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+      Cwes: null
+      Description: Calling any of the Parse functions on Go source code which contains //line directives with very large line numbers can cause an infinite loop due to integer overflow.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: High
+    - AdvId: CVE-2024-45341
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476417876Z"
+      CvssBase: 6.1
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N
+      Cwes: null
+      Description: A certificate with a URI which has a IPv6 address with a zone ID may incorrectly satisfy a URI name constraint that applies to the certificate chain. Certificates containing URIs are not permitted in the web PKI, so this only affects users of private PKIs which make use of URIs.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Medium
+    - AdvId: CVE-2023-24532
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476418316Z"
+      CvssBase: 5.3
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N
+      Cwes: null
+      Description: The ScalarMult and ScalarBaseMult methods of the P256 Curve may return an incorrect result if called with some specific unreduced scalars (a scalar larger than the order of the curve). This does not impact usages of crypto/ecdsa or crypto/ecdh.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Medium
+    - AdvId: CVE-2022-41724
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476418877Z"
+      CvssBase: 7.5
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+      Cwes: null
+      Description: Large handshake records may cause panics in crypto/tls. Both clients and servers may send large TLS handshake records which cause servers and clients, respectively, to panic when attempting to construct responses. This affects all TLS 1.3 clients, TLS 1.2 clients which explicitly enable session resumption (by setting Config.ClientSessionCache to a non-nil value), and TLS 1.3 servers which request client certificates (by setting Config.ClientAuth >= RequestClientCert).
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: High
+    - AdvId: CVE-2022-41715
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476419488Z"
+      CvssBase: 7.5
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+      Cwes: null
+      Description: Programs which compile regular expressions from untrusted sources may be vulnerable to memory exhaustion or denial of service. The parsed regexp representation is linear in the size of the input, but in some cases the constant factor can be as high as 40,000, making relatively small regexps consume much larger amounts of memory. After fix, each regexp being parsed is limited to a 256 MB memory footprint. Regular expressions whose representation would use more space than that are rejected. Normal use of regular expressions is unaffected.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: High
+    - AdvId: CVE-2022-2879
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476420159Z"
+      CvssBase: 7.5
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+      Cwes: null
+      Description: Reader.Read does not set a limit on the maximum size of file headers. A maliciously crafted archive could cause Read to allocate unbounded amounts of memory, potentially causing resource exhaustion or panics. After fix, Reader.Read limits the maximum size of header blocks to 1 MiB.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: High
+    - AdvId: CVE-2023-29403
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.47642074Z"
+      CvssBase: 7.8
+      CvssVectors:
+        - CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+        - CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+      Cwes: null
+      Description: On Unix platforms, the Go runtime does not behave differently when a binary is run with the setuid/setgid bits. This can be dangerous in certain cases, such as when dumping memory state, or assuming the status of standard i/o file descriptors. If a setuid/setgid binary is executed with standard I/O file descriptors closed, opening any files can result in unexpected content being read or written with elevated privileges. Similarly, if a setuid/setgid program is terminated, either via panic or signal, it may leak the contents of its registers.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: High
+    - AdvId: CVE-2024-24789
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476421381Z"
+      CvssBase: 5.5
+      CvssVectors:
+        - CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:N
+        - CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
+      Cwes: null
+      Description: The archive/zip package's handling of certain types of invalid zip files differs from the behavior of most zip implementations. This misalignment could be exploited to create an zip file with contents that vary depending on the implementation reading the file. The archive/zip package now rejects files containing these errors.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Medium
+    - AdvId: GHSA-qxp5-gwg8-xv66
+      AdvSource: github:language:go
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476421922Z"
+      CvssBase: 4.4
+      CvssVectors:
+        - CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:L/I:N/A:L
+      Cwes: null
+      Description: HTTP Proxy bypass using IPv6 Zone IDs in golang.org/x/net
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Medium
+    - AdvId: CVE-2025-22866
+      AdvSource: nvd:cpe
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476422383Z"
+      CvssBase: 4
+      CvssVectors:
+        - CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N
+      Cwes: null
+      Description: Due to the usage of a variable time instruction in the assembly implementation of an internal function, a small number of bits of secret scalars are leaked on the ppc64le architecture. Due to the way this function is used, we do not believe this leakage is enough to allow recovery of the private key when P-256 is used in any well known protocols.
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: Medium
+    - AdvId: GHSA-m425-mq94-257g
+      AdvSource: github:language:go
+      Aliases: ""
+      Cpes: null
+      CreateDate: "2025-07-14T12:47:44.476425958Z"
+      CvssBase: 7.5
+      CvssVectors:
+        - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+      Cwes: null
+      Description: gRPC-Go HTTP/2 Rapid Reset vulnerability
+      KevDate: "0001-01-01T00:00:00Z"
+      ModDate: "0001-01-01T00:00:00Z"
+      PubDate: "0001-01-01T00:00:00Z"
+      RansomwareUsed: ""
+      References: []
+      RiskScore: 0
+      Severity: High

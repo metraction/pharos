@@ -110,13 +110,22 @@ prometheus:
     # -- Key in the secret for the token
     tokenKey: ""
 
-# -- Mappers configuration
-mappers:
+# -- Enrichers configuration
+enrichers:
+  order: 
+    - eos
+  sources: 
+    - name: eos 
+      # path: eos # If not specified uses name as directory location
+      # git: https://github.com/metraction/pharos-plugins/tree/main/eos # Takes precedence over path
+    - name: owner
+      # path: owner # If not specified uses name as directory location
+      # git: https://github.com/metraction/pharos-plugins/tree/main/owner # Takes precedence over path
   hbs: 
     eos_v1.hbs: |
-      distro: {{ .data.Image.DistroName }}
-      version: {{ .data.Image.DistroVersion }}
-      eos: {{ index .eos .data.Image.DistroName | filter "version" "matchWildcard" .data.Image.DistroVersion | map "field" "eos" | first }}
+      distro: {{ .payload.Image.DistroName }}
+      version: {{ .payload.Image.DistroVersion }}
+      eos: {{ index .meta.eos .payload.Image.DistroName | filter "version" "matchWildcard" .payload.Image.DistroVersion | map "field" "eos" | first }}
   files:
     eos.yaml: files/eos.yaml
 

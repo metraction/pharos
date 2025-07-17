@@ -3,14 +3,7 @@ on:
   push:
     branches: 
     - main
-    - PH-52/*
-    - PH-47/*
-    - PH-54/*
-    - PH-79/*
-    - PH-89/*
-    - PH-92/*
-    - PH-94/*
-    - PH-38/*
+    - '103-*'
     tags:
     - 'v*'
   pull_request:

@@ -1,0 +1,3 @@
+{{- $contextRoot := .payload.Image.ContextRoots | first }}
+{{- $namespace := ($contextRoot.Contexts | filter "Owner" "startsWith" "pharos-controller" | first).Data.namespace }}
+owner: {{ .meta.owners.byNamespace | filter "namespace" "startsWith" $namespace | map "field" "owner" | first | toYaml | nindent 2 }}

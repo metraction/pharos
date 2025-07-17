@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"reflect"
 	"sort"
 	"testing"
 
@@ -127,49 +128,71 @@ func TestApplyRiskV1Template(t *testing.T) {
 }
 
 func TestApplyRiskV2Template(t *testing.T) {
-	img := Image{
-		Vulnerabilities: []Vulnerability{
-			{L1: 2, L2: 3},
-			{L1: 4, L2: 5},
+	tests := []struct {
+		name           string
+		img            Image
+		expectedRiskV2 RiskV2
+	}{
+		{
+			name: "Frontend Namespace",
+			img: Image{
+				Vulnerabilities: []Vulnerability{
+					{L1: 2, L2: 3},
+					{L1: 4, L2: 5},
+				},
+				Namespace: "frontend",
+			},
+			expectedRiskV2: RiskV2{
+				Version: "v2",
+				Kind:    "RiskPolicy",
+				Spec: struct {
+					Risk   int    `yaml:"risk"`
+					Reason string `yaml:"reason"`
+				}{
+					Risk:   14,
+					Reason: "Interet facing image",
+				},
+			},
 		},
-		Namespace: "frontend",
+		// Add more test cases here as needed.  For example, you might add a test
+		// case for a "dmz" namespace, or for different combinations of vulnerabilities.
 	}
 
-	templatePath := filepath.Join("..", "..", "testdata", "enrichers", "risk_v2.hbs")
-	if _, err := os.Stat(templatePath); os.IsNotExist(err) {
-		t.Fatalf("Template file %s does not exist", templatePath)
-	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// applyRiskV2TemplateAndVerify(t, tt.img, tt.expectedRiskV2)
+			templatePath := filepath.Join("..", "..", "testdata", "enrichers", "risk_v2.hbs")
+			if _, err := os.Stat(templatePath); os.IsNotExist(err) {
+				t.Fatalf("Template file %s does not exist", templatePath)
+				t.Fatalf("ToRisk returned error: %v", err)
+			}
+			rp, err := NewPolicy[RiskV2](templatePath)
+			if err != nil {
+				t.Fatalf(": %v", err)
+			}
 
-	rp, err := NewPolicy[RiskV2](templatePath)
-	if err != nil {
-		t.Fatalf("NewRiskPolicy returned error: %v", err)
-	}
+			buf, err := rp.Evaluate(tt.img)
+			if err != nil {
+				t.Fatalf("Evaluate returned error: %v", err)
+			}
+			risk, err := ToRisk(buf)
+			if err != nil {
+				t.Fatalf("ToRisk returned error: %v", err)
+			}
 
-	buf, err := rp.Evaluate(img)
-	if err != nil {
-		t.Fatalf("Evaluate returned error: %v", err)
-	}
-	risk, err := ToRisk(buf)
-	if err != nil {
-		t.Fatalf("ToRisk returned error: %v", err)
-	}
+			actualRiskV2, ok := risk.(RiskV2)
+			if !ok {
+				t.Fatalf("Expected RiskV2, got %T", risk)
+			}
 
-	riskV2, ok := risk.(RiskV2)
-	if !ok {
-		t.Fatalf("Expected RiskV2, got %T", risk)
-	}
+			if !ok {
+				t.Fatalf("Expected RiskV2, got %T", tt.expectedRiskV2)
+			}
 
-	if riskV2.Version != "v2" {
-		t.Errorf("Expected Version to be 'v2', got '%s'", riskV2.Version)
-	}
-	if riskV2.Kind != "RiskPolicy" {
-		t.Errorf("Expected Kind to be 'RiskPolicy', got '%s'", riskV2.Kind)
-	}
-	if riskV2.Spec.Risk != 14 {
-		t.Errorf("Expected Risk to be 14, got %d", riskV2.Spec.Risk)
-	}
-	if riskV2.Spec.Reason != "Interet facing image" && riskV2.Spec.Reason != "DMZ protected image" {
-		t.Errorf("Unexpected Reason: %s", riskV2.Spec.Reason)
+			if !reflect.DeepEqual(actualRiskV2, tt.expectedRiskV2) {
+				t.Errorf("applyRiskV2Template(%v) = %v, want %v", tt.img, actualRiskV2, tt.expectedRiskV2)
+			}
+		})
 	}
 }
 
@@ -218,8 +241,8 @@ func TestAppendFile(t *testing.T) {
 	}()
 
 	// Use filepath.Join to create a platform-independent path to the test data file
-	eosYamlPath := filepath.Join("..", "..", "testdata", "enrichers", "eos.yaml")
-	templatePath := filepath.Join("..", "..", "testdata", "enrichers", "eos_v1.hbs")
+	eosYamlPath := filepath.Join("..", "..", "testdata", "enrichers", "risk", "eos.yaml")
+	templatePath := filepath.Join("..", "..", "testdata", "enrichers", "risk", "eos_v1.hbs")
 
 	mapper := extension.NewChanSource(outChan).
 		Via(flow.NewMap(NewAppendFile[Image](eosYamlPath), 1)).
@@ -278,7 +301,7 @@ func TestMatchWildcard(t *testing.T) {
 
 			// Check the result
 			if result != tt.expected {
-				t.Errorf("matchWildcard(%q, %q) = %v, want %v", 
+				t.Errorf("matchWildcard(%q, %q) = %v, want %v",
 					tt.pattern, tt.criteria, result, tt.expected)
 			}
 		})
@@ -287,9 +310,9 @@ func TestMatchWildcard(t *testing.T) {
 	// Test with Alpine version patterns from eos.yaml
 	t.Run("Alpine version patterns", func(t *testing.T) {
 		alpinePatterns := []struct {
-			pattern  string
-			version  string
-			matches  bool
+			pattern string
+			version string
+			matches bool
 		}{
 			{"3.16.%", "3.16.0", true},
 			{"3.16.%", "3.16.1", true},
@@ -309,7 +332,7 @@ func TestMatchWildcard(t *testing.T) {
 			result := filterOperators["matchWildcard"](item, "version", tc.version)
 
 			if result != tc.matches {
-				t.Errorf("matchWildcard with pattern %q and version %q = %v, want %v", 
+				t.Errorf("matchWildcard with pattern %q and version %q = %v, want %v",
 					tc.pattern, tc.version, result, tc.matches)
 			}
 		}

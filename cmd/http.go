@@ -12,7 +12,7 @@ import (
 	"github.com/metraction/pharos/internal/integrations/db"
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/internal/routing"
-	"github.com/metraction/pharos/pkg/mappers"
+	"github.com/metraction/pharos/pkg/enricher"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/spf13/cobra"
 )
@@ -27,9 +27,13 @@ var httpCmd = &cobra.Command{
 These submissions are then published to a Redis stream for further processing by the scanner.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		logger := logging.NewLogger("info", "component", "cmd.http")
-		config := cmd.Context().Value("config").(*model.Config)
-		if config == nil {
+		configValue := cmd.Context().Value("config")
+		if configValue == nil {
 			logger.Fatal().Msg("Configuration not found in context. Ensure rootCmd PersistentPreRun is setting it.")
+		}
+		config, ok := configValue.(*model.Config)
+		if !ok || config == nil {
+			logger.Fatal().Msg("Invalid configuration type in context.")
 		}
 		databaseContext := model.NewDatabaseContext(&config.Database)
 		databaseContext.Migrate()
@@ -47,14 +51,8 @@ These submissions are then published to a Redis stream for further processing by
 
 		api.UseMiddleware(databaseContext.DatabaseMiddleware())
 
-		enricherConfig, err := mappers.LoadMappersConfig("results", config.EnricherPath+"/enricher.yaml")
-		if err != nil {
-			logger.Fatal().Err(err).Msg("Failed to load mappers config")
-		}
-		enricher := model.EnricherConfig{
-			BasePath: config.EnricherPath,
-			Configs:  enricherConfig,
-		}
+		enricherPath := addBasePathToRelative(config, config.EnricherPath)
+		enricherConfig := enricher.LoadEnricher(enricherPath, "results")
 
 		// For scan tasks
 		taskChannel := make(chan any, config.Publisher.QueueSize)
@@ -65,7 +63,7 @@ These submissions are then published to a Redis stream for further processing by
 		go routing.NewScanResultCollectorFlow(
 			cmd.Context(),
 			config,
-			enricher,
+			enricherConfig,
 			extension.NewChanSource(taskChannel),
 			logger,
 		).
@@ -73,7 +71,7 @@ These submissions are then published to a Redis stream for further processing by
 			To(db.NewImageDbSink(databaseContext))
 
 		// Create results flow without redis
-		go routing.NewScanResultsInternalFlow(extension.NewChanSource(resultChannel), enricher).
+		go routing.NewScanResultsInternalFlow(extension.NewChanSource(resultChannel), enricherConfig).
 			To(db.NewImageDbSink(databaseContext))
 
 		// Add routes for the API

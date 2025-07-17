@@ -5,5 +5,13 @@ metadata:
   labels:
     app: pharos
 data:
-  enricher.yaml: | {{ .Files.Get "files/enricher.yaml" | nindent 4 }}
-    
+  enricher.yaml: | 
+{{ .Files.Get "files/enricher.yaml" | indent 4 }}
+{{- range $filename, $content := .Values.enrichers.hbs }}
+  {{ $filename }}: |
+{{ $content | indent 4 }}
+{{- end }}
+{{- range $filename, $filepath := .Values.enrichers.files }}
+  {{ $filename }}: |
+{{ $.Files.Get $filepath | indent 4 }}
+{{- end }}    
