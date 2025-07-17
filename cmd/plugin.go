@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/metraction/pharos/pkg/enricher"
+	"github.com/metraction/pharos/pkg/mappers"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/reugn/go-streams"
 	"github.com/reugn/go-streams/extension"
@@ -43,14 +44,6 @@ var testCmd = &cobra.Command{
 		// Get config from context
 		config := cmd.Context().Value("config").(*model.Config)
 
-		// Get the URI from args or use default path
-		var enricherPath string
-		if len(args) > 0 && args[0] != "" {
-			enricherPath = args[0]
-		} else {
-			enricherPath = config.EnricherPath
-		}
-
 		var enrichers *model.Enrichers
 		var err error
 		// Check if args[0] points to enrichers.yaml file
@@ -76,13 +69,8 @@ var testCmd = &cobra.Command{
 			}
 		}
 
-		// Get the data file path from flag or use default
-		if !filepath.IsAbs(dataFilePath) {
-			dataFilePath = filepath.Join(enricherPath, dataFilePath)
-		}
-		fmt.Printf("Using data file: %s\n", dataFilePath)
-
 		// Load test result
+		fmt.Printf("Using data file: %s\n", dataFilePath)
 		testResult, err := model.LoadResultFromFile(dataFilePath)
 		if err != nil {
 			fmt.Printf("Error loading test result from %s: %v\n", dataFilePath, err)
@@ -112,9 +100,11 @@ var testCmd = &cobra.Command{
 			} else if source.Path != "" {
 				enricherPath = source.Path
 			}
-			enricherPath = refineEnricherPath(config, enricherPath)
+			enricherPath = addBasePathToRelative(config, enricherPath)
 
-			plugin = enricher.LoadEnricher(enricherPath, source.Name, plugin)
+			enricherConfig := enricher.LoadEnricher(enricherPath, source.Name)
+			plugin = mappers.NewResultEnricherStream(plugin, source.Name, enricherConfig)
+
 		}
 		if len(enrichers.Sources) == 0 {
 			fmt.Println("No sources found")
@@ -140,13 +130,4 @@ func init() {
 
 	// Add flags specific to the test subcommand
 	testCmd.Flags().StringVar(&dataFilePath, "data", "test-data.yaml", "Path to test data file to use instead of test-data.yaml")
-}
-
-func refineEnricherPath(config *model.Config, enricherPath string) string {
-	// If enricherPath is absolute, return it as is
-	if filepath.IsAbs(enricherPath) {
-		return enricherPath
-	}
-
-	return filepath.Join(config.BasePath, enricherPath)
 }

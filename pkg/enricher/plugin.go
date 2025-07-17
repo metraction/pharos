@@ -12,7 +12,6 @@ import (
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/pkg/mappers"
 	"github.com/metraction/pharos/pkg/model"
-	"github.com/reugn/go-streams"
 )
 
 var logger = logging.NewLogger("info", "component", "plugin")
@@ -41,10 +40,10 @@ func FetchEnricherFromGit(enricherUri string, destinationDir string) (enricherDi
 	return enricherDir, nil
 }
 
-func LoadEnricher(enricherPath string, name string, source streams.Source) streams.Flow {
+func LoadEnricher(enricherPath string, name string) model.EnricherConfig {
 	logger.Debug().Str("path", enricherPath).Msg("Loading Enricher " + name)
 
-	mapperConfig, err := mappers.LoadMappersConfig("results", filepath.Join(enricherPath, "enricher.yaml"))
+	mapperConfig, err := mappers.LoadMappersConfig(name, filepath.Join(enricherPath, "enricher.yaml"))
 	if err != nil {
 		logger.Fatal().Err(err).Str("path", enricherPath).Msg("Failed to load mappers config")
 	}
@@ -52,7 +51,7 @@ func LoadEnricher(enricherPath string, name string, source streams.Source) strea
 		BasePath: enricherPath,
 		Configs:  mapperConfig,
 	}
-	return mappers.NewResultEnricherStream(source, name, enricherConfig)
+	return enricherConfig
 }
 
 // isGitURL checks if the path is a Git repository URL
@@ -136,35 +135,43 @@ func cloneGitRepo(destinationDir, repoURL, ref string) (string, error) {
 		options.ReferenceName = plumbing.ReferenceName(fmt.Sprintf("refs/heads/%s", ref))
 	}
 
-	// Clone the repository
+	// Try to clone the repository with the specified reference
 	_, err := git.PlainClone(destinationDir, false, options)
-	if err != nil {
-		// If branch checkout fails, try with commit hash
-		if ref != "" && err.Error() == fmt.Sprintf("reference not found: refs/heads/%s", ref) {
-			// Try cloning without branch specification
-			options.ReferenceName = ""
-
-			// Clone without branch specification
-			r, err := git.PlainClone(destinationDir, false, options)
-			if err != nil {
-				return "", fmt.Errorf("git clone failed: %w", err)
-			}
-
-			// Checkout the commit hash
-			w, err := r.Worktree()
-			if err != nil {
-				return "", fmt.Errorf("failed to get worktree: %w", err)
-			}
-
-			// Checkout options with commit hash
-			checkoutOptions := &git.CheckoutOptions{
-				Hash: plumbing.NewHash(ref),
-			}
-
-			// Checkout the commit
-			err = w.Checkout(checkoutOptions)
-		}
+	if err == nil {
+		// Clone successful
+		logger.Debug().Str("dir", destinationDir).Msg("Cloned Git repository to directory")
+		return destinationDir, nil
 	}
+
+	// If there's no reference specified or the error is not about missing reference, return the error
+	if ref == "" || err.Error() != fmt.Sprintf("reference not found: refs/heads/%s", ref) {
+		return "", fmt.Errorf("git clone failed: %w", err)
+	}
+
+	// Try cloning without branch specification (to try with commit hash)
+	options.ReferenceName = ""
+	r, err := git.PlainClone(destinationDir, false, options)
+	if err != nil {
+		return "", fmt.Errorf("git clone failed: %w", err)
+	}
+
+	// Checkout the commit hash
+	w, err := r.Worktree()
+	if err != nil {
+		return "", fmt.Errorf("failed to get worktree: %w", err)
+	}
+
+	// Checkout options with commit hash
+	checkoutOptions := &git.CheckoutOptions{
+		Hash: plumbing.NewHash(ref),
+	}
+
+	// Checkout the commit
+	err = w.Checkout(checkoutOptions)
+	if err != nil {
+		return "", fmt.Errorf("failed to checkout commit %s: %w", ref, err)
+	}
+
 	logger.Debug().Str("dir", destinationDir).Msg("Cloned Git repository to directory")
 	return destinationDir, nil
 }

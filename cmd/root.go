@@ -182,7 +182,7 @@ func init() {
 	defaultDSN := "postgres://postgres:postgres@localhost:5432/pharos?sslmode=disable" // run `brew install db-browser-for-sqlite` to view the database.
 	rootCmd.PersistentFlags().String("database.dsn", defaultDSN, "Database DSN for the scanner, for postgres it is the connection string.")
 
-	// It should work for dev, docker and k8s: files located in cmd/kodada; $KO_DATA_PATH; configMap
+	// It should work for dev, docker and k8s: files located in kodada; $KO_DATA_PATH; configMap
 	rootCmd.PersistentFlags().String("enricherPath", "enrichers", "Base path for the enrichers")
 
 	rootCmd.AddCommand(scannerCmd)
@@ -208,4 +208,13 @@ func deriveBasePath() string {
 		return "."
 	}
 	return filepath.Join(currentPath, "kodata")
+}
+
+func addBasePathToRelative(config *model.Config, enricherPath string) string {
+	// If enricherPath is absolute, return it as is
+	if filepath.IsAbs(enricherPath) {
+		return enricherPath
+	}
+
+	return filepath.Join(config.BasePath, enricherPath)
 }
