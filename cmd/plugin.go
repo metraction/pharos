@@ -260,13 +260,13 @@ func createConfigMap(enrichers *model.Enrichers, name string) (map[string]interf
 
 				// Use the source name as prefix in the ConfigMap to avoid conflicts
 				configMapKey := filepath.Join(source.Name, relPath)
-				
+
 				// Check if the file has an extension that might contain template expressions
 				ext := strings.ToLower(filepath.Ext(path))
-				if ext == ".hbs" || ext == ".tmpl" || ext == ".tpl" || strings.Contains(string(content), "{{"){ 
+				if ext == ".hbs" || ext == ".tmpl" || ext == ".tpl" || strings.Contains(string(content), "{{") {
 					// Base64 encode content to avoid Helm template processing
 					encodedContent := base64.StdEncoding.EncodeToString(content)
-					configMap["data"].(map[string]string)[configMapKey] = "b64:" + encodedContent
+					configMap["data"].(map[string]string)[configMapKey] = "{{ b64dec \"" + encodedContent + "\" | nindent 6 }}"
 				} else {
 					// Store regular content as is
 					configMap["data"].(map[string]string)[configMapKey] = string(content)
