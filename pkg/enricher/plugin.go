@@ -45,7 +45,7 @@ func LoadEnricher(enricherPath string, name string) model.EnricherConfig {
 
 	mapperConfig, err := mappers.LoadMappersConfig(name, filepath.Join(enricherPath, "enricher.yaml"))
 	if err != nil {
-		logger.Fatal().Err(err).Str("path", enricherPath).Msg("Failed to load mappers config")
+		logger.Fatal().Err(err).Msg("Failed to load mappers config")
 	}
 	enricherConfig := model.EnricherConfig{
 		BasePath: enricherPath,

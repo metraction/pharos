@@ -22,7 +22,7 @@ func LoadMappersConfig(name string, configPath string) ([]model.MapperConfig, er
 	// Read the file
 	data, err := os.ReadFile(configPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read config file: %w", err)
+		return nil, fmt.Errorf("Failed to read config file: %w", err)
 	}
 
 	// First try to parse as a direct list of MapperConfig
@@ -33,7 +33,7 @@ func LoadMappersConfig(name string, configPath string) ([]model.MapperConfig, er
 		var configMap map[string][]model.MapperConfig
 		err = yaml.Unmarshal(data, &configMap)
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse config file: %w", err)
+			return nil, fmt.Errorf("Failed to parse config file: %w", err)
 		}
 		// Look for any key that contains a non-empty list of configs
 		for _, value := range configMap {
@@ -70,14 +70,12 @@ func NewEnricherStream(stream streams.Source, enricher model.EnricherConfig) str
 func NewResultEnricherStream(stream streams.Source, name string, enricher model.EnricherConfig) streams.Flow {
 	var result streams.Flow
 
-	fmt.Println("Processing enricher:", enricher)
 	// In case no enrichers return stream converted to flow
 	if len(enricher.Configs) == 0 {
 		return stream.Via(flow.NewPassThrough())
 	}
 	stream = stream.Via(flow.NewMap(ToWrappedResult, 1))
 	for _, mapper := range enricher.Configs {
-		fmt.Println("Processing mapper:", mapper.Name)
 		config := filepath.Join(enricher.BasePath, mapper.Config)
 		switch mapper.Name {
 		case "file":

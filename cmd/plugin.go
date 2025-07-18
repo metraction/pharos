@@ -96,16 +96,16 @@ func loadEnrichersFromDirOrFile(enrichersPath string) (*model.Enrichers, error) 
 	var err error
 	// Check if args[0] points to enrichers.yaml file
 	if filepath.Base(enrichersPath) == "enrichers.yaml" {
-		fmt.Printf("Loading Enrichers from file: %s\n", enrichersPath)
+		logger.Info().Msgf("Loading Enrichers from file: %s\n", enrichersPath)
 		enrichers, err = model.LoadEnrichersFromFile(enrichersPath)
 		if err != nil {
-			fmt.Printf("Error loading Enrichers from %s: %v\n", enrichersPath, err)
+			logger.Error().Msgf("Error loading Enrichers from %s: %v\n", enrichersPath, err)
 			return nil, err
 		}
-		fmt.Printf("Successfully loaded Enrichers with %d order items and %d sources\n",
+		logger.Info().Msgf("Successfully loaded Enrichers with %d order items and %d sources\n",
 			len(enrichers.Order), len(enrichers.Sources))
 	} else {
-		fmt.Printf("Loading Enricher from directory: %s\n", enrichersPath)
+		logger.Info().Msgf("Loading Enricher from directory: %s\n", enrichersPath)
 		enrichers = &model.Enrichers{
 			Order: []string{"result"},
 			Sources: []model.EnricherSource{
@@ -126,13 +126,13 @@ func createEnrichersFlow(plugin streams.Source, enrichers *model.Enrichers) stre
 		if source.Git != "" {
 			tempDir, err := os.MkdirTemp("", "pharos-enricher-*")
 			if err != nil {
-				fmt.Printf("Error creating temporary directory: %v\n", err)
+				logger.Error().Msgf("Error creating temporary directory: %v\n", err)
 				return nil
 			}
 
 			enricherPath, err = enricher.FetchEnricherFromGit(source.Git, tempDir)
 			if err != nil {
-				fmt.Printf("Error loading enricher from Git: %v\n", err)
+				logger.Error().Msgf("Error loading enricher from Git: %v\n", err)
 				return nil
 			}
 		} else if source.Path != "" {
