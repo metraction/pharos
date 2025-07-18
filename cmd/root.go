@@ -207,7 +207,7 @@ func deriveBasePath() string {
 		log.Printf("Warning: Could not determine current directory: %v. Using '.' as BasePath", err)
 		return "."
 	}
-	return filepath.Join(currentPath, "kodata")
+	return filepath.Join(currentPath)
 }
 
 func addBasePathToRelative(config *model.Config, enricherPath string) string {
