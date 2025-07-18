@@ -123,7 +123,7 @@ func initConfig() {
 
 		// If a config file is found, read it in.
 		if err := viper.ReadConfig(myReader); err == nil {
-			fmt.Println("Using config file:", cfgFilePath)
+			// fmt.Println("Using config file:", cfgFilePath)
 		} else {
 			// This could happen if the file is malformed, for example.
 			fmt.Printf("Error parsing config file: %v\n", err)
@@ -137,7 +137,7 @@ func initConfig() {
 
 	// Set the base path in the config
 	config.BasePath = deriveBasePath()
-	fmt.Printf("Using BasePath: %s\n", config.BasePath)
+	//fmt.Printf("Using BasePath: %s\n", config.BasePath)
 }
 
 func init() {

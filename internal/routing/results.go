@@ -34,8 +34,8 @@ func NewScanResultsInternalFlow(source streams.Source, enricher model.EnricherCo
 	contextFlow := source.
 		Via(flow.NewFilter(pharosScanTaskHandler.FilterFailedTasks, 1)).
 		Via(flow.NewMap(pharosScanTaskHandler.CreateRootContext, 1))
-	// TODO: Remove deprecated enricher
-	stream := mappers.NewResultEnricherStream(contextFlow, "results-deprecated", enricher)
+
+	stream := mappers.NewResultEnricherStream(contextFlow, "results", enricher)
 
 	return stream
 }

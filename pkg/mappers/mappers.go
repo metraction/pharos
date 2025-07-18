@@ -16,25 +16,28 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+/*
+Creates appender by reading file on creation moment.
+*/
 func NewAppendFile[T any](file string) flow.MapFunction[T, map[string]interface{}] {
 	// Extract the filename without extension and directories
 	baseName := filepath.Base(file)
 	// Remove extension
 	fileKey := strings.TrimSuffix(baseName, filepath.Ext(baseName))
 
+	// Read the YAML file content
+	content, err := os.ReadFile(file)
+	if err != nil {
+		log.Fatalf("Failed to read file %s: %v", file, err)
+	}
+
+	// Parse YAML content into map[string]interface{}
+	var yamlContent map[string]interface{}
+	if err := yaml.Unmarshal(content, &yamlContent); err != nil {
+		log.Fatalf("Failed to unmarshal YAML from file %s: %v", file, err)
+	}
+
 	return func(data T) map[string]interface{} {
-		// Read the YAML file content
-		content, err := os.ReadFile(file)
-		if err != nil {
-			log.Fatalf("Failed to read file %s: %v", file, err)
-		}
-
-		// Parse YAML content into map[string]interface{}
-		var yamlContent map[string]interface{}
-		if err := yaml.Unmarshal(content, &yamlContent); err != nil {
-			log.Fatalf("Failed to unmarshal YAML from file %s: %v", file, err)
-		}
-
 		// Create the result map with data and YAML content
 		result := map[string]interface{}{
 			"payload": data,
@@ -42,7 +45,6 @@ func NewAppendFile[T any](file string) flow.MapFunction[T, map[string]interface{
 				fileKey: yamlContent,
 			},
 		}
-
 		return result
 	}
 }
@@ -53,8 +55,8 @@ func NewPureHbs[T any, R any](rule string) flow.MapFunction[T, R] {
 		log.Fatalf("NewRiskPolicy returned error: %v", err)
 	}
 
-	return func(img T) R {
-		buf, err := rp.Evaluate(img)
+	return func(data T) R {
+		buf, err := rp.Evaluate(data)
 		// Create a zero value of R to check its type
 		var r R
 		if err != nil {
