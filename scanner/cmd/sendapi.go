@@ -117,7 +117,7 @@ func ExecuteSendApi(tasksFile, outDir string, logger *zerolog.Logger) {
 		count++
 		assetContext := mq.ContextGenerator()
 		task := model.PharosScanTask2{
-			JobId:          fmt.Sprintf("job-%v-%v", utils.Hostname(), count),
+			JobId:          fmt.Sprintf("job-%v-%v", ioutils.Hostname(), count),
 			Status:         "new",
 			Error:          "",
 			AuthDsn:        auth,
