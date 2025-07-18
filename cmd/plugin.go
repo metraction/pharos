@@ -62,7 +62,7 @@ var testCmd = &cobra.Command{
 				Order: []string{"result"},
 				Sources: []model.EnricherSource{
 					{
-						Name: "result",
+						Name: "results",
 						Path: args[0],
 					},
 				},
