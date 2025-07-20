@@ -1,0 +1,6 @@
+enrichers:
+  order: 
+    - risk
+  sources: 
+    - name: risk
+      path: risk-enricher.yaml
