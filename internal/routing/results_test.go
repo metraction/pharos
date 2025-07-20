@@ -74,7 +74,7 @@ func TestIntegrationScanResultCollectorFlow(t *testing.T) {
 
 	source := extension.NewChanSource(outChan)
 	stream := NewScanResultCollectorFlow(context.Background(), config, source, logger)
-	stream = mappers.NewResultEnricherStream(stream, "result", enricherConfig)
+	stream = stream.Via(mappers.NewHbsEnricherMap("result", enricherConfig))
 
 	result := (<-stream.Out()).(model.PharosScanResult)
 

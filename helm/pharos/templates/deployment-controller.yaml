@@ -35,7 +35,7 @@ spec:
           - name: APP_DATA_PATH
             value: "/pharos"
           {{- with .Values.enrichers }}
-          - name: PHAROS_ENRICHERS_PATH
+          - name: PHAROS_ENRICHERPATH
             value: "/pharos/enrichers/enrichers.yaml"
           {{- end }}
         volumeMounts:

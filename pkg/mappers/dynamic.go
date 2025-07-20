@@ -24,35 +24,6 @@ func LoadMappersConfig(data []byte) (map[string][]model.MapperConfig, error) {
 	return configMap, nil
 }
 
-/*
-Deprecated - use NewHbsEnricherMap
-*/
-func NewResultEnricherStream(stream streams.Source, name string, enricher model.EnricherConfig) streams.Flow {
-	var result streams.Flow
-
-	// In case no enrichers return stream converted to flow
-	if len(enricher.Configs) == 0 {
-		return stream.Via(flow.NewPassThrough())
-	}
-	stream = stream.Via(flow.NewMap(ToWrappedResult, 1))
-	for _, mapper := range enricher.Configs {
-		config := filepath.Join(enricher.BasePath, mapper.Config)
-		switch mapper.Name {
-		case "file":
-			stream = stream.Via(flow.NewMap(Wrap(NewAppendFile(config)), 1))
-		case "hbs":
-			stream = stream.Via(flow.NewMap(Wrap(NewPureHbs[map[string]interface{}, map[string]interface{}](config)), 1))
-		case "starlark":
-			stream = stream.Via(flow.NewMap(Wrap(NewStarlark(config)), 1))
-		case "debug":
-			stream = stream.Via(flow.NewMap(Wrap(NewDebug(config)), 1))
-		}
-		result = stream.(streams.Flow)
-	}
-	result = result.Via(flow.NewMap(ToUnWrappedResult(name), 1))
-	return result
-}
-
 func NewHbsEnricherMap(name string, enricher model.EnricherConfig) streams.Flow {
 	// Create a single functions composition of functions resulting in
 	// WrappedResult and passing it to next function
