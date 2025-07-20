@@ -219,6 +219,9 @@ func (rp *Policy[T]) Evaluate(context any) (*bytes.Buffer, error) {
 	return &buf, nil
 }
 
+/*
+Used to print nicely error output with line numbers
+*/
 func numberOutput(buf *bytes.Buffer) string {
 	lines := strings.Split(buf.String(), "\n")
 	numberedLines := make([]string, len(lines))

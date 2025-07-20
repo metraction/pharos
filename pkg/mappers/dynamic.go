@@ -51,22 +51,6 @@ func LoadMappersConfig(name string, configPath string) ([]model.MapperConfig, er
 	return configs, nil
 }
 
-func NewEnricherStream(stream streams.Source, enricher model.EnricherConfig) streams.Flow {
-	var result streams.Flow
-	for _, mapper := range enricher.Configs {
-		switch mapper.Name {
-		case "file":
-			stream = stream.Via(flow.NewMap(NewAppendFile[map[string]interface{}](filepath.Join(enricher.BasePath, mapper.Config)), 1))
-		case "hbs":
-			stream = stream.Via(flow.NewMap(NewPureHbs[map[string]interface{}, map[string]interface{}](filepath.Join(enricher.BasePath, mapper.Config)), 1))
-		case "debug":
-			stream = stream.Via(flow.NewMap(NewDebug(mapper.Config), 1))
-		}
-		result = stream.(streams.Flow)
-	}
-	return result
-}
-
 func NewResultEnricherStream(stream streams.Source, name string, enricher model.EnricherConfig) streams.Flow {
 	var result streams.Flow
 
