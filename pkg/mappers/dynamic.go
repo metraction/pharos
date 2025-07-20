@@ -51,6 +51,9 @@ func LoadMappersConfig(name string, configPath string) ([]model.MapperConfig, er
 	return configs, nil
 }
 
+/*
+Deprecated - use NewHbsEnricherMap
+*/
 func NewResultEnricherStream(stream streams.Source, name string, enricher model.EnricherConfig) streams.Flow {
 	var result streams.Flow
 
@@ -63,7 +66,7 @@ func NewResultEnricherStream(stream streams.Source, name string, enricher model.
 		config := filepath.Join(enricher.BasePath, mapper.Config)
 		switch mapper.Name {
 		case "file":
-			stream = stream.Via(flow.NewMap(Wrap(NewAppendFile[map[string]interface{}](config)), 1))
+			stream = stream.Via(flow.NewMap(Wrap(NewAppendFile(config)), 1))
 		case "hbs":
 			stream = stream.Via(flow.NewMap(Wrap(NewPureHbs[map[string]interface{}, map[string]interface{}](config)), 1))
 		case "starlark":
@@ -75,4 +78,31 @@ func NewResultEnricherStream(stream streams.Source, name string, enricher model.
 	}
 	result = result.Via(flow.NewMap(ToUnWrappedResult(name), 1))
 	return result
+}
+
+func NewHbsEnricherMap(name string, enricher model.EnricherConfig) streams.Flow {
+	// Create a single functions composition of functions resulting in
+	// WrappedResult and passing it to next function
+	return flow.NewMap(func(scanResult model.PharosScanResult) model.PharosScanResult {
+		// Step 1: Wrap the result
+		wrapped := ToWrappedResult(scanResult)
+
+		// Step 2: Apply all enrichers in sequence
+		for _, mapper := range enricher.Configs {
+			config := filepath.Join(enricher.BasePath, mapper.Config)
+			switch mapper.Name {
+			case "file":
+				wrapped = Wrap(NewAppendFile(config))(wrapped)
+			case "hbs":
+				wrapped = Wrap(NewPureHbs[map[string]interface{}, map[string]interface{}](config))(wrapped)
+			case "starlark":
+				wrapped = Wrap(NewStarlark(config))(wrapped)
+			case "debug":
+				wrapped = Wrap(NewDebug(config))(wrapped)
+			}
+		}
+
+		// Step 3: Unwrap the result
+		return ToUnWrappedResult(name)(wrapped)
+	}, 1)
 }

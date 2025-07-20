@@ -19,7 +19,7 @@ import (
 /*
 Creates appender by reading file on creation moment.
 */
-func NewAppendFile[T any](file string) flow.MapFunction[T, map[string]interface{}] {
+func NewAppendFile(file string) flow.MapFunction[map[string]interface{}, map[string]interface{}] {
 	// Extract the filename without extension and directories
 	baseName := filepath.Base(file)
 	// Remove extension
@@ -37,10 +37,10 @@ func NewAppendFile[T any](file string) flow.MapFunction[T, map[string]interface{
 		log.Fatalf("Failed to unmarshal YAML from file %s: %v", file, err)
 	}
 
-	return func(data T) map[string]interface{} {
+	return func(data map[string]interface{}) map[string]interface{} {
 		// Create the result map with data and YAML content
 		result := map[string]interface{}{
-			"payload": data,
+			"payload": data["payload"],
 			"meta": map[string]interface{}{
 				fileKey: yamlContent,
 			},
@@ -108,8 +108,10 @@ func ToMap(data any) map[string]interface{} {
 
 func ToWrappedResult(result model.PharosScanResult) WrappedResult {
 	return WrappedResult{
-		Result:  result,
-		Context: ToMap(result),
+		Result: result,
+		Context: map[string]interface{}{
+			"payload": ToMap(result),
+		},
 	}
 }
 
