@@ -79,7 +79,7 @@ var testCmd = &cobra.Command{
 		inputChannel <- *testResult
 		close(inputChannel)
 
-		plugin := createEnrichersFlow(extension.NewChanSource(inputChannel), enrichers)
+		plugin := CreateEnrichersFlow(extension.NewChanSource(inputChannel), enrichers)
 
 		result := (<-(plugin.(streams.Flow)).Out()).(model.PharosScanResult)
 
@@ -93,7 +93,7 @@ var testCmd = &cobra.Command{
 	},
 }
 
-func createEnrichersFlow(plugin streams.Source, enrichers *model.EnrichersConfig) streams.Flow {
+func CreateEnrichersFlow(plugin streams.Source, enrichers *model.EnrichersConfig) streams.Flow {
 	for _, source := range enrichers.Sources {
 		// Load the plugin
 		var enricherPath string

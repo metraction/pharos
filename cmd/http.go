@@ -85,13 +85,13 @@ These submissions are then published to a Redis stream for further processing by
 			extension.NewChanSource(taskChannel),
 			logger,
 		)
-		go createEnrichersFlow(collectorFlow, enrichers).
+		go CreateEnrichersFlow(collectorFlow, enrichers).
 			To(db.NewImageDbSink(databaseContext))
 
 		// Create results flow without redis
 		internalFlow := routing.NewScanResultsInternalFlow(extension.NewChanSource(resultChannel))
 
-		go createEnrichersFlow(internalFlow, enrichers).
+		go CreateEnrichersFlow(internalFlow, enrichers).
 			To(db.NewImageDbSink(databaseContext))
 
 		// Add routes for the API
