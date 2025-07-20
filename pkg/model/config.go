@@ -76,7 +76,7 @@ type Database struct {
 
 /*
  */
-type Enrichers struct {
+type EnrichersConfig struct {
 	Order   []string         `mapstructure:"order" yaml:"order" json:"order"`
 	Sources []EnricherSource `mapstructure:"sources" yaml:"sources" json:"sources"`
 }

@@ -14,6 +14,7 @@ import (
 	"github.com/metraction/pharos/internal/integrations/db"
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/internal/routing"
+	"github.com/metraction/pharos/pkg/enricher"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/spf13/cobra"
 )
@@ -62,7 +63,7 @@ These submissions are then published to a Redis stream for further processing by
 
 		enrichersPath := addBasePathToRelative(config, enricherPath)
 		//		enricherConfig := enricher.LoadEnricher(enricherPath, "results")
-		enrichers, err := loadEnrichersFromDirOrFile(enrichersPath)
+		enrichers, err := enricher.LoadEnrichersConfig(enrichersPath)
 		if err != nil {
 			fmt.Printf("Error loading enrichers from %s: %v\n", enrichersPath, err)
 			return

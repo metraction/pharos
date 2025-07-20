@@ -10,7 +10,7 @@ import (
 
 // LoadEnrichersFromFile loads an Enrichers configuration from a YAML file.
 // The YAML file can either contain a direct Enrichers struct or have it nested under an "enrichers" key.
-func LoadEnrichersFromFile(path string) (*Enrichers, error) {
+func LoadEnrichersFromFile(path string) (*EnrichersConfig, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read enrichers file: %w", err)
@@ -37,9 +37,9 @@ func LoadEnrichersFromFile(path string) (*Enrichers, error) {
 
 // loadEnrichersFromBytes unmarshals the given bytes into an Enrichers struct.
 // It handles both direct Enrichers struct and one nested under an "enrichers" key.
-func loadEnrichersFromBytes(data []byte) (*Enrichers, error) {
+func loadEnrichersFromBytes(data []byte) (*EnrichersConfig, error) {
 	// First try to unmarshal directly into Enrichers struct
-	var enrichers Enrichers
+	var enrichers EnrichersConfig
 	err := yaml.Unmarshal(data, &enrichers)
 
 	// If we have valid data (at least one of Order or Sources is non-empty), return it
@@ -49,7 +49,7 @@ func loadEnrichersFromBytes(data []byte) (*Enrichers, error) {
 
 	// If direct unmarshaling fails or results in empty struct, try with wrapper
 	var wrapper struct {
-		Enrichers Enrichers `yaml:"enrichers"`
+		Enrichers EnrichersConfig `yaml:"enrichers"`
 	}
 
 	err = yaml.Unmarshal(data, &wrapper)

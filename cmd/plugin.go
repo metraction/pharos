@@ -46,7 +46,7 @@ var testCmd = &cobra.Command{
 		// Get config from context
 		config := cmd.Context().Value("config").(*model.Config)
 
-		var enrichers *model.Enrichers
+		var enrichers *model.EnrichersConfig
 		var err error
 
 		var enrichersPath string
@@ -57,7 +57,7 @@ var testCmd = &cobra.Command{
 			enrichersPath = args[0]
 		}
 
-		enrichers, err = loadEnrichersFromDirOrFile(enrichersPath)
+		enrichers, err = enricher.LoadEnrichersConfig(enrichersPath)
 		if err != nil {
 			fmt.Printf("Error loading enrichers from %s: %v\n", enrichersPath, err)
 			return
@@ -93,35 +93,7 @@ var testCmd = &cobra.Command{
 	},
 }
 
-func loadEnrichersFromDirOrFile(enrichersPath string) (*model.Enrichers, error) {
-	var enrichers *model.Enrichers
-	var err error
-	// Check if args[0] points to enrichers.yaml file
-	if filepath.Base(enrichersPath) == "enrichers.yaml" {
-		logger.Info().Msgf("Loading Enrichers from file: %s\n", enrichersPath)
-		enrichers, err = model.LoadEnrichersFromFile(enrichersPath)
-		if err != nil {
-			logger.Error().Msgf("Error loading Enrichers from %s: %v\n", enrichersPath, err)
-			return nil, err
-		}
-		logger.Info().Msgf("Successfully loaded Enrichers with %d order items and %d sources\n",
-			len(enrichers.Order), len(enrichers.Sources))
-	} else {
-		logger.Info().Msgf("Loading Enricher from directory: %s\n", enrichersPath)
-		enrichers = &model.Enrichers{
-			Order: []string{"result"},
-			Sources: []model.EnricherSource{
-				{
-					Name: "results",
-					Path: enrichersPath,
-				},
-			},
-		}
-	}
-	return enrichers, nil
-}
-
-func createEnrichersFlow(plugin streams.Source, enrichers *model.Enrichers) streams.Flow {
+func createEnrichersFlow(plugin streams.Source, enrichers *model.EnrichersConfig) streams.Flow {
 	for _, source := range enrichers.Sources {
 		// Load the plugin
 		var enricherPath string
@@ -142,7 +114,7 @@ func createEnrichersFlow(plugin streams.Source, enrichers *model.Enrichers) stre
 		}
 		enricherPath = addBasePathToRelative(config, enricherPath)
 
-		enricherConfig := enricher.LoadEnricher(enricherPath, source.Name)
+		enricherConfig := enricher.LoadEnricherConfig(enricherPath, source.Name)
 		plugin = mappers.NewResultEnricherStream(plugin, source.Name, enricherConfig)
 	}
 	return plugin.(streams.Flow)
@@ -194,7 +166,7 @@ var pluginConfigMapCmd = &cobra.Command{
 
 // createConfigMap generates a Kubernetes ConfigMap from the enrichers configuration
 // It collects all files referenced by the enrichers and includes them in the ConfigMap
-func createConfigMap(enrichers *model.Enrichers, name string) (map[string]interface{}, error) {
+func createConfigMap(enrichers *model.EnrichersConfig, name string) (map[string]interface{}, error) {
 	// Use default name if not provided
 	configMapName := "pharos-enrichers"
 	if name != "" {
@@ -212,15 +184,8 @@ func createConfigMap(enrichers *model.Enrichers, name string) (map[string]interf
 		"data": map[string]string{},
 	}
 
-	// Add enrichers.yaml to the ConfigMap
-	enrichersYaml, err := yaml.Marshal(enrichers)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal enrichers: %w", err)
-	}
-	configMap["data"].(map[string]string)["enrichers.yaml"] = string(enrichersYaml)
-
 	// Process each enricher source to collect files
-	for _, source := range enrichers.Sources {
+	for i, source := range enrichers.Sources {
 		// If it's a Git repo, clone it to a temp directory
 		var enricherPath string
 		if source.Git != "" {
@@ -233,6 +198,8 @@ func createConfigMap(enrichers *model.Enrichers, name string) (map[string]interf
 			if err != nil {
 				return nil, fmt.Errorf("error fetching enricher from Git: %w", err)
 			}
+			enrichers.Sources[i].Path = source.Name + "-enricher.yaml"
+			enrichers.Sources[i].Git = ""
 		} else if source.Path != "" {
 			enricherPath = source.Path
 		} else {
@@ -240,7 +207,7 @@ func createConfigMap(enrichers *model.Enrichers, name string) (map[string]interf
 		}
 
 		// Walk through the enricher directory and add all files to the ConfigMap
-		err = filepath.Walk(enricherPath, func(path string, info os.FileInfo, err error) error {
+		err := filepath.Walk(enricherPath, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
 			}
@@ -280,6 +247,13 @@ func createConfigMap(enrichers *model.Enrichers, name string) (map[string]interf
 			return nil, fmt.Errorf("error processing enricher files: %w", err)
 		}
 	}
+
+	// Add enrichers.yaml to the ConfigMap
+	enrichersYaml, err := yaml.Marshal(enrichers)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal enrichers: %w", err)
+	}
+	configMap["data"].(map[string]string)["enrichers.yaml"] = string(enrichersYaml)
 
 	return configMap, nil
 }
