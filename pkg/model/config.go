@@ -84,7 +84,8 @@ type EnrichersConfig struct {
 type EnricherSource struct {
 	Name string `mapstructure:"name" yaml:"name" json:"name"`
 	Path string `mapstructure:"path" yaml:"path" json:"path"`
-	Git  string `mapstructure:"git" yaml:"git" json:"git"`
+	// Git is a pointer to string to allow it to be nil
+	Git *string `mapstructure:"git" yaml:"git,omitempty" json:"git,omitempty"`
 }
 
 /*

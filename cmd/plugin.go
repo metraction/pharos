@@ -97,14 +97,14 @@ func CreateEnrichersFlow(plugin streams.Source, enrichers *model.EnrichersConfig
 	for _, source := range enrichers.Sources {
 		// Load the plugin
 		var enricherPath string
-		if source.Git != "" {
+		if source.Git != nil {
 			tempDir, err := os.MkdirTemp("", "pharos-enricher-*")
 			if err != nil {
 				logger.Error().Msgf("Error creating temporary directory: %v\n", err)
 				return nil
 			}
 
-			enricherPath, err = enricher.FetchEnricherFromGit(source.Git, tempDir)
+			enricherPath, err = enricher.FetchEnricherFromGit(*source.Git, tempDir)
 			if err != nil {
 				logger.Error().Msgf("Error loading enricher from Git: %v\n", err)
 				return nil
@@ -188,18 +188,18 @@ func createConfigMap(enrichers *model.EnrichersConfig, name string) (map[string]
 	for i, source := range enrichers.Sources {
 		// If it's a Git repo, clone it to a temp directory
 		var enricherPath string
-		if source.Git != "" {
+		if source.Git != nil {
 			tempDir, err := os.MkdirTemp("", "pharos-enricher-*")
 			if err != nil {
 				return nil, fmt.Errorf("error creating temporary directory: %w", err)
 			}
 
-			enricherPath, err = enricher.FetchEnricherFromGit(source.Git, tempDir)
+			enricherPath, err = enricher.FetchEnricherFromGit(*source.Git, tempDir)
 			if err != nil {
 				return nil, fmt.Errorf("error fetching enricher from Git: %w", err)
 			}
 			enrichers.Sources[i].Path = source.Name + "-enricher.yaml"
-			enrichers.Sources[i].Git = ""
+			enrichers.Sources[i].Git = nil
 		} else if source.Path != "" {
 			enricherPath = source.Path
 		} else {
@@ -226,20 +226,38 @@ func createConfigMap(enrichers *model.EnrichersConfig, name string) (map[string]
 				}
 
 				// Use the source name as prefix in the ConfigMap to avoid conflicts
-				configMapKey := filepath.Join(source.Name, relPath)
+				configMapKey := flattenDirectory(source, relPath)
 
+				path := strings.ToLower(path)
 				// Check if the file has an extension that might contain template expressions
-				ext := strings.ToLower(filepath.Ext(path))
+				ext := filepath.Ext(path)
 				if ext == ".hbs" || ext == ".tmpl" || ext == ".tpl" || strings.Contains(string(content), "{{") {
 					// Base64 encode content to avoid Helm template processing
 					encodedContent := base64.StdEncoding.EncodeToString(content)
 					configMap["data"].(map[string]string)[configMapKey] = "{{ b64dec \"" + encodedContent + "\" | nindent 6 }}"
+				} else if strings.ToLower(relPath) == "enricher.yaml" {
+					// Parse the YAML content
+					mapperConfig, err := mappers.LoadMappersConfig(content)
+					if err != nil {
+						return fmt.Errorf("failed to load mappers config: %w", err)
+					}
+					for _, configs := range mapperConfig {
+						for i, _ := range configs {
+							configs[i].Config = flattenDirectory(source, configs[i].Config)
+						}
+					}
+
+					// Marshal the modified config back to YAML
+					modifiedContent, err := yaml.Marshal(mapperConfig)
+					if err != nil {
+						return fmt.Errorf("failed to marshal modified enricher config: %w", err)
+					}
+					configMap["data"].(map[string]string)[configMapKey] = string(modifiedContent)
 				} else {
 					// Store regular content as is
 					configMap["data"].(map[string]string)[configMapKey] = string(content)
 				}
 			}
-
 			return nil
 		})
 
@@ -256,6 +274,10 @@ func createConfigMap(enrichers *model.EnrichersConfig, name string) (map[string]
 	configMap["data"].(map[string]string)["enrichers.yaml"] = string(enrichersYaml)
 
 	return configMap, nil
+}
+
+func flattenDirectory(source model.EnricherSource, path string) string {
+	return source.Name + "-" + path
 }
 
 func init() {

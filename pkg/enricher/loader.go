@@ -2,6 +2,7 @@ package enricher
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -80,13 +81,19 @@ func LoadEnricherConfig(enricherPath string, name string) model.EnricherConfig {
 
 	logger.Debug().Str("path", enricherPath).Msg("Loading Enricher " + name)
 
-	mapperConfig, err := mappers.LoadMappersConfig(name, filepath.Join(enricherDir, enricherFile))
+	// Read the file
+	data, err := os.ReadFile(filepath.Join(enricherDir, enricherFile))
+	if err != nil {
+		logger.Fatal().Err(err).Msg("Failed to read config file")
+	}
+	mapperConfig, err := mappers.LoadMappersConfig(data)
+	configs := mapperConfig[name]
 	if err != nil {
 		logger.Fatal().Err(err).Msg("Failed to load mappers config")
 	}
 	enricherConfig := model.EnricherConfig{
 		BasePath: enricherDir,
-		Configs:  mapperConfig,
+		Configs:  configs,
 	}
 	return enricherConfig
 }
