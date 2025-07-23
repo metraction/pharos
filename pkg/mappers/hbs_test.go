@@ -10,6 +10,7 @@ import (
 	"sort"
 	"testing"
 
+	"github.com/metraction/pharos/pkg/model"
 	"github.com/reugn/go-streams/extension"
 	"github.com/reugn/go-streams/flow"
 	"gopkg.in/yaml.v3"
@@ -223,6 +224,51 @@ func TestStream(t *testing.T) {
 	t.Logf("Risk: %d, Reason: %s", risk.Spec.Risk, risk.Spec.Reason)
 }
 
+func TestSingleHbs(t *testing.T) {
+	type args struct {
+		scriptPath string
+		inputItem  model.PharosScanResult
+	}
+
+	tests := []struct {
+		name string
+		args args
+		want map[string]interface{}
+	}{
+		{
+			name: "Evaluate risk",
+			args: args{
+				scriptPath: "../../testdata/enrichers-flat/risk_v1.hbs",
+				inputItem:  model.NewTestScanResult(model.NewTestScanTask(t, "test-1", "test-image-1"), "test-engine-1"),
+			},
+			want: map[string]interface{}{
+				"vulnerabilities": []interface{}{"CVE-2023-44487"},
+				"risk":            1,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			scanResult := model.NewTestScanResult(model.NewTestScanTask(t, "test-1", "test-image-1"), "test-engine-1")
+			outChan := make(chan any, 1)
+			outChan <- map[string]interface{}{
+				"payload": ToMap(scanResult),
+			}
+			close(outChan)
+
+			mapper := extension.NewChanSource(outChan).
+				Via(flow.NewMap(NewPureHbs[map[string]interface{}, map[string]interface{}](tt.args.scriptPath), 1))
+			result := <-mapper.Out()
+			got := result.(map[string]interface{})
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Expected result to be %v, got %v", tt.want, got)
+			}
+		})
+	}
+
+}
+
 func TestAppendFile(t *testing.T) {
 	img := Image{
 		Vulnerabilities: []Vulnerability{
@@ -236,7 +282,9 @@ func TestAppendFile(t *testing.T) {
 
 	outChan := make(chan any)
 	go func() {
-		outChan <- img
+		outChan <- map[string]interface{}{
+			"payload": ToMap(img),
+		}
 		close(outChan)
 	}()
 
@@ -245,9 +293,13 @@ func TestAppendFile(t *testing.T) {
 	templatePath := filepath.Join("..", "..", "testdata", "enrichers", "risk", "eos_v1.hbs")
 
 	mapper := extension.NewChanSource(outChan).
-		Via(flow.NewMap(NewAppendFile[Image](eosYamlPath), 1)).
+		Via(flow.NewMap(NewAppendFile(eosYamlPath), 1)).
+		//Via(flow.NewMap(NewDebug("eos"), 1)).
 		Via(flow.NewMap(NewPureHbs[map[string]interface{}, map[string]interface{}](templatePath), 1))
+
 	result := (<-mapper.Out()).(map[string]interface{})
+
+	t.Logf("Result keys: %v", getMapKeys(result))
 
 	// Assert that the result contains the expected structure
 	spec, ok := result["spec"].(map[string]interface{})

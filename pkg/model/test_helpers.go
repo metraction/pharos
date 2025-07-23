@@ -38,8 +38,13 @@ func NewTestScanResult(task PharosScanTask2, engineName string) PharosScanResult
 				},
 			},
 		},
-		Findings:        []PharosScanFinding{},
-		Vulnerabilities: []PharosVulnerability{},
-		Packages:        []PharosPackage{},
+		Findings: []PharosScanFinding{},
+		Vulnerabilities: []PharosVulnerability{
+			{
+				AdvId:    "CVE-2023-44487",
+				Severity: "High",
+			},
+		},
+		Packages: []PharosPackage{},
 	}
 }

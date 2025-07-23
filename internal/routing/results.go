@@ -4,7 +4,6 @@ import (
 	"context"
 
 	pharosstreams "github.com/metraction/pharos/internal/integrations/streams"
-	"github.com/metraction/pharos/pkg/mappers"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/reugn/go-streams"
 	"github.com/reugn/go-streams/flow"
@@ -14,7 +13,6 @@ import (
 func NewScanResultCollectorFlow(
 	ctx context.Context,
 	config *model.Config,
-	enricher model.EnricherConfig,
 	source streams.Source,
 	log *zerolog.Logger) streams.Flow {
 	pharosScanTaskHandler := pharosstreams.NewPharosScanTaskHandler()
@@ -24,18 +22,13 @@ func NewScanResultCollectorFlow(
 		Via(flow.NewFilter(pharosScanTaskHandler.FilterFailedTasks, 1)).
 		Via(flow.NewMap(pharosScanTaskHandler.UpdateScanTime, 1)).
 		Via(flow.NewMap(pharosScanTaskHandler.NotifyReceiver, 1))
-
-	return NewScanResultsInternalFlow(redisFlow, enricher)
-
+	return NewScanResultsInternalFlow(redisFlow)
 }
 
-func NewScanResultsInternalFlow(source streams.Source, enricher model.EnricherConfig) streams.Flow {
+func NewScanResultsInternalFlow(source streams.Source) streams.Flow {
 	pharosScanTaskHandler := pharosstreams.NewPharosScanTaskHandler()
 	contextFlow := source.
 		Via(flow.NewFilter(pharosScanTaskHandler.FilterFailedTasks, 1)).
 		Via(flow.NewMap(pharosScanTaskHandler.CreateRootContext, 1))
-	// TODO: Remove deprecated enricher
-	stream := mappers.NewResultEnricherStream(contextFlow, "results-deprecated", enricher)
-
-	return stream
+	return contextFlow
 }

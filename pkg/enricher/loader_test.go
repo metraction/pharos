@@ -1,6 +1,8 @@
 package enricher
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -139,5 +141,40 @@ func TestParseGitURL(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestLoadRiskEnricher(t *testing.T) {
+	// Path to the risk-enricher.yaml file
+	enricherPath := filepath.Join("..", "..", "testdata", "enrichers-flat", "risk-enricher.yaml")
+
+	// Load the enricher configuration
+	enricherConfig := LoadEnricherConfig(enricherPath, "risk")
+
+	// Verify the base path is set correctly
+	expectedBasePath := filepath.Dir(enricherPath)
+	if enricherConfig.BasePath != expectedBasePath {
+		t.Errorf("Expected BasePath to be %s, got %s", expectedBasePath, enricherConfig.BasePath)
+	}
+
+	// Verify the configs are loaded correctly
+	if len(enricherConfig.Configs) != 1 {
+		t.Errorf("Expected 1 config, got %d", len(enricherConfig.Configs))
+	}
+
+	// Verify the config name and content
+	if enricherConfig.Configs[0].Name != "hbs" {
+		t.Errorf("Expected config name to be 'hbs', got '%s'", enricherConfig.Configs[0].Name)
+	}
+
+	// Verify the config file reference
+	if enricherConfig.Configs[0].Config != "risk_v1.hbs" {
+		t.Errorf("Expected config file to be 'risk_v1.hbs', got '%s'", enricherConfig.Configs[0].Config)
+	}
+
+	// Verify the config file exists
+	configFilePath := filepath.Join(enricherConfig.BasePath, enricherConfig.Configs[0].Config)
+	if _, err := os.Stat(configFilePath); os.IsNotExist(err) {
+		t.Errorf("Config file %s does not exist", configFilePath)
 	}
 }

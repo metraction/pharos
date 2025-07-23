@@ -3,7 +3,6 @@
 package streams
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/metraction/pharos/internal/logging"
@@ -40,7 +39,7 @@ func (ph *PharosScanTaskHandler) UpdateScanTime(item model.PharosScanResult) mod
 func (ph *PharosScanTaskHandler) CreateRootContext(item model.PharosScanResult) model.PharosScanResult {
 	contextRoot := item.GetContextRoot("pharos-controller", time.Minute*30) // TODO: Need to make this configurable
 	item.Image.ContextRoots = []model.ContextRoot{contextRoot}
-	fmt.Println("Creating root context for image", item.Image.ContextRoots)
+	ph.Logger.Info().Interface("ContextRoots", item.Image.ContextRoots).Msg("Creating root context for image")
 
 	return item
 }

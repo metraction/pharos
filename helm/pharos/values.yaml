@@ -112,22 +112,17 @@ prometheus:
 
 # -- Enrichers configuration
 enrichers:
-  order: 
-    - eos
-  sources: 
-    - name: eos 
-      # path: eos # If not specified uses name as directory location
-      # git: https://github.com/metraction/pharos-plugins/tree/main/eos # Takes precedence over path
-    - name: owner
-      # path: owner # If not specified uses name as directory location
-      # git: https://github.com/metraction/pharos-plugins/tree/main/owner # Takes precedence over path
-  hbs: 
-    eos_v1.hbs: |
-      distro: {{ .payload.Image.DistroName }}
-      version: {{ .payload.Image.DistroVersion }}
-      eos: {{ index .meta.eos .payload.Image.DistroName | filter "version" "matchWildcard" .payload.Image.DistroVersion | map "field" "eos" | first }}
-  files:
-    eos.yaml: files/eos.yaml
+  configMap: pharos-enrichers
+  config: enrichers/enricher.yaml
+  # If config is not specified allows to create configMap from hbs and files
+  mappers: 
+    hbs: 
+      eos_v1.hbs: |
+        distro: {{ .payload.Image.DistroName }}
+        version: {{ .payload.Image.DistroVersion }}
+        eos: {{ index .meta.eos .payload.Image.DistroName | filter "version" "matchWildcard" .payload.Image.DistroVersion | map "field" "eos" | first }}
+    files:
+      eos.yaml: files/eos.yaml
 
 caCertificates:
   # -- Enable CA certificates configMap

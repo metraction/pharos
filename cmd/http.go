@@ -3,6 +3,8 @@ package cmd
 import (
 	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
@@ -18,6 +20,7 @@ import (
 )
 
 var httpPort int
+var logger = logging.NewLogger("info", "component", "cmd.http")
 
 // httpCmd represents the http command
 var httpCmd = &cobra.Command{
@@ -26,7 +29,6 @@ var httpCmd = &cobra.Command{
 	Long: `Starts an HTTP server that listens for Docker image submissions (name and SHA) via a POST request.
 These submissions are then published to a Redis stream for further processing by the scanner.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		logger := logging.NewLogger("info", "component", "cmd.http")
 		configValue := cmd.Context().Value("config")
 		if configValue == nil {
 			logger.Fatal().Msg("Configuration not found in context. Ensure rootCmd PersistentPreRun is setting it.")
@@ -51,8 +53,25 @@ These submissions are then published to a Redis stream for further processing by
 
 		api.UseMiddleware(databaseContext.DatabaseMiddleware())
 
-		enricherPath := addBasePathToRelative(config, config.EnricherPath)
-		enricherConfig := enricher.LoadEnricher(enricherPath, "results")
+		// TODO other commands expect current path, but for http default file are in kodata...
+		enricherPath := config.EnricherPath
+		koDataPath := os.Getenv("KO_DATA_PATH")
+		if koDataPath == "" && !filepath.IsAbs(enricherPath) {
+			// So append kodada if command is executed with go run .
+			enricherPath = filepath.Join("kodata", enricherPath)
+		}
+
+		enrichersPath := addBasePathToRelative(config, enricherPath)
+		//		enricherConfig := enricher.LoadEnricher(enricherPath, "results")
+		enrichers, err := enricher.LoadEnrichersConfig(enrichersPath)
+		if err != nil {
+			fmt.Printf("Error loading enrichers from %s: %v\n", enrichersPath, err)
+			return
+		}
+		if len(enrichers.Sources) == 0 {
+			fmt.Println("No sources found")
+			return
+		}
 
 		// For scan tasks
 		taskChannel := make(chan any, config.Publisher.QueueSize)
@@ -60,18 +79,19 @@ These submissions are then published to a Redis stream for further processing by
 		resultChannel := make(chan any, config.ResultCollector.QueueSize)
 
 		// Results processing stream reading from redis
-		go routing.NewScanResultCollectorFlow(
+		collectorFlow := routing.NewScanResultCollectorFlow(
 			cmd.Context(),
 			config,
-			enricherConfig,
 			extension.NewChanSource(taskChannel),
 			logger,
-		).
-			//Via(flow.NewMap(routing.NewNotifier(), 1)).
+		)
+		go CreateEnrichersFlow(collectorFlow, enrichers).
 			To(db.NewImageDbSink(databaseContext))
 
 		// Create results flow without redis
-		go routing.NewScanResultsInternalFlow(extension.NewChanSource(resultChannel), enricherConfig).
+		internalFlow := routing.NewScanResultsInternalFlow(extension.NewChanSource(resultChannel))
+
+		go CreateEnrichersFlow(internalFlow, enrichers).
 			To(db.NewImageDbSink(databaseContext))
 
 		// Add routes for the API

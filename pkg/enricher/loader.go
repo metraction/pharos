@@ -2,6 +2,7 @@ package enricher
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -15,6 +16,34 @@ import (
 )
 
 var logger = logging.NewLogger("info", "component", "plugin")
+
+func LoadEnrichersConfig(enrichersPath string) (*model.EnrichersConfig, error) {
+	var enrichers *model.EnrichersConfig
+	var err error
+	// Check if args[0] points to enrichers.yaml file
+	if filepath.Base(enrichersPath) == "enrichers.yaml" {
+		logger.Info().Msgf("Loading Enrichers from file: %s\n", enrichersPath)
+		enrichers, err = model.LoadEnrichersFromFile(enrichersPath)
+		if err != nil {
+			logger.Error().Msgf("Error loading Enrichers from %s: %v\n", enrichersPath, err)
+			return nil, err
+		}
+		logger.Info().Msgf("Successfully loaded Enrichers with %d order items and %d sources\n",
+			len(enrichers.Order), len(enrichers.Sources))
+	} else {
+		logger.Info().Msgf("Loading Enricher from directory: %s\n", enrichersPath)
+		enrichers = &model.EnrichersConfig{
+			Order: []string{"result"},
+			Sources: []model.EnricherSource{
+				{
+					Name: "results",
+					Path: enrichersPath,
+				},
+			},
+		}
+	}
+	return enrichers, nil
+}
 
 func FetchEnricherFromGit(enricherUri string, destinationDir string) (enricherDir string, err error) {
 	// Check if enricherPath is a Git repository URL
@@ -40,16 +69,31 @@ func FetchEnricherFromGit(enricherUri string, destinationDir string) (enricherDi
 	return enricherDir, nil
 }
 
-func LoadEnricher(enricherPath string, name string) model.EnricherConfig {
+func LoadEnricherConfig(enricherPath string, name string) model.EnricherConfig {
+	var enricherDir, enricherFile string
+	if filepath.Ext(enricherPath) == ".yaml" {
+		enricherDir = filepath.Dir(enricherPath)
+		enricherFile = filepath.Base(enricherPath)
+	} else {
+		enricherDir = enricherPath
+		enricherFile = "enricher.yaml"
+	}
+
 	logger.Debug().Str("path", enricherPath).Msg("Loading Enricher " + name)
 
-	mapperConfig, err := mappers.LoadMappersConfig(name, filepath.Join(enricherPath, "enricher.yaml"))
+	// Read the file
+	data, err := os.ReadFile(filepath.Join(enricherDir, enricherFile))
 	if err != nil {
-		logger.Fatal().Err(err).Str("path", enricherPath).Msg("Failed to load mappers config")
+		logger.Fatal().Err(err).Msg("Failed to read config file")
+	}
+	mapperConfig, err := mappers.LoadMappersConfig(data)
+	configs := mapperConfig[name]
+	if err != nil {
+		logger.Fatal().Err(err).Msg("Failed to load mappers config")
 	}
 	enricherConfig := model.EnricherConfig{
-		BasePath: enricherPath,
-		Configs:  mapperConfig,
+		BasePath: enricherDir,
+		Configs:  configs,
 	}
 	return enricherConfig
 }

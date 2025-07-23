@@ -116,17 +116,17 @@ var filterOperators = map[string]func(item interface{}, fieldName string, criter
 			regexPattern := strings.ReplaceAll(pattern, ".", "\\.")
 			regexPattern = strings.ReplaceAll(regexPattern, "%", ".*")
 			regexPattern = "^" + regexPattern + "$"
-			
+
 			// Compile regex
 			reg, err := regexp.Compile(regexPattern)
 			if err != nil {
 				return false
 			}
-			
+
 			// Match criteria against pattern
 			return reg.MatchString(criteria)
 		}
-		
+
 		// No wildcard, use exact match
 		return pattern == criteria
 	},
@@ -172,6 +172,10 @@ func sum(nums []interface{}) int {
 	return total
 }
 
+func count(nums []interface{}) int {
+	return len(nums)
+}
+
 func toYaml(v interface{}) (string, error) {
 	out, err := yaml.Marshal(v)
 	if err != nil {
@@ -191,6 +195,7 @@ func NewPolicy[T any](templatePath string) (*Policy[T], error) {
 	funcMap := sprig.FuncMap()
 	// Add our custom functions
 	funcMap["sum"] = sum
+	funcMap["count"] = count
 	funcMap["map"] = mapOperator
 	funcMap["filter"] = filterOperator
 	funcMap["toYaml"] = toYaml
@@ -214,6 +219,9 @@ func (rp *Policy[T]) Evaluate(context any) (*bytes.Buffer, error) {
 	return &buf, nil
 }
 
+/*
+Used to print nicely error output with line numbers
+*/
 func numberOutput(buf *bytes.Buffer) string {
 	lines := strings.Split(buf.String(), "\n")
 	numberedLines := make([]string, len(lines))

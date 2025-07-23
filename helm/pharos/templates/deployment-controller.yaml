@@ -34,6 +34,10 @@ spec:
                 key: dsn
           - name: APP_DATA_PATH
             value: "/pharos"
+          {{- with .Values.enrichers }}
+          - name: PHAROS_ENRICHERPATH
+            value: "/pharos/enrichers/enrichers.yaml"
+          {{- end }}
         volumeMounts:
           - name: config-volume
             mountPath: /config/.pharos.yaml
@@ -46,4 +50,4 @@ spec:
             name: pharos-config
         - name: enrichers-volume
           configMap:
-            name: pharos-enrichers
+            name: {{ .Values.enrichers.configMap }}

@@ -1,76 +1,21 @@
 package mappers
 
 import (
-	"fmt"
 	"path/filepath"
 	"reflect"
-	"strings"
 	"testing"
 
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/reugn/go-streams/extension"
-	"github.com/reugn/go-streams/flow"
 )
-
-func TestDynamicStream(t *testing.T) {
-	enricher := model.EnricherConfig{
-		BasePath: filepath.Join("..", "..", "testdata", "enrichers", "risk"),
-		Configs: []model.MapperConfig{
-			{Name: "file", Config: "eos.yaml"},
-			{Name: "hbs", Config: "eos_v1.hbs"},
-			//	{Name: "debug", Config: ""},
-		},
-	}
-
-	img := Image{
-		Vulnerabilities: []Vulnerability{
-			{L1: 5},
-			{L1: 7},
-		},
-		Namespace: "portal",
-		Distro:    "alpine",
-		Version:   "3.16",
-	}
-
-	outChan := make(chan any)
-	go func() {
-		outChan <- img
-		close(outChan)
-	}()
-	source := extension.NewChanSource(outChan).
-		Via(flow.NewMap(ToMap, 1))
-
-	stream := NewEnricherStream(source, enricher)
-	result := (<-stream.Out()).((map[string]interface{}))
-
-	// Assert that the result contains the expected structure
-	spec, ok := result["spec"].(map[string]interface{})
-	if !ok {
-		t.Fatalf("Expected result to contain 'spec' as map[string]interface{}, got %T", result["spec"])
-	}
-
-	// Assert that spec contains the eos field
-	eos, ok := spec["eos"]
-	if !ok {
-		t.Fatalf("Expected spec to contain 'eos' field, got keys: %v", getMapKeys(spec))
-	}
-
-	// Check if eos contains the expected date
-	eosStr := fmt.Sprintf("%v", eos)
-
-	// Check if the date string contains the expected date format
-	if !strings.Contains(eosStr, "2024-05-23") {
-		t.Errorf("Expected eos to contain '2024-05-23', got '%s'", eosStr)
-	}
-}
 
 func TestDynamicWrapperStream(t *testing.T) {
 	enricher := model.EnricherConfig{
 		BasePath: filepath.Join("..", "..", "testdata", "enrichers"),
 		Configs: []model.MapperConfig{
 			{Name: "file", Config: "eos/eos.yaml"},
+			// {Name: "debug", Config: ""},
 			{Name: "hbs", Config: "pass_through.hbs"},
-			//	{Name: "debug", Config: ""},
 		},
 	}
 
@@ -80,7 +25,8 @@ func TestDynamicWrapperStream(t *testing.T) {
 	close(outChan)
 
 	source := extension.NewChanSource(outChan)
-	stream := NewResultEnricherStream(source, "eos-passthrough", enricher)
+	//stream := NewResultEnricherStream(source, "eos-passthrough", enricher)
+	stream := source.Via(NewHbsEnricherMap("eos-passthrough", enricher))
 	result := (<-stream.Out()).(model.PharosScanResult)
 
 	// Assert that the result contains the same scan result that was passed in

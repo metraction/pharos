@@ -1,0 +1,3 @@
+risk:
+- name: hbs
+  config: risk_v1.hbs
