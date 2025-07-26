@@ -4,6 +4,7 @@ on:
     branches: 
     - main
     - '103-*'
+    - 'PH-120/*'
     tags:
     - 'v*'
   pull_request:
