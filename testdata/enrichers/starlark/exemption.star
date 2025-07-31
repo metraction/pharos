@@ -1,7 +1,8 @@
 #!/usr/bin/env star
 
 # Function to check if an image is exempted
-def enrich(data):
+def enrich(input):
+    data = input.payload
     if matches("corda.*", data.Image.ImageSpec):
         return { 
             "image": data.Image.ImageSpec,
