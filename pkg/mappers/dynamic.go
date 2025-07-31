@@ -34,7 +34,6 @@ func NewEnricherMap(name string, enricher model.EnricherConfig) streams.Flow {
 		// Step 2: Apply all enrichers in sequence
 		for _, mapper := range enricher.Configs {
 			config := filepath.Join(enricher.BasePath, mapper.Config)
-			fmt.Println(config, mapper.Name)
 			switch mapper.Name {
 			case "file":
 				wrapped = Wrap(NewAppendFile(config))(wrapped)

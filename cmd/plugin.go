@@ -113,10 +113,7 @@ func CreateEnrichersFlow(plugin streams.Source, enrichers *model.EnrichersConfig
 			enricherPath = source.Path
 		}
 		enricherPath = addBasePathToRelative(config, enricherPath)
-
 		enricherConfig := enricher.LoadEnricherConfig(enricherPath, source.Name)
-		fmt.Println("Creating enricher", enricherConfig)
-
 		plugin = plugin.Via(mappers.NewEnricherMap(source.Name, enricherConfig))
 	}
 	return plugin.(streams.Flow)
