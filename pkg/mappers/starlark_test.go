@@ -47,7 +47,9 @@ func TestStarlark(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Convert input to map and run the mapper
-			inputMap := ToMap(tt.args.inputItem)
+			inputMap := map[string]interface{}{
+				"payload": ToMap(tt.args.inputItem),
+			}
 			result := NewStarlark(tt.args.scriptPath)(inputMap)
 
 			if result["exempted"] != tt.want.exempted {

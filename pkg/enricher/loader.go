@@ -79,7 +79,7 @@ func LoadEnricherConfig(enricherPath string, name string) model.EnricherConfig {
 		enricherFile = "enricher.yaml"
 	}
 
-	logger.Debug().Str("path", enricherPath).Msg("Loading Enricher " + name)
+	logger.Debug().Str("path", enricherDir).Str("file", enricherFile).Msg("Loading Enricher " + name)
 
 	// Read the file
 	data, err := os.ReadFile(filepath.Join(enricherDir, enricherFile))
@@ -95,6 +95,7 @@ func LoadEnricherConfig(enricherPath string, name string) model.EnricherConfig {
 		BasePath: enricherDir,
 		Configs:  configs,
 	}
+	fmt.Println("Enricher config", enricherConfig)
 	return enricherConfig
 }
 

@@ -24,7 +24,7 @@ func LoadMappersConfig(data []byte) (map[string][]model.MapperConfig, error) {
 	return configMap, nil
 }
 
-func NewHbsEnricherMap(name string, enricher model.EnricherConfig) streams.Flow {
+func NewEnricherMap(name string, enricher model.EnricherConfig) streams.Flow {
 	// Create a single functions composition of functions resulting in
 	// WrappedResult and passing it to next function
 	return flow.NewMap(func(scanResult model.PharosScanResult) model.PharosScanResult {
