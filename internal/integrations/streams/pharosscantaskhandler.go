@@ -28,7 +28,7 @@ func NewPharosScanTaskHandler() *PharosScanTaskHandler {
 		logger.Warn().Msg("Failed to register pharos_scantask_status status metric duplicate registration?")
 	}
 	scanTaskProcessed := prometheus.NewCounterVec(prometheus.CounterOpts{
-		Name: "pharos_scantask_processed",
+		Name: "pharos_scantask_processed_count",
 		Help: "Number of Pharos scan tasks processed",
 	}, []string{"status"})
 	err = prometheus.Register(scanTaskProcessed)
