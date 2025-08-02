@@ -5,6 +5,7 @@ on:
     - main
     - '103-*'
     - 'PH-120/*'
+    - '95-*'
     tags:
     - 'v*'
   pull_request:

@@ -25,7 +25,7 @@ type PharosScanTask2 struct {
 
 	// scanner
 	CacheTTL time.Duration `json:"cachettl" yaml:"cachettl" required:"false" default:"86400000000000" doc:"how long to cache sbom in scanner (nanoseconds)"` // cache expiry in sec
-	ScanTTL  time.Duration `json:"scanttl" yaml:"scanttl" required:"false" default:"300000000000" doc:"how long to scan result in scanner (nanoseconds)"`  // cache expiry in sec
+	ScanTTL  time.Duration `json:"scanttl" yaml:"scanttl" required:"false" default:"300000000000" doc:"how long to scan result in scanner (nanoseconds)"`    // cache expiry in sec
 
 	Created  time.Time              `json:"created" yaml:"created" required:"false"`
 	Updated  time.Time              `json:"updated" yaml:"updated" required:"false"`
@@ -45,20 +45,6 @@ func (rx *PharosScanTask2) SetError(err error) *PharosScanTask2 {
 	rx.Status = "error"
 	rx.Error = err.Error()
 	return rx
-}
-
-// legacy
-type XXPharosScanTask struct {
-	JobId      string          `json:"jobId" required:"false"` // jobid for batch jobs tracking
-	Auth       PharosRepoAuth  `json:"auth" required:"false"`
-	ImageSpec  PharosImageSpec `json:"imageSpec" required:"true"`
-	Timeout    time.Duration   `json:"timeout" required:"false"` // scan timeout in sec
-	Created    time.Time       `json:"created" required:"false"`
-	Updated    time.Time       `json:"updated" required:"false"`
-	SbomEngine string          `json:"sbomEngine" required:"false"` // SBOM generator tool
-	ScanEngine string          `json:"scanEngine" required:"false"` // Scan generator tool
-	Status     string          `json:"status" required:"false"`
-	Error      string          `json:"error" required:"false"`
 }
 
 type PharosImageSpec struct {

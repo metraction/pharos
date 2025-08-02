@@ -13,9 +13,11 @@ import (
 	"github.com/metraction/pharos/internal/controllers"
 	"github.com/metraction/pharos/internal/integrations/db"
 	"github.com/metraction/pharos/internal/logging"
+	"github.com/metraction/pharos/internal/metriccollectors"
 	"github.com/metraction/pharos/internal/routing"
 	"github.com/metraction/pharos/pkg/enricher"
 	"github.com/metraction/pharos/pkg/model"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/spf13/cobra"
 )
 
@@ -48,6 +50,7 @@ These submissions are then published to a Redis stream for further processing by
 		}
 		apiConfig.OpenAPIPath = "/openapi"
 		api := humago.NewWithPrefix(router, "/api", apiConfig)
+
 		metricsController := controllers.NewMetricsController(&api, config)
 		api.UseMiddleware(metricsController.MetricsMiddleware())
 
@@ -100,7 +103,12 @@ These submissions are then published to a Redis stream for further processing by
 		metricsController.AddRoutes()
 		// Add go streams routes
 		go routing.NewImageCleanupFlow(databaseContext, config)
-
+		// Register collectors for metrics
+		prometheus.MustRegister(
+			metriccollectors.NewChannelCollector().
+				WithChannel("task_channel", taskChannel).
+				WithChannel("result_channel", resultChannel),
+		)
 		router.HandleFunc("/api/swagger", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/html")
 			w.Write([]byte(`<!DOCTYPE html>

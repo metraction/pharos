@@ -19,6 +19,7 @@ func NewScanResultCollectorFlow(
 
 	redisFlow := source.
 		Via(NewScannerFlow(ctx, config)).
+		Via(flow.NewMap(pharosScanTaskHandler.UpdateScanTaskMetrics, 1)).
 		Via(flow.NewFilter(pharosScanTaskHandler.FilterFailedTasks, 1)).
 		Via(flow.NewMap(pharosScanTaskHandler.UpdateScanTime, 1)).
 		Via(flow.NewMap(pharosScanTaskHandler.NotifyReceiver, 1))
@@ -28,6 +29,7 @@ func NewScanResultCollectorFlow(
 func NewScanResultsInternalFlow(source streams.Source) streams.Flow {
 	pharosScanTaskHandler := pharosstreams.NewPharosScanTaskHandler()
 	contextFlow := source.
+		Via(flow.NewMap(pharosScanTaskHandler.UpdateScanTaskMetrics, 1)).
 		Via(flow.NewFilter(pharosScanTaskHandler.FilterFailedTasks, 1)).
 		Via(flow.NewMap(pharosScanTaskHandler.CreateRootContext, 1))
 	return contextFlow
