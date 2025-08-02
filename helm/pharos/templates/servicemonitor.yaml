@@ -10,11 +10,11 @@ spec:
       relabelings:
         - targetLabel: type
           replacement: default
-    # - path: /api/metrics/contexts # TODO: here we can filter by context later if implemented in controller
-    #   port: http
-    #   relabelings:
-    #     - targetLabel: type
-    #       replacement: contexts
+    - path: /api/metrics/contexts # TODO: here we can filter by context later if implemented in controller
+      port: http
+      relabelings:
+        - targetLabel: type
+          replacement: contexts
     - path: /api/metrics/vulnerabilities
       port: http
       relabelings:

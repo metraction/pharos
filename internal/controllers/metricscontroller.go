@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
@@ -119,7 +120,7 @@ func (mc *MetricsController) VulnerbilityMetrics() (huma.Operation, func(ctx con
 			},
 		}, func(ctx context.Context, input *struct{}) (*struct{ Body string }, error) {
 			timer := prometheus.NewTimer(prometheus.ObserverFunc(func(v float64) {
-				mc.Logger.Info().Str("Handler", "VulnerbilityMetrcs").Float64("duration_seconds", v).Msg("Metrics handler duration")
+				mc.Logger.Info().Str("Handler", "VulnerbilityMetrics").Float64("duration_seconds", v).Msg("Metrics handler duration")
 			}))
 			defer timer.ObserveDuration()
 			registry, vulnerabilites, err := mc.NewVulnerabilityRegistry()
@@ -176,8 +177,8 @@ func (mc *MetricsController) ContextMetrics() (huma.Operation, func(ctx context.
 			OperationID: "GetContextMetrics",
 			Method:      "GET",
 			Path:        mc.Path + "/contexts",
-			Summary:     "Gets context metrics",
-			Description: "Gets context metrics",
+			Summary:     "Gets Context metrics",
+			Description: "Gets Context metrics",
 			Tags:        []string{"Metrics"},
 			Responses: map[string]*huma.Response{
 				"200": {
@@ -227,7 +228,12 @@ func (mc *MetricsController) ContextMetrics() (huma.Operation, func(ctx context.
 						mc.contextLabels["platform"] = fullImage.ArchOS + "/" + fullImage.ArchName
 						for _, context := range contextRoot.Contexts {
 							for label, value := range context.Data {
-								mc.contextLabels[label] = fmt.Sprintf("%v", value)
+								switch v := value.(type) {
+								case string, int, int32, int64, float32, float64, bool, time.Time, time.Duration:
+									mc.contextLabels[label] = fmt.Sprintf("%v", v)
+								default:
+									mc.contextLabels[label] = "UNSUPPORTED_TYPE"
+								}
 							}
 						}
 						contexts.With(mc.contextLabels).Set(1)
@@ -246,8 +252,8 @@ func (mc *MetricsController) DefaultMetrics() (huma.Operation, func(ctx context.
 			OperationID: "GetMetrics",
 			Method:      "GET",
 			Path:        mc.Path,
-			Summary:     "Gets default metrics",
-			Description: "Gets default metrics",
+			Summary:     "Gets Default metrics",
+			Description: "Gets Default metrics",
 			Tags:        []string{"Metrics"},
 			Responses: map[string]*huma.Response{
 				"200": {
@@ -262,7 +268,7 @@ func (mc *MetricsController) DefaultMetrics() (huma.Operation, func(ctx context.
 			},
 		}, func(ctx context.Context, input *struct{}) (*struct{ Body string }, error) {
 			timer := prometheus.NewTimer(prometheus.ObserverFunc(func(v float64) {
-				mc.Logger.Info().Str("Handler", "ContextMetrics").Float64("duration_seconds", v).Msg("Metrics handler duration")
+				mc.Logger.Info().Str("Handler", "DefaultMetrics").Float64("duration_seconds", v).Msg("Metrics handler duration")
 			}))
 			defer timer.ObserveDuration()
 			writer := ctx.Value("writer").(http.ResponseWriter)
