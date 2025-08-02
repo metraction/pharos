@@ -23,7 +23,7 @@ func NewChannelCollector() *ChannelCollector {
 		Channels: make(map[string]chan any),
 		QueueLength: prometheus.NewDesc(
 			"pharos_queue_length",
-			"Number of tasks queued",
+			"Size of queue for each channel",
 			[]string{"queue_name"}, nil,
 		)}
 }
