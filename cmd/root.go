@@ -153,7 +153,7 @@ func init() {
 	rootCmd.PersistentFlags().String("publisher.responseQueue", "scanresult", "Redis stream for async responses")
 	rootCmd.PersistentFlags().String("publisher.priorityResponseQueue", "priorityScanresult", "Redis stream for sync responses")
 	rootCmd.PersistentFlags().String("publisher.timeout", "300s", "Publisher timeout")
-	rootCmd.PersistentFlags().Int("publisher.queueSize", 100, "Publisher queue size")
+	rootCmd.PersistentFlags().Int("publisher.queueSize", 1000, "Publisher queue size")
 
 	rootCmd.PersistentFlags().String("collector.queueName", "scanresult", "Redis stream for async responses")
 	rootCmd.PersistentFlags().String("collector.groupName", "collector", "Redis stream for async responses")

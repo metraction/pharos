@@ -51,8 +51,11 @@ These submissions are then published to a Redis stream for further processing by
 		}
 		apiConfig.OpenAPIPath = "/openapi"
 		api := humago.NewWithPrefix(router, "/api", apiConfig)
-
-		metricsController := controllers.NewMetricsController(&api, config)
+		// For scan tasks
+		taskChannel := make(chan any, config.Publisher.QueueSize)
+		// For scanning bypass
+		resultChannel := make(chan any, config.ResultCollector.QueueSize)
+		metricsController := controllers.NewMetricsController(&api, config, taskChannel)
 		api.UseMiddleware(metricsController.MetricsMiddleware())
 
 		api.UseMiddleware(databaseContext.DatabaseMiddleware())
@@ -76,11 +79,6 @@ These submissions are then published to a Redis stream for further processing by
 			fmt.Println("No sources found")
 			return
 		}
-
-		// For scan tasks
-		taskChannel := make(chan any, config.Publisher.QueueSize)
-		// For scanning bypass
-		resultChannel := make(chan any, config.ResultCollector.QueueSize)
 
 		// Results processing stream reading from redis
 		collectorFlow := routing.NewScanResultCollectorFlow(

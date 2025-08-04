@@ -26,6 +26,10 @@ import (
 // 	return n, err
 // }
 
+type ProbeResult struct {
+	Body string `json:"body"`
+}
+
 type MetricsController struct {
 	Path              string
 	Api               *huma.API
@@ -35,9 +39,10 @@ type MetricsController struct {
 	Logger            *zerolog.Logger
 	contextLabels     map[string]string      // Used to collect labels for contexts metric
 	HttpRequests      *prometheus.CounterVec // Metric to track HTTP requests
+	TaskChannel       chan any               // Channel for scan tasks
 }
 
-func NewMetricsController(api *huma.API, config *model.Config) *MetricsController {
+func NewMetricsController(api *huma.API, config *model.Config, taskChannel chan any) *MetricsController {
 	logger := logging.NewLogger("info", "component", "MetricsController")
 	httpRequests := prometheus.NewCounterVec(prometheus.CounterOpts{
 		Name: "pharos_http_request_count",
@@ -53,6 +58,7 @@ func NewMetricsController(api *huma.API, config *model.Config) *MetricsControlle
 		Config:       config,
 		Logger:       logger,
 		HttpRequests: httpRequests,
+		TaskChannel:  taskChannel,
 	}
 	return mc
 }
@@ -68,6 +74,14 @@ func (mc *MetricsController) AddRoutes() {
 	}
 	{
 		op, handler := mc.DefaultMetrics()
+		huma.Register(*mc.Api, op, handler)
+	}
+	{
+		op, handler := mc.Liveness()
+		huma.Register(*mc.Api, op, handler)
+	}
+	{
+		op, handler := mc.Readiness()
 		huma.Register(*mc.Api, op, handler)
 	}
 }
@@ -294,6 +308,59 @@ func (mc *MetricsController) DefaultMetrics() (huma.Operation, func(ctx context.
 
 			h.ServeHTTP(writer, request)
 			return nil, nil
+		}
+}
+
+func (mc *MetricsController) Liveness() (huma.Operation, func(ctx context.Context, input *struct{}) (*ProbeResult, error)) {
+
+	return huma.Operation{
+			OperationID: "LivenessProbe",
+			Method:      "GET",
+			Path:        mc.Path + "/liveness",
+			Summary:     "Liveness probe",
+			Description: "Used for liveness probe",
+			Tags:        []string{"Probes"},
+			Responses: map[string]*huma.Response{
+				"200": {
+					Content: map[string]*huma.MediaType{
+						"text/plain": {},
+					},
+					Description: "Check if the service is alive",
+				},
+				"500": {
+					Description: "Internal server error",
+				},
+			},
+		}, func(ctx context.Context, input *struct{}) (*ProbeResult, error) {
+			return &ProbeResult{Body: "OK"}, nil
+		}
+}
+
+func (mc *MetricsController) Readiness() (huma.Operation, func(ctx context.Context, input *struct{}) (*ProbeResult, error)) {
+
+	return huma.Operation{
+			OperationID: "ReadinessProbe",
+			Method:      "GET",
+			Path:        mc.Path + "/readiness",
+			Summary:     "Readiness probe",
+			Description: "Returns error if queue is full, otherwise returns OK",
+			Tags:        []string{"Probes"},
+			Responses: map[string]*huma.Response{
+				"200": {
+					Content: map[string]*huma.MediaType{
+						"text/plain": {},
+					},
+					Description: "Returns error if queue is full, otherwise returns OK",
+				},
+				"500": {
+					Description: "Internal server error",
+				},
+			},
+		}, func(ctx context.Context, input *struct{}) (*ProbeResult, error) {
+			if len(mc.TaskChannel) == mc.Config.Publisher.QueueSize {
+				return nil, huma.Error500InternalServerError("Queue is full, cannot process requests at the moment") // Return 500 if queue is full
+			}
+			return &ProbeResult{Body: "Ready to serve requests"}, nil
 		}
 }
 
