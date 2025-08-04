@@ -40,7 +40,7 @@ type MetricsController struct {
 func NewMetricsController(api *huma.API, config *model.Config) *MetricsController {
 	logger := logging.NewLogger("info", "component", "MetricsController")
 	httpRequests := prometheus.NewCounterVec(prometheus.CounterOpts{
-		Name: "pharos_http_requests",
+		Name: "pharos_http_request_count",
 		Help: "Counter for HTTP requests to Pharos API",
 	}, []string{"operation_path", "operation_id", "method", "status_code"})
 	err := prometheus.Register(httpRequests)
@@ -311,6 +311,6 @@ func (mc *MetricsController) MetricsMiddleware() func(ctx huma.Context, next fun
 			ctx.Method(),
 			fmt.Sprintf("%d", ctx.Status()),
 		).Inc()
-		mc.Logger.Info().Str("UlrPath", r.URL.Path).Int("code", ctx.Status()).Str("method", ctx.Method()).Str("OperationId", ctx.Operation().OperationID).Msg("Metrics middleware called")
+		//mc.Logger.Info().Str("UlrPath", r.URL.Path).Int("code", ctx.Status()).Str("method", ctx.Method()).Str("OperationId", ctx.Operation().OperationID).Msg("Metrics middleware called")
 	}
 }
