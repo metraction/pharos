@@ -38,10 +38,10 @@ type ImageDigestInput struct {
 }
 
 type PharosImageMetaSearchInput struct {
-	ImageId        string `query:"image_id" doc:"ImageId of the Docker image to retrieve, can be a glob pattern, exclusive with any_digest"`
-	IndexDigest    string `query:"index_digest" doc:"Index digest of the Docker image to retrieve, can be a glob pattern, exclusive with any_digest"`
-	ManifestDigest string `query:"manifest_digest" doc:"Manifest digest of the Docker image to retrieve, can be a glob pattern, exclusive with any_digest"`
-	ImageSpec      string `query:"image_spec" doc:"ImageSpec of the Docker image to retrieve, can be a glob pattern"`
+	ImageId        string `query:"image_id" doc:"ImageId of the Docker image to retrieve, can be a glob pattern, exclusive with search"`
+	IndexDigest    string `query:"index_digest" doc:"Index digest of the Docker image to retrieve, can be a glob pattern, exclusive with search"`
+	ManifestDigest string `query:"manifest_digest" doc:"Manifest digest of the Docker image to retrieve, can be a glob pattern, exclusive with search"`
+	ImageSpec      string `query:"image_spec" doc:"ImageSpec of the Docker image to retrieve, can be a glob pattern, exclusive with search"`
 	Search         string `query:"search" doc:"Any digest or image_id of the Docker image to retrieve, can be a glob pattern, exclusive with image_spec,image_id, index_digest and manifest_digest"`
 	Detail         bool   `query:"detail" default:"false" doc:"If true, returns detailed information about the image, including vulnerabilities, packages and findings"`
 }
