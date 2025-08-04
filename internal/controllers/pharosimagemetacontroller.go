@@ -4,6 +4,7 @@ package controllers
 
 import (
 	"context"
+	"strings"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/metraction/pharos/internal/logging"
@@ -52,7 +53,7 @@ func (pc *PharosImageMetaController) AddRoutes() {
 		huma.Register(*pc.Api, op, handler)
 	}
 	{
-		op, handler := pc.GetAll()
+		op, handler := pc.GetBySearch()
 		huma.Register(*pc.Api, op, handler)
 	}
 	{
@@ -174,12 +175,21 @@ func (pc *PharosImageMetaController) GetContexts() (huma.Operation, func(ctx con
 		}
 }
 
-func (pc *PharosImageMetaController) GetAll() (huma.Operation, func(ctx context.Context, input *struct{}) (*PharosImageMetas, error)) {
+type PharosImageMetaSearchInput struct {
+	ImageId        string `query:"image_id" doc:"ImageId of the Docker image to retrieve, can be a glob pattern, exclusive with any_digest"`
+	IndexDigest    string `query:"index_digest" doc:"Index digest of the Docker image to retrieve, can be a glob pattern, exclusive with any_digest"`
+	ManifestDigest string `query:"manifest_digest" doc:"Manifest digest of the Docker image to retrieve, can be a glob pattern, exclusive with any_digest"`
+	ImageSpec      string `query:"image_spec" doc:"ImageSpec of the Docker image to retrieve, can be a glob pattern"`
+	Digest         string `query:"digest" doc:"Any digest or image_id of the Docker image to retrieve, can be a glob pattern, exclusive with ImageId, IndexDigest and ManifestDigest"`
+	Detail         bool   `query:"detail" default:"false" doc:"If true, returns detailed information about the image, including vulnerabilities, packages and findings"`
+}
+
+func (pc *PharosImageMetaController) GetBySearch() (huma.Operation, func(ctx context.Context, input *PharosImageMetaSearchInput) (*PharosImageMetas, error)) {
 	return huma.Operation{
-			OperationID: "GetAllImages",
+			OperationID: "SearchImages",
 			Method:      "GET",
 			Path:        pc.Path,
-			Summary:     "Get all images",
+			Summary:     "Search for images",
 			Description: "Retrieves all  images stored in the database.",
 			Tags:        []string{"PharosImageMeta"},
 			Responses: map[string]*huma.Response{
@@ -190,14 +200,46 @@ func (pc *PharosImageMetaController) GetAll() (huma.Operation, func(ctx context.
 					Description: "Internal server error",
 				},
 			},
-		}, func(ctx context.Context, input *struct{}) (*PharosImageMetas, error) {
+		}, func(ctx context.Context, input *PharosImageMetaSearchInput) (*PharosImageMetas, error) {
 			databaseContext, err := getDatabaseContext(ctx)
 			if err != nil {
 				return nil, huma.Error500InternalServerError("Database context not found in request context")
 			}
+			var db *gorm.DB
+			if input.Detail {
+				db = databaseContext.DB.
+					Preload("ContextRoots.Contexts").
+					Preload("Vulnerabilities").
+					Preload("Findings").
+					Preload("Packages")
+			} else {
+				db = databaseContext.DB.Omit(clause.Associations)
+			}
+			specificDigest := false
+			if input.ImageId != "" {
+				db = db.Where("image_id LIKE ?", strings.ReplaceAll(input.ImageId, "*", "%"))
+				specificDigest = true
+			}
+			if input.IndexDigest != "" {
+				db = db.Where("index_digest LIKE ?", strings.ReplaceAll(input.IndexDigest, "*", "%"))
+				specificDigest = true
+			}
+			if input.ManifestDigest != "" {
+				db = db.Where("manifest_digest LIKE ?", strings.ReplaceAll(input.ManifestDigest, "*", "%"))
+				specificDigest = true
+			}
+			if input.Digest != "" {
+				if specificDigest {
+					return nil, huma.Error400BadRequest("Cannot use digest with image_id, index_digest, or manifest_digest")
+				}
+				digest := strings.ReplaceAll(input.Digest, "*", "%")
+				db = db.Where("image_id LIKE ? OR index_digest LIKE ? OR manifest_digest LIKE ?", digest, digest, digest)
+			}
+			if input.ImageSpec != "" {
+				db = db.Where("image_spec LIKE ?", strings.Replace(input.ImageSpec, "*", "%", -1))
+			}
 			var values []model.PharosImageMeta
-			// Since we are returning a list of images, we do not preload associations, too much data
-			result := databaseContext.DB.Omit(clause.Associations).Find(&values)
+			result := db.Find(&values)
 			if result.Error != nil {
 				return nil, huma.Error500InternalServerError("Failed to retrieve Docker images: " + result.Error.Error())
 			}
