@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -20,6 +21,16 @@ import (
 	"github.com/rs/zerolog"
 )
 
+// func (lrw *loggingResponseWriter) Write(b []byte) (int, error) {
+// 	n, err := lrw.ResponseWriter.Write(b)
+// 	//lrw.size = int64(n)
+// 	return n, err
+// }
+
+type ProbeResult struct {
+	Body string `json:"body"`
+}
+
 type MetricsController struct {
 	Path              string
 	Api               *huma.API
@@ -27,15 +38,28 @@ type MetricsController struct {
 	PriorityPublisher *redis.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult]
 	Config            *model.Config
 	Logger            *zerolog.Logger
-	contextLabels     map[string]string // Used to collect labels for contexts metric
+	contextLabels     map[string]string      // Used to collect labels for contexts metric
+	HttpRequests      *prometheus.CounterVec // Metric to track HTTP requests
+	TaskChannel       chan any               // Channel for scan tasks
 }
 
-func NewMetricsController(api *huma.API, config *model.Config) *MetricsController {
+func NewMetricsController(api *huma.API, config *model.Config, taskChannel chan any) *MetricsController {
+	logger := logging.NewLogger("info", "component", "MetricsController")
+	httpRequests := prometheus.NewCounterVec(prometheus.CounterOpts{
+		Name: "pharos_http_request_count",
+		Help: "Counter for HTTP requests to Pharos API",
+	}, []string{"operation_path", "operation_id", "method", "status_code"})
+	err := prometheus.Register(httpRequests)
+	if err != nil {
+		logger.Warn().Msg("Failed to register pharos_scantask_status status metric duplicate registration?")
+	}
 	mc := &MetricsController{
-		Path:   "/metrics",
-		Api:    api,
-		Config: config,
-		Logger: logging.NewLogger("info", "component", "MetricsController"),
+		Path:         "/metrics",
+		Api:          api,
+		Config:       config,
+		Logger:       logger,
+		HttpRequests: httpRequests,
+		TaskChannel:  taskChannel,
 	}
 	return mc
 }
@@ -51,6 +75,14 @@ func (mc *MetricsController) AddRoutes() {
 	}
 	{
 		op, handler := mc.DefaultMetrics()
+		huma.Register(*mc.Api, op, handler)
+	}
+	{
+		op, handler := mc.Liveness()
+		huma.Register(*mc.Api, op, handler)
+	}
+	{
+		op, handler := mc.Readiness()
 		huma.Register(*mc.Api, op, handler)
 	}
 }
@@ -280,13 +312,74 @@ func (mc *MetricsController) DefaultMetrics() (huma.Operation, func(ctx context.
 		}
 }
 
-// We have to ingject the request and writer into the context, so we can use them in the Metrics handler.
+func (mc *MetricsController) Liveness() (huma.Operation, func(ctx context.Context, input *struct{}) (*ProbeResult, error)) {
+
+	return huma.Operation{
+			OperationID: "LivenessProbe",
+			Method:      "GET",
+			Path:        mc.Path + "/liveness",
+			Summary:     "Liveness probe",
+			Description: "Used for liveness probe",
+			Tags:        []string{"Probes"},
+			Responses: map[string]*huma.Response{
+				"200": {
+					Content: map[string]*huma.MediaType{
+						"text/plain": {},
+					},
+					Description: "Check if the service is alive",
+				},
+				"500": {
+					Description: "Internal server error",
+				},
+			},
+		}, func(ctx context.Context, input *struct{}) (*ProbeResult, error) {
+			return &ProbeResult{Body: "OK"}, nil
+		}
+}
+
+func (mc *MetricsController) Readiness() (huma.Operation, func(ctx context.Context, input *struct{}) (*ProbeResult, error)) {
+
+	return huma.Operation{
+			OperationID: "ReadinessProbe",
+			Method:      "GET",
+			Path:        mc.Path + "/readiness",
+			Summary:     "Readiness probe",
+			Description: "Returns error if queue is full, otherwise returns OK",
+			Tags:        []string{"Probes"},
+			Responses: map[string]*huma.Response{
+				"200": {
+					Content: map[string]*huma.MediaType{
+						"text/plain": {},
+					},
+					Description: "Returns error if queue is full, otherwise returns OK",
+				},
+				"500": {
+					Description: "Internal server error",
+				},
+			},
+		}, func(ctx context.Context, input *struct{}) (*ProbeResult, error) {
+			if len(mc.TaskChannel) == mc.Config.Publisher.QueueSize {
+				return nil, huma.Error500InternalServerError("Queue is full, cannot process requests at the moment") // Return 500 if queue is full
+			}
+			return &ProbeResult{Body: "Ready to serve requests"}, nil
+		}
+}
+
+// We have to inject the request and writer into the context, so we can use them in the Metrics handler.
 
 func (mc *MetricsController) MetricsMiddleware() func(ctx huma.Context, next func(huma.Context)) {
 	return func(ctx huma.Context, next func(huma.Context)) {
 		r, w := humago.Unwrap(ctx)
 		ctx = huma.WithValue(ctx, "request", r)
 		ctx = huma.WithValue(ctx, "writer", w)
+		ctx.AppendHeader("Pharos-Pod-Name", os.Getenv("HOSTNAME")) // Add pod name
 		next(ctx)
+		mc.HttpRequests.WithLabelValues(
+			ctx.Operation().Path,
+			ctx.Operation().OperationID,
+			ctx.Method(),
+			fmt.Sprintf("%d", ctx.Status()),
+		).Inc()
+		//mc.Logger.Info().Str("UlrPath", r.URL.Path).Int("code", ctx.Status()).Str("method", ctx.Method()).Str("OperationId", ctx.Operation().OperationID).Msg("Metrics middleware called")
 	}
 }

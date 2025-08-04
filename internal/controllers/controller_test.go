@@ -61,7 +61,7 @@ func TestServer(t *testing.T) {
 	}
 	apiConfig.OpenAPIPath = "/openapi"
 	api := humago.NewWithPrefix(router, "/api", apiConfig)
-	metricsController := NewMetricsController(&api, config)
+	metricsController := NewMetricsController(&api, config, make(chan any, 1000))
 	api.UseMiddleware(metricsController.MetricsMiddleware())
 	api.UseMiddleware(databaseContext.DatabaseMiddleware())
 	NewimageController(&api, config).AddRoutes()

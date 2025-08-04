@@ -10,6 +10,7 @@ import (
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/rs/zerolog"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type PharosImageMetaController struct {
@@ -195,9 +196,12 @@ func (pc *PharosImageMetaController) GetAll() (huma.Operation, func(ctx context.
 				return nil, huma.Error500InternalServerError("Database context not found in request context")
 			}
 			var values []model.PharosImageMeta
-			if err := databaseContext.DB.Find(&values).Error; err != nil {
-				return nil, huma.Error500InternalServerError("Failed to retrieve Docker images: " + err.Error())
+			// Since we are returning a list of images, we do not preload associations, too much data
+			result := databaseContext.DB.Omit(clause.Associations).Find(&values)
+			if result.Error != nil {
+				return nil, huma.Error500InternalServerError("Failed to retrieve Docker images: " + result.Error.Error())
 			}
+
 			return &PharosImageMetas{
 				Body: values,
 			}, nil

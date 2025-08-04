@@ -77,6 +77,12 @@ role:
 controller:
   # -- Number of replicas for the controller
   replicas: 1
+  collector:
+    # -- Queue size for the collector
+    queueSize: 100
+  publisher:
+    # -- Queue size for the publisher
+    queueSize: 1000  
 
 # -- Prometheus configuration for scanning images
 prometheus:

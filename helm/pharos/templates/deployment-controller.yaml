@@ -26,12 +26,30 @@ spec:
         args: ["http", "--config", "/config/.pharos.yaml"]
         ports:
           - containerPort: 8080
+        livenessProbe:
+          httpGet:
+            path: /api/metrics/liveness
+            port: 8080
+            httpHeaders:
+          failureThreshold: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/metrics/readiness
+            port: 8080
+            httpHeaders:
+          failureThreshold: 1
+          periodSeconds: 10
         env:
           - name: PHAROS_DATABASE_DSN
             valueFrom:
               secretKeyRef:
                 name: postgres-connection
                 key: dsn
+          - name: PHAROROS_COLLECTOR_QUEUESIZE
+            value: "{{ .Values.controller.collector.queueSize }}"
+          - name: PHAROS_PUBLISHER_QUEUESIZE
+            value: "{{ .Values.controller.publisher.queueSize }}"
           - name: APP_DATA_PATH
             value: "/pharos"
           {{- with .Values.enrichers }}
