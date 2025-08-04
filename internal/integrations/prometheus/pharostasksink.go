@@ -51,7 +51,8 @@ func (ps *PharosTaskSink) process() {
 			ps.log.Error().Err(err).Msg("Failed to POST to PharosScanTask endpoint")
 			continue
 		}
-		ps.log.Info().Str("image", scanTask.ImageSpec).Str("auth", utils.MaskDsn(scanTask.AuthDsn)).Msg("Sending task to PharosScanTask endpoint")
+		pod := resp.Header.Get("Pharos-Pod-Name") // Read the pod name from the response header
+		ps.log.Info().Str("image", scanTask.ImageSpec).Str("auth", utils.MaskDsn(scanTask.AuthDsn)).Str("Pod", pod).Msg("Sending task to PharosScanTask endpoint")
 		resp.Body.Close()
 	}
 }

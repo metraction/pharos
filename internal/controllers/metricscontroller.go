@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -371,6 +372,7 @@ func (mc *MetricsController) MetricsMiddleware() func(ctx huma.Context, next fun
 		r, w := humago.Unwrap(ctx)
 		ctx = huma.WithValue(ctx, "request", r)
 		ctx = huma.WithValue(ctx, "writer", w)
+		ctx.AppendHeader("Pharos-Pod-Name", os.Getenv("HOSTNAME")) // Add pod name
 		next(ctx)
 		mc.HttpRequests.WithLabelValues(
 			ctx.Operation().Path,
