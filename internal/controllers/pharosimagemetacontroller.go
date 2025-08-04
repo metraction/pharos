@@ -42,7 +42,7 @@ type PharosImageMetaSearchInput struct {
 	IndexDigest    string `query:"index_digest" doc:"Index digest of the Docker image to retrieve, can be a glob pattern, exclusive with any_digest"`
 	ManifestDigest string `query:"manifest_digest" doc:"Manifest digest of the Docker image to retrieve, can be a glob pattern, exclusive with any_digest"`
 	ImageSpec      string `query:"image_spec" doc:"ImageSpec of the Docker image to retrieve, can be a glob pattern"`
-	Digest         string `query:"digest" doc:"Any digest or image_id of the Docker image to retrieve, can be a glob pattern, exclusive with ImageId, IndexDigest and ManifestDigest"`
+	Search         string `query:"search" doc:"Any digest or image_id of the Docker image to retrieve, can be a glob pattern, exclusive with image_spec,image_id, index_digest and manifest_digest"`
 	Detail         bool   `query:"detail" default:"false" doc:"If true, returns detailed information about the image, including vulnerabilities, packages and findings"`
 }
 
@@ -215,28 +215,29 @@ func (pc *PharosImageMetaController) GetBySearch() (huma.Operation, func(ctx con
 			} else {
 				db = databaseContext.DB.Omit(clause.Associations)
 			}
-			specificDigest := false
+			specificSearch := false
 			if input.ImageId != "" {
 				db = db.Where("image_id LIKE ?", strings.ReplaceAll(input.ImageId, "*", "%"))
-				specificDigest = true
+				specificSearch = true
 			}
 			if input.IndexDigest != "" {
 				db = db.Where("index_digest LIKE ?", strings.ReplaceAll(input.IndexDigest, "*", "%"))
-				specificDigest = true
+				specificSearch = true
 			}
 			if input.ManifestDigest != "" {
 				db = db.Where("manifest_digest LIKE ?", strings.ReplaceAll(input.ManifestDigest, "*", "%"))
-				specificDigest = true
-			}
-			if input.Digest != "" {
-				if specificDigest {
-					return nil, huma.Error400BadRequest("Cannot use digest with image_id, index_digest, or manifest_digest")
-				}
-				digest := strings.ReplaceAll(input.Digest, "*", "%")
-				db = db.Where("image_id LIKE ? OR index_digest LIKE ? OR manifest_digest LIKE ?", digest, digest, digest)
+				specificSearch = true
 			}
 			if input.ImageSpec != "" {
 				db = db.Where("image_spec LIKE ?", strings.Replace(input.ImageSpec, "*", "%", -1))
+				specificSearch = true
+			}
+			if input.Search != "" {
+				if specificSearch {
+					return nil, huma.Error400BadRequest("Cannot use search with image_id, index_digest, or manifest_digest")
+				}
+				search := strings.ReplaceAll(input.Search, "*", "%")
+				db = db.Where("image_id LIKE ? OR index_digest LIKE ? OR manifest_digest LIKE ? OR image_spec LIKE ?", search, search, search, search)
 			}
 			var values []model.PharosImageMeta
 			result := db.Find(&values)
