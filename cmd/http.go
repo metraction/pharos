@@ -8,8 +8,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
-	"github.com/reugn/go-streams/extension"
-
+	_ "github.com/danielgtaylor/huma/v2/adapters/humamux"
 	"github.com/metraction/pharos/internal/controllers"
 	"github.com/metraction/pharos/internal/integrations/db"
 	"github.com/metraction/pharos/internal/logging"
@@ -18,6 +17,7 @@ import (
 	"github.com/metraction/pharos/pkg/enricher"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/reugn/go-streams/extension"
 	"github.com/spf13/cobra"
 )
 
@@ -44,6 +44,7 @@ These submissions are then published to a Redis stream for further processing by
 
 		// TODO move huma config at the end of this file: first dependencies (db, redis), then flows and then huma
 		router := http.NewServeMux()
+
 		apiConfig := huma.DefaultConfig("Pharos API", "1.0.0")
 		apiConfig.Servers = []*huma.Server{
 			{URL: "/api", Description: "Pharos API server"},
@@ -101,6 +102,7 @@ These submissions are then published to a Redis stream for further processing by
 		controllers.NewimageController(&api, config).AddRoutes()
 		controllers.NewPharosScanTaskController(&api, config, taskChannel, resultChannel).AddRoutes()
 		metricsController.AddRoutes()
+		//router.Use(metricsController.MetricsMiddleware)
 		// Add go streams routes
 		go routing.NewImageCleanupFlow(databaseContext, config)
 		// Register collectors for metrics

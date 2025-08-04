@@ -20,6 +20,12 @@ import (
 	"github.com/rs/zerolog"
 )
 
+// func (lrw *loggingResponseWriter) Write(b []byte) (int, error) {
+// 	n, err := lrw.ResponseWriter.Write(b)
+// 	//lrw.size = int64(n)
+// 	return n, err
+// }
+
 type MetricsController struct {
 	Path              string
 	Api               *huma.API
@@ -27,15 +33,26 @@ type MetricsController struct {
 	PriorityPublisher *redis.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult]
 	Config            *model.Config
 	Logger            *zerolog.Logger
-	contextLabels     map[string]string // Used to collect labels for contexts metric
+	contextLabels     map[string]string      // Used to collect labels for contexts metric
+	HttpRequests      *prometheus.CounterVec // Metric to track HTTP requests
 }
 
 func NewMetricsController(api *huma.API, config *model.Config) *MetricsController {
+	logger := logging.NewLogger("info", "component", "MetricsController")
+	httpRequests := prometheus.NewCounterVec(prometheus.CounterOpts{
+		Name: "pharos_http_requests",
+		Help: "Counter for HTTP requests to Pharos API",
+	}, []string{"operation_path", "operation_id", "method", "status_code"})
+	err := prometheus.Register(httpRequests)
+	if err != nil {
+		logger.Warn().Msg("Failed to register pharos_scantask_status status metric duplicate registration?")
+	}
 	mc := &MetricsController{
-		Path:   "/metrics",
-		Api:    api,
-		Config: config,
-		Logger: logging.NewLogger("info", "component", "MetricsController"),
+		Path:         "/metrics",
+		Api:          api,
+		Config:       config,
+		Logger:       logger,
+		HttpRequests: httpRequests,
 	}
 	return mc
 }
@@ -280,7 +297,7 @@ func (mc *MetricsController) DefaultMetrics() (huma.Operation, func(ctx context.
 		}
 }
 
-// We have to ingject the request and writer into the context, so we can use them in the Metrics handler.
+// We have to inject the request and writer into the context, so we can use them in the Metrics handler.
 
 func (mc *MetricsController) MetricsMiddleware() func(ctx huma.Context, next func(huma.Context)) {
 	return func(ctx huma.Context, next func(huma.Context)) {
@@ -288,5 +305,12 @@ func (mc *MetricsController) MetricsMiddleware() func(ctx huma.Context, next fun
 		ctx = huma.WithValue(ctx, "request", r)
 		ctx = huma.WithValue(ctx, "writer", w)
 		next(ctx)
+		mc.HttpRequests.WithLabelValues(
+			ctx.Operation().Path,
+			ctx.Operation().OperationID,
+			ctx.Method(),
+			fmt.Sprintf("%d", ctx.Status()),
+		).Inc()
+		mc.Logger.Info().Str("UlrPath", r.URL.Path).Int("code", ctx.Status()).Str("method", ctx.Method()).Str("OperationId", ctx.Operation().OperationID).Msg("Metrics middleware called")
 	}
 }
