@@ -37,6 +37,15 @@ type ImageDigestInput struct {
 	ImageId string `path:"imageid" doc:"Imageid of the Docker image to retrieve"`
 }
 
+type PharosImageMetaSearchInput struct {
+	ImageId        string `query:"image_id" doc:"ImageId of the Docker image to retrieve, can be a glob pattern, exclusive with any_digest"`
+	IndexDigest    string `query:"index_digest" doc:"Index digest of the Docker image to retrieve, can be a glob pattern, exclusive with any_digest"`
+	ManifestDigest string `query:"manifest_digest" doc:"Manifest digest of the Docker image to retrieve, can be a glob pattern, exclusive with any_digest"`
+	ImageSpec      string `query:"image_spec" doc:"ImageSpec of the Docker image to retrieve, can be a glob pattern"`
+	Digest         string `query:"digest" doc:"Any digest or image_id of the Docker image to retrieve, can be a glob pattern, exclusive with ImageId, IndexDigest and ManifestDigest"`
+	Detail         bool   `query:"detail" default:"false" doc:"If true, returns detailed information about the image, including vulnerabilities, packages and findings"`
+}
+
 func NewimageController(api *huma.API, config *model.Config) *PharosImageMetaController {
 	pc := &PharosImageMetaController{
 		Path:   "/pharosimagemeta",
@@ -173,15 +182,6 @@ func (pc *PharosImageMetaController) GetContexts() (huma.Operation, func(ctx con
 				Body: contextEntries,
 			}, nil
 		}
-}
-
-type PharosImageMetaSearchInput struct {
-	ImageId        string `query:"image_id" doc:"ImageId of the Docker image to retrieve, can be a glob pattern, exclusive with any_digest"`
-	IndexDigest    string `query:"index_digest" doc:"Index digest of the Docker image to retrieve, can be a glob pattern, exclusive with any_digest"`
-	ManifestDigest string `query:"manifest_digest" doc:"Manifest digest of the Docker image to retrieve, can be a glob pattern, exclusive with any_digest"`
-	ImageSpec      string `query:"image_spec" doc:"ImageSpec of the Docker image to retrieve, can be a glob pattern"`
-	Digest         string `query:"digest" doc:"Any digest or image_id of the Docker image to retrieve, can be a glob pattern, exclusive with ImageId, IndexDigest and ManifestDigest"`
-	Detail         bool   `query:"detail" default:"false" doc:"If true, returns detailed information about the image, including vulnerabilities, packages and findings"`
 }
 
 func (pc *PharosImageMetaController) GetBySearch() (huma.Operation, func(ctx context.Context, input *PharosImageMetaSearchInput) (*PharosImageMetas, error)) {
