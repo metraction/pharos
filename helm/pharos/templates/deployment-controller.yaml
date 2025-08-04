@@ -46,6 +46,10 @@ spec:
               secretKeyRef:
                 name: postgres-connection
                 key: dsn
+          - name: PHAROROS_COLLECTOR_QUEUE_SIZE
+            value: "{{ .Values.controller.collector.queueSize }}"
+          - name: PHAROS_PUBLISHER_QUEUE_SIZE
+            value: "{{ .Values.controller.publisher.queueSize }}"
           - name: APP_DATA_PATH
             value: "/pharos"
           {{- with .Values.enrichers }}
