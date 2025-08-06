@@ -61,13 +61,11 @@ func (pr *PrometheusReporter) RunAsServer() error {
 	pr.Logger.Info().Msg("PrometheusReporter is running as a server")
 	source := ext.NewChanSource(pr.NewTicker())
 	pharosScanTaskCreator := prometheus.NewPharosScanTaskCreator(pr.Config).WithImagePullSecrets()
-	seenImages := prometheus.NewPharosScanTaskDeduplicator(pr.Config) // deduplication not working yet for some reason.
 	pharosTaskSink := prometheus.NewPharosTaskSink(pr.Config)
 	source.
 		Via(flow.NewMap(pr.PrometheusIntegration.FetchImageMetrics, 1)).
 		Via(flow.NewFlatMap(hwintegrations.PrometheusResult, 1)).
 		Via(flow.NewFlatMap(pharosScanTaskCreator.Result, 1)).
-		Via(flow.NewFilter(seenImages.FilterDuplicates, 1)).
 		To(pharosTaskSink)
 	return nil
 }

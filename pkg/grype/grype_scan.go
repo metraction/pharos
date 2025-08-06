@@ -38,7 +38,7 @@ func ScanImage(task model.PharosScanTask2, scanEngine *GrypeScanner, kvc *cache.
 	result.ScanTask.Status = "get-digest"
 	result.ScanTask.Engine = scanEngine.Engine
 
-	// get manifestDigest to have a platform unique key for caching
+	// get manifestDigest to have a platform unique key for cachings
 	indexDigest, manifestDigest, rxPlatform, err := images.GetImageDigests(task)
 	if err != nil {
 		result.ScanTask.SetError(err)
