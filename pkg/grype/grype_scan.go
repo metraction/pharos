@@ -42,7 +42,7 @@ func ScanImage(task model.PharosScanTask2, scanEngine *GrypeScanner, kvc *cache.
 	indexDigest, manifestDigest, rxPlatform, err := images.GetImageDigests(task)
 	if err != nil {
 		result.ScanTask.SetError(err)
-		return result, nil, nil, fmt.Errorf("image:%s %w", task.ImageSpec, err)
+		return result, nil, nil, fmt.Errorf("error getting digests: image:%s %w", task.ImageSpec, err)
 	}
 	result.ScanTask.RxDigest = manifestDigest
 	result.ScanTask.RxPlatform = rxPlatform
