@@ -93,6 +93,7 @@ func (rx *SyftSbomCreator) CreateSbom(task model.PharosScanTask2, format string)
 	// https://github.com/anchore/syft/wiki/configuration
 	cmd.Env = append(cmd.Env, "SYFT_CHECK_FOR_APP_UPDATE=false")
 	cmd.Env = append(cmd.Env, "SYFT_PARALLELISM=5")
+	cmd.Env = append(cmd.Env, "HOME=/tmp") // see: https://github.com/anchore/syft/issues/2984
 
 	// Authentication
 	if utils.DsnUserOr(task.AuthDsn, "") != "" {

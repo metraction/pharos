@@ -123,6 +123,16 @@ func (pst *PharosScanTaskCreator) Result(metric hwmodel.ImageMetric) []model.Pha
 		pst.Logger.Warn().Err(err).Msg("Invalid prometheus.ttl in config, defaulting to 12h")
 		scanTTL = time.Hour * 12
 	}
+	regex := regexp.MustCompile(`^(.*)@(.*)$`)
+	var imageId string
+	imageId = metric.Labels["image_id"]
+	manifestDigest := regex.ReplaceAllString(imageId, "$2")
+	if !regex.MatchString(imageId) || manifestDigest == "" {
+		pst.Logger.Warn().Str("image_spec", metric.Image_spec).Str("image_id", imageId).Msg("Manifest digest not found in image_id")
+		manifestDigest = ""
+	}
+
+	pst.Logger.Info().Str("manifestDigest", manifestDigest).Msg("Using manifest digest for scan task")
 	pharosScanTask := model.PharosScanTask2{
 		ImageSpec:      metric.Image_spec,
 		Platform:       pst.Config.Prometheus.Platform, // Default platform, can be adjusted as needed
@@ -131,7 +141,9 @@ func (pst *PharosScanTaskCreator) Result(metric hwmodel.ImageMetric) []model.Pha
 		Updated:        now,
 		Context:        context,
 		ContextRootKey: key,
-		ScanTTL:        scanTTL, // 12 hour scan ttl
+		RxDigest:       manifestDigest,
+		RxPlatform:     pst.Config.Prometheus.Platform, // we return platform as it is, no need to fetch again by scanner
+		ScanTTL:        scanTTL,                        // 12 hour scan ttl
 	}
 	return []model.PharosScanTask2{pharosScanTask}
 }

@@ -74,7 +74,7 @@ func (is *ImageDbSource) RunAsync() {
 	is.Logger.Info().Msg("Running ImageDbSource asynchronously")
 	var images []model.PharosImageMeta
 
-	is.Logger.Info().Msg("Fetchng images from database")
+	is.Logger.Info().Msg("Fetching images from database")
 	is.DatabaseContext.DB.Preload("ContextRoots").Find(&images)
 	for _, image := range images {
 		is.in <- image

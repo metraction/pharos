@@ -38,6 +38,10 @@ func GetImageDigests(task model.PharosScanTask2) (string, string, string, error)
 	if err != nil {
 		return "", "", "", err
 	}
+	// if RxDigest and RxPlatform are already set by reporter, return them (no need to fetch again)
+	if task.RxDigest != "" && task.RxPlatform != "" {
+		return "", task.RxDigest, task.RxPlatform, nil
+	}
 
 	// add platform option if given
 	if platform != "" {
