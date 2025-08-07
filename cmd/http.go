@@ -99,6 +99,7 @@ These submissions are then published to a Redis stream for further processing by
 		// Add routes for the API
 		controllers.NewimageController(&api, config).AddRoutes()
 		controllers.NewPharosScanTaskController(&api, config, taskChannel, resultChannel).AddRoutes()
+		controllers.NewConfigController(&api, config).AddRoutes()
 		metricsController.AddRoutes()
 		//router.Use(metricsController.MetricsMiddleware)
 		// Add go streams routes
