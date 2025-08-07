@@ -106,6 +106,8 @@ func ScanImage(task model.PharosScanTask2, scanEngine *GrypeScanner, kvc *cache.
 		result.ScanTask.SetError(err)
 		return result, nil, nil, fmt.Errorf("image:%s %w", task.ImageSpec, err)
 	}
+	// set ttl
+	result.Image.TTL = task.ScanTTL // set image ttl to scan ttl
 
 	result.ScanTask.Status = "done"
 	logger.Info().

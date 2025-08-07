@@ -25,7 +25,7 @@ type PharosScanTask2 struct {
 
 	// scanner
 	CacheTTL time.Duration `json:"cachettl" yaml:"cachettl" required:"false" default:"86400000000000" doc:"how long to cache sbom in scanner (nanoseconds)"` // cache expiry in sec
-	ScanTTL  time.Duration `json:"scanttl" yaml:"scanttl" required:"false" default:"300000000000" doc:"how long to scan result in scanner (nanoseconds)"`    // cache expiry in sec
+	ScanTTL  time.Duration `json:"scanttl" yaml:"scanttl" required:"false" default:"43200000000" doc:"how long to scan result in scanner (nanoseconds)"`     // cache expiry in sec
 
 	Created  time.Time              `json:"created" yaml:"created" required:"false"`
 	Updated  time.Time              `json:"updated" yaml:"updated" required:"false"`

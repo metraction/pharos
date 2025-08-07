@@ -49,6 +49,7 @@ func (is *ImageDbSink) process() {
 			logger.Error().Err(err).Msg("Failed to retrieve Docker images")
 			continue
 		}
+		logger.Info().Str("ImageId", pharosScanResult.Image.ImageId).Str("ImageSpec", pharosScanResult.Image.ImageSpec).Str("TTL", pharosScanResult.ScanTask.ScanTTL.String()).Msg("Setting TTL")
 		pharosScanResult.Image.TTL = pharosScanResult.ScanTask.ScanTTL // Set the TTL for the image
 		if value.ImageId == "" {
 			logger.Info().Msg("Image ID does not exist, creating new image metadata")
