@@ -28,6 +28,8 @@ spec:
         ports:
           - containerPort: 8080
         env:
+          - name: PHAROS_PROMETHEUS_TTL
+            value: {{ .Values.prometheus.ttl | default "12h" | quote }}
           - name: PHAROS_PROMETHEUS_URL
             value: {{ .Values.prometheus.url | quote }}
           - name: PHAROS_PROMETHEUS_QUERY

@@ -34,8 +34,8 @@
             "program": "main.go",
             "args": [
                 "prometheus-reporter",
-                "--prometheus.ttl",
-                "1m",
+                // "--prometheus.ttl",
+                // "1m",
                 "--prometheus.url",
                 "https://prometheus.enpace.local",
             ], 
