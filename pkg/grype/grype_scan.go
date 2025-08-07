@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/dustin/go-humanize"
 	"github.com/metraction/pharos/internal/integrations/cache"
@@ -107,7 +108,7 @@ func ScanImage(task model.PharosScanTask2, scanEngine *GrypeScanner, kvc *cache.
 		return result, nil, nil, fmt.Errorf("image:%s %w", task.ImageSpec, err)
 	}
 	// set ttl
-	result.Image.TTL = task.ScanTTL // set image ttl to scan ttl
+	result.Image.TTL = 12 * time.Hour // set image ttl to scan ttl
 
 	result.ScanTask.Status = "done"
 	logger.Info().
