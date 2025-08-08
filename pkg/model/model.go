@@ -100,8 +100,8 @@ type PharosImageMeta struct {
 	Findings           []PharosScanFinding   `json:"Findings" yaml:"Findings" required:"false" gorm:"many2many:join_pharos_scan_finding_with_pharos_image_meta;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Packages           []PharosPackage       `json:"Packages" yaml:"Packages" required:"false" gorm:"many2many:join_pharos_package_with_pharos_image_meta;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	ContextRoots       []ContextRoot         `json:"ContextRoots" yaml:"ContextRoots" required:"false" gorm:"foreignKey:ImageId;references:ImageId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	TTL                time.Duration         `json:"TTL" yaml:"TTL" required:"false" gorm:"default:43200000000"` // context root TTL, default 12 hours (43200 seconds)
-	LastSuccessfulScan time.Time             `json:"LastSuccessfulScan" yaml:"LastSuccessfulScan"`               // last update time
+	TTL                time.Duration         `json:"TTL" yaml:"TTL" required:"false" gorm:"default:43200000000"`
+	LastSuccessfulScan time.Time             `json:"LastSuccessfulScan" yaml:"LastSuccessfulScan"` // last update time
 }
 
 type PharosFindingSummary struct {

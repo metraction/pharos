@@ -1,7 +1,12 @@
 package model
 
 import (
+	"reflect"
+	"regexp"
+	"strings"
 	"time"
+
+	hwmodel "github.com/metraction/handwheel/model"
 )
 
 // Config holds the application configuration.
@@ -15,6 +20,42 @@ type Config struct {
 	Command         string                   `mapstructure:"command"`
 	BasePath        string
 	EnricherPath    string
+}
+
+// ObfuscateSensitiveData replaces passwords and tokens in the config with "***".
+func (c *Config) ObfuscateSensitiveData() *Config {
+	clone := *c
+	obfuscateStruct(reflect.ValueOf(&clone).Elem())
+	return &clone
+}
+
+func obfuscateStruct(v reflect.Value) {
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Field(i)
+		fieldType := v.Type().Field(i)
+		if !field.CanSet() {
+			continue
+		}
+		switch field.Kind() {
+		case reflect.String:
+			name := strings.ToLower(fieldType.Name)
+			if strings.Contains(name, "password") || strings.Contains(name, "token") {
+				field.SetString("***")
+			}
+			if strings.Contains(name, "dsn") {
+				// Replace anything after // and before @ with *** using regex
+				dsn := field.String()
+				re := regexp.MustCompile(`//(.*):(.*)?@`)
+				field.SetString(re.ReplaceAllString(dsn, "//$1:***@"))
+			}
+		case reflect.Struct:
+			obfuscateStruct(field)
+		case reflect.Ptr:
+			if !field.IsNil() && field.Elem().Kind() == reflect.Struct {
+				obfuscateStruct(field.Elem())
+			}
+		}
+	}
 }
 
 // ScannerConfig holds scanner-specific configuration.
@@ -48,14 +89,15 @@ type ResultCollectorConfig struct {
 }
 
 type PrometheusReporterConfig struct {
-	URL           string   `mapstructure:"url"`           // URL of the Prometheus server
-	Interval      string   `mapstructure:"interval"`      // Interval for scraping Prometheus metrics
-	Platform      string   `mapstructure:"platform"`      // Platform for which the metrics are collected, defaults to "linux/amd64"
-	Namespace     string   `mapstructure:"namespace"`     // Namespace for the Prometheus metrics
-	PharosURL     string   `mapstructure:"pharosUrl"`     // Root URL of the Pharos server for Prometheus metrics
-	ContextLabels []string `mapstructure:"contextLabels"` // Labels to add to the Prometheus context
-	TTL           string   `mapstructure:"ttl"`           // Time to live for the scan results
-	Query         string   `mapstructure:"query"`         // Query to use for fetching metrics
+	URL           string                 `mapstructure:"url"`           // URL of the Prometheus server
+	Interval      string                 `mapstructure:"interval"`      // Interval for scraping Prometheus metrics
+	Platform      string                 `mapstructure:"platform"`      // Platform for which the metrics are collected, defaults to "linux/amd64"
+	Namespace     string                 `mapstructure:"namespace"`     // Namespace for the Prometheus metrics
+	PharosURL     string                 `mapstructure:"pharosUrl"`     // Root URL of the Pharos server for Prometheus metrics
+	ContextLabels []string               `mapstructure:"contextLabels"` // Labels to add to the Prometheus context
+	TTL           string                 `mapstructure:"ttl"`           // Time to live for the scan results
+	Query         string                 `mapstructure:"query"`         // Query to use for fetching metrics
+	Auth          hwmodel.PrometheusAuth `mapstructure:"auth"`          // Authentication details for Prometheus
 }
 
 // Redis holds Redis-specific configuration.

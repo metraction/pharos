@@ -66,13 +66,9 @@ func (pc *PharosScanTaskController) sendScanRequest(ctx context.Context, pharosS
 	if pharosScanTask.JobId == "" {
 		pharosScanTask.JobId = uuid.New().String() // Generate a new JobId if not provided
 	}
-	//pharosScanTask.Created = now
-	//pharosScanTask.Updated = now
-	timeout, err := time.ParseDuration(pc.Config.Publisher.Timeout)
-	if err != nil {
-		timeout = 30 * time.Second
+	if pharosScanTask.ScanTTL == 0 {
+		pharosScanTask.ScanTTL = 12 * time.Hour
 	}
-	pharosScanTask.ScanTTL = timeout
 	if pharosScanTask.CacheTTL == 0 {
 		pharosScanTask.CacheTTL = 24 * time.Hour // Default cache expiry
 	}
@@ -82,10 +78,6 @@ func (pc *PharosScanTaskController) sendScanRequest(ctx context.Context, pharosS
 	pc.TaskChannel <- *pharosScanTask
 
 	pc.Logger.Info().Msg("Sent scan task to scanner")
-	if err != nil {
-		pc.Logger.Error().Err(err).Msg("Failed to send request to scanner")
-		return nil, huma.Error500InternalServerError("Failed to send request to scanner: " + err.Error())
-	}
 	return pharosScanTask, nil
 }
 

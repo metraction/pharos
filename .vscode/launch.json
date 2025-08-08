@@ -13,7 +13,13 @@
             "args": [
                 "http",
                 "--enricherPath",
-                "../testdata/enrichers/enrichers.yaml"
+                "../testdata/enrichers/enrichers.yaml",
+                "--prometheus.auth.username",
+                "admin",
+                "--prometheus.auth.password",
+                "verysecret",
+                "--prometheus.auth.token",
+                "verysecrettoken",
             ], 
         },
         {
@@ -34,8 +40,8 @@
             "program": "main.go",
             "args": [
                 "prometheus-reporter",
-                "--prometheus.ttl",
-                "1m",
+                // "--prometheus.ttl",
+                // "1m",
                 "--prometheus.url",
                 "https://prometheus.enpace.local",
             ], 

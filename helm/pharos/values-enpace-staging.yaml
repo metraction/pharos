@@ -29,6 +29,7 @@ prometheus:
   url: "https://prometheus.enpace.local"
   query: 'kube_pod_container_info{image_spec=~"ghcr.*|nextcloud.*"}'
   interval: 10m
+  ttl: "6h" # testing if lower ttl works
 
 caCertificates:
   # -- Enable CA certificates configMap

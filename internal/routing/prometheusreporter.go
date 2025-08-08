@@ -30,6 +30,11 @@ func NewPrometheusReporter(ctx *context.Context, config *model.Config) *Promethe
 			Interval: config.Prometheus.Interval,
 			URL:      config.Prometheus.URL,
 			Query:    config.Prometheus.Query,
+			Auth: hwmodel.PrometheusAuth{
+				Username: config.Prometheus.Auth.Username,
+				Password: config.Prometheus.Auth.Password,
+				Token:    config.Prometheus.Auth.Token,
+			},
 		},
 	}
 	return &PrometheusReporter{
