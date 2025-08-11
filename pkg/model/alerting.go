@@ -1,9 +1,6 @@
 package model
 
 import (
-	"crypto/sha256"
-	"fmt"
-	"slices"
 	"time"
 )
 
@@ -48,24 +45,6 @@ func (a *Alert) GetPrometheusAlert() *PrometheusAlert {
 		GeneratorURL: a.GeneratorURL,
 		Fingerprint:  a.Fingerprint,
 	}
-}
-
-func (a *Alert) GetFingerprint() string {
-	if len(a.Labels) == 0 {
-		return "none"
-	}
-	slices.SortFunc(a.Labels, func(a, b AlertLabel) int {
-		return slices.Compare([]string{a.Name}, []string{b.Name})
-	})
-	sum := ""
-	for _, label := range a.Labels {
-		sum += label.Name
-		sum += ":"
-		sum += label.Value
-		sum += ","
-	}
-	hash := sha256.Sum256([]byte(sum))
-	return fmt.Sprintf("%x", hash[:])
 }
 
 type AlertLabel struct {
