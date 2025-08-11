@@ -7,6 +7,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/metraction/pharos/internal/logging"
+	"github.com/metraction/pharos/pkg/alerting"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/rs/zerolog"
 	"gorm.io/gorm"
@@ -86,7 +87,7 @@ func (ac *AlertController) V1GetBySearch() (huma.Operation, func(ctx context.Con
 			}
 			prometheusAlerts := make([]model.PrometheusAlert, len(values))
 			for i, alert := range values {
-				prometheusAlerts[i] = *alert.GetPrometheusAlert()
+				prometheusAlerts[i] = *alerting.GetPrometheusAlert(&alert)
 			}
 
 			return &Alerts{
