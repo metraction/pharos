@@ -78,7 +78,7 @@ func (pc *PharosImageMetaController) V1Get() (huma.Operation, func(ctx context.C
 	return huma.Operation{
 			OperationID: "V1GetImage",
 			Method:      "GET",
-			Path:        "/{imageid}",
+			Path:        pc.Path + "/{imageid}",
 			Summary:     "Get one image by ImageId",
 			Description: "Retrieves a Docker image by its ImageId. Returns related objects such as vulnerabilities, packages and findings.",
 			Tags:        []string{"V1/PharosImageMeta"},
@@ -129,7 +129,7 @@ func (pc *PharosImageMetaController) V1GetBySearch() (huma.Operation, func(ctx c
 	return huma.Operation{
 			OperationID: "V1SearchImages",
 			Method:      "GET",
-			Path:        "/" + pc.Version + pc.Path,
+			Path:        pc.Path,
 			Summary:     "Search for images",
 			Description: "Retrieves all  images stored in the database.",
 			Tags:        []string{"V1/PharosImageMeta"},
@@ -198,7 +198,7 @@ func (pc *PharosImageMetaController) V1GetContexts() (huma.Operation, func(ctx c
 	return huma.Operation{
 			OperationID: "V1GetContexts",
 			Method:      "GET",
-			Path:        "/contexts/{imageid}",
+			Path:        pc.Path + "/contexts/{imageid}",
 			Summary:     "Get Contexts for Image",
 			Description: "Returns a flattened list of contexts for the image, to be used by Grafana.",
 			Tags:        []string{"V1/PharosImageMeta"},

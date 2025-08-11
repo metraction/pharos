@@ -89,7 +89,7 @@ func (pc *PharosScanTaskController) V1PostAsyncScan() (huma.Operation, func(ctx 
 	return huma.Operation{
 			OperationID: "V1PostAyncScan",
 			Method:      "POST",
-			Path:        "/asyncscan",
+			Path:        pc.Path + "/asyncscan",
 			Summary:     "Do an async scan of an image",
 			Description: `
 				Submits an async scan of an image, and puts the scan task in the queue scanner queue if there is not existing result, otherwise it will update the context in the database.

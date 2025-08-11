@@ -12,7 +12,8 @@ import (
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/danielgtaylor/huma/v2/adapters/humago"
+	"github.com/danielgtaylor/huma/v2/adapters/humachi"
+	"github.com/go-chi/chi/v5"
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/internal/routing"
 	"github.com/metraction/pharos/pkg/model"
@@ -54,21 +55,29 @@ func TestServer(t *testing.T) {
 	require.NoError(t, err)
 	err = databaseContext.Migrate()
 	require.NoError(t, err)
-	router := http.NewServeMux()
-	apiConfig := huma.DefaultConfig("Pharos API", "1.0.0")
-	apiConfig.Servers = []*huma.Server{
-		{URL: "/api", Description: "Pharos API server"},
+	// Base Router
+	baseRouter := chi.NewRouter()
+	commonController := NewCommonController()
+	baseRouter.Use(commonController.RedirectToV1)
+	// Define the v1 api
+	v1ApiRouter := chi.NewMux()
+	v1ApiConfig := huma.DefaultConfig("Pharos API", "1.0.0")
+	v1ApiConfig.Servers = []*huma.Server{
+		{URL: "/api/v1", Description: "Pharos API server"},
 	}
-	apiConfig.OpenAPIPath = "/openapi"
-	api := humago.NewWithPrefix(router, "/api", apiConfig)
-	metricsController := NewMetricsController(&api, config, make(chan any, 1000))
-	api.UseMiddleware(metricsController.MetricsMiddleware())
-	api.UseMiddleware(databaseContext.DatabaseMiddleware())
-	NewimageController(&api, config).V1AddRoutes()
+
+	v1ApiConfig.OpenAPIPath = "/openapi"
+	v1Api := humachi.New(v1ApiRouter, v1ApiConfig)
+	metricsController := NewMetricsController(&v1Api, config, make(chan any, 1000))
+	v1Api.UseMiddleware(metricsController.MetricsMiddleware())
+	v1Api.UseMiddleware(databaseContext.DatabaseMiddleware())
+	NewimageController(&v1Api, config).V1AddRoutes()
 	metricsController.V1AddRoutes()
 
+	baseRouter.Mount("/api/v1", v1ApiRouter)
+
 	go func() {
-		err := http.ListenAndServe(":8081", router)
+		err := http.ListenAndServe(":8081", baseRouter)
 		require.NoError(t, err, "Failed to start server")
 	}()
 	t.Run("01 AddDataTo Database", func(t *testing.T) {

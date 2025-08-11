@@ -137,7 +137,7 @@ func (mc *MetricsController) V1GetVulnerbilityMetrics() (huma.Operation, func(ct
 	return huma.Operation{
 			OperationID: "V1GetVulnerbilityMetrics",
 			Method:      "GET",
-			Path:        "/vulnerabilities",
+			Path:        mc.Path + "/vulnerabilities",
 			Summary:     "Gets Vulnerbility metrics",
 			Description: "Gets Vulnerbility metrics",
 			Tags:        []string{"V1/Metrics"},
@@ -210,7 +210,7 @@ func (mc *MetricsController) V1GetContextMetrics() (huma.Operation, func(ctx con
 	return huma.Operation{
 			OperationID: "V1GetContextMetrics",
 			Method:      "GET",
-			Path:        "/contexts",
+			Path:        mc.Path + "/contexts",
 			Summary:     "Gets Context metrics",
 			Description: "Gets Context metrics",
 			Tags:        []string{"V1/Metrics"},
