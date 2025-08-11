@@ -75,9 +75,11 @@ func (cc *CommonController) RedirectToV1(next http.Handler) http.Handler {
 		}
 		if !(regexp.MustCompile(`^/api/v[0-9]+`).MatchString(path)) {
 			newPath := regexp.MustCompile(`^/api`).ReplaceAllString(path, "/api/v1")
-			cc.Logger.Info().Str("path", path).Str("new_path", newPath).Msg("Redirecting to v1")
-			http.Redirect(w, r, newPath, http.StatusMovedPermanently)
-			return
+			if newPath != path {
+				cc.Logger.Info().Str("path", path).Str("new_path", newPath).Msg("Redirecting to v1")
+				http.Redirect(w, r, newPath, http.StatusMovedPermanently)
+				return
+			}
 		}
 		next.ServeHTTP(w, r)
 	}
