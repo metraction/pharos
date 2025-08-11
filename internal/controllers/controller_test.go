@@ -64,8 +64,8 @@ func TestServer(t *testing.T) {
 	metricsController := NewMetricsController(&api, config, make(chan any, 1000))
 	api.UseMiddleware(metricsController.MetricsMiddleware())
 	api.UseMiddleware(databaseContext.DatabaseMiddleware())
-	NewimageController(&api, config).AddRoutes()
-	metricsController.AddRoutes()
+	NewimageController(&api, config).V1AddRoutes()
+	metricsController.V1AddRoutes()
 
 	go func() {
 		err := http.ListenAndServe(":8081", router)

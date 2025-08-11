@@ -15,10 +15,11 @@ import (
 )
 
 type PharosImageMetaController struct {
-	Path   string
-	Api    *huma.API
-	Config *model.Config
-	Logger *zerolog.Logger
+	Path    string
+	Api     *huma.API
+	Config  *model.Config
+	Logger  *zerolog.Logger
+	Version string
 }
 
 type ContextEntries struct {
@@ -49,37 +50,38 @@ type PharosImageMetaSearchInput struct {
 
 func NewimageController(api *huma.API, config *model.Config) *PharosImageMetaController {
 	pc := &PharosImageMetaController{
-		Path:   "/pharosimagemeta",
-		Api:    api,
-		Config: config,
-		Logger: logging.NewLogger("info", "component", "PharosImageMetaController"),
+		Path:    "/pharosimagemeta",
+		Api:     api,
+		Config:  config,
+		Logger:  logging.NewLogger("info", "component", "PharosImageMetaController"),
+		Version: "v1",
 	}
 	return pc
 }
 
-func (pc *PharosImageMetaController) AddRoutes() {
+func (pc *PharosImageMetaController) V1AddRoutes() {
 	{
-		op, handler := pc.Get()
+		op, handler := pc.V1Get()
 		huma.Register(*pc.Api, op, handler)
 	}
 	{
-		op, handler := pc.GetBySearch()
+		op, handler := pc.V1GetBySearch()
 		huma.Register(*pc.Api, op, handler)
 	}
 	{
-		op, handler := pc.GetContexts()
+		op, handler := pc.V1GetContexts()
 		huma.Register(*pc.Api, op, handler)
 	}
 }
 
-func (pc *PharosImageMetaController) Get() (huma.Operation, func(ctx context.Context, input *ImageDigestInput) (*PharosImageMeta, error)) {
+func (pc *PharosImageMetaController) V1Get() (huma.Operation, func(ctx context.Context, input *ImageDigestInput) (*PharosImageMeta, error)) {
 	return huma.Operation{
-			OperationID: "GetImage",
+			OperationID: "V1GetImage",
 			Method:      "GET",
-			Path:        pc.Path + "/{imageid}",
+			Path:        "/{imageid}",
 			Summary:     "Get one image by ImageId",
 			Description: "Retrieves a Docker image by its ImageId. Returns related objects such as vulnerabilities, packages and findings.",
-			Tags:        []string{"PharosImageMeta"},
+			Tags:        []string{"V1/PharosImageMeta"},
 
 			Responses: map[string]*huma.Response{
 				"200": {
@@ -123,14 +125,14 @@ func (pc *PharosImageMetaController) Get() (huma.Operation, func(ctx context.Con
 		}
 }
 
-func (pc *PharosImageMetaController) GetBySearch() (huma.Operation, func(ctx context.Context, input *PharosImageMetaSearchInput) (*PharosImageMetas, error)) {
+func (pc *PharosImageMetaController) V1GetBySearch() (huma.Operation, func(ctx context.Context, input *PharosImageMetaSearchInput) (*PharosImageMetas, error)) {
 	return huma.Operation{
-			OperationID: "SearchImages",
+			OperationID: "V1SearchImages",
 			Method:      "GET",
-			Path:        pc.Path,
+			Path:        "/" + pc.Version + pc.Path,
 			Summary:     "Search for images",
 			Description: "Retrieves all  images stored in the database.",
-			Tags:        []string{"PharosImageMeta"},
+			Tags:        []string{"V1/PharosImageMeta"},
 			Responses: map[string]*huma.Response{
 				"200": {
 					Description: "A list of images",
@@ -192,14 +194,14 @@ func (pc *PharosImageMetaController) GetBySearch() (huma.Operation, func(ctx con
 		}
 }
 
-func (pc *PharosImageMetaController) GetContexts() (huma.Operation, func(ctx context.Context, input *ImageDigestInput) (*ContextEntries, error)) {
+func (pc *PharosImageMetaController) V1GetContexts() (huma.Operation, func(ctx context.Context, input *ImageDigestInput) (*ContextEntries, error)) {
 	return huma.Operation{
-			OperationID: "GetContexts",
+			OperationID: "V1GetContexts",
 			Method:      "GET",
-			Path:        pc.Path + "/contexts/{imageid}",
+			Path:        "/contexts/{imageid}",
 			Summary:     "Get Contexts for Image",
 			Description: "Returns a flattened list of contexts for the image, to be used by Grafana.",
-			Tags:        []string{"PharosImageMeta"},
+			Tags:        []string{"V1/PharosImageMeta"},
 
 			Responses: map[string]*huma.Response{
 				"200": {

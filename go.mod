@@ -49,6 +49,7 @@ require (
 	github.com/alicebob/miniredis v2.5.0+incompatible
 	github.com/danielgtaylor/huma/v2 v2.32.0
 	github.com/dustinkirkland/golang-petname v0.0.0-20240428194347-eebcea082ee0
+	github.com/go-chi/chi/v5 v5.1.0
 	github.com/go-git/go-git/v5 v5.16.2
 	github.com/mattn/go-sqlite3 v1.14.28
 	github.com/metraction/handwheel v0.0.3
@@ -87,7 +88,6 @@ require (
 	github.com/gomodule/redigo v1.9.2 // indirect
 	github.com/google/gnostic-models v0.6.9 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
-	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/h2so5/here v0.0.0-20200815043652-5e14eb691fae // indirect
 	github.com/huandu/xstrings v1.5.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect

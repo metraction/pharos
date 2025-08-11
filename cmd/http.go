@@ -7,8 +7,9 @@ import (
 	"path/filepath"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/danielgtaylor/huma/v2/adapters/humago"
-	_ "github.com/danielgtaylor/huma/v2/adapters/humamux"
+	"github.com/danielgtaylor/huma/v2/adapters/humachi"
+	_ "github.com/danielgtaylor/huma/v2/adapters/humachi"
+	"github.com/go-chi/chi/v5"
 	"github.com/metraction/pharos/internal/controllers"
 	"github.com/metraction/pharos/internal/integrations/db"
 	"github.com/metraction/pharos/internal/logging"
@@ -42,23 +43,10 @@ These submissions are then published to a Redis stream for further processing by
 		databaseContext := model.NewDatabaseContext(&config.Database)
 		databaseContext.Migrate()
 
-		// TODO move huma config at the end of this file: first dependencies (db, redis), then flows and then huma
-		router := http.NewServeMux()
-
-		apiConfig := huma.DefaultConfig("Pharos API", "1.0.0")
-		apiConfig.Servers = []*huma.Server{
-			{URL: "/api", Description: "Pharos API server"},
-		}
-		apiConfig.OpenAPIPath = "/openapi"
-		api := humago.NewWithPrefix(router, "/api", apiConfig)
 		// For scan tasks
 		taskChannel := make(chan any, config.Publisher.QueueSize)
 		// For scanning bypass
 		resultChannel := make(chan any, config.ResultCollector.QueueSize)
-		metricsController := controllers.NewMetricsController(&api, config, taskChannel)
-		api.UseMiddleware(metricsController.MetricsMiddleware())
-
-		api.UseMiddleware(databaseContext.DatabaseMiddleware())
 
 		// TODO other commands expect current path, but for http default file are in kodata...
 		enricherPath := config.EnricherPath
@@ -96,21 +84,39 @@ These submissions are then published to a Redis stream for further processing by
 		go CreateEnrichersFlow(internalFlow, enrichers).
 			To(db.NewImageDbSink(databaseContext))
 
-		// Add routes for the API
-		controllers.NewimageController(&api, config).AddRoutes()
-		controllers.NewPharosScanTaskController(&api, config, taskChannel, resultChannel).AddRoutes()
-		controllers.NewConfigController(&api, config).AddRoutes()
-		metricsController.AddRoutes()
+		go routing.NewImageCleanupFlow(databaseContext, config)
+		// Base Router
+		baseRouter := chi.NewRouter()
+		commonController := controllers.NewCommonController()
+		baseRouter.Use(commonController.RedirectToV1)
+		// Define the v1 api
+		v1ApiRouter := chi.NewMux()
+		v1ApiConfig := huma.DefaultConfig("Pharos API", "1.0.0")
+		v1ApiConfig.Servers = []*huma.Server{
+			{URL: "/api/v1", Description: "Pharos API server"},
+		}
+
+		v1ApiConfig.OpenAPIPath = "/openapi"
+		v1Api := humachi.New(v1ApiRouter, v1ApiConfig)
+
+		metricsController := controllers.NewMetricsController(&v1Api, config, taskChannel)
+		v1Api.UseMiddleware(metricsController.MetricsMiddleware())
+
+		v1Api.UseMiddleware(databaseContext.DatabaseMiddleware())
+		controllers.NewimageController(&v1Api, config).V1AddRoutes()
+		controllers.NewPharosScanTaskController(&v1Api, config, taskChannel, resultChannel).V1AddRoutes()
+		controllers.NewConfigController(&v1Api, config).V1AddRoutes()
+		metricsController.V1AddRoutes()
 		//router.Use(metricsController.MetricsMiddleware)
 		// Add go streams routes
-		go routing.NewImageCleanupFlow(databaseContext, config)
+
 		// Register collectors for metrics
 		prometheus.MustRegister(
 			metriccollectors.NewChannelCollector().
 				WithChannel("task_channel", taskChannel).
 				WithChannel("result_channel", resultChannel),
 		)
-		router.HandleFunc("/api/swagger", func(w http.ResponseWriter, r *http.Request) {
+		v1ApiRouter.HandleFunc("/swagger", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/html")
 			w.Write([]byte(`<!DOCTYPE html>
 <html lang="en">
@@ -127,7 +133,7 @@ These submissions are then published to a Redis stream for further processing by
 <script>
   window.onload = () => {
     window.ui = SwaggerUIBundle({
-      url: '/api/openapi.json',
+      url: '/api/v1/openapi.json',
       dom_id: '#swagger-ui',
     });
   };
@@ -137,8 +143,9 @@ These submissions are then published to a Redis stream for further processing by
 		})
 
 		serverAddr := fmt.Sprintf(":%d", httpPort)
+		baseRouter.Mount("/api/v1", v1ApiRouter)
 		logger.Info().Str("address", serverAddr).Msg("Starting HTTP server")
-		if err := http.ListenAndServe(serverAddr, router); err != nil {
+		if err := http.ListenAndServe(serverAddr, baseRouter); err != nil {
 			logger.Fatal().Err(err).Msg("Failed to start HTTP server")
 		}
 	},

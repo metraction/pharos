@@ -22,6 +22,7 @@ type PharosScanTaskController struct {
 	Logger        *zerolog.Logger
 	TaskChannel   chan any
 	ResultChannel chan any
+	Version       string
 }
 
 // TODO: Rename as PharosScanTask2 is know from model, leads to confusion
@@ -37,6 +38,7 @@ func NewPharosScanTaskController(api *huma.API, config *model.Config, sourceChan
 		Logger:        logging.NewLogger("info", "component", "PharosScanTaskController"),
 		TaskChannel:   sourceChannel,
 		ResultChannel: resultChannel,
+		Version:       "v1",
 	}
 
 	return pc
@@ -46,13 +48,13 @@ type PharosScanResult struct {
 	Body model.PharosScanResult `json:"body"`
 }
 
-func (pc *PharosScanTaskController) AddRoutes() {
+func (pc *PharosScanTaskController) V1AddRoutes() {
 	{
-		op, handler := pc.SyncScan()
+		op, handler := pc.V1PostSyncScan()
 		huma.Register(*pc.Api, op, handler)
 	}
 	{
-		op, handler := pc.AsyncScan()
+		op, handler := pc.V1PostAsyncScan()
 		huma.Register(*pc.Api, op, handler)
 	}
 }
@@ -83,11 +85,11 @@ func (pc *PharosScanTaskController) sendScanRequest(ctx context.Context, pharosS
 
 // SyncScan handles the creation or update of a Docker image and initiates a scan.
 
-func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx context.Context, input *PharosScanTask2) (*PharosScanTask2, error)) {
+func (pc *PharosScanTaskController) V1PostAsyncScan() (huma.Operation, func(ctx context.Context, input *PharosScanTask2) (*PharosScanTask2, error)) {
 	return huma.Operation{
-			OperationID: "AsyncScan",
+			OperationID: "V1PostAyncScan",
 			Method:      "POST",
-			Path:        pc.Path + "/asyncscan",
+			Path:        "/asyncscan",
 			Summary:     "Do an async scan of an image",
 			Description: `
 				Submits an async scan of an image, and puts the scan task in the queue scanner queue if there is not existing result, otherwise it will update the context in the database.
@@ -96,7 +98,7 @@ func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx contex
 					"imageSpec": "redis:latest"
 					}
 				`,
-			Tags: []string{"PharosScanTask"},
+			Tags: []string{"V1/PharosScanTask"},
 			Responses: map[string]*huma.Response{
 				"200": {
 					Description: "A single image",
@@ -170,9 +172,9 @@ func (pc *PharosScanTaskController) AsyncScan() (huma.Operation, func(ctx contex
 
 // SyncScan handles the creation or update of a Docker image and initiates a scan.
 
-func (pc *PharosScanTaskController) SyncScan() (huma.Operation, func(ctx context.Context, input *PharosScanTask2) (*PharosScanResult, error)) {
+func (pc *PharosScanTaskController) V1PostSyncScan() (huma.Operation, func(ctx context.Context, input *PharosScanTask2) (*PharosScanResult, error)) {
 	return huma.Operation{
-			OperationID: "SyncScan",
+			OperationID: "V1PostSyncScan",
 			Method:      "POST",
 			Path:        pc.Path + "/syncscan",
 			Summary:     "Do a sync scan of an image",
@@ -183,7 +185,7 @@ func (pc *PharosScanTaskController) SyncScan() (huma.Operation, func(ctx context
 					"imageSpec": "redis:latest"
 					}
 				`,
-			Tags: []string{"PharosScanTask"},
+			Tags: []string{"V1/PharosScanTask"},
 			Responses: map[string]*huma.Response{
 				"200": {
 					Description: "A single image",
