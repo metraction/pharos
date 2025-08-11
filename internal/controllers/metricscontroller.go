@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/danielgtaylor/huma/v2/adapters/humago"
+	"github.com/danielgtaylor/huma/v2/adapters/humachi"
 	_ "github.com/dustinkirkland/golang-petname"
 	"github.com/metraction/pharos/internal/integrations/redis"
 	"github.com/metraction/pharos/internal/logging"
@@ -41,6 +41,7 @@ type MetricsController struct {
 	contextLabels     map[string]string      // Used to collect labels for contexts metric
 	HttpRequests      *prometheus.CounterVec // Metric to track HTTP requests
 	TaskChannel       chan any               // Channel for scan tasks
+	Version           string
 }
 
 func NewMetricsController(api *huma.API, config *model.Config, taskChannel chan any) *MetricsController {
@@ -48,7 +49,7 @@ func NewMetricsController(api *huma.API, config *model.Config, taskChannel chan 
 	httpRequests := prometheus.NewCounterVec(prometheus.CounterOpts{
 		Name: "pharos_http_request_count",
 		Help: "Counter for HTTP requests to Pharos API",
-	}, []string{"operation_path", "operation_id", "method", "status_code"})
+	}, []string{"V1/operation.Path ", "operation_id", "method", "status_code"})
 	err := prometheus.Register(httpRequests)
 	if err != nil {
 		logger.Warn().Msg("Failed to register pharos_scantask_status status metric duplicate registration?")
@@ -60,29 +61,30 @@ func NewMetricsController(api *huma.API, config *model.Config, taskChannel chan 
 		Logger:       logger,
 		HttpRequests: httpRequests,
 		TaskChannel:  taskChannel,
+		Version:      "v1",
 	}
 	return mc
 }
 
-func (mc *MetricsController) AddRoutes() {
+func (mc *MetricsController) V1AddRoutes() {
 	{
-		op, handler := mc.VulnerbilityMetrics()
+		op, handler := mc.V1GetVulnerbilityMetrics()
 		huma.Register(*mc.Api, op, handler)
 	}
 	{
-		op, handler := mc.ContextMetrics()
+		op, handler := mc.V1GetContextMetrics()
 		huma.Register(*mc.Api, op, handler)
 	}
 	{
-		op, handler := mc.DefaultMetrics()
+		op, handler := mc.V1GetDefaultMetrics()
 		huma.Register(*mc.Api, op, handler)
 	}
 	{
-		op, handler := mc.Liveness()
+		op, handler := mc.V1GetLiveness()
 		huma.Register(*mc.Api, op, handler)
 	}
 	{
-		op, handler := mc.Readiness()
+		op, handler := mc.V1GetReadiness()
 		huma.Register(*mc.Api, op, handler)
 	}
 }
@@ -119,7 +121,7 @@ func (mc *MetricsController) NewVulnerabilityRegistry() (*prometheus.Registry, *
 		Name: "pharos_vulnerabilities",
 		Help: "Vulnerabilities for images",
 	}
-	vulnerabilities := prometheus.NewGaugeVec(desc, []string{"image", "digest", "imageid", "platform", "severity"})
+	vulnerabilities := prometheus.NewGaugeVec(desc, []string{"V1/image", "digest", "imageid", "platform", "severity"})
 	err := registry.Register(vulnerabilities)
 	if err != nil {
 		return nil, nil, err
@@ -131,14 +133,14 @@ func (mc *MetricsController) NewVulnerabilityRegistry() (*prometheus.Registry, *
 // Gets Vulnerability metrics for pharos controller, vulnerabilities, and images. We are registering an operation with a handler, and use writer and request from a middleware.
 // A bit of a hack, but now we have a common way to document things.
 
-func (mc *MetricsController) VulnerbilityMetrics() (huma.Operation, func(ctx context.Context, input *struct{}) (*struct{ Body string }, error)) {
+func (mc *MetricsController) V1GetVulnerbilityMetrics() (huma.Operation, func(ctx context.Context, input *struct{}) (*struct{ Body string }, error)) {
 	return huma.Operation{
-			OperationID: "GetVulnerbilityMetrics",
+			OperationID: "V1GetVulnerbilityMetrics",
 			Method:      "GET",
 			Path:        mc.Path + "/vulnerabilities",
 			Summary:     "Gets Vulnerbility metrics",
 			Description: "Gets Vulnerbility metrics",
-			Tags:        []string{"Metrics"},
+			Tags:        []string{"V1/Metrics"},
 			Responses: map[string]*huma.Response{
 				"200": {
 					Content: map[string]*huma.MediaType{
@@ -203,15 +205,15 @@ func (mc *MetricsController) VulnerbilityMetrics() (huma.Operation, func(ctx con
 		}
 }
 
-func (mc *MetricsController) ContextMetrics() (huma.Operation, func(ctx context.Context, input *struct{}) (*struct{ Body string }, error)) {
+func (mc *MetricsController) V1GetContextMetrics() (huma.Operation, func(ctx context.Context, input *struct{}) (*struct{ Body string }, error)) {
 
 	return huma.Operation{
-			OperationID: "GetContextMetrics",
+			OperationID: "V1GetContextMetrics",
 			Method:      "GET",
 			Path:        mc.Path + "/contexts",
 			Summary:     "Gets Context metrics",
 			Description: "Gets Context metrics",
-			Tags:        []string{"Metrics"},
+			Tags:        []string{"V1/Metrics"},
 			Responses: map[string]*huma.Response{
 				"200": {
 					Content: map[string]*huma.MediaType{
@@ -278,15 +280,15 @@ func (mc *MetricsController) ContextMetrics() (huma.Operation, func(ctx context.
 		}
 }
 
-func (mc *MetricsController) DefaultMetrics() (huma.Operation, func(ctx context.Context, input *struct{}) (*struct{ Body string }, error)) {
+func (mc *MetricsController) V1GetDefaultMetrics() (huma.Operation, func(ctx context.Context, input *struct{}) (*struct{ Body string }, error)) {
 
 	return huma.Operation{
-			OperationID: "GetMetrics",
+			OperationID: "V1GetMetrics",
 			Method:      "GET",
 			Path:        mc.Path,
 			Summary:     "Gets Default metrics",
 			Description: "Gets Default metrics",
-			Tags:        []string{"Metrics"},
+			Tags:        []string{"V1/Metrics"},
 			Responses: map[string]*huma.Response{
 				"200": {
 					Content: map[string]*huma.MediaType{
@@ -312,15 +314,15 @@ func (mc *MetricsController) DefaultMetrics() (huma.Operation, func(ctx context.
 		}
 }
 
-func (mc *MetricsController) Liveness() (huma.Operation, func(ctx context.Context, input *struct{}) (*ProbeResult, error)) {
+func (mc *MetricsController) V1GetLiveness() (huma.Operation, func(ctx context.Context, input *struct{}) (*ProbeResult, error)) {
 
 	return huma.Operation{
-			OperationID: "LivenessProbe",
+			OperationID: "V1LivenessProbe",
 			Method:      "GET",
 			Path:        mc.Path + "/liveness",
 			Summary:     "Liveness probe",
 			Description: "Used for liveness probe",
-			Tags:        []string{"Probes"},
+			Tags:        []string{"V1/Probes"},
 			Responses: map[string]*huma.Response{
 				"200": {
 					Content: map[string]*huma.MediaType{
@@ -337,15 +339,15 @@ func (mc *MetricsController) Liveness() (huma.Operation, func(ctx context.Contex
 		}
 }
 
-func (mc *MetricsController) Readiness() (huma.Operation, func(ctx context.Context, input *struct{}) (*ProbeResult, error)) {
+func (mc *MetricsController) V1GetReadiness() (huma.Operation, func(ctx context.Context, input *struct{}) (*ProbeResult, error)) {
 
 	return huma.Operation{
-			OperationID: "ReadinessProbe",
+			OperationID: "V1ReadinessProbe",
 			Method:      "GET",
 			Path:        mc.Path + "/readiness",
 			Summary:     "Readiness probe",
 			Description: "Returns error if queue is full, otherwise returns OK",
-			Tags:        []string{"Probes"},
+			Tags:        []string{"V1/Probes"},
 			Responses: map[string]*huma.Response{
 				"200": {
 					Content: map[string]*huma.MediaType{
@@ -369,7 +371,7 @@ func (mc *MetricsController) Readiness() (huma.Operation, func(ctx context.Conte
 
 func (mc *MetricsController) MetricsMiddleware() func(ctx huma.Context, next func(huma.Context)) {
 	return func(ctx huma.Context, next func(huma.Context)) {
-		r, w := humago.Unwrap(ctx)
+		r, w := humachi.Unwrap(ctx)
 		ctx = huma.WithValue(ctx, "request", r)
 		ctx = huma.WithValue(ctx, "writer", w)
 		ctx.AppendHeader("Pharos-Pod-Name", os.Getenv("HOSTNAME")) // Add pod name
@@ -380,6 +382,6 @@ func (mc *MetricsController) MetricsMiddleware() func(ctx huma.Context, next fun
 			ctx.Method(),
 			fmt.Sprintf("%d", ctx.Status()),
 		).Inc()
-		//mc.Logger.Info().Str("UlrPath", r.URL.Path).Int("code", ctx.Status()).Str("method", ctx.Method()).Str("OperationId", ctx.Operation().OperationID).Msg("Metrics middleware called")
+		//mc.Logger.Info().Str("Ul.Version +"/" +  Ul.Path ", r.URL.Version +"/" +  URL.Path ).Int("code", ctx.Status()).Str("method", ctx.Method()).Str("OperationId", ctx.Operation().OperationID).Msg("Metrics middleware called")
 	}
 }

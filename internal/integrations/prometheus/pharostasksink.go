@@ -36,7 +36,7 @@ func (ps *PharosTaskSink) process() {
 	defer close(ps.done)
 	for task := range ps.in {
 		scanTask, _ := task.(model.PharosScanTask2)
-		url := ps.Config.Prometheus.PharosURL + "/api/pharosscantask/asyncscan"
+		url := ps.Config.Prometheus.PharosURL + "/api/v1/pharosscantask/asyncscan"
 
 		client := &http.Client{}
 

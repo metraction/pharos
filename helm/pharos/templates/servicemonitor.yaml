@@ -5,17 +5,17 @@ metadata:
   name: {{ include "pharos.fullname" . }}
 spec:
   endpoints:
-    - path: /api/metrics
+    - path: /api/v1/metrics
       port: http
       relabelings:
         - targetLabel: type
           replacement: default
-    - path: /api/metrics/contexts # TODO: here we can filter by context later if implemented in controller
+    - path: /api/v1/metrics/contexts # TODO: here we can filter by context later if implemented in controller
       port: http
       relabelings:
         - targetLabel: type
           replacement: contexts
-    - path: /api/metrics/vulnerabilities
+    - path: /api/v1/metrics/vulnerabilities
       port: http
       relabelings:
         - targetLabel: type
