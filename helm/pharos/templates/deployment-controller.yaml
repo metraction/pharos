@@ -28,14 +28,14 @@ spec:
           - containerPort: 8080
         livenessProbe:
           httpGet:
-            path: /api/metrics/liveness
+            path: /api/v1/metrics/liveness
             port: 8080
             httpHeaders:
           failureThreshold: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
-            path: /api/metrics/readiness
+            path: /api/v1/metrics/readiness
             port: 8080
             httpHeaders:
           failureThreshold: 1
