@@ -20,6 +20,8 @@
                 "verysecret",
                 "--prometheus.auth.token",
                 "verysecrettoken",
+                "--config",
+                "./testdata/config/.pharos.yaml",
             ], 
         },
         {

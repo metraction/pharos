@@ -22,8 +22,12 @@ type AlertController struct {
 	Version string
 }
 
-type Alerts struct {
+type PrometheusAlerts struct {
 	Body []model.PrometheusAlert `json:"body"`
+}
+
+type Alerts struct {
+	Body []model.Alert `json:"body"`
 }
 
 type AlertSearchInput struct {
@@ -44,22 +48,73 @@ func NewAlertController(api *huma.API, config *model.Config) *AlertController {
 
 func (ac *AlertController) V1AddRoutes() {
 	{
-		op, handler := ac.V1GetBySearch()
+		op, handler := ac.V1AlertsGetBySearch()
+		huma.Register(*ac.Api, op, handler)
+	}
+	{
+		op, handler := ac.V1PrometheusAlertsGetBySearch()
 		huma.Register(*ac.Api, op, handler)
 	}
 }
 
-func (ac *AlertController) V1GetBySearch() (huma.Operation, func(ctx context.Context, input *AlertSearchInput) (*Alerts, error)) {
+func (ac *AlertController) V1PrometheusAlertsGetBySearch() (huma.Operation, func(ctx context.Context, input *AlertSearchInput) (*PrometheusAlerts, error)) {
+	return huma.Operation{
+			OperationID: "V1SearchPrometheusAlerts",
+			Method:      "GET",
+			Path:        ac.Path + "/prometheus",
+			Summary:     "Search for prometheus alerts",
+			Description: "Retrieves alerts stored in the database as prometheus alerts",
+			Tags:        []string{"V1/Alert"},
+			Responses: map[string]*huma.Response{
+				"200": {
+					Description: "A list of prometheus alerts",
+				},
+				"500": {
+					Description: "Internal server error",
+				},
+			},
+		}, func(ctx context.Context, input *AlertSearchInput) (*PrometheusAlerts, error) {
+			databaseContext, err := getDatabaseContext(ctx)
+			if err != nil {
+				return nil, huma.Error500InternalServerError("Database context not found in request context")
+			}
+			var db *gorm.DB
+			if input.Detail {
+				db = databaseContext.DB.
+					Preload("Labels").
+					Preload("Annotations")
+			} else {
+				db = databaseContext.DB.Omit(clause.Associations)
+			}
+			db = db.Order("fingerprint ASC")
+
+			var values []model.Alert
+			result := db.Scopes(Paginate(&input.Pagination)).Find(&values)
+			if result.Error != nil {
+				return nil, huma.Error500InternalServerError("Failed to retrieve alerts: " + result.Error.Error())
+			}
+			prometheusAlerts := make([]model.PrometheusAlert, len(values))
+			for i, alert := range values {
+				prometheusAlerts[i] = *alerting.GetPrometheusAlert(&alert)
+			}
+
+			return &PrometheusAlerts{
+				Body: prometheusAlerts,
+			}, nil
+		}
+}
+
+func (ac *AlertController) V1AlertsGetBySearch() (huma.Operation, func(ctx context.Context, input *AlertSearchInput) (*Alerts, error)) {
 	return huma.Operation{
 			OperationID: "V1SearchAlerts",
 			Method:      "GET",
 			Path:        ac.Path,
 			Summary:     "Search for alerts",
-			Description: "Retrieves alerts stored in the database.",
+			Description: "Retrieves alerts stored in the database as internal representation",
 			Tags:        []string{"V1/Alert"},
 			Responses: map[string]*huma.Response{
 				"200": {
-					Description: "A list of alert",
+					Description: "A list of alerta",
 				},
 				"500": {
 					Description: "Internal server error",
@@ -85,13 +140,8 @@ func (ac *AlertController) V1GetBySearch() (huma.Operation, func(ctx context.Con
 			if result.Error != nil {
 				return nil, huma.Error500InternalServerError("Failed to retrieve alerts: " + result.Error.Error())
 			}
-			prometheusAlerts := make([]model.PrometheusAlert, len(values))
-			for i, alert := range values {
-				prometheusAlerts[i] = *alerting.GetPrometheusAlert(&alert)
-			}
-
 			return &Alerts{
-				Body: prometheusAlerts,
+				Body: values,
 			}, nil
 		}
 }

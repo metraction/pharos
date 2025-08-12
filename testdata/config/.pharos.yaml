@@ -1,0 +1,18 @@
+alerting:
+  route:
+    group_by: ["..."]
+    continue: true
+    receiver: default
+    child_routes:
+      - receiver: example_webhook
+        group_by: 
+          - imageid
+          - imagespec
+          - namespace
+
+  receivers:
+    - name: "default"
+    - name: "example_webhook"
+      webhook_configs:
+        - url: "http://localhost:8081/api/v1/alerts"
+          send_resolved: true
