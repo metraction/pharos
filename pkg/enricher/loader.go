@@ -95,7 +95,7 @@ func LoadEnricherConfig(enricherPath string, name string) model.EnricherConfig {
 		BasePath: enricherDir,
 		Configs:  configs,
 	}
-	fmt.Println("Enricher config", enricherConfig)
+	logger.Debug().Interface("config", enricherConfig).Msg("Loaded Enricher config")
 	return enricherConfig
 }
 
