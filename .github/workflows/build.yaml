@@ -3,6 +3,7 @@ on:
   push:
     branches: 
     - main
+    - '140-*'
     - 'PH-120/*'
     - 'PH-99/*'
     - 'PH-131/*'
@@ -60,7 +61,7 @@ jobs:
 
   ko-build:
     # Run this job on push events and pull requests
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'push'
     needs: [go-test]
     uses: metraction/github-actions/.github/workflows/ko-build.yaml@main
     secrets: inherit
