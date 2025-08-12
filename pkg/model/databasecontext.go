@@ -24,6 +24,9 @@ var Models = []interface{}{
 	PharosPackage{},
 	ContextRoot{},
 	Context{},
+	Alert{},
+	AlertLabel{},
+	AlertAnnotation{},
 }
 
 // DefaultGormModel provides a base model with common fields for GORM models, removing the DeletedAt field.

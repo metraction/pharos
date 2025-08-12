@@ -1,6 +1,8 @@
 package db
 
-import "github.com/metraction/pharos/pkg/model"
+import (
+	"github.com/metraction/pharos/pkg/model"
+)
 
 type ImageDbHandler struct {
 	DatabaseContext *model.DatabaseContext
