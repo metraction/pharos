@@ -56,6 +56,7 @@ require (
 	github.com/otiai10/copy v1.14.1
 	github.com/prometheus/client_golang v1.22.0
 	go.starlark.net v0.0.0-20240123142251-f86470692795
+	gopkg.in/yaml.v2 v2.4.0
 	gorm.io/driver/sqlite v1.6.0
 	k8s.io/api v0.33.2
 	k8s.io/apimachinery v0.33.2

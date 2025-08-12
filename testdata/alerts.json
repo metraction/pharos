@@ -46,11 +46,16 @@
         "alert_fingerprint": "sha256:01ad95dea25f7b59fd040f60323bd9a191580cd62e6d9e0d0892b32ed36b08b9",
         "name": "High",
         "value": "20"
+      },
+      {
+        "alert_fingerprint": "sha256:01ad95dea25f7b59fd040f60323bd9a191580cd62e6d9e0d0892b32ed36b08b9",
+        "name": "namespace",
+        "value": "nextcloud-test"
       }
     ],
     "annotations": [],
-    "startsAt": "2025-08-12T11:50:23.3752+02:00",
-    "endsAt": "2025-08-12T12:20:23.3752+02:00",
+    "startsAt": "2025-08-12T16:46:04.202303+02:00",
+    "endsAt": "2025-08-12T17:16:04.202303+02:00",
     "generatorURL": "",
     "fingerprint": "sha256:01ad95dea25f7b59fd040f60323bd9a191580cd62e6d9e0d0892b32ed36b08b9"
   },
@@ -79,6 +84,16 @@
       },
       {
         "alert_fingerprint": "sha256:104f6e5f83e3c0ed12694036536a31f8e62d28e5b4a20e24087756ea50502ed8",
+        "name": "Unknown",
+        "value": "9"
+      },
+      {
+        "alert_fingerprint": "sha256:104f6e5f83e3c0ed12694036536a31f8e62d28e5b4a20e24087756ea50502ed8",
+        "name": "High",
+        "value": "15"
+      },
+      {
+        "alert_fingerprint": "sha256:104f6e5f83e3c0ed12694036536a31f8e62d28e5b4a20e24087756ea50502ed8",
         "name": "Negligible",
         "value": "133"
       },
@@ -94,13 +109,8 @@
       },
       {
         "alert_fingerprint": "sha256:104f6e5f83e3c0ed12694036536a31f8e62d28e5b4a20e24087756ea50502ed8",
-        "name": "High",
-        "value": "15"
-      },
-      {
-        "alert_fingerprint": "sha256:104f6e5f83e3c0ed12694036536a31f8e62d28e5b4a20e24087756ea50502ed8",
-        "name": "Unknown",
-        "value": "9"
+        "name": "namespace",
+        "value": "nextcloud-test3"
       },
       {
         "alert_fingerprint": "sha256:104f6e5f83e3c0ed12694036536a31f8e62d28e5b4a20e24087756ea50502ed8",
@@ -109,8 +119,8 @@
       }
     ],
     "annotations": [],
-    "startsAt": "2025-08-12T11:50:28.681872+02:00",
-    "endsAt": "2025-08-12T12:20:28.681872+02:00",
+    "startsAt": "2025-08-12T16:46:09.506385+02:00",
+    "endsAt": "2025-08-12T17:16:09.506385+02:00",
     "generatorURL": "",
     "fingerprint": "sha256:104f6e5f83e3c0ed12694036536a31f8e62d28e5b4a20e24087756ea50502ed8"
   },
@@ -139,6 +149,16 @@
       },
       {
         "alert_fingerprint": "sha256:182bb911fdf9c9bd88ee9b23319f7415b7231b0fe49fa75fd768368242ff7287",
+        "name": "Critical",
+        "value": "7"
+      },
+      {
+        "alert_fingerprint": "sha256:182bb911fdf9c9bd88ee9b23319f7415b7231b0fe49fa75fd768368242ff7287",
+        "name": "Medium",
+        "value": "61"
+      },
+      {
+        "alert_fingerprint": "sha256:182bb911fdf9c9bd88ee9b23319f7415b7231b0fe49fa75fd768368242ff7287",
         "name": "High",
         "value": "43"
       },
@@ -159,18 +179,13 @@
       },
       {
         "alert_fingerprint": "sha256:182bb911fdf9c9bd88ee9b23319f7415b7231b0fe49fa75fd768368242ff7287",
-        "name": "Medium",
-        "value": "61"
-      },
-      {
-        "alert_fingerprint": "sha256:182bb911fdf9c9bd88ee9b23319f7415b7231b0fe49fa75fd768368242ff7287",
-        "name": "Critical",
-        "value": "7"
+        "name": "namespace",
+        "value": "wordpress-test"
       }
     ],
     "annotations": [],
-    "startsAt": "2025-08-12T11:50:19.081062+02:00",
-    "endsAt": "2025-08-12T12:20:19.081062+02:00",
+    "startsAt": "2025-08-12T16:45:59.937369+02:00",
+    "endsAt": "2025-08-12T17:15:59.937369+02:00",
     "generatorURL": "",
     "fingerprint": "sha256:182bb911fdf9c9bd88ee9b23319f7415b7231b0fe49fa75fd768368242ff7287"
   },
@@ -189,13 +204,18 @@
       },
       {
         "alert_fingerprint": "sha256:201baf8c5f7c6956537113c41f609dc741f898c4fdc6c26bceae412355083ae2",
-        "name": "digest",
-        "value": "sha256:138e4d2310a19c01833f17281cd4925d170d02bc17a6141720f67058c8e8842a"
+        "name": "High",
+        "value": "20"
       },
       {
         "alert_fingerprint": "sha256:201baf8c5f7c6956537113c41f609dc741f898c4fdc6c26bceae412355083ae2",
-        "name": "platform",
-        "value": "linux/amd64"
+        "name": "Unknown",
+        "value": "1"
+      },
+      {
+        "alert_fingerprint": "sha256:201baf8c5f7c6956537113c41f609dc741f898c4fdc6c26bceae412355083ae2",
+        "name": "Medium",
+        "value": "19"
       },
       {
         "alert_fingerprint": "sha256:201baf8c5f7c6956537113c41f609dc741f898c4fdc6c26bceae412355083ae2",
@@ -209,23 +229,23 @@
       },
       {
         "alert_fingerprint": "sha256:201baf8c5f7c6956537113c41f609dc741f898c4fdc6c26bceae412355083ae2",
-        "name": "High",
-        "value": "20"
+        "name": "digest",
+        "value": "sha256:138e4d2310a19c01833f17281cd4925d170d02bc17a6141720f67058c8e8842a"
       },
       {
         "alert_fingerprint": "sha256:201baf8c5f7c6956537113c41f609dc741f898c4fdc6c26bceae412355083ae2",
-        "name": "Unknown",
-        "value": "1"
+        "name": "platform",
+        "value": "linux/amd64"
       },
       {
         "alert_fingerprint": "sha256:201baf8c5f7c6956537113c41f609dc741f898c4fdc6c26bceae412355083ae2",
-        "name": "Medium",
-        "value": "19"
+        "name": "namespace",
+        "value": "nextcloud-test3"
       }
     ],
     "annotations": [],
-    "startsAt": "2025-08-12T11:50:17.764933+02:00",
-    "endsAt": "2025-08-12T12:20:17.764933+02:00",
+    "startsAt": "2025-08-12T16:45:58.52725+02:00",
+    "endsAt": "2025-08-12T17:15:58.52725+02:00",
     "generatorURL": "",
     "fingerprint": "sha256:201baf8c5f7c6956537113c41f609dc741f898c4fdc6c26bceae412355083ae2"
   },
@@ -254,21 +274,6 @@
       },
       {
         "alert_fingerprint": "sha256:25d085e63e5004a3c7d633ae1fcca6252fe0e735f0d5a1237ac3a07d890ec3fb",
-        "name": "Medium",
-        "value": "35"
-      },
-      {
-        "alert_fingerprint": "sha256:25d085e63e5004a3c7d633ae1fcca6252fe0e735f0d5a1237ac3a07d890ec3fb",
-        "name": "Critical",
-        "value": "10"
-      },
-      {
-        "alert_fingerprint": "sha256:25d085e63e5004a3c7d633ae1fcca6252fe0e735f0d5a1237ac3a07d890ec3fb",
-        "name": "Unknown",
-        "value": "9"
-      },
-      {
-        "alert_fingerprint": "sha256:25d085e63e5004a3c7d633ae1fcca6252fe0e735f0d5a1237ac3a07d890ec3fb",
         "name": "High",
         "value": "15"
       },
@@ -281,11 +286,31 @@
         "alert_fingerprint": "sha256:25d085e63e5004a3c7d633ae1fcca6252fe0e735f0d5a1237ac3a07d890ec3fb",
         "name": "Negligible",
         "value": "133"
+      },
+      {
+        "alert_fingerprint": "sha256:25d085e63e5004a3c7d633ae1fcca6252fe0e735f0d5a1237ac3a07d890ec3fb",
+        "name": "Medium",
+        "value": "35"
+      },
+      {
+        "alert_fingerprint": "sha256:25d085e63e5004a3c7d633ae1fcca6252fe0e735f0d5a1237ac3a07d890ec3fb",
+        "name": "Unknown",
+        "value": "9"
+      },
+      {
+        "alert_fingerprint": "sha256:25d085e63e5004a3c7d633ae1fcca6252fe0e735f0d5a1237ac3a07d890ec3fb",
+        "name": "Critical",
+        "value": "10"
+      },
+      {
+        "alert_fingerprint": "sha256:25d085e63e5004a3c7d633ae1fcca6252fe0e735f0d5a1237ac3a07d890ec3fb",
+        "name": "namespace",
+        "value": "nextcloud-test1"
       }
     ],
     "annotations": [],
-    "startsAt": "2025-08-12T11:50:30.494413+02:00",
-    "endsAt": "2025-08-12T12:20:30.494413+02:00",
+    "startsAt": "2025-08-12T16:46:11.318101+02:00",
+    "endsAt": "2025-08-12T17:16:11.318101+02:00",
     "generatorURL": "",
     "fingerprint": "sha256:25d085e63e5004a3c7d633ae1fcca6252fe0e735f0d5a1237ac3a07d890ec3fb"
   },
@@ -314,13 +339,8 @@
       },
       {
         "alert_fingerprint": "sha256:2966ffb49bf1573849920310a539492526a80cdf66788c4b336a8f80016d2d95",
-        "name": "Medium",
-        "value": "61"
-      },
-      {
-        "alert_fingerprint": "sha256:2966ffb49bf1573849920310a539492526a80cdf66788c4b336a8f80016d2d95",
-        "name": "Critical",
-        "value": "7"
+        "name": "High",
+        "value": "43"
       },
       {
         "alert_fingerprint": "sha256:2966ffb49bf1573849920310a539492526a80cdf66788c4b336a8f80016d2d95",
@@ -339,13 +359,23 @@
       },
       {
         "alert_fingerprint": "sha256:2966ffb49bf1573849920310a539492526a80cdf66788c4b336a8f80016d2d95",
-        "name": "High",
-        "value": "43"
+        "name": "Medium",
+        "value": "61"
+      },
+      {
+        "alert_fingerprint": "sha256:2966ffb49bf1573849920310a539492526a80cdf66788c4b336a8f80016d2d95",
+        "name": "Critical",
+        "value": "7"
+      },
+      {
+        "alert_fingerprint": "sha256:2966ffb49bf1573849920310a539492526a80cdf66788c4b336a8f80016d2d95",
+        "name": "namespace",
+        "value": "wordpress-test1"
       }
     ],
     "annotations": [],
-    "startsAt": "2025-08-12T11:50:22.118802+02:00",
-    "endsAt": "2025-08-12T12:20:22.118802+02:00",
+    "startsAt": "2025-08-12T16:46:02.961529+02:00",
+    "endsAt": "2025-08-12T17:16:02.961529+02:00",
     "generatorURL": "",
     "fingerprint": "sha256:2966ffb49bf1573849920310a539492526a80cdf66788c4b336a8f80016d2d95"
   },
@@ -394,18 +424,23 @@
       },
       {
         "alert_fingerprint": "sha256:35acf28748b782653f2af43c14863cc7f49a033673abe54737e60fe46d77e1b9",
-        "name": "Low",
-        "value": "18"
+        "name": "namespace",
+        "value": "nextcloud-test"
       },
       {
         "alert_fingerprint": "sha256:35acf28748b782653f2af43c14863cc7f49a033673abe54737e60fe46d77e1b9",
         "name": "Negligible",
         "value": "133"
+      },
+      {
+        "alert_fingerprint": "sha256:35acf28748b782653f2af43c14863cc7f49a033673abe54737e60fe46d77e1b9",
+        "name": "Low",
+        "value": "18"
       }
     ],
     "annotations": [],
-    "startsAt": "2025-08-12T11:50:26.808127+02:00",
-    "endsAt": "2025-08-12T12:20:26.808127+02:00",
+    "startsAt": "2025-08-12T16:46:07.637655+02:00",
+    "endsAt": "2025-08-12T17:16:07.637655+02:00",
     "generatorURL": "",
     "fingerprint": "sha256:35acf28748b782653f2af43c14863cc7f49a033673abe54737e60fe46d77e1b9"
   },
@@ -436,27 +471,22 @@
         "alert_fingerprint": "sha256:3804087108be27eb6457ac09caee98c786e8ace4abf1152c7330d9e2d0485a14",
         "name": "Low",
         "value": "2"
+      },
+      {
+        "alert_fingerprint": "sha256:3804087108be27eb6457ac09caee98c786e8ace4abf1152c7330d9e2d0485a14",
+        "name": "namespace",
+        "value": "nextcloud-test2"
       }
     ],
     "annotations": [],
-    "startsAt": "2025-08-12T11:50:20.797545+02:00",
-    "endsAt": "2025-08-12T12:20:20.797545+02:00",
+    "startsAt": "2025-08-12T16:46:01.656152+02:00",
+    "endsAt": "2025-08-12T17:16:01.656152+02:00",
     "generatorURL": "",
     "fingerprint": "sha256:3804087108be27eb6457ac09caee98c786e8ace4abf1152c7330d9e2d0485a14"
   },
   {
     "status": "firing",
     "labels": [
-      {
-        "alert_fingerprint": "sha256:70cd442c8047a1812b2105aa00400dc59284adc13b5f91bd8d0ab60aa0f7fb57",
-        "name": "High",
-        "value": "24"
-      },
-      {
-        "alert_fingerprint": "sha256:70cd442c8047a1812b2105aa00400dc59284adc13b5f91bd8d0ab60aa0f7fb57",
-        "name": "Low",
-        "value": "22"
-      },
       {
         "alert_fingerprint": "sha256:70cd442c8047a1812b2105aa00400dc59284adc13b5f91bd8d0ab60aa0f7fb57",
         "name": "imagespec",
@@ -474,16 +504,6 @@
       },
       {
         "alert_fingerprint": "sha256:70cd442c8047a1812b2105aa00400dc59284adc13b5f91bd8d0ab60aa0f7fb57",
-        "name": "platform",
-        "value": "linux/amd64"
-      },
-      {
-        "alert_fingerprint": "sha256:70cd442c8047a1812b2105aa00400dc59284adc13b5f91bd8d0ab60aa0f7fb57",
-        "name": "Negligible",
-        "value": "135"
-      },
-      {
-        "alert_fingerprint": "sha256:70cd442c8047a1812b2105aa00400dc59284adc13b5f91bd8d0ab60aa0f7fb57",
         "name": "Medium",
         "value": "46"
       },
@@ -494,13 +514,38 @@
       },
       {
         "alert_fingerprint": "sha256:70cd442c8047a1812b2105aa00400dc59284adc13b5f91bd8d0ab60aa0f7fb57",
+        "name": "High",
+        "value": "24"
+      },
+      {
+        "alert_fingerprint": "sha256:70cd442c8047a1812b2105aa00400dc59284adc13b5f91bd8d0ab60aa0f7fb57",
+        "name": "Low",
+        "value": "22"
+      },
+      {
+        "alert_fingerprint": "sha256:70cd442c8047a1812b2105aa00400dc59284adc13b5f91bd8d0ab60aa0f7fb57",
+        "name": "Negligible",
+        "value": "135"
+      },
+      {
+        "alert_fingerprint": "sha256:70cd442c8047a1812b2105aa00400dc59284adc13b5f91bd8d0ab60aa0f7fb57",
+        "name": "platform",
+        "value": "linux/amd64"
+      },
+      {
+        "alert_fingerprint": "sha256:70cd442c8047a1812b2105aa00400dc59284adc13b5f91bd8d0ab60aa0f7fb57",
+        "name": "namespace",
+        "value": "nextcloud-test4"
+      },
+      {
+        "alert_fingerprint": "sha256:70cd442c8047a1812b2105aa00400dc59284adc13b5f91bd8d0ab60aa0f7fb57",
         "name": "Unknown",
         "value": "10"
       }
     ],
     "annotations": [],
-    "startsAt": "2025-08-12T11:50:34.659017+02:00",
-    "endsAt": "2025-08-12T12:20:34.659017+02:00",
+    "startsAt": "2025-08-12T16:46:15.444109+02:00",
+    "endsAt": "2025-08-12T17:16:15.444109+02:00",
     "generatorURL": "",
     "fingerprint": "sha256:70cd442c8047a1812b2105aa00400dc59284adc13b5f91bd8d0ab60aa0f7fb57"
   },
@@ -529,6 +574,16 @@
       },
       {
         "alert_fingerprint": "sha256:7af3a131a819d5a08fd0e8479eff4a1928636b29875d34d0d77df8f190d20fdd",
+        "name": "Negligible",
+        "value": "85"
+      },
+      {
+        "alert_fingerprint": "sha256:7af3a131a819d5a08fd0e8479eff4a1928636b29875d34d0d77df8f190d20fdd",
+        "name": "Unknown",
+        "value": "4"
+      },
+      {
+        "alert_fingerprint": "sha256:7af3a131a819d5a08fd0e8479eff4a1928636b29875d34d0d77df8f190d20fdd",
         "name": "Medium",
         "value": "61"
       },
@@ -549,18 +604,13 @@
       },
       {
         "alert_fingerprint": "sha256:7af3a131a819d5a08fd0e8479eff4a1928636b29875d34d0d77df8f190d20fdd",
-        "name": "Negligible",
-        "value": "85"
-      },
-      {
-        "alert_fingerprint": "sha256:7af3a131a819d5a08fd0e8479eff4a1928636b29875d34d0d77df8f190d20fdd",
-        "name": "Unknown",
-        "value": "4"
+        "name": "namespace",
+        "value": "wordpress-test3"
       }
     ],
     "annotations": [],
-    "startsAt": "2025-08-12T11:50:36.391822+02:00",
-    "endsAt": "2025-08-12T12:20:36.391822+02:00",
+    "startsAt": "2025-08-12T16:46:17.161396+02:00",
+    "endsAt": "2025-08-12T17:16:17.161396+02:00",
     "generatorURL": "",
     "fingerprint": "sha256:7af3a131a819d5a08fd0e8479eff4a1928636b29875d34d0d77df8f190d20fdd"
   },
@@ -616,11 +666,16 @@
         "alert_fingerprint": "sha256:87c44504a3ed1189fdf78d2d53ec2541ca3cb2126b3957bbb12f798ae6189eb7",
         "name": "Unknown",
         "value": "9"
+      },
+      {
+        "alert_fingerprint": "sha256:87c44504a3ed1189fdf78d2d53ec2541ca3cb2126b3957bbb12f798ae6189eb7",
+        "name": "namespace",
+        "value": "nextcloud-test2"
       }
     ],
     "annotations": [],
-    "startsAt": "2025-08-12T11:50:32.330204+02:00",
-    "endsAt": "2025-08-12T12:20:32.330204+02:00",
+    "startsAt": "2025-08-12T16:46:13.136403+02:00",
+    "endsAt": "2025-08-12T17:16:13.136403+02:00",
     "generatorURL": "",
     "fingerprint": "sha256:87c44504a3ed1189fdf78d2d53ec2541ca3cb2126b3957bbb12f798ae6189eb7"
   },
@@ -649,6 +704,16 @@
       },
       {
         "alert_fingerprint": "sha256:8f066a28ceec2d571dfad5c3ee15b0c6d73608485a85b0c807d5b7a6fb595443",
+        "name": "Medium",
+        "value": "18"
+      },
+      {
+        "alert_fingerprint": "sha256:8f066a28ceec2d571dfad5c3ee15b0c6d73608485a85b0c807d5b7a6fb595443",
+        "name": "Unknown",
+        "value": "2"
+      },
+      {
+        "alert_fingerprint": "sha256:8f066a28ceec2d571dfad5c3ee15b0c6d73608485a85b0c807d5b7a6fb595443",
         "name": "High",
         "value": "8"
       },
@@ -664,18 +729,13 @@
       },
       {
         "alert_fingerprint": "sha256:8f066a28ceec2d571dfad5c3ee15b0c6d73608485a85b0c807d5b7a6fb595443",
-        "name": "Medium",
-        "value": "18"
-      },
-      {
-        "alert_fingerprint": "sha256:8f066a28ceec2d571dfad5c3ee15b0c6d73608485a85b0c807d5b7a6fb595443",
-        "name": "Unknown",
-        "value": "2"
+        "name": "namespace",
+        "value": "wordpress-test1"
       }
     ],
     "annotations": [],
-    "startsAt": "2025-08-12T11:50:24.35263+02:00",
-    "endsAt": "2025-08-12T12:20:24.35263+02:00",
+    "startsAt": "2025-08-12T16:46:05.183842+02:00",
+    "endsAt": "2025-08-12T17:16:05.183842+02:00",
     "generatorURL": "",
     "fingerprint": "sha256:8f066a28ceec2d571dfad5c3ee15b0c6d73608485a85b0c807d5b7a6fb595443"
   },
@@ -706,11 +766,16 @@
         "alert_fingerprint": "sha256:9d35e49d4526fc00bd1dc3b18308136d461d18e28021c67187c0ac0cb90f0ce5",
         "name": "Low",
         "value": "2"
+      },
+      {
+        "alert_fingerprint": "sha256:9d35e49d4526fc00bd1dc3b18308136d461d18e28021c67187c0ac0cb90f0ce5",
+        "name": "namespace",
+        "value": "nextcloud-test4"
       }
     ],
     "annotations": [],
-    "startsAt": "2025-08-12T11:50:35.071827+02:00",
-    "endsAt": "2025-08-12T12:20:35.071827+02:00",
+    "startsAt": "2025-08-12T16:46:15.853034+02:00",
+    "endsAt": "2025-08-12T17:16:15.853034+02:00",
     "generatorURL": "",
     "fingerprint": "sha256:9d35e49d4526fc00bd1dc3b18308136d461d18e28021c67187c0ac0cb90f0ce5"
   },
@@ -741,11 +806,16 @@
         "alert_fingerprint": "sha256:a1282b0e18c4fb6b907b3255940a29585aaed01db7cb625ca0534ad97c18f582",
         "name": "Low",
         "value": "2"
+      },
+      {
+        "alert_fingerprint": "sha256:a1282b0e18c4fb6b907b3255940a29585aaed01db7cb625ca0534ad97c18f582",
+        "name": "namespace",
+        "value": "nextcloud-test3"
       }
     ],
     "annotations": [],
-    "startsAt": "2025-08-12T11:50:19.49036+02:00",
-    "endsAt": "2025-08-12T12:20:19.49036+02:00",
+    "startsAt": "2025-08-12T16:46:00.372633+02:00",
+    "endsAt": "2025-08-12T17:16:00.372633+02:00",
     "generatorURL": "",
     "fingerprint": "sha256:a1282b0e18c4fb6b907b3255940a29585aaed01db7cb625ca0534ad97c18f582"
   },
@@ -796,11 +866,16 @@
         "alert_fingerprint": "sha256:a4e6aa761c94376273525bd1dccc2a3abaa44e549869fa3de3879e39fa4c567f",
         "name": "Unknown",
         "value": "2"
+      },
+      {
+        "alert_fingerprint": "sha256:a4e6aa761c94376273525bd1dccc2a3abaa44e549869fa3de3879e39fa4c567f",
+        "name": "namespace",
+        "value": "wordpress-test3"
       }
     ],
     "annotations": [],
-    "startsAt": "2025-08-12T11:50:32.776743+02:00",
-    "endsAt": "2025-08-12T12:20:32.776743+02:00",
+    "startsAt": "2025-08-12T16:46:13.569995+02:00",
+    "endsAt": "2025-08-12T17:16:13.569995+02:00",
     "generatorURL": "",
     "fingerprint": "sha256:a4e6aa761c94376273525bd1dccc2a3abaa44e549869fa3de3879e39fa4c567f"
   },
@@ -829,6 +904,11 @@
       },
       {
         "alert_fingerprint": "sha256:a98c74aa3ff49dee93079cd0acb7ea8e182165ad82024ad03fa0b3f5c0f5a561",
+        "name": "Low",
+        "value": "2"
+      },
+      {
+        "alert_fingerprint": "sha256:a98c74aa3ff49dee93079cd0acb7ea8e182165ad82024ad03fa0b3f5c0f5a561",
         "name": "High",
         "value": "20"
       },
@@ -849,13 +929,13 @@
       },
       {
         "alert_fingerprint": "sha256:a98c74aa3ff49dee93079cd0acb7ea8e182165ad82024ad03fa0b3f5c0f5a561",
-        "name": "Low",
-        "value": "2"
+        "name": "namespace",
+        "value": "nextcloud-test4"
       }
     ],
     "annotations": [],
-    "startsAt": "2025-08-12T11:50:24.585188+02:00",
-    "endsAt": "2025-08-12T12:20:24.585188+02:00",
+    "startsAt": "2025-08-12T16:46:05.416823+02:00",
+    "endsAt": "2025-08-12T17:16:05.416823+02:00",
     "generatorURL": "",
     "fingerprint": "sha256:a98c74aa3ff49dee93079cd0acb7ea8e182165ad82024ad03fa0b3f5c0f5a561"
   },
@@ -884,16 +964,6 @@
       },
       {
         "alert_fingerprint": "sha256:b7fccf5e97409c19957a79fb7bed50fcf9f863cdc880e8dbaf7377f947c1f126",
-        "name": "Medium",
-        "value": "18"
-      },
-      {
-        "alert_fingerprint": "sha256:b7fccf5e97409c19957a79fb7bed50fcf9f863cdc880e8dbaf7377f947c1f126",
-        "name": "Unknown",
-        "value": "2"
-      },
-      {
-        "alert_fingerprint": "sha256:b7fccf5e97409c19957a79fb7bed50fcf9f863cdc880e8dbaf7377f947c1f126",
         "name": "High",
         "value": "8"
       },
@@ -906,11 +976,26 @@
         "alert_fingerprint": "sha256:b7fccf5e97409c19957a79fb7bed50fcf9f863cdc880e8dbaf7377f947c1f126",
         "name": "Negligible",
         "value": "33"
+      },
+      {
+        "alert_fingerprint": "sha256:b7fccf5e97409c19957a79fb7bed50fcf9f863cdc880e8dbaf7377f947c1f126",
+        "name": "Medium",
+        "value": "18"
+      },
+      {
+        "alert_fingerprint": "sha256:b7fccf5e97409c19957a79fb7bed50fcf9f863cdc880e8dbaf7377f947c1f126",
+        "name": "Unknown",
+        "value": "2"
+      },
+      {
+        "alert_fingerprint": "sha256:b7fccf5e97409c19957a79fb7bed50fcf9f863cdc880e8dbaf7377f947c1f126",
+        "name": "namespace",
+        "value": "wordpress-test"
       }
     ],
     "annotations": [],
-    "startsAt": "2025-08-12T11:50:23.142946+02:00",
-    "endsAt": "2025-08-12T12:20:23.142946+02:00",
+    "startsAt": "2025-08-12T16:46:03.970342+02:00",
+    "endsAt": "2025-08-12T17:16:03.970342+02:00",
     "generatorURL": "",
     "fingerprint": "sha256:b7fccf5e97409c19957a79fb7bed50fcf9f863cdc880e8dbaf7377f947c1f126"
   },
@@ -966,11 +1051,16 @@
         "alert_fingerprint": "sha256:c85dffae3791cae298da416170b958b4beed9d305e5922510467ff948ac7093b",
         "name": "Unknown",
         "value": "3"
+      },
+      {
+        "alert_fingerprint": "sha256:c85dffae3791cae298da416170b958b4beed9d305e5922510467ff948ac7093b",
+        "name": "namespace",
+        "value": "pharos"
       }
     ],
     "annotations": [],
-    "startsAt": "2025-08-12T11:50:22.708122+02:00",
-    "endsAt": "2025-08-12T12:20:22.708122+02:00",
+    "startsAt": "2025-08-12T16:46:03.535091+02:00",
+    "endsAt": "2025-08-12T17:16:03.535091+02:00",
     "generatorURL": "",
     "fingerprint": "sha256:c85dffae3791cae298da416170b958b4beed9d305e5922510467ff948ac7093b"
   },
@@ -999,16 +1089,6 @@
       },
       {
         "alert_fingerprint": "sha256:cd54640f7654dd3ba175e8769e5e3b82be36d899099b08cbd3378a28f9139062",
-        "name": "Medium",
-        "value": "19"
-      },
-      {
-        "alert_fingerprint": "sha256:cd54640f7654dd3ba175e8769e5e3b82be36d899099b08cbd3378a28f9139062",
-        "name": "Critical",
-        "value": "9"
-      },
-      {
-        "alert_fingerprint": "sha256:cd54640f7654dd3ba175e8769e5e3b82be36d899099b08cbd3378a28f9139062",
         "name": "Low",
         "value": "2"
       },
@@ -1019,13 +1099,28 @@
       },
       {
         "alert_fingerprint": "sha256:cd54640f7654dd3ba175e8769e5e3b82be36d899099b08cbd3378a28f9139062",
+        "name": "Medium",
+        "value": "19"
+      },
+      {
+        "alert_fingerprint": "sha256:cd54640f7654dd3ba175e8769e5e3b82be36d899099b08cbd3378a28f9139062",
+        "name": "Critical",
+        "value": "9"
+      },
+      {
+        "alert_fingerprint": "sha256:cd54640f7654dd3ba175e8769e5e3b82be36d899099b08cbd3378a28f9139062",
+        "name": "namespace",
+        "value": "nextcloud-test2"
+      },
+      {
+        "alert_fingerprint": "sha256:cd54640f7654dd3ba175e8769e5e3b82be36d899099b08cbd3378a28f9139062",
         "name": "Unknown",
         "value": "1"
       }
     ],
     "annotations": [],
-    "startsAt": "2025-08-12T11:50:20.126536+02:00",
-    "endsAt": "2025-08-12T12:20:20.126536+02:00",
+    "startsAt": "2025-08-12T16:46:01.017196+02:00",
+    "endsAt": "2025-08-12T17:16:01.017196+02:00",
     "generatorURL": "",
     "fingerprint": "sha256:cd54640f7654dd3ba175e8769e5e3b82be36d899099b08cbd3378a28f9139062"
   },
@@ -1056,11 +1151,16 @@
         "alert_fingerprint": "sha256:cdc2b70e4b5f384eb016b264259f0546459347366694e322a4cae2a9ce5c3cb0",
         "name": "Low",
         "value": "2"
+      },
+      {
+        "alert_fingerprint": "sha256:cdc2b70e4b5f384eb016b264259f0546459347366694e322a4cae2a9ce5c3cb0",
+        "name": "namespace",
+        "value": "nextcloud-test1"
       }
     ],
     "annotations": [],
-    "startsAt": "2025-08-12T11:50:19.893601+02:00",
-    "endsAt": "2025-08-12T12:20:19.893601+02:00",
+    "startsAt": "2025-08-12T16:46:00.785491+02:00",
+    "endsAt": "2025-08-12T17:16:00.785491+02:00",
     "generatorURL": "",
     "fingerprint": "sha256:cdc2b70e4b5f384eb016b264259f0546459347366694e322a4cae2a9ce5c3cb0"
   },
@@ -1089,11 +1189,6 @@
       },
       {
         "alert_fingerprint": "sha256:e5bc819b955f59399f9cb9410bbe545e52544a6916dedceaa3df0fc13773bc2f",
-        "name": "High",
-        "value": "46"
-      },
-      {
-        "alert_fingerprint": "sha256:e5bc819b955f59399f9cb9410bbe545e52544a6916dedceaa3df0fc13773bc2f",
         "name": "Critical",
         "value": "6"
       },
@@ -1114,13 +1209,23 @@
       },
       {
         "alert_fingerprint": "sha256:e5bc819b955f59399f9cb9410bbe545e52544a6916dedceaa3df0fc13773bc2f",
+        "name": "High",
+        "value": "46"
+      },
+      {
+        "alert_fingerprint": "sha256:e5bc819b955f59399f9cb9410bbe545e52544a6916dedceaa3df0fc13773bc2f",
         "name": "Medium",
         "value": "43"
+      },
+      {
+        "alert_fingerprint": "sha256:e5bc819b955f59399f9cb9410bbe545e52544a6916dedceaa3df0fc13773bc2f",
+        "name": "namespace",
+        "value": "pharos"
       }
     ],
     "annotations": [],
-    "startsAt": "2025-08-12T11:50:23.919718+02:00",
-    "endsAt": "2025-08-12T12:20:23.919718+02:00",
+    "startsAt": "2025-08-12T16:46:04.749223+02:00",
+    "endsAt": "2025-08-12T17:16:04.749223+02:00",
     "generatorURL": "",
     "fingerprint": "sha256:e5bc819b955f59399f9cb9410bbe545e52544a6916dedceaa3df0fc13773bc2f"
   },
@@ -1151,11 +1256,16 @@
         "alert_fingerprint": "sha256:e755364827a3609c702de8bf16468d39b3ec5fa6bd3790c12ba9fd8d402a74ff",
         "name": "Low",
         "value": "2"
+      },
+      {
+        "alert_fingerprint": "sha256:e755364827a3609c702de8bf16468d39b3ec5fa6bd3790c12ba9fd8d402a74ff",
+        "name": "namespace",
+        "value": "nextcloud-test"
       }
     ],
     "annotations": [],
-    "startsAt": "2025-08-12T11:50:24.990769+02:00",
-    "endsAt": "2025-08-12T12:20:24.990769+02:00",
+    "startsAt": "2025-08-12T16:46:05.825222+02:00",
+    "endsAt": "2025-08-12T17:16:05.825222+02:00",
     "generatorURL": "",
     "fingerprint": "sha256:e755364827a3609c702de8bf16468d39b3ec5fa6bd3790c12ba9fd8d402a74ff"
   },
@@ -1184,6 +1294,16 @@
       },
       {
         "alert_fingerprint": "sha256:f600d89981241d79e857df2f721d7887aa6157b6a3857b15d17d64554d1616db",
+        "name": "High",
+        "value": "20"
+      },
+      {
+        "alert_fingerprint": "sha256:f600d89981241d79e857df2f721d7887aa6157b6a3857b15d17d64554d1616db",
+        "name": "Unknown",
+        "value": "1"
+      },
+      {
+        "alert_fingerprint": "sha256:f600d89981241d79e857df2f721d7887aa6157b6a3857b15d17d64554d1616db",
         "name": "Medium",
         "value": "19"
       },
@@ -1199,18 +1319,13 @@
       },
       {
         "alert_fingerprint": "sha256:f600d89981241d79e857df2f721d7887aa6157b6a3857b15d17d64554d1616db",
-        "name": "High",
-        "value": "20"
-      },
-      {
-        "alert_fingerprint": "sha256:f600d89981241d79e857df2f721d7887aa6157b6a3857b15d17d64554d1616db",
-        "name": "Unknown",
-        "value": "1"
+        "name": "namespace",
+        "value": "nextcloud-test1"
       }
     ],
     "annotations": [],
-    "startsAt": "2025-08-12T11:50:20.357573+02:00",
-    "endsAt": "2025-08-12T12:20:20.357573+02:00",
+    "startsAt": "2025-08-12T16:46:01.249153+02:00",
+    "endsAt": "2025-08-12T17:16:01.249153+02:00",
     "generatorURL": "",
     "fingerprint": "sha256:f600d89981241d79e857df2f721d7887aa6157b6a3857b15d17d64554d1616db"
   }
