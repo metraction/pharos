@@ -26,6 +26,7 @@ func LoadMappersConfig(data []byte) (map[string][]model.MapperConfig, error) {
 
 func NewEnricherMap(name string, enricher model.EnricherConfig) streams.Flow {
 	// Create a single functions composition of functions resulting in
+	logger.Info().Interface("enricher", enricher).Msg("Creating enricher map")
 	// WrappedResult and passing it to next function
 	return flow.NewMap(func(scanResult model.PharosScanResult) model.PharosScanResult {
 		// Step 1: Wrap the result

@@ -3,10 +3,8 @@ on:
   push:
     branches: 
     - main
-    - '140-*'
     - 'PH-120/*'
     - 'PH-99/*'
-    - '100-*'
     - 'PH-131/*'
     - 'PH-133/*'
     - 'PH-101/*'
@@ -61,8 +59,8 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
   ko-build:
-    # Run this job only on push events, not when manually triggered just for tests
-    if: github.event_name == 'push'
+    # Run this job on push events and pull requests
+    if: github.event_name == 'pull_request'
     needs: [go-test]
     uses: metraction/github-actions/.github/workflows/ko-build.yaml@main
     secrets: inherit

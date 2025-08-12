@@ -10,7 +10,7 @@ data:
             - name: owner
               path: owner-enricher.yaml
     eos-enricher.yaml: |
-        results:
+        enricher:
             - name: file
               config: eos-eos.yaml
             - name: hbs

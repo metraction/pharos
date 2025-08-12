@@ -10,7 +10,7 @@ import (
 	"github.com/reugn/go-streams/flow"
 )
 
-var logger = logging.NewLogger("info", "component", "mapper.startlet")
+var logger = logging.NewLogger("info", "component", "mappers")
 
 func NewStarlet(rule string) (flow.MapFunction[map[string]interface{}, map[string]interface{}], error) {
 	scriptBytes, err := os.ReadFile(rule)

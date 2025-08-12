@@ -87,9 +87,22 @@ func LoadEnricherConfig(enricherPath string, name string) model.EnricherConfig {
 		logger.Fatal().Err(err).Msg("Failed to read config file")
 	}
 	mapperConfig, err := mappers.LoadMappersConfig(data)
-	configs := mapperConfig[name]
 	if err != nil {
 		logger.Fatal().Err(err).Msg("Failed to load mappers config")
+	}
+	// Use hardcoded top-level key name
+	configs := mapperConfig["enricher"]
+	if len(configs) == 0 {
+		// Collect available top-level keys to aid debugging
+		keys := make([]string, 0, len(mapperConfig))
+		for k := range mapperConfig {
+			keys = append(keys, k)
+		}
+		logger.Fatal().
+			Str("required_key", "enricher").
+			Str("file", filepath.Join(enricherDir, enricherFile)).
+			Strs("available_keys", keys).
+			Msg("No mapper configs loaded: required top-level key missing or empty")
 	}
 	enricherConfig := model.EnricherConfig{
 		BasePath: enricherDir,

@@ -1,0 +1,241 @@
+apiVersion: v1
+data:
+  enrichers.yaml: |
+    order:
+        - eos
+        - owner
+    sources:
+        - name: eos
+          path: eos-enricher.yaml
+        - name: owner
+          path: owner-enricher.yaml
+  eos-enricher.yaml: |
+    results:
+        - name: file
+          config: eos-eos.yaml
+        - name: hbs
+          config: eos-eos_v1.hbs
+  eos-eos.yaml: |
+    # Alpine: https://www.alpinelinux.org/releases/
+    #
+    alpine:
+      - version: 3.3.%
+        eos: 2017-11-01
+      - version: 3.4.%
+        eos: 2018-05-01
+      - version: 3.5.%
+        eos: 2018-11-01
+      - version: 3.6.%
+        eos: 2019-05-01
+      - version: 3.7.%
+        eos: 2019-11-01
+      - version: 3.8.%
+        eos: 2020-05-01
+      - version: 3.9.%
+        eos: 2020-11-01
+      - version: 3.10.%
+        eos: 2021-05-01
+      - version: 3.11.%
+        eos: 2021-11-01
+      - version: 3.12.%
+        eos: 2022-05-01
+      - version: 3.13.%
+        eos: 2022-11-01
+      - version: 3.14.%
+        eos: 2023-05-01
+      - version: 3.15.%
+        eos: 2023-11-01
+      - version: 3.16.%
+        eos: 2024-05-23
+      - version: 3.17.%
+        eos: 2024-11-22
+      - version: 3.18.%
+        eos: 2025-05-09
+      - version: 3.19.%
+        eos: 2025-11-01
+      - version: 3.20.%
+        eos: 2026-04-01
+      - version: 3.21.%
+        eos: 2026-11-01
+      - version: 3.22.%
+        eos: 2027-05-01
+
+    # Redhat
+    #   https://access.redhat.com/support/policy/updates/errata/
+    #   https://access.redhat.com/product-life-cycles?product=Red%20Hat%20Enterprise%20Linux,OpenShift%20Container%20Platform%204
+
+    # 2024-07-03 Update Redhat 8.10, 9.10
+    rhel:
+      - version: 7.7
+        eos: 2019-08-06
+      - version: 7.8
+        eos: 2019-08-06
+      - version: 7.9
+        eos: 2019-08-06
+
+      - version: 8.0
+        eos: 2020-05-31
+      - version: 8.1
+        eos: 2021-12-31
+      - version: 8.2
+        eos: 2022-05-31
+      - version: 8.3
+        eos: 2021-05-31
+      - version: 8.4
+        eos: 2023-05-31
+      - version: 8.5
+        eos: 2022-05-31
+      - version: 8.6
+        eos: 2024-05-31
+
+      - version: 8.7
+        eos: 2023-05-31
+      - version: 8.8
+        eos: 2025-05-31
+      - version: 8.9
+        eos: 2024-05-31
+      - version: 8.10
+        eos: 2029-05-31
+
+      - version: 9.0
+        eos: 2024-05-31
+      - version: 9.1
+        eos: 2023-05-31
+      - version: 9.2
+        eos: 2025-05-31
+      - version: 9.3
+        eos: 2024-05-31
+      - version: 9.4
+        eos: 2026-05-31
+      - version: 9.5
+        eos: 2025-05-31
+      - version: 9.6
+        eos: 2027-05-31
+      - version: 9.7
+        eos: 2026-05-31
+      - version: 9.8
+        eos: 2028-05-31
+      - version: 9.9
+        eos: 2027-05-31
+      - version: 9.10
+        eos: 2032-05-31
+
+    # Centos  https://www.redhat.com/en/topics/linux/centos-linux-eol
+    #         https://endoflife.date/centos
+    centos:
+      - version: 7
+        eos: 2020-08-06
+      - version: 8
+        eos: 2024-06-30
+
+    # Ubuntu
+    #   Source: https://endoflife.software/operating-systems/linux/ubuntu
+    #
+    ubuntu:
+      - version: 18.04
+        eos: 2023-04-01
+      - version: 19.04
+        eos: 2020-01-01
+      - version: 19.10
+        eos: 2020-07-01
+      - version: 20.04
+        eos: 2025-04-01
+      - version: 21.04
+        eos: 2022-01-01
+      - version: 21.10
+        eos: 2022-07-01
+      - version: 22.04
+        eos: 2027-04-01
+      - version: 24.04
+        eos: 2029-04-01
+
+    # Debian
+    #   Source: https://wiki.debian.org/DebianReleases
+    #           https://endoflife.date/debian
+    #
+    #   EOL for security support!
+    #
+    debian:
+      - version: 8
+        eos: 2020-06-30
+      - version: 9
+        eos: 2020-07-18
+      - version: 10
+        eos: 2022-09-10
+      - version: 11
+        eos: 2024-07-01
+      - version: 12
+        eos: 2026-06-10
+
+    # Mariner | Microsoft Azure Linux
+    #   Source:   https://microsoft.github.io/CBL-Mariner/announcing-mariner-2.0/
+    #   Releases: https://github.com/microsoft/CBL-Mariner/releases
+    mariner:
+      - version: 1.0
+        eos: 2022-11-23
+      - version: 2.0
+        eos: 2024-05-23
+
+    # Busybox
+    #   Source: https://www.busybox.net/
+    #
+    #   EOL is set 2 years after release
+    busybox:
+      - version: 1.31.%
+        eos: 2022-05-03
+
+      - version: 1.32.%
+        eos: 2022-05-03
+
+      - version: 1.33.%
+        eos: 2023-05-03
+      - version: 1.34.%
+        eos: 2023-09-10
+      - version: 1.35.%
+        eos: 2023-12-26
+      - version: 1.35.%
+        eos: 2023-12-26
+      - version: 1.36.%
+        eos: 2025-05-23
+
+    # Amazon Linux
+    # EOL: https://endoflife.date/amazon-linux
+    # Source: https://aws.amazon.com/amazon-linux-2/features/
+    # Releases: https://docs.aws.amazon.com/AL2/latest/relnotes/relnotes-al2.html
+    amazonlinux:
+      - version: 2
+        eos:  2025-06-30
+      - version: 2023
+        eos:  2029-06-30
+  eos-eos_v1.hbs: ' distro: {{ .payload.Image.DistroName }} version: {{ .payload.Image.DistroVersion
+    }} eos: {{ index .meta.eos .payload.Image.DistroName | filter "version" "matchWildcard"
+    .payload.Image.DistroVersion | map "field" "eos" | first }} '
+  owner-enricher.yaml: |
+    results:
+        - name: file
+          config: owner-owners.yaml
+        - name: hbs
+          config: owner-owners_v1.hbs
+  owner-owners.yaml: |-
+    byNamespace:
+      - namespace: kube-system
+        owner: john@mail.com
+      - namespace: default
+        owner: jessica@mail.com
+  owner-owners_v1.hbs: ' {{- $contextRoot := .payload.Image.ContextRoots | first }}
+    {{- $namespace := ($contextRoot.Contexts | filter "Owner" "startsWith" "pharos-controller"
+    | first).Data.namespace }} owner: {{ .meta.owners.byNamespace | filter "namespace"
+    "startsWith" $namespace | map "field" "owner" | first | toYaml | nindent 2 }} '
+kind: ConfigMap
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","data":{"enrichers.yaml":"order:\n    - eos\n    - owner\nsources:\n    - name: eos\n      path: eos-enricher.yaml\n    - name: owner\n      path: owner-enricher.yaml\n","eos-enricher.yaml":"results:\n    - name: file\n      config: eos-eos.yaml\n    - name: hbs\n      config: eos-eos_v1.hbs\n","eos-eos.yaml":"# Alpine: https://www.alpinelinux.org/releases/\n#\nalpine:\n  - version: 3.3.%\n    eos: 2017-11-01\n  - version: 3.4.%\n    eos: 2018-05-01\n  - version: 3.5.%\n    eos: 2018-11-01\n  - version: 3.6.%\n    eos: 2019-05-01\n  - version: 3.7.%\n    eos: 2019-11-01\n  - version: 3.8.%\n    eos: 2020-05-01\n  - version: 3.9.%\n    eos: 2020-11-01\n  - version: 3.10.%\n    eos: 2021-05-01\n  - version: 3.11.%\n    eos: 2021-11-01\n  - version: 3.12.%\n    eos: 2022-05-01\n  - version: 3.13.%\n    eos: 2022-11-01\n  - version: 3.14.%\n    eos: 2023-05-01\n  - version: 3.15.%\n    eos: 2023-11-01\n  - version: 3.16.%\n    eos: 2024-05-23\n  - version: 3.17.%\n    eos: 2024-11-22\n  - version: 3.18.%\n    eos: 2025-05-09\n  - version: 3.19.%\n    eos: 2025-11-01\n  - version: 3.20.%\n    eos: 2026-04-01\n  - version: 3.21.%\n    eos: 2026-11-01\n  - version: 3.22.%\n    eos: 2027-05-01\n\n# Redhat\n#   https://access.redhat.com/support/policy/updates/errata/\n#   https://access.redhat.com/product-life-cycles?product=Red%20Hat%20Enterprise%20Linux,OpenShift%20Container%20Platform%204\n\n# 2024-07-03 Update Redhat 8.10, 9.10\nrhel:\n  - version: 7.7\n    eos: 2019-08-06\n  - version: 7.8\n    eos: 2019-08-06\n  - version: 7.9\n    eos: 2019-08-06\n\n  - version: 8.0\n    eos: 2020-05-31\n  - version: 8.1\n    eos: 2021-12-31\n  - version: 8.2\n    eos: 2022-05-31\n  - version: 8.3\n    eos: 2021-05-31\n  - version: 8.4\n    eos: 2023-05-31\n  - version: 8.5\n    eos: 2022-05-31\n  - version: 8.6\n    eos: 2024-05-31\n\n  - version: 8.7\n    eos: 2023-05-31\n  - version: 8.8\n    eos: 2025-05-31\n  - version: 8.9\n    eos: 2024-05-31\n  - version: 8.10\n    eos: 2029-05-31\n\n  - version: 9.0\n    eos: 2024-05-31\n  - version: 9.1\n    eos: 2023-05-31\n  - version: 9.2\n    eos: 2025-05-31\n  - version: 9.3\n    eos: 2024-05-31\n  - version: 9.4\n    eos: 2026-05-31\n  - version: 9.5\n    eos: 2025-05-31\n  - version: 9.6\n    eos: 2027-05-31\n  - version: 9.7\n    eos: 2026-05-31\n  - version: 9.8\n    eos: 2028-05-31\n  - version: 9.9\n    eos: 2027-05-31\n  - version: 9.10\n    eos: 2032-05-31\n\n# Centos  https://www.redhat.com/en/topics/linux/centos-linux-eol\n#         https://endoflife.date/centos\ncentos:\n  - version: 7\n    eos: 2020-08-06\n  - version: 8\n    eos: 2024-06-30\n\n# Ubuntu\n#   Source: https://endoflife.software/operating-systems/linux/ubuntu\n#\nubuntu:\n  - version: 18.04\n    eos: 2023-04-01\n  - version: 19.04\n    eos: 2020-01-01\n  - version: 19.10\n    eos: 2020-07-01\n  - version: 20.04\n    eos: 2025-04-01\n  - version: 21.04\n    eos: 2022-01-01\n  - version: 21.10\n    eos: 2022-07-01\n  - version: 22.04\n    eos: 2027-04-01\n  - version: 24.04\n    eos: 2029-04-01\n\n# Debian\n#   Source: https://wiki.debian.org/DebianReleases\n#           https://endoflife.date/debian\n#\n#   EOL for security support!\n#\ndebian:\n  - version: 8\n    eos: 2020-06-30\n  - version: 9\n    eos: 2020-07-18\n  - version: 10\n    eos: 2022-09-10\n  - version: 11\n    eos: 2024-07-01\n  - version: 12\n    eos: 2026-06-10\n\n# Mariner | Microsoft Azure Linux\n#   Source:   https://microsoft.github.io/CBL-Mariner/announcing-mariner-2.0/\n#   Releases: https://github.com/microsoft/CBL-Mariner/releases\nmariner:\n  - version: 1.0\n    eos: 2022-11-23\n  - version: 2.0\n    eos: 2024-05-23\n\n# Busybox\n#   Source: https://www.busybox.net/\n#\n#   EOL is set 2 years after release\nbusybox:\n  - version: 1.31.%\n    eos: 2022-05-03\n\n  - version: 1.32.%\n    eos: 2022-05-03\n\n  - version: 1.33.%\n    eos: 2023-05-03\n  - version: 1.34.%\n    eos: 2023-09-10\n  - version: 1.35.%\n    eos: 2023-12-26\n  - version: 1.35.%\n    eos: 2023-12-26\n  - version: 1.36.%\n    eos: 2025-05-23\n\n# Amazon Linux\n# EOL: https://endoflife.date/amazon-linux\n# Source: https://aws.amazon.com/amazon-linux-2/features/\n# Releases: https://docs.aws.amazon.com/AL2/latest/relnotes/relnotes-al2.html\namazonlinux:\n  - version: 2\n    eos:  2025-06-30\n  - version: 2023\n    eos:  2029-06-30\n","eos-eos_v1.hbs":" distro: {{ .payload.Image.DistroName }} version: {{ .payload.Image.DistroVersion }} eos: {{ index .meta.eos .payload.Image.DistroName | filter \"version\" \"matchWildcard\" .payload.Image.DistroVersion | map \"field\" \"eos\" | first }} ","owner-enricher.yaml":"results:\n    - name: file\n      config: owner-owners.yaml\n    - name: hbs\n      config: owner-owners_v1.hbs\n","owner-owners.yaml":"byNamespace:\n  - namespace: kube-system\n    owner: john@mail.com\n  - namespace: default\n    owner: jessica@mail.com","owner-owners_v1.hbs":" {{- $contextRoot := .payload.Image.ContextRoots | first }} {{- $namespace := ($contextRoot.Contexts | filter \"Owner\" \"startsWith\" \"pharos-controller\" | first).Data.namespace }} owner: {{ .meta.owners.byNamespace | filter \"namespace\" \"startsWith\" $namespace | map \"field\" \"owner\" | first | toYaml | nindent 2 }} "},"kind":"ConfigMap","metadata":{"annotations":{},"labels":{"app":"pharos","app.kubernetes.io/instance":"pharos-staging"},"name":"pharos-enrichers","namespace":"pharos-staging"}}
+  creationTimestamp: "2025-07-14T06:22:54Z"
+  labels:
+    app: pharos
+    app.kubernetes.io/instance: pharos-staging
+  name: pharos-enrichers
+  namespace: pharos-staging
+  resourceVersion: "838474580"
+  uid: df02e70a-733b-44d6-bd21-4cd71019cf52

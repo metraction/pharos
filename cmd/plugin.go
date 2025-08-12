@@ -93,44 +93,6 @@ var testCmd = &cobra.Command{
 	},
 }
 
-func CreateEnrichersFlow(plugin streams.Source, enrichers *model.EnrichersConfig) streams.Flow {
-	for _, source := range enrichers.Sources {
-		// Load the plugin
-		var enricherPath string
-		if source.Git != nil {
-			tempDir, err := os.MkdirTemp("", "pharos-enricher-*")
-			if err != nil {
-				logger.Error().Msgf("Error creating temporary directory: %v\n", err)
-				return nil
-			}
-
-			enricherPath, err = enricher.FetchEnricherFromGit(*source.Git, tempDir)
-			if err != nil {
-				logger.Error().Msgf("Error loading enricher from Git: %v\n", err)
-				return nil
-			}
-		} else if source.Path != "" {
-			enricherPath = source.Path
-		}
-		enricherPath = addBasePathToRelative(config, enricherPath)
-		enricherConfig := enricher.LoadEnricherConfig(enricherPath, source.Name)
-		plugin = plugin.Via(mappers.NewEnricherMap(source.Name, enricherConfig))
-	}
-	return plugin.(streams.Flow)
-}
-
-// pluginRunCmd represents the run subcommand of the plugin command
-var pluginRunCmd = &cobra.Command{
-	Use:   "run [enrichers.yaml]",
-	Short: "Run a plugin with specified enrichers",
-	Long:  `Run a plugin with enrichers specified in the enrichers.yaml file.`,
-	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Running plugin...")
-		// Implementation goes here
-	},
-}
-
 var configMapName string
 
 var pluginConfigMapCmd = &cobra.Command{
@@ -161,6 +123,104 @@ var pluginConfigMapCmd = &cobra.Command{
 		}
 		fmt.Println(string(out))
 	},
+}
+
+var pluginDeconfigMapCmd = &cobra.Command{
+	Use:   "deconfigmap [configmap.yaml] [output-directory]",
+	Short: "Extract files from a ConfigMap YAML to a directory",
+	Long:  `Extract all files from a ConfigMap YAML file and write them to the specified directory.`,
+	Args:  cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		configMapFile := args[0]
+		outputDir := args[1]
+
+		// Read the ConfigMap YAML file
+		data, err := os.ReadFile(configMapFile)
+		if err != nil {
+			fmt.Printf("Error reading ConfigMap file %s: %v\n", configMapFile, err)
+			return
+		}
+
+		// Parse the ConfigMap YAML
+		var configMap map[string]interface{}
+		err = yaml.Unmarshal(data, &configMap)
+		if err != nil {
+			fmt.Printf("Error parsing ConfigMap YAML: %v\n", err)
+			return
+		}
+
+		// Extract the data section
+		dataSection, ok := configMap["data"].(map[string]interface{})
+		if !ok {
+			fmt.Printf("Error: ConfigMap does not contain a valid 'data' section\n")
+			return
+		}
+
+		// Create output directory if it doesn't exist
+		err = os.MkdirAll(outputDir, 0755)
+		if err != nil {
+			fmt.Printf("Error creating output directory %s: %v\n", outputDir, err)
+			return
+		}
+
+		// Extract each file from the data section
+		for filename, content := range dataSection {
+			contentStr, ok := content.(string)
+			if !ok {
+				fmt.Printf("Warning: Skipping non-string content for file %s\n", filename)
+				continue
+			}
+
+			outputPath := filepath.Join(outputDir, filename)
+
+			// Create subdirectories if needed
+			dir := filepath.Dir(outputPath)
+			if dir != outputDir {
+				err = os.MkdirAll(dir, 0755)
+				if err != nil {
+					fmt.Printf("Error creating directory %s: %v\n", dir, err)
+					continue
+				}
+			}
+
+			// Write the file
+			err = os.WriteFile(outputPath, []byte(contentStr), 0644)
+			if err != nil {
+				fmt.Printf("Error writing file %s: %v\n", outputPath, err)
+				continue
+			}
+
+			fmt.Printf("Extracted: %s\n", outputPath)
+		}
+
+		fmt.Printf("Successfully extracted %d files to %s\n", len(dataSection), outputDir)
+	},
+}
+
+func CreateEnrichersFlow(plugin streams.Source, enrichers *model.EnrichersConfig) streams.Flow {
+	for _, source := range enrichers.Sources {
+		// Load the plugin
+		var enricherPath string
+		if source.Git != nil {
+			tempDir, err := os.MkdirTemp("", "pharos-enricher-*")
+			if err != nil {
+				logger.Error().Msgf("Error creating temporary directory: %v\n", err)
+				return nil
+			}
+
+			enricherPath, err = enricher.FetchEnricherFromGit(*source.Git, tempDir)
+			if err != nil {
+				logger.Error().Msgf("Error loading enricher from Git: %v\n", err)
+				return nil
+			}
+		} else if source.Path != "" {
+			enricherPath = source.Path
+		}
+		enricherPath = addBasePathToRelative(config, enricherPath)
+		enricherConfig := enricher.LoadEnricherConfig(enricherPath, source.Name)
+		plugin = plugin.Via(mappers.NewEnricherMap(source.Name, enricherConfig))
+	}
+	return plugin.(streams.Flow)
 }
 
 // createConfigMap generates a Kubernetes ConfigMap from the enrichers configuration
@@ -281,8 +341,8 @@ func flattenDirectory(source model.EnricherSource, path string) string {
 
 func init() {
 	rootCmd.AddCommand(pluginCmd)
-	pluginCmd.AddCommand(pluginRunCmd)
 	pluginCmd.AddCommand(pluginConfigMapCmd)
+	pluginCmd.AddCommand(pluginDeconfigMapCmd)
 	pluginCmd.AddCommand(testCmd)
 
 	// Add flags for the configmap command
