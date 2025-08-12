@@ -233,6 +233,8 @@ func createConfigMap(enrichers *model.EnrichersConfig, name string) (map[string]
 	}
 
 	// Define the ConfigMap structure
+	// Use yaml.Node for data values to control scalar style (block scalars for multiline)
+	configMapData := map[string]*yaml.Node{}
 	configMap := map[string]interface{}{
 		"apiVersion": "v1",
 		"kind":       "ConfigMap",
@@ -240,7 +242,7 @@ func createConfigMap(enrichers *model.EnrichersConfig, name string) (map[string]
 			"name":   configMapName,
 			"labels": map[string]string{"app": "pharos"},
 		},
-		"data": map[string]string{},
+		"data": configMapData,
 	}
 
 	// Process each enricher source to collect files
@@ -291,9 +293,12 @@ func createConfigMap(enrichers *model.EnrichersConfig, name string) (map[string]
 				// Check if the file has an extension that might contain template expressions
 				ext := filepath.Ext(path)
 				if ext == ".hbs" || ext == ".tmpl" || ext == ".tpl" || strings.Contains(string(content), "{{") {
-					// Base64 encode content to avoid Helm template processing
-					encodedContent := base64.StdEncoding.EncodeToString(content)
-					configMap["data"].(map[string]string)[configMapKey] = "{{ b64dec \"" + encodedContent + "\" | nindent 6 }}"
+					// For template-like content, embed a Helm-safe expression that decodes base64 at render time.
+					// Use a YAML block scalar so the Helm template stays readable and preserves newlines after rendering.
+					encoded := base64.StdEncoding.EncodeToString(content)
+					// Indent decoded content so each line aligns under the YAML value position (8 spaces under data: keys)
+					helmExpr := "{{ b64dec \"" + encoded + "\" | nindent 8 }}"
+					configMapData[configMapKey] = &yaml.Node{Kind: yaml.ScalarNode, Style: yaml.LiteralStyle, Value: helmExpr}
 				} else if strings.ToLower(relPath) == "enricher.yaml" {
 					// Parse the YAML content
 					mapperConfig, err := mappers.LoadMappersConfig(content)
@@ -314,10 +319,15 @@ func createConfigMap(enrichers *model.EnrichersConfig, name string) (map[string]
 					if err != nil {
 						return fmt.Errorf("failed to marshal modified enricher config: %w", err)
 					}
-					configMap["data"].(map[string]string)[configMapKey] = string(modifiedContent)
+					configMapData[configMapKey] = &yaml.Node{Kind: yaml.ScalarNode, Style: yaml.LiteralStyle, Value: string(modifiedContent)}
 				} else {
 					// Store regular content as is
-					configMap["data"].(map[string]string)[configMapKey] = string(content)
+					value := string(content)
+					style := yaml.Style(0)
+					if strings.Contains(value, "\n") {
+						style = yaml.LiteralStyle
+					}
+					configMapData[configMapKey] = &yaml.Node{Kind: yaml.ScalarNode, Style: style, Value: value}
 				}
 			}
 			return nil
@@ -328,12 +338,12 @@ func createConfigMap(enrichers *model.EnrichersConfig, name string) (map[string]
 		}
 	}
 
-	// Add enrichers.yaml to the ConfigMap
+	// Add enrichers.yaml to the ConfigMap as a block scalar
 	enrichersYaml, err := yaml.Marshal(enrichers)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal enrichers: %w", err)
 	}
-	configMap["data"].(map[string]string)["enrichers.yaml"] = string(enrichersYaml)
+	configMapData["enrichers.yaml"] = &yaml.Node{Kind: yaml.ScalarNode, Style: yaml.LiteralStyle, Value: string(enrichersYaml)}
 
 	return configMap, nil
 }
