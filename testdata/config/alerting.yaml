@@ -1,0 +1,42 @@
+alerting:
+  route:
+    group_by: ["..."]
+    continue: true
+    receiver: default
+    child_routes:
+      - receiver: example_webhook
+        group_by: 
+          - imageid
+          - imagespec
+          - namespace
+        matchers:
+          - namespace ="pharos"
+      - receiver: default
+        group_by: 
+          - imageid
+        matchers:
+          - namespace != pharos
+      - receiver: default
+        group_by: 
+          - platform
+        matchers:
+          - imageid =~ ".*"
+          - imagespec =~ ".*"
+          - namespace =~ "nextcloud-.*"
+      - receiver: default
+        group_by: 
+          - platform
+        matchers:
+          - imageid =~ ".*"
+          - imagespec =~ ".*"
+          - namespace !~ "nextcloud-.*"
+        child_routes:
+          - receiver: test
+            group_wait: 1m
+
+  receivers:
+    - name: "default"
+    - name: "example_webhook"
+      webhook_configs:
+        - url: "http://localhost:8081/api/v1/alerts"
+          send_resolved: true
