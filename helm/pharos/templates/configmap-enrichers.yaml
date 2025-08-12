@@ -208,7 +208,7 @@ data:
             eos:  2025-06-30
           - version: 2023
             eos:  2029-06-30
-    eos-eos_v1.hbs: '{{ b64dec "ZGlzdHJvOiB7eyAucGF5bG9hZC5JbWFnZS5EaXN0cm9OYW1lIH19CnZlcnNpb246IHt7IC5wYXlsb2FkLkltYWdlLkRpc3Ryb1ZlcnNpb24gfX0KZW9zOiB7eyBpbmRleCAubWV0YS5lb3MgLnBheWxvYWQuSW1hZ2UuRGlzdHJvTmFtZSB8IGZpbHRlciAidmVyc2lvbiIgIm1hdGNoV2lsZGNhcmQiIC5wYXlsb2FkLkltYWdlLkRpc3Ryb1ZlcnNpb24gfCBtYXAgImZpZWxkIiAiZW9zIiB8IGZpcnN0IH19CiAg" | nindent 6 }}'
+    eos-eos_v1.hbs: | {{ b64dec "ZGlzdHJvOiB7eyAucGF5bG9hZC5JbWFnZS5EaXN0cm9OYW1lIH19CnZlcnNpb246IHt7IC5wYXlsb2FkLkltYWdlLkRpc3Ryb1ZlcnNpb24gfX0KZW9zOiB7eyBpbmRleCAubWV0YS5lb3MgLnBheWxvYWQuSW1hZ2UuRGlzdHJvTmFtZSB8IGZpbHRlciAidmVyc2lvbiIgIm1hdGNoV2lsZGNhcmQiIC5wYXlsb2FkLkltYWdlLkRpc3Ryb1ZlcnNpb24gfCBtYXAgImZpZWxkIiAiZW9zIiB8IGZpcnN0IH19CiAg" | nindent 6 }}
     owner-enricher.yaml: |
         enricher:
             - name: file
@@ -222,7 +222,7 @@ data:
             owner: john@mail.com
           - namespace: default
             owner: jessica@mail.com
-    owner-owners_v1.hbs: '{{ b64dec "e3stICRjb250ZXh0Um9vdCA6PSAucGF5bG9hZC5JbWFnZS5Db250ZXh0Um9vdHMgfCBmaXJzdCB9fQp7ey0gJG5hbWVzcGFjZSA6PSAoJGNvbnRleHRSb290LkNvbnRleHRzIHwgZmlsdGVyICJPd25lciIgInN0YXJ0c1dpdGgiICJwaGFyb3MtY29udHJvbGxlciIgfCBmaXJzdCkuRGF0YS5uYW1lc3BhY2UgfX0Kb3duZXI6IHt7IC5tZXRhLm93bmVycy5ieU5hbWVzcGFjZSB8IGZpbHRlciAibmFtZXNwYWNlIiAic3RhcnRzV2l0aCIgJG5hbWVzcGFjZSB8IG1hcCAiZmllbGQiICJvd25lciIgfCBmaXJzdCB8IHRvWWFtbCB8IG5pbmRlbnQgMiB9fQo=" | nindent 6 }}'
+    owner-owners_v1.hbs: | {{ b64dec "e3stICRjb250ZXh0Um9vdCA6PSAucGF5bG9hZC5JbWFnZS5Db250ZXh0Um9vdHMgfCBmaXJzdCB9fQp7ey0gJG5hbWVzcGFjZSA6PSAoJGNvbnRleHRSb290LkNvbnRleHRzIHwgZmlsdGVyICJPd25lciIgInN0YXJ0c1dpdGgiICJwaGFyb3MtY29udHJvbGxlciIgfCBmaXJzdCkuRGF0YS5uYW1lc3BhY2UgfX0Kb3duZXI6IHt7IC5tZXRhLm93bmVycy5ieU5hbWVzcGFjZSB8IGZpbHRlciAibmFtZXNwYWNlIiAic3RhcnRzV2l0aCIgJG5hbWVzcGFjZSB8IG1hcCAiZmllbGQiICJvd25lciIgfCBmaXJzdCB8IHRvWWFtbCB8IG5pbmRlbnQgMiB9fQo=" | nindent 6 }}
 kind: ConfigMap
 metadata:
     labels:
