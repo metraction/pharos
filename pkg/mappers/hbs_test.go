@@ -293,7 +293,7 @@ func TestAppendFile(t *testing.T) {
 	templatePath := filepath.Join("..", "..", "testdata", "enrichers", "risk", "eos_v1.hbs")
 
 	mapper := extension.NewChanSource(outChan).
-		Via(flow.NewMap(NewAppendFile(eosYamlPath), 1)).
+		Via(flow.NewMap(NewAppendFile(eosYamlPath, ""), 1)).
 		//Via(flow.NewMap(NewDebug("eos"), 1)).
 		Via(flow.NewMap(NewPureHbs[map[string]interface{}, map[string]interface{}](templatePath), 1))
 

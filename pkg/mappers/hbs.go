@@ -199,7 +199,7 @@ func NewPolicy[T any](templatePath string) (*Policy[T], error) {
 	funcMap["map"] = mapOperator
 	funcMap["filter"] = filterOperator
 	funcMap["toYaml"] = toYaml
-	tmpl, err := template.New("risk").Funcs(funcMap).Parse(string(file))
+	tmpl, err := template.New(templatePath).Funcs(funcMap).Parse(string(file))
 	if err != nil {
 		return nil, err
 	}

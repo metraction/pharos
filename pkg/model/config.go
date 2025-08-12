@@ -142,4 +142,5 @@ type EnricherConfig struct {
 type MapperConfig struct {
 	Name   string `yaml:"name"`
 	Config string `yaml:"config"`
+	Ref    string `yaml:"ref"` // Used in NewAppendFile to set ref name in template
 }
