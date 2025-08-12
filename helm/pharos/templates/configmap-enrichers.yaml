@@ -209,7 +209,7 @@ data:
             eos:  2029-06-30
     eos-eos_v1.hbs: '{{ b64dec "ZGlzdHJvOiB7eyAucGF5bG9hZC5JbWFnZS5EaXN0cm9OYW1lIH19CnZlcnNpb246IHt7IC5wYXlsb2FkLkltYWdlLkRpc3Ryb1ZlcnNpb24gfX0KZW9zOiB7eyBpbmRleCAubWV0YS5lb3MgLnBheWxvYWQuSW1hZ2UuRGlzdHJvTmFtZSB8IGZpbHRlciAidmVyc2lvbiIgIm1hdGNoV2lsZGNhcmQiIC5wYXlsb2FkLkltYWdlLkRpc3Ryb1ZlcnNpb24gfCBtYXAgImZpZWxkIiAiZW9zIiB8IGZpcnN0IH19CiAg" | nindent 6 }}'
     owner-enricher.yaml: |
-        results:
+        enricher:
             - name: file
               config: owner-owners.yaml
             - name: hbs
