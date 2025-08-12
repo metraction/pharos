@@ -19,11 +19,11 @@ import (
 /*
 Creates appender by reading file on creation moment.
 */
-func NewAppendFile(file string) flow.MapFunction[map[string]interface{}, map[string]interface{}] {
-	// Extract the filename without extension and directories
-	baseName := filepath.Base(file)
-	// Remove extension
-	fileKey := strings.TrimSuffix(baseName, filepath.Ext(baseName))
+func NewAppendFile(file string, ref string) flow.MapFunction[map[string]interface{}, map[string]interface{}] {
+	if ref == "" {
+		// Extract the filename without extension and directories
+		ref = CreateRef(file)
+	}
 
 	// Read the YAML file content
 	content, err := os.ReadFile(file)
@@ -42,11 +42,17 @@ func NewAppendFile(file string) flow.MapFunction[map[string]interface{}, map[str
 		result := map[string]interface{}{
 			"payload": data["payload"],
 			"meta": map[string]interface{}{
-				fileKey: yamlContent,
+				ref: yamlContent,
 			},
 		}
 		return result
 	}
+}
+
+func CreateRef(file string) string {
+	baseName := filepath.Base(file)
+	// Remove extension
+	return strings.TrimSuffix(baseName, filepath.Ext(baseName))
 }
 
 func NewPureHbs[T any, R any](rule string) flow.MapFunction[T, R] {

@@ -13,6 +13,7 @@ data:
         enricher:
             - name: file
               config: eos-eos.yaml
+              ref: eos
             - name: hbs
               config: eos-eos_v1.hbs
     eos-eos.yaml: |
@@ -212,6 +213,7 @@ data:
         enricher:
             - name: file
               config: owner-owners.yaml
+              ref: owners
             - name: hbs
               config: owner-owners_v1.hbs
     owner-owners.yaml: |-

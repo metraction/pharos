@@ -37,7 +37,7 @@ func NewEnricherMap(name string, enricher model.EnricherConfig) streams.Flow {
 			config := filepath.Join(enricher.BasePath, mapper.Config)
 			switch mapper.Name {
 			case "file":
-				wrapped = Wrap(NewAppendFile(config))(wrapped)
+				wrapped = Wrap(NewAppendFile(config, mapper.Ref))(wrapped)
 			case "hbs":
 				wrapped = Wrap(NewPureHbs[map[string]interface{}, map[string]interface{}](config))(wrapped)
 			case "starlark":

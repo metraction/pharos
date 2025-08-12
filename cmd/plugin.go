@@ -302,6 +302,9 @@ func createConfigMap(enrichers *model.EnrichersConfig, name string) (map[string]
 					}
 					for _, configs := range mapperConfig {
 						for i, _ := range configs {
+							if configs[i].Name == "file" {
+								configs[i].Ref = configs[i].Config
+							}
 							configs[i].Config = flattenDirectory(source, configs[i].Config)
 						}
 					}
