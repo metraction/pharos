@@ -25,15 +25,13 @@ type Alert struct {
 }
 
 type AlertLabel struct {
-	ID               uint   `gorm:"primaryKey"`
-	AlertFingerprint string `json:"alert_fingerprint"`
-	Name             string `json:"name"`
-	Value            string `json:"value"`
+	AlertFingerprint string `json:"alert_fingerprint" gorm:"primaryKey"`
+	Name             string `json:"name" gorm:"primaryKey"`
+	Value            string `json:"value" gorm:"primaryKey"`
 }
 
 type AlertAnnotation struct {
-	ID               uint   `gorm:"primaryKey"`
-	AlertFingerprint string `json:"alert_fingerprint"`
-	Name             string `json:"name" `
-	Value            string `json:"value"`
+	AlertFingerprint string `json:"alert_fingerprint" gorm:"primaryKey"`
+	Name             string `json:"name" gorm:"primaryKey"`
+	Value            string `json:"value" gorm:"primaryKey"`
 }

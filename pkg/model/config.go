@@ -20,6 +20,7 @@ type Config struct {
 	Command         string                   `mapstructure:"command"`
 	BasePath        string
 	EnricherPath    string
+	Alerting        AlertingConfig `mapstructure:"alerting" yaml:"alerting" json:"alerting"`
 }
 
 // ObfuscateSensitiveData replaces passwords and tokens in the config with "***".
@@ -143,4 +144,44 @@ type MapperConfig struct {
 	Name   string `yaml:"name"`
 	Config string `yaml:"config"`
 	Ref    string `yaml:"ref"` // Used in NewAppendFile to set ref name in template
+}
+
+type AlertingConfig struct {
+	Route     RouteConfig      `mapstructure:"route" yaml:"route" json:"route" doc:"Root Route for alerts"`
+	Receivers []ReceiverConfig `mapstructure:"receivers" yaml:"receivers" json:"receivers" doc:"List of receivers for alerts"`
+}
+
+type RouteConfig struct {
+	Receiver       string        `mapstructure:"receiver" yaml:"receiver" json:"receiver"`
+	GroupBy        []string      `mapstructure:"group_by" yaml:"group_by" json:"group_by"`
+	Continue       bool          `mapstructure:"continue" yaml:"continue,omitempty" json:"continue,omitempty"`
+	Matchers       []string      `mapstructure:"matchers,omitempty" yaml:"matchers,omitempty" json:"matchers,omitempty"`
+	GroupWait      string        `mapstructure:"group_wait,omitempty" yaml:"group_wait,omitempty" json:"group_wait,omitempty"`
+	GroupInterval  string        `mapstructure:"group_interval,omitempty" yaml:"group_interval,omitempty" json:"group_interval,omitempty" default:"5m"`
+	RepeatInterval string        `mapstructure:"repeat_interval,omitempty" yaml:"repeat_interval,omitempty" json:"repeat_interval,omitempty" default:"4h"`
+	ChildRoutes    []RouteConfig `mapstructure:"child_routes,omitempty" yaml:"child_routes,omitempty" json:"child_routes,omitempty"`
+}
+
+type ReceiverConfig struct {
+	Name           string          `mapstructure:"name" yaml:"name" json:"name"`
+	WebhookConfigs []WebhookConfig `mapstructure:"webhook_configs" yaml:"webhook_configs" json:"webhook_configs"`
+}
+
+type WebhookConfig struct {
+	// Whether to notify about resolved alerts.
+	SendResolved bool `mapstructure:"send_resolved" yaml:"send_resolved" json:"send_resolved"`
+
+	// The endpoint to send HTTP POST requests to.
+	// url and url_file are mutually exclusive.
+	URL     string `mapstructure:"url" yaml:"url" json:"url"`
+	URLFile string `mapstructure:"url_file" yaml:"url_file" json:"url_file"`
+
+	// The HTTP client's configuration.
+	HTTPConfig interface{} `mapstructure:"http_config" yaml:"http_config" json:"http_config"`
+
+	// The maximum number of alerts to include in a single webhook message.
+	MaxAlerts int `mapstructure:"max_alerts" yaml:"max_alerts" json:"max_alerts"`
+
+	// The maximum time to wait for a webhook request to complete.
+	Timeout string `mapstructure:"timeout" yaml:"timeout" json:"timeout"`
 }

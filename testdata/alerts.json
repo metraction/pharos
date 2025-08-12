@@ -1,0 +1,1332 @@
+[
+  {
+    "status": "firing",
+    "labels": [
+      {
+        "alert_fingerprint": "sha256:01ad95dea25f7b59fd040f60323bd9a191580cd62e6d9e0d0892b32ed36b08b9",
+        "name": "imagespec",
+        "value": "xperimental/nextcloud-exporter:0.6.0"
+      },
+      {
+        "alert_fingerprint": "sha256:01ad95dea25f7b59fd040f60323bd9a191580cd62e6d9e0d0892b32ed36b08b9",
+        "name": "imageid",
+        "value": "sha256:72bc20ef88fb303944a5a2537fe13b913cba882d672ff725622eeac2e5842176"
+      },
+      {
+        "alert_fingerprint": "sha256:01ad95dea25f7b59fd040f60323bd9a191580cd62e6d9e0d0892b32ed36b08b9",
+        "name": "digest",
+        "value": "sha256:138e4d2310a19c01833f17281cd4925d170d02bc17a6141720f67058c8e8842a"
+      },
+      {
+        "alert_fingerprint": "sha256:01ad95dea25f7b59fd040f60323bd9a191580cd62e6d9e0d0892b32ed36b08b9",
+        "name": "platform",
+        "value": "linux/amd64"
+      },
+      {
+        "alert_fingerprint": "sha256:01ad95dea25f7b59fd040f60323bd9a191580cd62e6d9e0d0892b32ed36b08b9",
+        "name": "Unknown",
+        "value": "1"
+      },
+      {
+        "alert_fingerprint": "sha256:01ad95dea25f7b59fd040f60323bd9a191580cd62e6d9e0d0892b32ed36b08b9",
+        "name": "Medium",
+        "value": "19"
+      },
+      {
+        "alert_fingerprint": "sha256:01ad95dea25f7b59fd040f60323bd9a191580cd62e6d9e0d0892b32ed36b08b9",
+        "name": "Critical",
+        "value": "9"
+      },
+      {
+        "alert_fingerprint": "sha256:01ad95dea25f7b59fd040f60323bd9a191580cd62e6d9e0d0892b32ed36b08b9",
+        "name": "Low",
+        "value": "2"
+      },
+      {
+        "alert_fingerprint": "sha256:01ad95dea25f7b59fd040f60323bd9a191580cd62e6d9e0d0892b32ed36b08b9",
+        "name": "High",
+        "value": "20"
+      },
+      {
+        "alert_fingerprint": "sha256:01ad95dea25f7b59fd040f60323bd9a191580cd62e6d9e0d0892b32ed36b08b9",
+        "name": "namespace",
+        "value": "nextcloud-test"
+      }
+    ],
+    "annotations": [],
+    "startsAt": "2025-08-12T16:46:04.202303+02:00",
+    "endsAt": "2025-08-12T17:16:04.202303+02:00",
+    "generatorURL": "",
+    "fingerprint": "sha256:01ad95dea25f7b59fd040f60323bd9a191580cd62e6d9e0d0892b32ed36b08b9"
+  },
+  {
+    "status": "firing",
+    "labels": [
+      {
+        "alert_fingerprint": "sha256:104f6e5f83e3c0ed12694036536a31f8e62d28e5b4a20e24087756ea50502ed8",
+        "name": "imagespec",
+        "value": "nextcloud:31.0.6-apache"
+      },
+      {
+        "alert_fingerprint": "sha256:104f6e5f83e3c0ed12694036536a31f8e62d28e5b4a20e24087756ea50502ed8",
+        "name": "imageid",
+        "value": "sha256:a31cd51691669c00ec05a957553d8c011951af6936b7446a7c939ecabfa1e409"
+      },
+      {
+        "alert_fingerprint": "sha256:104f6e5f83e3c0ed12694036536a31f8e62d28e5b4a20e24087756ea50502ed8",
+        "name": "digest",
+        "value": "sha256:efb2396954f82cd36284b4a373cd0ce37733ac771afa6681dd4a7fca0d94ef94"
+      },
+      {
+        "alert_fingerprint": "sha256:104f6e5f83e3c0ed12694036536a31f8e62d28e5b4a20e24087756ea50502ed8",
+        "name": "platform",
+        "value": "linux/amd64"
+      },
+      {
+        "alert_fingerprint": "sha256:104f6e5f83e3c0ed12694036536a31f8e62d28e5b4a20e24087756ea50502ed8",
+        "name": "Unknown",
+        "value": "9"
+      },
+      {
+        "alert_fingerprint": "sha256:104f6e5f83e3c0ed12694036536a31f8e62d28e5b4a20e24087756ea50502ed8",
+        "name": "High",
+        "value": "15"
+      },
+      {
+        "alert_fingerprint": "sha256:104f6e5f83e3c0ed12694036536a31f8e62d28e5b4a20e24087756ea50502ed8",
+        "name": "Negligible",
+        "value": "133"
+      },
+      {
+        "alert_fingerprint": "sha256:104f6e5f83e3c0ed12694036536a31f8e62d28e5b4a20e24087756ea50502ed8",
+        "name": "Medium",
+        "value": "35"
+      },
+      {
+        "alert_fingerprint": "sha256:104f6e5f83e3c0ed12694036536a31f8e62d28e5b4a20e24087756ea50502ed8",
+        "name": "Critical",
+        "value": "10"
+      },
+      {
+        "alert_fingerprint": "sha256:104f6e5f83e3c0ed12694036536a31f8e62d28e5b4a20e24087756ea50502ed8",
+        "name": "namespace",
+        "value": "nextcloud-test3"
+      },
+      {
+        "alert_fingerprint": "sha256:104f6e5f83e3c0ed12694036536a31f8e62d28e5b4a20e24087756ea50502ed8",
+        "name": "Low",
+        "value": "18"
+      }
+    ],
+    "annotations": [],
+    "startsAt": "2025-08-12T16:46:09.506385+02:00",
+    "endsAt": "2025-08-12T17:16:09.506385+02:00",
+    "generatorURL": "",
+    "fingerprint": "sha256:104f6e5f83e3c0ed12694036536a31f8e62d28e5b4a20e24087756ea50502ed8"
+  },
+  {
+    "status": "firing",
+    "labels": [
+      {
+        "alert_fingerprint": "sha256:182bb911fdf9c9bd88ee9b23319f7415b7231b0fe49fa75fd768368242ff7287",
+        "name": "imagespec",
+        "value": "docker.io/bitnami/wordpress:6.7.1-debian-12-r11"
+      },
+      {
+        "alert_fingerprint": "sha256:182bb911fdf9c9bd88ee9b23319f7415b7231b0fe49fa75fd768368242ff7287",
+        "name": "imageid",
+        "value": "sha256:261ae26b9d0e9d7fb9b29aa4d8d2674fe007b6807363d9a1cb8a64ab8bdcd1bd"
+      },
+      {
+        "alert_fingerprint": "sha256:182bb911fdf9c9bd88ee9b23319f7415b7231b0fe49fa75fd768368242ff7287",
+        "name": "digest",
+        "value": "sha256:4f36c7940d4e9d2e3a46aca61bea3ec79bed0af632cbc2289b795424a5efa3ee"
+      },
+      {
+        "alert_fingerprint": "sha256:182bb911fdf9c9bd88ee9b23319f7415b7231b0fe49fa75fd768368242ff7287",
+        "name": "platform",
+        "value": "linux/amd64"
+      },
+      {
+        "alert_fingerprint": "sha256:182bb911fdf9c9bd88ee9b23319f7415b7231b0fe49fa75fd768368242ff7287",
+        "name": "Critical",
+        "value": "7"
+      },
+      {
+        "alert_fingerprint": "sha256:182bb911fdf9c9bd88ee9b23319f7415b7231b0fe49fa75fd768368242ff7287",
+        "name": "Medium",
+        "value": "61"
+      },
+      {
+        "alert_fingerprint": "sha256:182bb911fdf9c9bd88ee9b23319f7415b7231b0fe49fa75fd768368242ff7287",
+        "name": "High",
+        "value": "43"
+      },
+      {
+        "alert_fingerprint": "sha256:182bb911fdf9c9bd88ee9b23319f7415b7231b0fe49fa75fd768368242ff7287",
+        "name": "Low",
+        "value": "22"
+      },
+      {
+        "alert_fingerprint": "sha256:182bb911fdf9c9bd88ee9b23319f7415b7231b0fe49fa75fd768368242ff7287",
+        "name": "Negligible",
+        "value": "85"
+      },
+      {
+        "alert_fingerprint": "sha256:182bb911fdf9c9bd88ee9b23319f7415b7231b0fe49fa75fd768368242ff7287",
+        "name": "Unknown",
+        "value": "4"
+      },
+      {
+        "alert_fingerprint": "sha256:182bb911fdf9c9bd88ee9b23319f7415b7231b0fe49fa75fd768368242ff7287",
+        "name": "namespace",
+        "value": "wordpress-test"
+      }
+    ],
+    "annotations": [],
+    "startsAt": "2025-08-12T16:45:59.937369+02:00",
+    "endsAt": "2025-08-12T17:15:59.937369+02:00",
+    "generatorURL": "",
+    "fingerprint": "sha256:182bb911fdf9c9bd88ee9b23319f7415b7231b0fe49fa75fd768368242ff7287"
+  },
+  {
+    "status": "firing",
+    "labels": [
+      {
+        "alert_fingerprint": "sha256:201baf8c5f7c6956537113c41f609dc741f898c4fdc6c26bceae412355083ae2",
+        "name": "imagespec",
+        "value": "xperimental/nextcloud-exporter:0.6.0"
+      },
+      {
+        "alert_fingerprint": "sha256:201baf8c5f7c6956537113c41f609dc741f898c4fdc6c26bceae412355083ae2",
+        "name": "imageid",
+        "value": "sha256:72bc20ef88fb303944a5a2537fe13b913cba882d672ff725622eeac2e5842176"
+      },
+      {
+        "alert_fingerprint": "sha256:201baf8c5f7c6956537113c41f609dc741f898c4fdc6c26bceae412355083ae2",
+        "name": "High",
+        "value": "20"
+      },
+      {
+        "alert_fingerprint": "sha256:201baf8c5f7c6956537113c41f609dc741f898c4fdc6c26bceae412355083ae2",
+        "name": "Unknown",
+        "value": "1"
+      },
+      {
+        "alert_fingerprint": "sha256:201baf8c5f7c6956537113c41f609dc741f898c4fdc6c26bceae412355083ae2",
+        "name": "Medium",
+        "value": "19"
+      },
+      {
+        "alert_fingerprint": "sha256:201baf8c5f7c6956537113c41f609dc741f898c4fdc6c26bceae412355083ae2",
+        "name": "Critical",
+        "value": "9"
+      },
+      {
+        "alert_fingerprint": "sha256:201baf8c5f7c6956537113c41f609dc741f898c4fdc6c26bceae412355083ae2",
+        "name": "Low",
+        "value": "2"
+      },
+      {
+        "alert_fingerprint": "sha256:201baf8c5f7c6956537113c41f609dc741f898c4fdc6c26bceae412355083ae2",
+        "name": "digest",
+        "value": "sha256:138e4d2310a19c01833f17281cd4925d170d02bc17a6141720f67058c8e8842a"
+      },
+      {
+        "alert_fingerprint": "sha256:201baf8c5f7c6956537113c41f609dc741f898c4fdc6c26bceae412355083ae2",
+        "name": "platform",
+        "value": "linux/amd64"
+      },
+      {
+        "alert_fingerprint": "sha256:201baf8c5f7c6956537113c41f609dc741f898c4fdc6c26bceae412355083ae2",
+        "name": "namespace",
+        "value": "nextcloud-test3"
+      }
+    ],
+    "annotations": [],
+    "startsAt": "2025-08-12T16:45:58.52725+02:00",
+    "endsAt": "2025-08-12T17:15:58.52725+02:00",
+    "generatorURL": "",
+    "fingerprint": "sha256:201baf8c5f7c6956537113c41f609dc741f898c4fdc6c26bceae412355083ae2"
+  },
+  {
+    "status": "firing",
+    "labels": [
+      {
+        "alert_fingerprint": "sha256:25d085e63e5004a3c7d633ae1fcca6252fe0e735f0d5a1237ac3a07d890ec3fb",
+        "name": "imagespec",
+        "value": "nextcloud:31.0.6-apache"
+      },
+      {
+        "alert_fingerprint": "sha256:25d085e63e5004a3c7d633ae1fcca6252fe0e735f0d5a1237ac3a07d890ec3fb",
+        "name": "imageid",
+        "value": "sha256:a31cd51691669c00ec05a957553d8c011951af6936b7446a7c939ecabfa1e409"
+      },
+      {
+        "alert_fingerprint": "sha256:25d085e63e5004a3c7d633ae1fcca6252fe0e735f0d5a1237ac3a07d890ec3fb",
+        "name": "digest",
+        "value": "sha256:efb2396954f82cd36284b4a373cd0ce37733ac771afa6681dd4a7fca0d94ef94"
+      },
+      {
+        "alert_fingerprint": "sha256:25d085e63e5004a3c7d633ae1fcca6252fe0e735f0d5a1237ac3a07d890ec3fb",
+        "name": "platform",
+        "value": "linux/amd64"
+      },
+      {
+        "alert_fingerprint": "sha256:25d085e63e5004a3c7d633ae1fcca6252fe0e735f0d5a1237ac3a07d890ec3fb",
+        "name": "High",
+        "value": "15"
+      },
+      {
+        "alert_fingerprint": "sha256:25d085e63e5004a3c7d633ae1fcca6252fe0e735f0d5a1237ac3a07d890ec3fb",
+        "name": "Low",
+        "value": "18"
+      },
+      {
+        "alert_fingerprint": "sha256:25d085e63e5004a3c7d633ae1fcca6252fe0e735f0d5a1237ac3a07d890ec3fb",
+        "name": "Negligible",
+        "value": "133"
+      },
+      {
+        "alert_fingerprint": "sha256:25d085e63e5004a3c7d633ae1fcca6252fe0e735f0d5a1237ac3a07d890ec3fb",
+        "name": "Medium",
+        "value": "35"
+      },
+      {
+        "alert_fingerprint": "sha256:25d085e63e5004a3c7d633ae1fcca6252fe0e735f0d5a1237ac3a07d890ec3fb",
+        "name": "Unknown",
+        "value": "9"
+      },
+      {
+        "alert_fingerprint": "sha256:25d085e63e5004a3c7d633ae1fcca6252fe0e735f0d5a1237ac3a07d890ec3fb",
+        "name": "Critical",
+        "value": "10"
+      },
+      {
+        "alert_fingerprint": "sha256:25d085e63e5004a3c7d633ae1fcca6252fe0e735f0d5a1237ac3a07d890ec3fb",
+        "name": "namespace",
+        "value": "nextcloud-test1"
+      }
+    ],
+    "annotations": [],
+    "startsAt": "2025-08-12T16:46:11.318101+02:00",
+    "endsAt": "2025-08-12T17:16:11.318101+02:00",
+    "generatorURL": "",
+    "fingerprint": "sha256:25d085e63e5004a3c7d633ae1fcca6252fe0e735f0d5a1237ac3a07d890ec3fb"
+  },
+  {
+    "status": "firing",
+    "labels": [
+      {
+        "alert_fingerprint": "sha256:2966ffb49bf1573849920310a539492526a80cdf66788c4b336a8f80016d2d95",
+        "name": "imagespec",
+        "value": "docker.io/bitnami/wordpress:6.7.1-debian-12-r11"
+      },
+      {
+        "alert_fingerprint": "sha256:2966ffb49bf1573849920310a539492526a80cdf66788c4b336a8f80016d2d95",
+        "name": "imageid",
+        "value": "sha256:261ae26b9d0e9d7fb9b29aa4d8d2674fe007b6807363d9a1cb8a64ab8bdcd1bd"
+      },
+      {
+        "alert_fingerprint": "sha256:2966ffb49bf1573849920310a539492526a80cdf66788c4b336a8f80016d2d95",
+        "name": "digest",
+        "value": "sha256:4f36c7940d4e9d2e3a46aca61bea3ec79bed0af632cbc2289b795424a5efa3ee"
+      },
+      {
+        "alert_fingerprint": "sha256:2966ffb49bf1573849920310a539492526a80cdf66788c4b336a8f80016d2d95",
+        "name": "platform",
+        "value": "linux/amd64"
+      },
+      {
+        "alert_fingerprint": "sha256:2966ffb49bf1573849920310a539492526a80cdf66788c4b336a8f80016d2d95",
+        "name": "High",
+        "value": "43"
+      },
+      {
+        "alert_fingerprint": "sha256:2966ffb49bf1573849920310a539492526a80cdf66788c4b336a8f80016d2d95",
+        "name": "Low",
+        "value": "22"
+      },
+      {
+        "alert_fingerprint": "sha256:2966ffb49bf1573849920310a539492526a80cdf66788c4b336a8f80016d2d95",
+        "name": "Negligible",
+        "value": "85"
+      },
+      {
+        "alert_fingerprint": "sha256:2966ffb49bf1573849920310a539492526a80cdf66788c4b336a8f80016d2d95",
+        "name": "Unknown",
+        "value": "4"
+      },
+      {
+        "alert_fingerprint": "sha256:2966ffb49bf1573849920310a539492526a80cdf66788c4b336a8f80016d2d95",
+        "name": "Medium",
+        "value": "61"
+      },
+      {
+        "alert_fingerprint": "sha256:2966ffb49bf1573849920310a539492526a80cdf66788c4b336a8f80016d2d95",
+        "name": "Critical",
+        "value": "7"
+      },
+      {
+        "alert_fingerprint": "sha256:2966ffb49bf1573849920310a539492526a80cdf66788c4b336a8f80016d2d95",
+        "name": "namespace",
+        "value": "wordpress-test1"
+      }
+    ],
+    "annotations": [],
+    "startsAt": "2025-08-12T16:46:02.961529+02:00",
+    "endsAt": "2025-08-12T17:16:02.961529+02:00",
+    "generatorURL": "",
+    "fingerprint": "sha256:2966ffb49bf1573849920310a539492526a80cdf66788c4b336a8f80016d2d95"
+  },
+  {
+    "status": "firing",
+    "labels": [
+      {
+        "alert_fingerprint": "sha256:35acf28748b782653f2af43c14863cc7f49a033673abe54737e60fe46d77e1b9",
+        "name": "imagespec",
+        "value": "nextcloud:31.0.6-apache"
+      },
+      {
+        "alert_fingerprint": "sha256:35acf28748b782653f2af43c14863cc7f49a033673abe54737e60fe46d77e1b9",
+        "name": "imageid",
+        "value": "sha256:a31cd51691669c00ec05a957553d8c011951af6936b7446a7c939ecabfa1e409"
+      },
+      {
+        "alert_fingerprint": "sha256:35acf28748b782653f2af43c14863cc7f49a033673abe54737e60fe46d77e1b9",
+        "name": "digest",
+        "value": "sha256:efb2396954f82cd36284b4a373cd0ce37733ac771afa6681dd4a7fca0d94ef94"
+      },
+      {
+        "alert_fingerprint": "sha256:35acf28748b782653f2af43c14863cc7f49a033673abe54737e60fe46d77e1b9",
+        "name": "platform",
+        "value": "linux/amd64"
+      },
+      {
+        "alert_fingerprint": "sha256:35acf28748b782653f2af43c14863cc7f49a033673abe54737e60fe46d77e1b9",
+        "name": "Medium",
+        "value": "35"
+      },
+      {
+        "alert_fingerprint": "sha256:35acf28748b782653f2af43c14863cc7f49a033673abe54737e60fe46d77e1b9",
+        "name": "Critical",
+        "value": "10"
+      },
+      {
+        "alert_fingerprint": "sha256:35acf28748b782653f2af43c14863cc7f49a033673abe54737e60fe46d77e1b9",
+        "name": "Unknown",
+        "value": "9"
+      },
+      {
+        "alert_fingerprint": "sha256:35acf28748b782653f2af43c14863cc7f49a033673abe54737e60fe46d77e1b9",
+        "name": "High",
+        "value": "15"
+      },
+      {
+        "alert_fingerprint": "sha256:35acf28748b782653f2af43c14863cc7f49a033673abe54737e60fe46d77e1b9",
+        "name": "namespace",
+        "value": "nextcloud-test"
+      },
+      {
+        "alert_fingerprint": "sha256:35acf28748b782653f2af43c14863cc7f49a033673abe54737e60fe46d77e1b9",
+        "name": "Negligible",
+        "value": "133"
+      },
+      {
+        "alert_fingerprint": "sha256:35acf28748b782653f2af43c14863cc7f49a033673abe54737e60fe46d77e1b9",
+        "name": "Low",
+        "value": "18"
+      }
+    ],
+    "annotations": [],
+    "startsAt": "2025-08-12T16:46:07.637655+02:00",
+    "endsAt": "2025-08-12T17:16:07.637655+02:00",
+    "generatorURL": "",
+    "fingerprint": "sha256:35acf28748b782653f2af43c14863cc7f49a033673abe54737e60fe46d77e1b9"
+  },
+  {
+    "status": "firing",
+    "labels": [
+      {
+        "alert_fingerprint": "sha256:3804087108be27eb6457ac09caee98c786e8ace4abf1152c7330d9e2d0485a14",
+        "name": "imagespec",
+        "value": "busybox"
+      },
+      {
+        "alert_fingerprint": "sha256:3804087108be27eb6457ac09caee98c786e8ace4abf1152c7330d9e2d0485a14",
+        "name": "imageid",
+        "value": "sha256:6d3e4188a38af91b0c1577b9e88c53368926b2fe0e1fb985d6e8a70040520c4d"
+      },
+      {
+        "alert_fingerprint": "sha256:3804087108be27eb6457ac09caee98c786e8ace4abf1152c7330d9e2d0485a14",
+        "name": "digest",
+        "value": "sha256:7c0ffe5751238c8479f952f3fbc3b719d47bccac0e9bf0a21c77a27cba9ef12d"
+      },
+      {
+        "alert_fingerprint": "sha256:3804087108be27eb6457ac09caee98c786e8ace4abf1152c7330d9e2d0485a14",
+        "name": "platform",
+        "value": "linux/amd64"
+      },
+      {
+        "alert_fingerprint": "sha256:3804087108be27eb6457ac09caee98c786e8ace4abf1152c7330d9e2d0485a14",
+        "name": "Low",
+        "value": "2"
+      },
+      {
+        "alert_fingerprint": "sha256:3804087108be27eb6457ac09caee98c786e8ace4abf1152c7330d9e2d0485a14",
+        "name": "namespace",
+        "value": "nextcloud-test2"
+      }
+    ],
+    "annotations": [],
+    "startsAt": "2025-08-12T16:46:01.656152+02:00",
+    "endsAt": "2025-08-12T17:16:01.656152+02:00",
+    "generatorURL": "",
+    "fingerprint": "sha256:3804087108be27eb6457ac09caee98c786e8ace4abf1152c7330d9e2d0485a14"
+  },
+  {
+    "status": "firing",
+    "labels": [
+      {
+        "alert_fingerprint": "sha256:70cd442c8047a1812b2105aa00400dc59284adc13b5f91bd8d0ab60aa0f7fb57",
+        "name": "imagespec",
+        "value": "nextcloud:31.0.4-apache"
+      },
+      {
+        "alert_fingerprint": "sha256:70cd442c8047a1812b2105aa00400dc59284adc13b5f91bd8d0ab60aa0f7fb57",
+        "name": "imageid",
+        "value": "sha256:d83b1f2c9b403b3bd73babdcb8138bfda3360f66bf45f150353da6bd4b0141c5"
+      },
+      {
+        "alert_fingerprint": "sha256:70cd442c8047a1812b2105aa00400dc59284adc13b5f91bd8d0ab60aa0f7fb57",
+        "name": "digest",
+        "value": "sha256:85824d62f7b82146f5b15fa30c58dfb932635cee357e49908d535a0ee3ee2d74"
+      },
+      {
+        "alert_fingerprint": "sha256:70cd442c8047a1812b2105aa00400dc59284adc13b5f91bd8d0ab60aa0f7fb57",
+        "name": "Medium",
+        "value": "46"
+      },
+      {
+        "alert_fingerprint": "sha256:70cd442c8047a1812b2105aa00400dc59284adc13b5f91bd8d0ab60aa0f7fb57",
+        "name": "Critical",
+        "value": "10"
+      },
+      {
+        "alert_fingerprint": "sha256:70cd442c8047a1812b2105aa00400dc59284adc13b5f91bd8d0ab60aa0f7fb57",
+        "name": "High",
+        "value": "24"
+      },
+      {
+        "alert_fingerprint": "sha256:70cd442c8047a1812b2105aa00400dc59284adc13b5f91bd8d0ab60aa0f7fb57",
+        "name": "Low",
+        "value": "22"
+      },
+      {
+        "alert_fingerprint": "sha256:70cd442c8047a1812b2105aa00400dc59284adc13b5f91bd8d0ab60aa0f7fb57",
+        "name": "Negligible",
+        "value": "135"
+      },
+      {
+        "alert_fingerprint": "sha256:70cd442c8047a1812b2105aa00400dc59284adc13b5f91bd8d0ab60aa0f7fb57",
+        "name": "platform",
+        "value": "linux/amd64"
+      },
+      {
+        "alert_fingerprint": "sha256:70cd442c8047a1812b2105aa00400dc59284adc13b5f91bd8d0ab60aa0f7fb57",
+        "name": "namespace",
+        "value": "nextcloud-test4"
+      },
+      {
+        "alert_fingerprint": "sha256:70cd442c8047a1812b2105aa00400dc59284adc13b5f91bd8d0ab60aa0f7fb57",
+        "name": "Unknown",
+        "value": "10"
+      }
+    ],
+    "annotations": [],
+    "startsAt": "2025-08-12T16:46:15.444109+02:00",
+    "endsAt": "2025-08-12T17:16:15.444109+02:00",
+    "generatorURL": "",
+    "fingerprint": "sha256:70cd442c8047a1812b2105aa00400dc59284adc13b5f91bd8d0ab60aa0f7fb57"
+  },
+  {
+    "status": "firing",
+    "labels": [
+      {
+        "alert_fingerprint": "sha256:7af3a131a819d5a08fd0e8479eff4a1928636b29875d34d0d77df8f190d20fdd",
+        "name": "imagespec",
+        "value": "docker.io/bitnami/wordpress:6.7.1-debian-12-r11"
+      },
+      {
+        "alert_fingerprint": "sha256:7af3a131a819d5a08fd0e8479eff4a1928636b29875d34d0d77df8f190d20fdd",
+        "name": "imageid",
+        "value": "sha256:261ae26b9d0e9d7fb9b29aa4d8d2674fe007b6807363d9a1cb8a64ab8bdcd1bd"
+      },
+      {
+        "alert_fingerprint": "sha256:7af3a131a819d5a08fd0e8479eff4a1928636b29875d34d0d77df8f190d20fdd",
+        "name": "digest",
+        "value": "sha256:4f36c7940d4e9d2e3a46aca61bea3ec79bed0af632cbc2289b795424a5efa3ee"
+      },
+      {
+        "alert_fingerprint": "sha256:7af3a131a819d5a08fd0e8479eff4a1928636b29875d34d0d77df8f190d20fdd",
+        "name": "platform",
+        "value": "linux/amd64"
+      },
+      {
+        "alert_fingerprint": "sha256:7af3a131a819d5a08fd0e8479eff4a1928636b29875d34d0d77df8f190d20fdd",
+        "name": "Negligible",
+        "value": "85"
+      },
+      {
+        "alert_fingerprint": "sha256:7af3a131a819d5a08fd0e8479eff4a1928636b29875d34d0d77df8f190d20fdd",
+        "name": "Unknown",
+        "value": "4"
+      },
+      {
+        "alert_fingerprint": "sha256:7af3a131a819d5a08fd0e8479eff4a1928636b29875d34d0d77df8f190d20fdd",
+        "name": "Medium",
+        "value": "61"
+      },
+      {
+        "alert_fingerprint": "sha256:7af3a131a819d5a08fd0e8479eff4a1928636b29875d34d0d77df8f190d20fdd",
+        "name": "Critical",
+        "value": "7"
+      },
+      {
+        "alert_fingerprint": "sha256:7af3a131a819d5a08fd0e8479eff4a1928636b29875d34d0d77df8f190d20fdd",
+        "name": "High",
+        "value": "43"
+      },
+      {
+        "alert_fingerprint": "sha256:7af3a131a819d5a08fd0e8479eff4a1928636b29875d34d0d77df8f190d20fdd",
+        "name": "Low",
+        "value": "22"
+      },
+      {
+        "alert_fingerprint": "sha256:7af3a131a819d5a08fd0e8479eff4a1928636b29875d34d0d77df8f190d20fdd",
+        "name": "namespace",
+        "value": "wordpress-test3"
+      }
+    ],
+    "annotations": [],
+    "startsAt": "2025-08-12T16:46:17.161396+02:00",
+    "endsAt": "2025-08-12T17:16:17.161396+02:00",
+    "generatorURL": "",
+    "fingerprint": "sha256:7af3a131a819d5a08fd0e8479eff4a1928636b29875d34d0d77df8f190d20fdd"
+  },
+  {
+    "status": "firing",
+    "labels": [
+      {
+        "alert_fingerprint": "sha256:87c44504a3ed1189fdf78d2d53ec2541ca3cb2126b3957bbb12f798ae6189eb7",
+        "name": "imagespec",
+        "value": "nextcloud:31.0.6-apache"
+      },
+      {
+        "alert_fingerprint": "sha256:87c44504a3ed1189fdf78d2d53ec2541ca3cb2126b3957bbb12f798ae6189eb7",
+        "name": "imageid",
+        "value": "sha256:a31cd51691669c00ec05a957553d8c011951af6936b7446a7c939ecabfa1e409"
+      },
+      {
+        "alert_fingerprint": "sha256:87c44504a3ed1189fdf78d2d53ec2541ca3cb2126b3957bbb12f798ae6189eb7",
+        "name": "digest",
+        "value": "sha256:efb2396954f82cd36284b4a373cd0ce37733ac771afa6681dd4a7fca0d94ef94"
+      },
+      {
+        "alert_fingerprint": "sha256:87c44504a3ed1189fdf78d2d53ec2541ca3cb2126b3957bbb12f798ae6189eb7",
+        "name": "platform",
+        "value": "linux/amd64"
+      },
+      {
+        "alert_fingerprint": "sha256:87c44504a3ed1189fdf78d2d53ec2541ca3cb2126b3957bbb12f798ae6189eb7",
+        "name": "High",
+        "value": "15"
+      },
+      {
+        "alert_fingerprint": "sha256:87c44504a3ed1189fdf78d2d53ec2541ca3cb2126b3957bbb12f798ae6189eb7",
+        "name": "Low",
+        "value": "18"
+      },
+      {
+        "alert_fingerprint": "sha256:87c44504a3ed1189fdf78d2d53ec2541ca3cb2126b3957bbb12f798ae6189eb7",
+        "name": "Negligible",
+        "value": "133"
+      },
+      {
+        "alert_fingerprint": "sha256:87c44504a3ed1189fdf78d2d53ec2541ca3cb2126b3957bbb12f798ae6189eb7",
+        "name": "Medium",
+        "value": "35"
+      },
+      {
+        "alert_fingerprint": "sha256:87c44504a3ed1189fdf78d2d53ec2541ca3cb2126b3957bbb12f798ae6189eb7",
+        "name": "Critical",
+        "value": "10"
+      },
+      {
+        "alert_fingerprint": "sha256:87c44504a3ed1189fdf78d2d53ec2541ca3cb2126b3957bbb12f798ae6189eb7",
+        "name": "Unknown",
+        "value": "9"
+      },
+      {
+        "alert_fingerprint": "sha256:87c44504a3ed1189fdf78d2d53ec2541ca3cb2126b3957bbb12f798ae6189eb7",
+        "name": "namespace",
+        "value": "nextcloud-test2"
+      }
+    ],
+    "annotations": [],
+    "startsAt": "2025-08-12T16:46:13.136403+02:00",
+    "endsAt": "2025-08-12T17:16:13.136403+02:00",
+    "generatorURL": "",
+    "fingerprint": "sha256:87c44504a3ed1189fdf78d2d53ec2541ca3cb2126b3957bbb12f798ae6189eb7"
+  },
+  {
+    "status": "firing",
+    "labels": [
+      {
+        "alert_fingerprint": "sha256:8f066a28ceec2d571dfad5c3ee15b0c6d73608485a85b0c807d5b7a6fb595443",
+        "name": "imagespec",
+        "value": "docker.io/bitnami/memcached:1.6.34-debian-12-r0"
+      },
+      {
+        "alert_fingerprint": "sha256:8f066a28ceec2d571dfad5c3ee15b0c6d73608485a85b0c807d5b7a6fb595443",
+        "name": "imageid",
+        "value": "sha256:db0ba12d071e5ddea84f9bc267d06c6a9b399d686695fd3bfeaaabf12d10ffaa"
+      },
+      {
+        "alert_fingerprint": "sha256:8f066a28ceec2d571dfad5c3ee15b0c6d73608485a85b0c807d5b7a6fb595443",
+        "name": "digest",
+        "value": "sha256:99b248f14ecb39afe235aa9764409e3276b935c53f785bd657185aea9fb0f99c"
+      },
+      {
+        "alert_fingerprint": "sha256:8f066a28ceec2d571dfad5c3ee15b0c6d73608485a85b0c807d5b7a6fb595443",
+        "name": "platform",
+        "value": "linux/amd64"
+      },
+      {
+        "alert_fingerprint": "sha256:8f066a28ceec2d571dfad5c3ee15b0c6d73608485a85b0c807d5b7a6fb595443",
+        "name": "Medium",
+        "value": "18"
+      },
+      {
+        "alert_fingerprint": "sha256:8f066a28ceec2d571dfad5c3ee15b0c6d73608485a85b0c807d5b7a6fb595443",
+        "name": "Unknown",
+        "value": "2"
+      },
+      {
+        "alert_fingerprint": "sha256:8f066a28ceec2d571dfad5c3ee15b0c6d73608485a85b0c807d5b7a6fb595443",
+        "name": "High",
+        "value": "8"
+      },
+      {
+        "alert_fingerprint": "sha256:8f066a28ceec2d571dfad5c3ee15b0c6d73608485a85b0c807d5b7a6fb595443",
+        "name": "Low",
+        "value": "6"
+      },
+      {
+        "alert_fingerprint": "sha256:8f066a28ceec2d571dfad5c3ee15b0c6d73608485a85b0c807d5b7a6fb595443",
+        "name": "Negligible",
+        "value": "33"
+      },
+      {
+        "alert_fingerprint": "sha256:8f066a28ceec2d571dfad5c3ee15b0c6d73608485a85b0c807d5b7a6fb595443",
+        "name": "namespace",
+        "value": "wordpress-test1"
+      }
+    ],
+    "annotations": [],
+    "startsAt": "2025-08-12T16:46:05.183842+02:00",
+    "endsAt": "2025-08-12T17:16:05.183842+02:00",
+    "generatorURL": "",
+    "fingerprint": "sha256:8f066a28ceec2d571dfad5c3ee15b0c6d73608485a85b0c807d5b7a6fb595443"
+  },
+  {
+    "status": "firing",
+    "labels": [
+      {
+        "alert_fingerprint": "sha256:9d35e49d4526fc00bd1dc3b18308136d461d18e28021c67187c0ac0cb90f0ce5",
+        "name": "imagespec",
+        "value": "busybox"
+      },
+      {
+        "alert_fingerprint": "sha256:9d35e49d4526fc00bd1dc3b18308136d461d18e28021c67187c0ac0cb90f0ce5",
+        "name": "imageid",
+        "value": "sha256:6d3e4188a38af91b0c1577b9e88c53368926b2fe0e1fb985d6e8a70040520c4d"
+      },
+      {
+        "alert_fingerprint": "sha256:9d35e49d4526fc00bd1dc3b18308136d461d18e28021c67187c0ac0cb90f0ce5",
+        "name": "digest",
+        "value": "sha256:7c0ffe5751238c8479f952f3fbc3b719d47bccac0e9bf0a21c77a27cba9ef12d"
+      },
+      {
+        "alert_fingerprint": "sha256:9d35e49d4526fc00bd1dc3b18308136d461d18e28021c67187c0ac0cb90f0ce5",
+        "name": "platform",
+        "value": "linux/amd64"
+      },
+      {
+        "alert_fingerprint": "sha256:9d35e49d4526fc00bd1dc3b18308136d461d18e28021c67187c0ac0cb90f0ce5",
+        "name": "Low",
+        "value": "2"
+      },
+      {
+        "alert_fingerprint": "sha256:9d35e49d4526fc00bd1dc3b18308136d461d18e28021c67187c0ac0cb90f0ce5",
+        "name": "namespace",
+        "value": "nextcloud-test4"
+      }
+    ],
+    "annotations": [],
+    "startsAt": "2025-08-12T16:46:15.853034+02:00",
+    "endsAt": "2025-08-12T17:16:15.853034+02:00",
+    "generatorURL": "",
+    "fingerprint": "sha256:9d35e49d4526fc00bd1dc3b18308136d461d18e28021c67187c0ac0cb90f0ce5"
+  },
+  {
+    "status": "firing",
+    "labels": [
+      {
+        "alert_fingerprint": "sha256:a1282b0e18c4fb6b907b3255940a29585aaed01db7cb625ca0534ad97c18f582",
+        "name": "imagespec",
+        "value": "busybox"
+      },
+      {
+        "alert_fingerprint": "sha256:a1282b0e18c4fb6b907b3255940a29585aaed01db7cb625ca0534ad97c18f582",
+        "name": "imageid",
+        "value": "sha256:6d3e4188a38af91b0c1577b9e88c53368926b2fe0e1fb985d6e8a70040520c4d"
+      },
+      {
+        "alert_fingerprint": "sha256:a1282b0e18c4fb6b907b3255940a29585aaed01db7cb625ca0534ad97c18f582",
+        "name": "digest",
+        "value": "sha256:7c0ffe5751238c8479f952f3fbc3b719d47bccac0e9bf0a21c77a27cba9ef12d"
+      },
+      {
+        "alert_fingerprint": "sha256:a1282b0e18c4fb6b907b3255940a29585aaed01db7cb625ca0534ad97c18f582",
+        "name": "platform",
+        "value": "linux/amd64"
+      },
+      {
+        "alert_fingerprint": "sha256:a1282b0e18c4fb6b907b3255940a29585aaed01db7cb625ca0534ad97c18f582",
+        "name": "Low",
+        "value": "2"
+      },
+      {
+        "alert_fingerprint": "sha256:a1282b0e18c4fb6b907b3255940a29585aaed01db7cb625ca0534ad97c18f582",
+        "name": "namespace",
+        "value": "nextcloud-test3"
+      }
+    ],
+    "annotations": [],
+    "startsAt": "2025-08-12T16:46:00.372633+02:00",
+    "endsAt": "2025-08-12T17:16:00.372633+02:00",
+    "generatorURL": "",
+    "fingerprint": "sha256:a1282b0e18c4fb6b907b3255940a29585aaed01db7cb625ca0534ad97c18f582"
+  },
+  {
+    "status": "firing",
+    "labels": [
+      {
+        "alert_fingerprint": "sha256:a4e6aa761c94376273525bd1dccc2a3abaa44e549869fa3de3879e39fa4c567f",
+        "name": "imagespec",
+        "value": "docker.io/bitnami/memcached:1.6.34-debian-12-r0"
+      },
+      {
+        "alert_fingerprint": "sha256:a4e6aa761c94376273525bd1dccc2a3abaa44e549869fa3de3879e39fa4c567f",
+        "name": "imageid",
+        "value": "sha256:db0ba12d071e5ddea84f9bc267d06c6a9b399d686695fd3bfeaaabf12d10ffaa"
+      },
+      {
+        "alert_fingerprint": "sha256:a4e6aa761c94376273525bd1dccc2a3abaa44e549869fa3de3879e39fa4c567f",
+        "name": "digest",
+        "value": "sha256:99b248f14ecb39afe235aa9764409e3276b935c53f785bd657185aea9fb0f99c"
+      },
+      {
+        "alert_fingerprint": "sha256:a4e6aa761c94376273525bd1dccc2a3abaa44e549869fa3de3879e39fa4c567f",
+        "name": "platform",
+        "value": "linux/amd64"
+      },
+      {
+        "alert_fingerprint": "sha256:a4e6aa761c94376273525bd1dccc2a3abaa44e549869fa3de3879e39fa4c567f",
+        "name": "High",
+        "value": "8"
+      },
+      {
+        "alert_fingerprint": "sha256:a4e6aa761c94376273525bd1dccc2a3abaa44e549869fa3de3879e39fa4c567f",
+        "name": "Low",
+        "value": "6"
+      },
+      {
+        "alert_fingerprint": "sha256:a4e6aa761c94376273525bd1dccc2a3abaa44e549869fa3de3879e39fa4c567f",
+        "name": "Negligible",
+        "value": "33"
+      },
+      {
+        "alert_fingerprint": "sha256:a4e6aa761c94376273525bd1dccc2a3abaa44e549869fa3de3879e39fa4c567f",
+        "name": "Medium",
+        "value": "18"
+      },
+      {
+        "alert_fingerprint": "sha256:a4e6aa761c94376273525bd1dccc2a3abaa44e549869fa3de3879e39fa4c567f",
+        "name": "Unknown",
+        "value": "2"
+      },
+      {
+        "alert_fingerprint": "sha256:a4e6aa761c94376273525bd1dccc2a3abaa44e549869fa3de3879e39fa4c567f",
+        "name": "namespace",
+        "value": "wordpress-test3"
+      }
+    ],
+    "annotations": [],
+    "startsAt": "2025-08-12T16:46:13.569995+02:00",
+    "endsAt": "2025-08-12T17:16:13.569995+02:00",
+    "generatorURL": "",
+    "fingerprint": "sha256:a4e6aa761c94376273525bd1dccc2a3abaa44e549869fa3de3879e39fa4c567f"
+  },
+  {
+    "status": "firing",
+    "labels": [
+      {
+        "alert_fingerprint": "sha256:a98c74aa3ff49dee93079cd0acb7ea8e182165ad82024ad03fa0b3f5c0f5a561",
+        "name": "imagespec",
+        "value": "xperimental/nextcloud-exporter:0.6.0"
+      },
+      {
+        "alert_fingerprint": "sha256:a98c74aa3ff49dee93079cd0acb7ea8e182165ad82024ad03fa0b3f5c0f5a561",
+        "name": "imageid",
+        "value": "sha256:72bc20ef88fb303944a5a2537fe13b913cba882d672ff725622eeac2e5842176"
+      },
+      {
+        "alert_fingerprint": "sha256:a98c74aa3ff49dee93079cd0acb7ea8e182165ad82024ad03fa0b3f5c0f5a561",
+        "name": "digest",
+        "value": "sha256:138e4d2310a19c01833f17281cd4925d170d02bc17a6141720f67058c8e8842a"
+      },
+      {
+        "alert_fingerprint": "sha256:a98c74aa3ff49dee93079cd0acb7ea8e182165ad82024ad03fa0b3f5c0f5a561",
+        "name": "platform",
+        "value": "linux/amd64"
+      },
+      {
+        "alert_fingerprint": "sha256:a98c74aa3ff49dee93079cd0acb7ea8e182165ad82024ad03fa0b3f5c0f5a561",
+        "name": "Low",
+        "value": "2"
+      },
+      {
+        "alert_fingerprint": "sha256:a98c74aa3ff49dee93079cd0acb7ea8e182165ad82024ad03fa0b3f5c0f5a561",
+        "name": "High",
+        "value": "20"
+      },
+      {
+        "alert_fingerprint": "sha256:a98c74aa3ff49dee93079cd0acb7ea8e182165ad82024ad03fa0b3f5c0f5a561",
+        "name": "Unknown",
+        "value": "1"
+      },
+      {
+        "alert_fingerprint": "sha256:a98c74aa3ff49dee93079cd0acb7ea8e182165ad82024ad03fa0b3f5c0f5a561",
+        "name": "Medium",
+        "value": "19"
+      },
+      {
+        "alert_fingerprint": "sha256:a98c74aa3ff49dee93079cd0acb7ea8e182165ad82024ad03fa0b3f5c0f5a561",
+        "name": "Critical",
+        "value": "9"
+      },
+      {
+        "alert_fingerprint": "sha256:a98c74aa3ff49dee93079cd0acb7ea8e182165ad82024ad03fa0b3f5c0f5a561",
+        "name": "namespace",
+        "value": "nextcloud-test4"
+      }
+    ],
+    "annotations": [],
+    "startsAt": "2025-08-12T16:46:05.416823+02:00",
+    "endsAt": "2025-08-12T17:16:05.416823+02:00",
+    "generatorURL": "",
+    "fingerprint": "sha256:a98c74aa3ff49dee93079cd0acb7ea8e182165ad82024ad03fa0b3f5c0f5a561"
+  },
+  {
+    "status": "firing",
+    "labels": [
+      {
+        "alert_fingerprint": "sha256:b7fccf5e97409c19957a79fb7bed50fcf9f863cdc880e8dbaf7377f947c1f126",
+        "name": "imagespec",
+        "value": "docker.io/bitnami/memcached:1.6.34-debian-12-r0"
+      },
+      {
+        "alert_fingerprint": "sha256:b7fccf5e97409c19957a79fb7bed50fcf9f863cdc880e8dbaf7377f947c1f126",
+        "name": "imageid",
+        "value": "sha256:db0ba12d071e5ddea84f9bc267d06c6a9b399d686695fd3bfeaaabf12d10ffaa"
+      },
+      {
+        "alert_fingerprint": "sha256:b7fccf5e97409c19957a79fb7bed50fcf9f863cdc880e8dbaf7377f947c1f126",
+        "name": "digest",
+        "value": "sha256:99b248f14ecb39afe235aa9764409e3276b935c53f785bd657185aea9fb0f99c"
+      },
+      {
+        "alert_fingerprint": "sha256:b7fccf5e97409c19957a79fb7bed50fcf9f863cdc880e8dbaf7377f947c1f126",
+        "name": "platform",
+        "value": "linux/amd64"
+      },
+      {
+        "alert_fingerprint": "sha256:b7fccf5e97409c19957a79fb7bed50fcf9f863cdc880e8dbaf7377f947c1f126",
+        "name": "High",
+        "value": "8"
+      },
+      {
+        "alert_fingerprint": "sha256:b7fccf5e97409c19957a79fb7bed50fcf9f863cdc880e8dbaf7377f947c1f126",
+        "name": "Low",
+        "value": "6"
+      },
+      {
+        "alert_fingerprint": "sha256:b7fccf5e97409c19957a79fb7bed50fcf9f863cdc880e8dbaf7377f947c1f126",
+        "name": "Negligible",
+        "value": "33"
+      },
+      {
+        "alert_fingerprint": "sha256:b7fccf5e97409c19957a79fb7bed50fcf9f863cdc880e8dbaf7377f947c1f126",
+        "name": "Medium",
+        "value": "18"
+      },
+      {
+        "alert_fingerprint": "sha256:b7fccf5e97409c19957a79fb7bed50fcf9f863cdc880e8dbaf7377f947c1f126",
+        "name": "Unknown",
+        "value": "2"
+      },
+      {
+        "alert_fingerprint": "sha256:b7fccf5e97409c19957a79fb7bed50fcf9f863cdc880e8dbaf7377f947c1f126",
+        "name": "namespace",
+        "value": "wordpress-test"
+      }
+    ],
+    "annotations": [],
+    "startsAt": "2025-08-12T16:46:03.970342+02:00",
+    "endsAt": "2025-08-12T17:16:03.970342+02:00",
+    "generatorURL": "",
+    "fingerprint": "sha256:b7fccf5e97409c19957a79fb7bed50fcf9f863cdc880e8dbaf7377f947c1f126"
+  },
+  {
+    "status": "firing",
+    "labels": [
+      {
+        "alert_fingerprint": "sha256:c85dffae3791cae298da416170b958b4beed9d305e5922510467ff948ac7093b",
+        "name": "imagespec",
+        "value": "docker.io/bitnami/redis:7.0.4-debian-11-r11"
+      },
+      {
+        "alert_fingerprint": "sha256:c85dffae3791cae298da416170b958b4beed9d305e5922510467ff948ac7093b",
+        "name": "imageid",
+        "value": "sha256:ddb36b2a456e5b905168e7e84417bfab00ff35ad92e06baccc845571b60ac2a4"
+      },
+      {
+        "alert_fingerprint": "sha256:c85dffae3791cae298da416170b958b4beed9d305e5922510467ff948ac7093b",
+        "name": "digest",
+        "value": "sha256:8b1c6b5c172037ecf8b422f4ba0bd0d58da3025748392e4cf53aec2a2d90e10f"
+      },
+      {
+        "alert_fingerprint": "sha256:c85dffae3791cae298da416170b958b4beed9d305e5922510467ff948ac7093b",
+        "name": "platform",
+        "value": "linux/amd64"
+      },
+      {
+        "alert_fingerprint": "sha256:c85dffae3791cae298da416170b958b4beed9d305e5922510467ff948ac7093b",
+        "name": "Medium",
+        "value": "90"
+      },
+      {
+        "alert_fingerprint": "sha256:c85dffae3791cae298da416170b958b4beed9d305e5922510467ff948ac7093b",
+        "name": "Critical",
+        "value": "21"
+      },
+      {
+        "alert_fingerprint": "sha256:c85dffae3791cae298da416170b958b4beed9d305e5922510467ff948ac7093b",
+        "name": "High",
+        "value": "85"
+      },
+      {
+        "alert_fingerprint": "sha256:c85dffae3791cae298da416170b958b4beed9d305e5922510467ff948ac7093b",
+        "name": "Low",
+        "value": "19"
+      },
+      {
+        "alert_fingerprint": "sha256:c85dffae3791cae298da416170b958b4beed9d305e5922510467ff948ac7093b",
+        "name": "Negligible",
+        "value": "47"
+      },
+      {
+        "alert_fingerprint": "sha256:c85dffae3791cae298da416170b958b4beed9d305e5922510467ff948ac7093b",
+        "name": "Unknown",
+        "value": "3"
+      },
+      {
+        "alert_fingerprint": "sha256:c85dffae3791cae298da416170b958b4beed9d305e5922510467ff948ac7093b",
+        "name": "namespace",
+        "value": "pharos"
+      }
+    ],
+    "annotations": [],
+    "startsAt": "2025-08-12T16:46:03.535091+02:00",
+    "endsAt": "2025-08-12T17:16:03.535091+02:00",
+    "generatorURL": "",
+    "fingerprint": "sha256:c85dffae3791cae298da416170b958b4beed9d305e5922510467ff948ac7093b"
+  },
+  {
+    "status": "firing",
+    "labels": [
+      {
+        "alert_fingerprint": "sha256:cd54640f7654dd3ba175e8769e5e3b82be36d899099b08cbd3378a28f9139062",
+        "name": "imagespec",
+        "value": "xperimental/nextcloud-exporter:0.6.0"
+      },
+      {
+        "alert_fingerprint": "sha256:cd54640f7654dd3ba175e8769e5e3b82be36d899099b08cbd3378a28f9139062",
+        "name": "imageid",
+        "value": "sha256:72bc20ef88fb303944a5a2537fe13b913cba882d672ff725622eeac2e5842176"
+      },
+      {
+        "alert_fingerprint": "sha256:cd54640f7654dd3ba175e8769e5e3b82be36d899099b08cbd3378a28f9139062",
+        "name": "digest",
+        "value": "sha256:138e4d2310a19c01833f17281cd4925d170d02bc17a6141720f67058c8e8842a"
+      },
+      {
+        "alert_fingerprint": "sha256:cd54640f7654dd3ba175e8769e5e3b82be36d899099b08cbd3378a28f9139062",
+        "name": "platform",
+        "value": "linux/amd64"
+      },
+      {
+        "alert_fingerprint": "sha256:cd54640f7654dd3ba175e8769e5e3b82be36d899099b08cbd3378a28f9139062",
+        "name": "Low",
+        "value": "2"
+      },
+      {
+        "alert_fingerprint": "sha256:cd54640f7654dd3ba175e8769e5e3b82be36d899099b08cbd3378a28f9139062",
+        "name": "High",
+        "value": "20"
+      },
+      {
+        "alert_fingerprint": "sha256:cd54640f7654dd3ba175e8769e5e3b82be36d899099b08cbd3378a28f9139062",
+        "name": "Medium",
+        "value": "19"
+      },
+      {
+        "alert_fingerprint": "sha256:cd54640f7654dd3ba175e8769e5e3b82be36d899099b08cbd3378a28f9139062",
+        "name": "Critical",
+        "value": "9"
+      },
+      {
+        "alert_fingerprint": "sha256:cd54640f7654dd3ba175e8769e5e3b82be36d899099b08cbd3378a28f9139062",
+        "name": "namespace",
+        "value": "nextcloud-test2"
+      },
+      {
+        "alert_fingerprint": "sha256:cd54640f7654dd3ba175e8769e5e3b82be36d899099b08cbd3378a28f9139062",
+        "name": "Unknown",
+        "value": "1"
+      }
+    ],
+    "annotations": [],
+    "startsAt": "2025-08-12T16:46:01.017196+02:00",
+    "endsAt": "2025-08-12T17:16:01.017196+02:00",
+    "generatorURL": "",
+    "fingerprint": "sha256:cd54640f7654dd3ba175e8769e5e3b82be36d899099b08cbd3378a28f9139062"
+  },
+  {
+    "status": "firing",
+    "labels": [
+      {
+        "alert_fingerprint": "sha256:cdc2b70e4b5f384eb016b264259f0546459347366694e322a4cae2a9ce5c3cb0",
+        "name": "imagespec",
+        "value": "busybox"
+      },
+      {
+        "alert_fingerprint": "sha256:cdc2b70e4b5f384eb016b264259f0546459347366694e322a4cae2a9ce5c3cb0",
+        "name": "imageid",
+        "value": "sha256:6d3e4188a38af91b0c1577b9e88c53368926b2fe0e1fb985d6e8a70040520c4d"
+      },
+      {
+        "alert_fingerprint": "sha256:cdc2b70e4b5f384eb016b264259f0546459347366694e322a4cae2a9ce5c3cb0",
+        "name": "digest",
+        "value": "sha256:7c0ffe5751238c8479f952f3fbc3b719d47bccac0e9bf0a21c77a27cba9ef12d"
+      },
+      {
+        "alert_fingerprint": "sha256:cdc2b70e4b5f384eb016b264259f0546459347366694e322a4cae2a9ce5c3cb0",
+        "name": "platform",
+        "value": "linux/amd64"
+      },
+      {
+        "alert_fingerprint": "sha256:cdc2b70e4b5f384eb016b264259f0546459347366694e322a4cae2a9ce5c3cb0",
+        "name": "Low",
+        "value": "2"
+      },
+      {
+        "alert_fingerprint": "sha256:cdc2b70e4b5f384eb016b264259f0546459347366694e322a4cae2a9ce5c3cb0",
+        "name": "namespace",
+        "value": "nextcloud-test1"
+      }
+    ],
+    "annotations": [],
+    "startsAt": "2025-08-12T16:46:00.785491+02:00",
+    "endsAt": "2025-08-12T17:16:00.785491+02:00",
+    "generatorURL": "",
+    "fingerprint": "sha256:cdc2b70e4b5f384eb016b264259f0546459347366694e322a4cae2a9ce5c3cb0"
+  },
+  {
+    "status": "firing",
+    "labels": [
+      {
+        "alert_fingerprint": "sha256:e5bc819b955f59399f9cb9410bbe545e52544a6916dedceaa3df0fc13773bc2f",
+        "name": "imagespec",
+        "value": "docker.io/bitnami/postgresql:15.3.0-debian-11-r17"
+      },
+      {
+        "alert_fingerprint": "sha256:e5bc819b955f59399f9cb9410bbe545e52544a6916dedceaa3df0fc13773bc2f",
+        "name": "imageid",
+        "value": "sha256:eac2eb9988233181a04a2430da8775e2f90f6d3bb1afe6faf1ba25ed30ed8358"
+      },
+      {
+        "alert_fingerprint": "sha256:e5bc819b955f59399f9cb9410bbe545e52544a6916dedceaa3df0fc13773bc2f",
+        "name": "digest",
+        "value": "sha256:1d4fa6a4ce3ddb75ec40503f8e242978a6986d4f0f075f74fca21ff125fc1d07"
+      },
+      {
+        "alert_fingerprint": "sha256:e5bc819b955f59399f9cb9410bbe545e52544a6916dedceaa3df0fc13773bc2f",
+        "name": "platform",
+        "value": "linux/amd64"
+      },
+      {
+        "alert_fingerprint": "sha256:e5bc819b955f59399f9cb9410bbe545e52544a6916dedceaa3df0fc13773bc2f",
+        "name": "Critical",
+        "value": "6"
+      },
+      {
+        "alert_fingerprint": "sha256:e5bc819b955f59399f9cb9410bbe545e52544a6916dedceaa3df0fc13773bc2f",
+        "name": "Low",
+        "value": "13"
+      },
+      {
+        "alert_fingerprint": "sha256:e5bc819b955f59399f9cb9410bbe545e52544a6916dedceaa3df0fc13773bc2f",
+        "name": "Negligible",
+        "value": "48"
+      },
+      {
+        "alert_fingerprint": "sha256:e5bc819b955f59399f9cb9410bbe545e52544a6916dedceaa3df0fc13773bc2f",
+        "name": "Unknown",
+        "value": "2"
+      },
+      {
+        "alert_fingerprint": "sha256:e5bc819b955f59399f9cb9410bbe545e52544a6916dedceaa3df0fc13773bc2f",
+        "name": "High",
+        "value": "46"
+      },
+      {
+        "alert_fingerprint": "sha256:e5bc819b955f59399f9cb9410bbe545e52544a6916dedceaa3df0fc13773bc2f",
+        "name": "Medium",
+        "value": "43"
+      },
+      {
+        "alert_fingerprint": "sha256:e5bc819b955f59399f9cb9410bbe545e52544a6916dedceaa3df0fc13773bc2f",
+        "name": "namespace",
+        "value": "pharos"
+      }
+    ],
+    "annotations": [],
+    "startsAt": "2025-08-12T16:46:04.749223+02:00",
+    "endsAt": "2025-08-12T17:16:04.749223+02:00",
+    "generatorURL": "",
+    "fingerprint": "sha256:e5bc819b955f59399f9cb9410bbe545e52544a6916dedceaa3df0fc13773bc2f"
+  },
+  {
+    "status": "firing",
+    "labels": [
+      {
+        "alert_fingerprint": "sha256:e755364827a3609c702de8bf16468d39b3ec5fa6bd3790c12ba9fd8d402a74ff",
+        "name": "imagespec",
+        "value": "busybox"
+      },
+      {
+        "alert_fingerprint": "sha256:e755364827a3609c702de8bf16468d39b3ec5fa6bd3790c12ba9fd8d402a74ff",
+        "name": "imageid",
+        "value": "sha256:6d3e4188a38af91b0c1577b9e88c53368926b2fe0e1fb985d6e8a70040520c4d"
+      },
+      {
+        "alert_fingerprint": "sha256:e755364827a3609c702de8bf16468d39b3ec5fa6bd3790c12ba9fd8d402a74ff",
+        "name": "digest",
+        "value": "sha256:7c0ffe5751238c8479f952f3fbc3b719d47bccac0e9bf0a21c77a27cba9ef12d"
+      },
+      {
+        "alert_fingerprint": "sha256:e755364827a3609c702de8bf16468d39b3ec5fa6bd3790c12ba9fd8d402a74ff",
+        "name": "platform",
+        "value": "linux/amd64"
+      },
+      {
+        "alert_fingerprint": "sha256:e755364827a3609c702de8bf16468d39b3ec5fa6bd3790c12ba9fd8d402a74ff",
+        "name": "Low",
+        "value": "2"
+      },
+      {
+        "alert_fingerprint": "sha256:e755364827a3609c702de8bf16468d39b3ec5fa6bd3790c12ba9fd8d402a74ff",
+        "name": "namespace",
+        "value": "nextcloud-test"
+      }
+    ],
+    "annotations": [],
+    "startsAt": "2025-08-12T16:46:05.825222+02:00",
+    "endsAt": "2025-08-12T17:16:05.825222+02:00",
+    "generatorURL": "",
+    "fingerprint": "sha256:e755364827a3609c702de8bf16468d39b3ec5fa6bd3790c12ba9fd8d402a74ff"
+  },
+  {
+    "status": "firing",
+    "labels": [
+      {
+        "alert_fingerprint": "sha256:f600d89981241d79e857df2f721d7887aa6157b6a3857b15d17d64554d1616db",
+        "name": "imagespec",
+        "value": "xperimental/nextcloud-exporter:0.6.0"
+      },
+      {
+        "alert_fingerprint": "sha256:f600d89981241d79e857df2f721d7887aa6157b6a3857b15d17d64554d1616db",
+        "name": "imageid",
+        "value": "sha256:72bc20ef88fb303944a5a2537fe13b913cba882d672ff725622eeac2e5842176"
+      },
+      {
+        "alert_fingerprint": "sha256:f600d89981241d79e857df2f721d7887aa6157b6a3857b15d17d64554d1616db",
+        "name": "digest",
+        "value": "sha256:138e4d2310a19c01833f17281cd4925d170d02bc17a6141720f67058c8e8842a"
+      },
+      {
+        "alert_fingerprint": "sha256:f600d89981241d79e857df2f721d7887aa6157b6a3857b15d17d64554d1616db",
+        "name": "platform",
+        "value": "linux/amd64"
+      },
+      {
+        "alert_fingerprint": "sha256:f600d89981241d79e857df2f721d7887aa6157b6a3857b15d17d64554d1616db",
+        "name": "High",
+        "value": "20"
+      },
+      {
+        "alert_fingerprint": "sha256:f600d89981241d79e857df2f721d7887aa6157b6a3857b15d17d64554d1616db",
+        "name": "Unknown",
+        "value": "1"
+      },
+      {
+        "alert_fingerprint": "sha256:f600d89981241d79e857df2f721d7887aa6157b6a3857b15d17d64554d1616db",
+        "name": "Medium",
+        "value": "19"
+      },
+      {
+        "alert_fingerprint": "sha256:f600d89981241d79e857df2f721d7887aa6157b6a3857b15d17d64554d1616db",
+        "name": "Critical",
+        "value": "9"
+      },
+      {
+        "alert_fingerprint": "sha256:f600d89981241d79e857df2f721d7887aa6157b6a3857b15d17d64554d1616db",
+        "name": "Low",
+        "value": "2"
+      },
+      {
+        "alert_fingerprint": "sha256:f600d89981241d79e857df2f721d7887aa6157b6a3857b15d17d64554d1616db",
+        "name": "namespace",
+        "value": "nextcloud-test1"
+      }
+    ],
+    "annotations": [],
+    "startsAt": "2025-08-12T16:46:01.249153+02:00",
+    "endsAt": "2025-08-12T17:16:01.249153+02:00",
+    "generatorURL": "",
+    "fingerprint": "sha256:f600d89981241d79e857df2f721d7887aa6157b6a3857b15d17d64554d1616db"
+  }
+]

@@ -76,7 +76,7 @@ func (is *ImageDbSource) RunAsync() {
 
 	is.Logger.Info().Msg("Fetching images from database")
 	is.DatabaseContext.DB.
-		Preload("ContextRoots").
+		Preload("ContextRoots.Contexts").
 		Preload("Findings").
 		Find(&images)
 	for _, image := range images {

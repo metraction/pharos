@@ -62,6 +62,21 @@ func NewDatabaseContext(config *Database) *DatabaseContext {
 }
 
 func (dc *DatabaseContext) Migrate() error {
+	if dc.DB.Migrator().HasColumn(AlertLabel{}, "id") {
+		dc.Logger.Warn().Msg("Dropping AlertLabel table, it has been changed to use different primary keys")
+		err := dc.DB.Migrator().DropTable(AlertLabel{})
+		if err != nil {
+			dc.Logger.Error().Err(err).Msg("Failed to drop AlertLabel table")
+		}
+	}
+	if dc.DB.Migrator().HasColumn(AlertAnnotation{}, "id") {
+		dc.Logger.Warn().Msg("Dropping AlertAnnotation table, it has been changed to use different primary keys")
+		err := dc.DB.Migrator().DropTable(AlertAnnotation{})
+		if err != nil {
+			dc.Logger.Error().Err(err).Msg("Failed to drop AlertAnnotation table")
+		}
+	}
+
 	for _, model := range Models {
 		err := dc.DB.AutoMigrate(&model)
 		if err != nil {
