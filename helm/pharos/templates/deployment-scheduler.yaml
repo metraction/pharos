@@ -6,6 +6,7 @@ metadata:
   name: pharos-scheduler
 spec:
   replicas: 1
+  revisionHistoryLimit: 1
   selector:
     matchLabels:
       app: pharos-scheduler
@@ -20,7 +21,6 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      revisionHistoryLimit: 1
       containers:
       - name: pharos-scheduler
         image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"

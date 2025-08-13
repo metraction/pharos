@@ -6,6 +6,7 @@ metadata:
   name: pharos-reporter
 spec:
   replicas: 1
+  revisionHistoryLimit: 1
   selector:
     matchLabels:
       app: pharos-reporter
@@ -21,7 +22,6 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "pharos.serviceAccountName" . }}
-      revisionHistoryLimit: 1
       containers:
       - name: pharos-reporter
         image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
