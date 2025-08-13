@@ -5,7 +5,7 @@ metadata:
     app: pharos-scheduler
   name: pharos-scheduler
 spec:
-  replicas: {{ .Values.controller.replicas }}
+  replicas: 1
   selector:
     matchLabels:
       app: pharos-scheduler
