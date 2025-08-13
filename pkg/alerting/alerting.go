@@ -112,17 +112,22 @@ type Route struct {
 	Alerts      []model.Alert
 	AlertGroups []AlertGroup
 	Logger      *zerolog.Logger
+	Path        string // Path to the route, used for storing data about when an alert was sent the last time.
 	// B-Tree structure
 	FirstChild  *Route
 	NextSibling *Route
 }
 
-func NewRoute(routeConfig *model.RouteConfig, alerts []model.Alert) *Route {
+func NewRoute(routeConfig *model.RouteConfig, alerts []model.Alert, path string) *Route {
+	if path == "" {
+		path = "root"
+	}
 	r := &Route{
 		RouteConfig: routeConfig,
 		AlertGroups: []AlertGroup{},
 		Alerts:      alerts,
-		Logger:      logging.NewLogger("info", "component", "RouteConfig"),
+		Logger:      logging.NewLogger("info", "component", fmt.Sprintf("Route %s", path)),
+		Path:        path,
 	}
 	// Initialize some defaults for receiver, groupwait and groupinterval
 	if routeConfig.Receiver == "" {
@@ -140,13 +145,13 @@ func NewRoute(routeConfig *model.RouteConfig, alerts []model.Alert) *Route {
 	r.Alerts = r.GetMatchedAlerts()
 	// Handle child
 	if len(routeConfig.ChildRoutes) > 0 {
-		r.FirstChild = NewRoute(r.GetRouteConfigForChild(routeConfig.ChildRoutes[0]), alerts)
+		r.FirstChild = NewRoute(r.GetRouteConfigForChild(routeConfig.ChildRoutes[0]), alerts, path+"[0]")
 	}
 	// Handle siblings of child
 	if len(routeConfig.ChildRoutes) > 1 {
 		current := r.FirstChild
 		for i := 1; i < len(routeConfig.ChildRoutes); i++ {
-			next := NewRoute(r.GetRouteConfigForChild(routeConfig.ChildRoutes[i]), r.GetSiblingAlerts())
+			next := NewRoute(r.GetRouteConfigForChild(routeConfig.ChildRoutes[i]), r.GetSiblingAlerts(), fmt.Sprintf("%s[%d]", path, i))
 			current.NextSibling = next
 			current = next
 		}
@@ -177,7 +182,7 @@ func (r *Route) getMatchedAlerts(invert bool) []model.Alert {
 	var matchedAlerts []model.Alert
 	var unmatchedAlerts []model.Alert
 	if len(r.RouteConfig.Matchers) == 0 {
-		return r.Alerts
+		r.Logger.Info().Msg("No matchers defined, returning all alerts")
 	}
 	for _, alert := range r.Alerts {
 		matched := true
@@ -201,6 +206,7 @@ func (r *Route) getMatchedAlerts(invert bool) []model.Alert {
 	if invert {
 		return unmatchedAlerts
 	}
+	r.Logger.Info().Int("matched", len(matchedAlerts)).Int("unmatched", len(unmatchedAlerts)).Msg("Returning matched alerts")
 	return matchedAlerts
 }
 
@@ -212,6 +218,16 @@ func (r *Route) GetUnmatchedAlerts() []model.Alert {
 	return r.getMatchedAlerts(true)
 }
 
+func (r *Route) SendAlerts() {
+	r.Logger.Info().Int("alerts", len(r.Alerts)).Msg("Sending alerts")
+	if r.FirstChild != nil {
+		r.FirstChild.SendAlerts()
+	}
+	if r.NextSibling != nil {
+		r.NextSibling.SendAlerts()
+	}
+}
+
 func (r *Route) GetSiblingAlerts() []model.Alert {
 	if r.RouteConfig.Continue {
 		return r.Alerts
@@ -221,16 +237,13 @@ func (r *Route) GetSiblingAlerts() []model.Alert {
 
 // A grouped alert is dependend on a route.
 type AlertGroup struct {
-	RouteConfig        *model.RouteConfig
-	Alerts             []model.Alert
-	ChildGroupedAlerts []AlertGroup
+	Alerts []model.Alert
 }
 
 func NewAlertGroup(routeConfig *model.RouteConfig, alerts []model.Alert) *AlertGroup {
 	return &AlertGroup{
-		RouteConfig:        routeConfig,
-		Alerts:             alerts,
-		ChildGroupedAlerts: []AlertGroup{},
+
+		Alerts: alerts,
 	}
 }
 
