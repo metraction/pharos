@@ -26,18 +26,18 @@ spec:
         image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
         args: ["scheduler", "--config", "/config/.pharos.yaml"]
         ports:
-          - containerPort: 9080
+          - containerPort: 8080
         livenessProbe:
           httpGet:
             path: /health
-            port: 9080
+            port: 8080
             httpHeaders:
           failureThreshold: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /health
-            port: 9080
+            port: 8080
             httpHeaders:
           failureThreshold: 1
           periodSeconds: 10
