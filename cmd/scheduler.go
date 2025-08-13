@@ -39,5 +39,5 @@ var schedulerCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(schedulerCmd)
-	schedulerCmd.Flags().IntVarP(&httpPort, "port", "p", 9080, "Port for the HTTP server")
+	schedulerCmd.Flags().IntVarP(&httpPort, "port", "p", 8080, "Port for the HTTP server")
 }
