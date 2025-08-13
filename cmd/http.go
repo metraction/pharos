@@ -22,7 +22,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var httpPort int
 var logger = logging.NewLogger("info", "component", "cmd.http")
 
 // httpCmd represents the http command
@@ -84,7 +83,6 @@ These submissions are then published to a Redis stream for further processing by
 		go CreateEnrichersFlow(internalFlow, enrichers).
 			To(db.NewImageDbSink(databaseContext))
 
-		go routing.NewImageCleanupFlow(databaseContext, config)
 		// Base Router
 		baseRouter := chi.NewRouter()
 		commonController := controllers.NewCommonController()

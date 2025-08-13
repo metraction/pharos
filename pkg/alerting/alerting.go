@@ -138,13 +138,15 @@ func NewRoute(routeConfig *model.RouteConfig, alerts []model.Alert) *Route {
 		routeConfig.RepeatInterval = "4h"
 	}
 	r.Alerts = r.GetMatchedAlerts()
+	// Handle child
 	if len(routeConfig.ChildRoutes) > 0 {
 		r.FirstChild = NewRoute(r.GetRouteConfigForChild(routeConfig.ChildRoutes[0]), alerts)
 	}
+	// Handle siblings of child
 	if len(routeConfig.ChildRoutes) > 1 {
 		current := r.FirstChild
 		for i := 1; i < len(routeConfig.ChildRoutes); i++ {
-			next := NewRoute(r.GetRouteConfigForChild(routeConfig.ChildRoutes[i]), alerts)
+			next := NewRoute(r.GetRouteConfigForChild(routeConfig.ChildRoutes[i]), r.GetSiblingAlerts())
 			current.NextSibling = next
 			current = next
 		}
@@ -171,8 +173,9 @@ func (r *Route) GetRouteConfigForChild(childRouteconfig model.RouteConfig) *mode
 	return &childRouteconfig
 }
 
-func (r *Route) GetMatchedAlerts() []model.Alert {
+func (r *Route) getMatchedAlerts(invert bool) []model.Alert {
 	var matchedAlerts []model.Alert
+	var unmatchedAlerts []model.Alert
 	if len(r.RouteConfig.Matchers) == 0 {
 		return r.Alerts
 	}
@@ -191,9 +194,29 @@ func (r *Route) GetMatchedAlerts() []model.Alert {
 		}
 		if matched {
 			matchedAlerts = append(matchedAlerts, alert)
+		} else {
+			unmatchedAlerts = append(unmatchedAlerts, alert)
 		}
 	}
+	if invert {
+		return unmatchedAlerts
+	}
 	return matchedAlerts
+}
+
+func (r *Route) GetMatchedAlerts() []model.Alert {
+	return r.getMatchedAlerts(false)
+}
+
+func (r *Route) GetUnmatchedAlerts() []model.Alert {
+	return r.getMatchedAlerts(true)
+}
+
+func (r *Route) GetSiblingAlerts() []model.Alert {
+	if r.RouteConfig.Continue {
+		return r.Alerts
+	}
+	return r.GetUnmatchedAlerts()
 }
 
 // A grouped alert is dependend on a route.

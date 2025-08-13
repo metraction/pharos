@@ -20,6 +20,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+var httpPort int
 var cfgFile string
 var config *model.Config = &model.Config{}
 
@@ -42,6 +43,8 @@ var rootCmd = &cobra.Command{
 				scannerCmd.Run(cmd, args)
 			case "http":
 				httpCmd.Run(cmd, args)
+			case "scheduler":
+				schedulerCmd.Run(cmd, args)
 			default:
 				fmt.Println("Unknown CI command: " + config.Command)
 			}

@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: pharos-scheduler
+  name: pharos-scheduler
+spec:
+  replicas: {{ .Values.controller.replicas }}
+  selector:
+    matchLabels:
+      app: pharos-scheduler
+  strategy: {}
+  template:
+    metadata:
+      namespace: {{ .Release.Namespace }}
+      labels:
+        app: pharos-scheduler
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: pharos-scheduler
+        image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        args: ["scheduler", "--config", "/config/.pharos.yaml"]
+        ports:
+          - containerPort: 9080
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 9080
+            httpHeaders:
+          failureThreshold: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 9080
+            httpHeaders:
+          failureThreshold: 1
+          periodSeconds: 10
+        env:
+          - name: PHAROS_DATABASE_DSN
+            valueFrom:
+              secretKeyRef:
+                name: postgres-connection
+                key: dsn
+          - name: APP_DATA_PATH
+            value: "/pharos"
+        volumeMounts:
+          - name: config-volume
+            mountPath: /config/.pharos.yaml
+            subPath: .pharos.yaml
+      volumes:
+        - name: config-volume
+          configMap:
+            name: pharos-config

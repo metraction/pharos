@@ -8,7 +8,7 @@ import (
 	"github.com/reugn/go-streams/flow"
 )
 
-func NewImageCleanupFlow(databaseContext *model.DatabaseContext, config *model.Config) {
+func NewImageSchedulerFlow(databaseContext *model.DatabaseContext, config *model.Config) {
 	imageDbSource := db.NewImageDbSource(databaseContext, config)
 	imageDbHandler := db.NewImageDbHandler(databaseContext)
 	imageDbSource.
