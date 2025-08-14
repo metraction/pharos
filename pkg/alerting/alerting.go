@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"regexp"
+	"sort"
 	"time"
 
 	"github.com/metraction/pharos/internal/logging"
@@ -110,19 +111,23 @@ func HandleAlerts(databaseContext *model.DatabaseContext) func(item model.Pharos
 type Route struct {
 	RouteConfig *model.RouteConfig
 	Alerts      []model.Alert
-	AlertGroups []AlertGroup
+	AlertGroups map[string]*AlertGroup
 	Logger      *zerolog.Logger
+	Path        string // Path to the route, used for storing data about when an alert was sent the last time.
 	// B-Tree structure
 	FirstChild  *Route
 	NextSibling *Route
 }
 
-func NewRoute(routeConfig *model.RouteConfig, alerts []model.Alert) *Route {
+func NewRoute(routeConfig *model.RouteConfig, path string) *Route {
+	if path == "" {
+		path = "root"
+	}
 	r := &Route{
 		RouteConfig: routeConfig,
-		AlertGroups: []AlertGroup{},
-		Alerts:      alerts,
-		Logger:      logging.NewLogger("info", "component", "RouteConfig"),
+		Alerts:      []model.Alert{},
+		Logger:      logging.NewLogger("info", "component", fmt.Sprintf("Route %s", path)),
+		Path:        path,
 	}
 	// Initialize some defaults for receiver, groupwait and groupinterval
 	if routeConfig.Receiver == "" {
@@ -137,19 +142,43 @@ func NewRoute(routeConfig *model.RouteConfig, alerts []model.Alert) *Route {
 	if routeConfig.RepeatInterval == "" {
 		routeConfig.RepeatInterval = "4h"
 	}
-	r.Alerts = r.GetMatchedAlerts()
+	// Handle child
 	if len(routeConfig.ChildRoutes) > 0 {
-		r.FirstChild = NewRoute(r.GetRouteConfigForChild(routeConfig.ChildRoutes[0]), alerts)
+		r.FirstChild = NewRoute(r.GetRouteConfigForChild(routeConfig.ChildRoutes[0]), path+"[0]")
 	}
+	// Handle siblings of child
 	if len(routeConfig.ChildRoutes) > 1 {
 		current := r.FirstChild
 		for i := 1; i < len(routeConfig.ChildRoutes); i++ {
-			next := NewRoute(r.GetRouteConfigForChild(routeConfig.ChildRoutes[i]), alerts)
+			next := NewRoute(r.GetRouteConfigForChild(routeConfig.ChildRoutes[i]), fmt.Sprintf("%s[%d]", path, i))
 			current.NextSibling = next
 			current = next
 		}
 	}
 	return r
+}
+
+func (r *Route) UpdateAlertGroups() {
+	if r.AlertGroups == nil {
+		r.AlertGroups = make(map[string]*AlertGroup)
+	}
+	for _, alert := range r.Alerts {
+		groupLabels := make(map[string]string)
+		for _, groupBy := range r.RouteConfig.GroupBy {
+			for _, label := range alert.Labels {
+				if label.Name == groupBy {
+					groupLabels[groupBy] = label.Value
+				}
+			}
+		}
+		groupKey := getGroupKey(groupLabels)
+		// Check if the group already exists
+		if _, exists := r.AlertGroups[groupKey]; !exists {
+			r.AlertGroups[groupKey] = NewAlertGroup(r.RouteConfig, groupLabels)
+		}
+		r.AlertGroups[groupKey].Alerts = append(r.AlertGroups[groupKey].Alerts, alert)
+		r.Logger.Info().Str("groupKey", groupKey).Msg("Updating alert group")
+	}
 }
 
 func (r *Route) GetRouteConfigForChild(childRouteconfig model.RouteConfig) *model.RouteConfig {
@@ -171,12 +200,13 @@ func (r *Route) GetRouteConfigForChild(childRouteconfig model.RouteConfig) *mode
 	return &childRouteconfig
 }
 
-func (r *Route) GetMatchedAlerts() []model.Alert {
+func (r *Route) getMatchedAlerts(alerts []model.Alert, invert bool) []model.Alert {
 	var matchedAlerts []model.Alert
+	var unmatchedAlerts []model.Alert
 	if len(r.RouteConfig.Matchers) == 0 {
-		return r.Alerts
+		r.Logger.Info().Msg("No matchers defined, returning all alerts")
 	}
-	for _, alert := range r.Alerts {
+	for _, alert := range alerts {
 		matched := true
 		for _, matcherString := range r.RouteConfig.Matchers {
 			if matcher, err := NewMatcher(matcherString); err != nil {
@@ -191,24 +221,71 @@ func (r *Route) GetMatchedAlerts() []model.Alert {
 		}
 		if matched {
 			matchedAlerts = append(matchedAlerts, alert)
+		} else {
+			unmatchedAlerts = append(unmatchedAlerts, alert)
 		}
 	}
+	if invert {
+		return unmatchedAlerts
+	}
+	r.Logger.Debug().Int("matched", len(matchedAlerts)).Int("unmatched", len(unmatchedAlerts)).Msg("Returning matched alerts")
 	return matchedAlerts
+}
+
+func (r *Route) GetMatchedAlerts(alerts []model.Alert) []model.Alert {
+	return r.getMatchedAlerts(alerts, false)
+}
+
+func (r *Route) GetUnmatchedAlerts(alerts []model.Alert) []model.Alert {
+	return r.getMatchedAlerts(alerts, true)
+}
+
+func (r *Route) SendAlerts(alerts []model.Alert) {
+	r.Alerts = r.GetMatchedAlerts(alerts)
+	r.UpdateAlertGroups()
+	r.Logger.Info().Int("alerts", len(r.Alerts)).Msg("Sending alerts")
+	if r.FirstChild != nil {
+		r.FirstChild.SendAlerts(alerts)
+	}
+	if r.NextSibling != nil {
+		r.NextSibling.SendAlerts(r.GetSiblingAlerts(alerts))
+	}
+}
+
+func (r *Route) GetSiblingAlerts(alerts []model.Alert) []model.Alert {
+	if r.RouteConfig.Continue {
+		return alerts
+	}
+	return r.GetUnmatchedAlerts(alerts)
 }
 
 // A grouped alert is dependend on a route.
 type AlertGroup struct {
-	RouteConfig        *model.RouteConfig
-	Alerts             []model.Alert
-	ChildGroupedAlerts []AlertGroup
+	GroupLabels map[string]string
+	Alerts      []model.Alert
 }
 
-func NewAlertGroup(routeConfig *model.RouteConfig, alerts []model.Alert) *AlertGroup {
+func NewAlertGroup(routeConfig *model.RouteConfig, groupLabels map[string]string) *AlertGroup {
 	return &AlertGroup{
-		RouteConfig:        routeConfig,
-		Alerts:             alerts,
-		ChildGroupedAlerts: []AlertGroup{},
+		GroupLabels: groupLabels,
 	}
+}
+
+func (ag *AlertGroup) String() string {
+	return getGroupKey(ag.GroupLabels)
+}
+func getGroupKey(groupLabels map[string]string) string {
+	keys := make([]string, 0, len(groupLabels))
+	for k := range groupLabels {
+		keys = append(keys, k)
+	}
+	// Sort keys to ensure deterministic groupKey
+	sort.Strings(keys)
+	groupKey := ""
+	for _, k := range keys {
+		groupKey += fmt.Sprintf("%s=%s;", k, groupLabels[k])
+	}
+	return groupKey
 }
 
 type Matcher struct {

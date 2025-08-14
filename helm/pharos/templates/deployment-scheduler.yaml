@@ -2,41 +2,41 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: pharos-controller
-  name: pharos-controller
+    app: pharos-scheduler
+  name: pharos-scheduler
 spec:
-  replicas: {{ .Values.controller.replicas }}
+  replicas: 1
   revisionHistoryLimit: 1
   selector:
     matchLabels:
-      app: pharos-controller
+      app: pharos-scheduler
   strategy: {}
   template:
     metadata:
       namespace: {{ .Release.Namespace }}
       labels:
-        app: pharos-controller
+        app: pharos-scheduler
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-      - name: pharos-controller
+      - name: pharos-scheduler
         image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-        args: ["http", "--config", "/config/.pharos.yaml"]
+        args: ["scheduler", "--config", "/config/.pharos.yaml"]
         ports:
           - containerPort: 8080
         livenessProbe:
           httpGet:
-            path: /api/v1/metrics/liveness
+            path: /health
             port: 8080
             httpHeaders:
           failureThreshold: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
-            path: /api/v1/metrics/readiness
+            path: /health
             port: 8080
             httpHeaders:
           failureThreshold: 1
@@ -47,26 +47,13 @@ spec:
               secretKeyRef:
                 name: postgres-connection
                 key: dsn
-          - name: PHAROROS_COLLECTOR_QUEUESIZE
-            value: "{{ .Values.controller.collector.queueSize }}"
-          - name: PHAROS_PUBLISHER_QUEUESIZE
-            value: "{{ .Values.controller.publisher.queueSize }}"
           - name: APP_DATA_PATH
             value: "/pharos"
-          {{- with .Values.enrichers }}
-          - name: PHAROS_ENRICHERPATH
-            value: "/pharos/enrichers/enrichers.yaml"
-          {{- end }}
         volumeMounts:
           - name: config-volume
             mountPath: /config/.pharos.yaml
             subPath: .pharos.yaml
-          - name: enrichers-volume
-            mountPath: /pharos/enrichers
       volumes:
         - name: config-volume
           configMap:
             name: pharos-config
-        - name: enrichers-volume
-          configMap:
-            name: {{ .Values.enrichers.configMap }}

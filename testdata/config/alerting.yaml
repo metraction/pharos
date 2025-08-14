@@ -9,20 +9,26 @@ alerting:
           - imageid
           - imagespec
           - namespace
+        continue: true
         matchers:
           - namespace ="pharos"
-      - receiver: default
+      - receiver: example_webhook
         group_by: 
           - imageid
+          - namespaceß
         matchers:
           - namespace != pharos
+        continue: true
       - receiver: default
-        group_by: 
+        group_by:
+          - imageid
           - platform
+          - namespace
         matchers:
           - imageid =~ ".*"
           - imagespec =~ ".*"
           - namespace =~ "nextcloud-.*"
+        continue: true
       - receiver: default
         group_by: 
           - platform
@@ -30,6 +36,7 @@ alerting:
           - imageid =~ ".*"
           - imagespec =~ ".*"
           - namespace !~ "nextcloud-.*"
+        continue: true
         child_routes:
           - receiver: test
             group_wait: 1m

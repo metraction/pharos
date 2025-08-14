@@ -114,7 +114,7 @@ func (ac *AlertController) V1AlertsGetBySearch() (huma.Operation, func(ctx conte
 			Tags:        []string{"V1/Alert"},
 			Responses: map[string]*huma.Response{
 				"200": {
-					Description: "A list of alerta",
+					Description: "A list of alerts",
 				},
 				"500": {
 					Description: "Internal server error",

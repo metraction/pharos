@@ -210,9 +210,6 @@ func (pc *PharosScanTaskController) V1PostSyncScan() (huma.Operation, func(ctx c
 				pc.Logger.Warn().Str("taskId", pharosScanResult.ScanTask.JobId).Str("error", pharosScanResult.ScanTask.Error).Msg("Scan task failed")
 				return nil, huma.Error500InternalServerError("Error during scan: " + pharosScanResult.ScanTask.Error)
 			}
-			if err != nil {
-				return nil, huma.Error500InternalServerError("Error during scan: " + err.Error())
-			}
 			pc.Logger.Info().Str("taskId", pharosScanResult.ScanTask.JobId).Str("ImageId", pharosScanResult.Image.ImageId).Msg("Received sync scan result for image")
 			return &PharosScanResult{
 				Body: pharosScanResult,
