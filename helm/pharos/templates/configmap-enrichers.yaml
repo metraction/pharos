@@ -9,6 +9,8 @@ data:
               path: eos-enricher.yaml
             - name: owner
               path: owner-enricher.yaml
+            - name: image-exemptions
+              path: image-exemptions-enricher.yaml
     eos-enricher.yaml: |
         enricher:
             - name: file
@@ -211,6 +213,12 @@ data:
             eos:  2029-06-30
     eos-eos_v1.hbs: |-
         {{ b64dec "ZGlzdHJvOiB7eyAucGF5bG9hZC5JbWFnZS5EaXN0cm9OYW1lIH19CnZlcnNpb246IHt7IC5wYXlsb2FkLkltYWdlLkRpc3Ryb1ZlcnNpb24gfX0KZW9zOiB7eyBpbmRleCAubWV0YS5lb3MgLnBheWxvYWQuSW1hZ2UuRGlzdHJvTmFtZSB8IGZpbHRlciAidmVyc2lvbiIgIm1hdGNoV2lsZGNhcmQiIC5wYXlsb2FkLkltYWdlLkRpc3Ryb1ZlcnNpb24gfCBtYXAgImZpZWxkIiAiZW9zIiB8IGZpcnN0IH19CiAg" | nindent 8 }}
+    image-exemptions-enricher.yaml: |
+        enricher:
+            - name: starlark
+              config: image-exemptions-exemption.star
+              ref: ""
+    image-exemptions-exemption.star: "#!/usr/bin/env star\n\n# Function to check if an image is exempted\ndef enrich(input):\n    data = input.payload\n    if matches(\"corda.*\", data.Image.ImageSpec):\n        return { \n            \"image\": data.Image.ImageSpec,\n            \"exempted\": True,\n            \"reason\": \"Corda image has jar files that are not used, but can't be removed\"\n         }\n    else:\n        return { \n            \"image\": data.Image.ImageSpec,\n            \"exempted\": False,\n            \"reason\": \"No exemption found\"\n         }\n\n"
     owner-enricher.yaml: |
         enricher:
             - name: file
