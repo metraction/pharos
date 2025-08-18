@@ -5,6 +5,7 @@ import (
 	"log"
 	"regexp"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/reugn/go-streams/flow"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
@@ -12,8 +13,6 @@ import (
 )
 
 // matchesRegexFunc is a Starlark built-in function that checks if a string matches a regular expression
-// Usage in Starlark: matches_regex(pattern, text)
-// Returns: bool - true if the text matches the pattern, false otherwise
 func matchesRegexFunc(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var pattern, text starlark.String
 
@@ -36,6 +35,30 @@ func matchesRegexFunc(thread *starlark.Thread, b *starlark.Builtin, args starlar
 	return starlark.Bool(isMatch), nil
 }
 
+func semverConstraintFunc(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var version, constraint starlark.String
+
+	if err := starlark.UnpackPositionalArgs(b.Name(), args, kwargs, 2, &version, &constraint); err != nil {
+		return nil, err
+	}
+
+	// Convert Starlark string to Go string
+	versionStr := string(version)
+	constraintStr := string(constraint)
+
+	c, err := semver.NewConstraint(constraintStr)
+	if err != nil {
+		return starlark.None, fmt.Errorf("invalid semver constraint '%s': %v", constraintStr, err)
+	}
+	// Parse the version
+	semver, err := semver.NewVersion(versionStr)
+	if err != nil {
+		return starlark.None, fmt.Errorf("invalid version '%s': %v", versionStr, err)
+	}
+
+	return starlark.Bool(c.Check(semver)), nil
+}
+
 func NewStarlark(rule string) flow.MapFunction[map[string]interface{}, map[string]interface{}] {
 	thread := &starlark.Thread{Name: "starlark_thread"}
 	fmt.Println("Creating Starlark mapper for rule:", rule)
@@ -46,6 +69,7 @@ func NewStarlark(rule string) flow.MapFunction[map[string]interface{}, map[strin
 		// Create predeclared values including the regex matching function
 		predeclared := starlark.StringDict{
 			"matches": starlark.NewBuiltin("matches", matchesRegexFunc),
+			"semver":  starlark.NewBuiltin("semverConstraint", semverConstraintFunc),
 		}
 
 		globals, err := starlark.ExecFileOptions(fileOpts, thread, rule, nil, predeclared)
