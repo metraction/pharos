@@ -176,12 +176,28 @@ type WebhookConfig struct {
 	URL     string `mapstructure:"url" yaml:"url" json:"url"`
 	URLFile string `mapstructure:"url_file" yaml:"url_file" json:"url_file"`
 
-	// The HTTP client's configuration.
-	HTTPConfig interface{} `mapstructure:"http_config" yaml:"http_config" json:"http_config"`
-
 	// The maximum number of alerts to include in a single webhook message.
 	MaxAlerts int `mapstructure:"max_alerts" yaml:"max_alerts" json:"max_alerts"`
 
 	// The maximum time to wait for a webhook request to complete.
 	Timeout string `mapstructure:"timeout" yaml:"timeout" json:"timeout"`
+
+	// The HTTP client's configuration.
+	HTTPConfig *AlertingHttpConfig `mapstructure:"http_config" yaml:"http_config" json:"http_config,omitempty"`
+}
+
+type AlertingHttpConfig struct {
+	BasicAuth     *AlertingBasicAuthConfig     `mapstructure:"basic_auth" yaml:"basic_auth" json:"basic_auth,omitempty"`
+	Authorization *AlertingAuthorizationConfig `mapstructure:"authorization" yaml:"authorization" json:"authorization,omitempty"`
+}
+
+type AlertingBasicAuthConfig struct {
+	Username     string `mapstructure:"username" yaml:"username" json:"username"`
+	Password     string `mapstructure:"password" yaml:"password" json:"password"`
+	PasswordFile string `mapstructure:"password_file" yaml:"password_file" json:"password_file"`
+}
+
+type AlertingAuthorizationConfig struct {
+	Type        string `mapstructure:"type" yaml:"type" json:"type"` // default: Bearer
+	Credentials string `mapstructure:"credentials" yaml:"credentials" json:"credentials"`
 }

@@ -4,6 +4,19 @@ import (
 	"time"
 )
 
+type WebHookPayload struct {
+	Version           string             `json:"version"`
+	GroupKey          string             `json:"groupKey"`
+	TruncatedAlerts   int                `json:"truncatedAlerts"`
+	Status            string             `json:"status"`
+	Receiver          string             `json:"receiver"`
+	GroupLabels       map[string]string  `json:"groupLabels"`
+	CommonLabels      map[string]string  `json:"commonLabels"`
+	CommonAnnotations map[string]string  `json:"commonAnnotations"`
+	ExternalURL       string             `json:"externalURL"`
+	Alerts            []*PrometheusAlert `json:"alerts"`
+}
+
 type PrometheusAlert struct {
 	Status       string            `json:"status"`
 	Labels       map[string]string `json:"labels"`

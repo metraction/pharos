@@ -138,4 +138,11 @@ caCertificates:
   # -- ConfigMap name for CA certificates, bring your own if configMapEnabled is true
   configMapName: ca-certificates
     
-    
+alerting:
+  route:
+    group_by: ["..."]
+    continue: true
+    receiver: default
+    child_routes: []
+  receivers:
+    - name: "default"

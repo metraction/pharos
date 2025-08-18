@@ -6,6 +6,7 @@ import (
 
 	_ "github.com/danielgtaylor/huma/v2/adapters/humachi"
 	"github.com/metraction/pharos/internal/routing"
+	"github.com/metraction/pharos/pkg/alerting"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/spf13/cobra"
 )
@@ -28,12 +29,16 @@ var schedulerCmd = &cobra.Command{
 		databaseContext.Migrate()
 
 		go routing.NewImageSchedulerFlow(databaseContext, config)
+		go alerting.NewAlerter(databaseContext, &config.Alerting)
 
 		serverAddr := fmt.Sprintf(":%d", httpPort)
 		http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("ok\n"))
 		})
-		_ = http.ListenAndServe(serverAddr, nil)
+		err := http.ListenAndServe(serverAddr, nil)
+		if err != nil {
+			logger.Fatal().Err(err).Msg("Failed to start HTTP server")
+		}
 	},
 }
 

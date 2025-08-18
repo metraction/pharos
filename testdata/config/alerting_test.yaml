@@ -12,10 +12,10 @@ alerting:
         continue: true
         matchers:
           - namespace ="pharos"
-      - receiver: example_webhook
+      - receiver: default
         group_by: 
           - imageid
-          - namespaceß
+          - namespace
         matchers:
           - namespace != pharos
         continue: true
@@ -42,8 +42,13 @@ alerting:
             group_wait: 1m
 
   receivers:
+    - name: test
     - name: "default"
     - name: "example_webhook"
       webhook_configs:
         - url: "http://localhost:8081/api/v1/alerts"
           send_resolved: true
+          http_config:
+            authorization:
+              type: "Bearer"
+              credentials: "test-token"

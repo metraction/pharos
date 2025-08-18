@@ -15,3 +15,7 @@ data:
     {{- end }}
     scanner:
       cacheEndpoint: redis://{{ .Release.Namespace }}-redis-master.{{ .Release.Namespace }}.svc.cluster.local:6379
+    {{- with .Values.alerting }}
+    alerting:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
