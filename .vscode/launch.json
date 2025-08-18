@@ -20,8 +20,22 @@
                 "verysecret",
                 "--prometheus.auth.token",
                 "verysecrettoken",
+                // "--config",
+                // "./testdata/config/pharos.yaml",
+            ], 
+        },
+        {
+            "name": "Launch scheduler",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "main.go",
+            "args": [
+                "scheduler",
                 "--config",
-                "./testdata/config/alerting.yaml",
+                "./testdata/config/scheduler.yaml",
+                "--port",
+                "9080"
             ], 
         },
         {
