@@ -4,19 +4,21 @@ alerting:
     continue: true
     receiver: default
     child_routes:
-      - receiver: example_webhook
-        group_by: 
+      - receiver: jira
+        group_by:
+          - digest
           - imageid
           - imagespec
           - namespace
+        repeat_interval: 2m
 
   receivers:
     - name: "default"
-    - name: "example_webhook"
+    - name: "jira"
       webhook_configs:
-        - url: "http://localhost:8081/api/v1/alerts"
+        - url: "http://localhost:9097/alert"
           send_resolved: true
-          http_config:
-            authorization:
-              type: "Bearer"
-              credentials: "test-token"
+          # http_config:
+          #   authorization:
+          #     type: "Bearer"
+          #     credentials: "test-token"

@@ -5,5 +5,8 @@ dependencies:
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
   version: 12.5.9
-digest: sha256:73bbeeb798bf9d08bd6bbe8635199623cbecb9b6c05a670d5fb29ecc2e578959
-generated: "2025-06-16T16:01:02.941323+02:00"
+- name: jiralert
+  repository: https://prometheus-community.github.io/helm-charts
+  version: 1.8.1
+digest: sha256:1836afcef073e89adb73684e5d9b4f04c4659870f50dff16070d25fb5ad62f2f
+generated: "2025-08-19T15:44:33.958079+02:00"

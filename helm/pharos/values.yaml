@@ -146,3 +146,6 @@ alerting:
     child_routes: []
   receivers:
     - name: "default"
+
+jiralert:
+  enabled: false

@@ -14,3 +14,7 @@ dependencies:
     version: ~12.5.7
     repository: https://charts.bitnami.com/bitnami
     condition: postgres.enabled
+  - name: jiralert
+    version: 1.8.1
+    repository: https://prometheus-community.github.io/helm-charts
+    condition: jiralert.enabled

@@ -49,7 +49,7 @@ func (ag *AlertGroup) SendWebhookAlerts(webhook *WebHook, route *Route) error {
 		shouldSend = true
 		ag.Logger.Info().Str("webhook", webhook.String()).Str("route", route.String()).Msg("Sending alert because this is the first time.")
 	}
-
+	payload := ag.GetWebhookPayload(webhook, route.Receiver.Config.Name)
 	if !shouldSend && ag.GetHash() != ag.GroupInfo[indentifier].LastSentHash {
 		shouldSend = true
 		ag.Logger.Info().Str("webhook", webhook.String()).Msg("Sending alert because the alertgroup has changed.")
@@ -61,7 +61,7 @@ func (ag *AlertGroup) SendWebhookAlerts(webhook *WebHook, route *Route) error {
 		shouldSend = true
 		ag.Logger.Info().Str("webhook", webhook.String()).Msg("Sending alert because the repeat interval has passed.")
 	}
-	if ag.GroupInfo[indentifier].ResolutionSent {
+	if ag.GroupInfo[indentifier].ResolutionSent && payload.Status == "resolved" {
 		ag.Logger.Info().Str("webhook", webhook.String()).Msg("Not sending alert because resolution was already sent.")
 		shouldSend = false
 	}
@@ -72,7 +72,7 @@ func (ag *AlertGroup) SendWebhookAlerts(webhook *WebHook, route *Route) error {
 	if !shouldSend {
 		return nil
 	}
-	payload := ag.GetWebhookPayload(webhook, route.Receiver.Config.Name)
+
 	url := webhook.WebHookConfig.URL
 	client := &http.Client{Timeout: 10 * time.Second}
 	reqBody, err := json.Marshal(payload)
@@ -119,6 +119,7 @@ func (ag *AlertGroup) SendWebhookAlerts(webhook *WebHook, route *Route) error {
 func (ag *AlertGroup) GetWebhookPayload(webhook *WebHook, receiverName string) *model.WebHookPayload {
 	prometheusAlerts := make([]*model.PrometheusAlert, len(ag.Alerts))
 	status := "resolved"
+	// TODO: crashes if someone else changes alerts while we're processing them
 	for i, alert := range ag.Alerts {
 		if webhook.WebHookConfig.SendResolved || alert.Status == "firing" {
 			prometheusAlerts[i] = GetPrometheusAlert(&alert)
