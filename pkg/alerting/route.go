@@ -88,7 +88,7 @@ func (r *Route) UpdateAlertGroups() {
 		r.AlertGroups = make(map[string]*AlertGroup)
 	}
 	for groupkey, group := range r.AlertGroups {
-		r.Logger.Debug().Str("groupKey", groupkey).Msg("Clearing old alerts")
+		r.Logger.Info().Str("groupKey", groupkey).Msg("Clearing old alerts")
 		group.Alerts = []model.Alert{}
 		group.AlertsUpdated = false
 	}
@@ -110,9 +110,10 @@ func (r *Route) UpdateAlertGroups() {
 		r.AlertGroups[groupKey].AlertsUpdated = true
 		r.Logger.Debug().Str("groupKey", groupKey).Msg("Updating alert group")
 	}
+	uid := fmt.Sprintf("%d", time.Now().UnixNano())
 	for groupkey, group := range r.AlertGroups {
 		if group.AlertsUpdated {
-			r.Logger.Info().Str("groupKey", groupkey).Msg("Sending alerts for group")
+			r.Logger.Info().Str("groupKey", groupkey).Str("uid", uid).Msg("Sending alerts for group")
 			r.Receiver.SendAlerts(group, r)
 		}
 	}
