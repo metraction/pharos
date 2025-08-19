@@ -26,34 +26,6 @@ func NewAlerter(databaseContext *model.DatabaseContext, config *model.AlertingCo
 	return al
 }
 
-// TODO consider instead of Source use map function
-func (al *Alerter) Start() {
-	ticker := time.NewTicker(60 * time.Second)
-	go al.Run() // Initial run to populate the channel
-	quit := make(chan struct{})
-	go func() {
-		for {
-			select {
-			case <-ticker.C:
-				al.Logger.Info().Msg("Alerter wakes up")
-				al.Run()
-			case <-quit:
-				ticker.Stop()
-				return
-			}
-		}
-	}()
-}
-
-func (sr *Alerter) CheckSplit(element any) bool {
-	_, ret := element.(string)
-	if ret {
-		return false
-	}
-	// If the element al a string, it indicates a maintenance talk
-	return true
-}
-
 func (al *Alerter) Run() {
 	for {
 		var alerts []*model.Alert
