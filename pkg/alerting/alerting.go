@@ -93,10 +93,10 @@ func HandleAlerts(databaseContext *model.DatabaseContext) func(item model.Pharos
 				continue
 			}
 			if value.Fingerprint == "" {
-				databaseContext.Logger.Info().Str("fingerprint", alert.Fingerprint).Str("imageid", item.ImageId).Str("imagespec", item.ImageSpec).Str("status", alert.Status).Msg("Creating new alert")
+				databaseContext.Logger.Debug().Str("fingerprint", alert.Fingerprint).Str("imageid", item.ImageId).Str("imagespec", item.ImageSpec).Str("status", alert.Status).Msg("Creating new alert")
 				databaseContext.DB.Create(&alert)
 			} else {
-				databaseContext.Logger.Info().Str("fingerprint", alert.Fingerprint).Str("imageid", item.ImageId).Str("imagespec", item.ImageSpec).Str("status", alert.Status).Msg("Updating existing alert")
+				databaseContext.Logger.Debug().Str("fingerprint", alert.Fingerprint).Str("imageid", item.ImageId).Str("imagespec", item.ImageSpec).Str("status", alert.Status).Msg("Updating existing alert")
 				databaseContext.DB.Save(&alert)
 			}
 		}

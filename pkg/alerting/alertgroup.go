@@ -24,10 +24,11 @@ type GroupInfo struct {
 
 // A grouped alert is dependend on a route.
 type AlertGroup struct {
-	GroupLabels map[string]string
-	Logger      *zerolog.Logger
-	Alerts      []model.Alert
-	GroupInfo   map[string]*GroupInfo
+	GroupLabels   map[string]string
+	Logger        *zerolog.Logger
+	Alerts        []model.Alert
+	GroupInfo     map[string]*GroupInfo
+	AlertsUpdated bool
 }
 
 func NewAlertGroup(routeConfig *model.RouteConfig, groupLabels map[string]string) *AlertGroup {
@@ -73,7 +74,7 @@ func (ag *AlertGroup) SendWebhookAlerts(webhook *WebHook, route *Route) error {
 	if !shouldSend {
 		return nil
 	}
-
+	ag.Logger.Info().Str("webhook", webhook.String()).Any("grouplabels", payload.GroupLabels).Msg("Sending alert now.")
 	url := webhook.WebHookConfig.URL
 	client := &http.Client{Timeout: 10 * time.Second}
 	reqBody, err := json.Marshal(payload)

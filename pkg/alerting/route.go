@@ -87,6 +87,11 @@ func (r *Route) UpdateAlertGroups() {
 	if r.AlertGroups == nil {
 		r.AlertGroups = make(map[string]*AlertGroup)
 	}
+	for groupkey, group := range r.AlertGroups {
+		r.Logger.Info().Str("groupKey", groupkey).Msg("Clearing old alerts")
+		group.Alerts = []model.Alert{}
+		group.AlertsUpdated = false
+	}
 	for _, alert := range r.Alerts {
 		groupLabels := make(map[string]string)
 		for _, groupBy := range r.RouteConfig.GroupBy {
@@ -100,14 +105,19 @@ func (r *Route) UpdateAlertGroups() {
 		// Check if the group already exists
 		if _, exists := r.AlertGroups[groupKey]; !exists {
 			r.AlertGroups[groupKey] = NewAlertGroup(r.RouteConfig, groupLabels)
-		} else {
-			// clear old alerts
-			r.AlertGroups[groupKey].Alerts = []model.Alert{}
 		}
 		r.AlertGroups[groupKey].Alerts = append(r.AlertGroups[groupKey].Alerts, *alert)
+		r.AlertGroups[groupKey].AlertsUpdated = true
 		r.Logger.Debug().Str("groupKey", groupKey).Msg("Updating alert group")
-		r.Receiver.SendAlerts(r.AlertGroups[groupKey], r)
 	}
+	uid := fmt.Sprintf("%d", time.Now().UnixNano())
+	for groupkey, group := range r.AlertGroups {
+		if group.AlertsUpdated {
+			r.Logger.Info().Str("groupKey", groupkey).Str("uid", uid).Msg("Sending alerts for group")
+			r.Receiver.SendAlerts(group, r)
+		}
+	}
+
 }
 
 func (r *Route) GetRouteConfigForChild(childRouteconfig model.RouteConfig) *model.RouteConfig {
