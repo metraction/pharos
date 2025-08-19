@@ -45,6 +45,11 @@ func NewTestScanResult(task PharosScanTask2, engineName string) PharosScanResult
 				Severity: "High",
 			},
 		},
-		Packages: []PharosPackage{},
+		Packages: []PharosPackage{
+			{
+				Name:    "log4j-api",
+				Version: "2.11.1",
+			},
+		},
 	}
 }

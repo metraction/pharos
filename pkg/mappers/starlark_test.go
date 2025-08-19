@@ -1,12 +1,13 @@
 package mappers
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/metraction/pharos/pkg/model"
 )
 
-func TestStarlark(t *testing.T) {
+func TestStarlarkExemption(t *testing.T) {
 	type args struct {
 		scriptPath string
 		inputItem  model.PharosScanResult
@@ -54,6 +55,55 @@ func TestStarlark(t *testing.T) {
 
 			if result["exempted"] != tt.want.exempted {
 				t.Errorf("Expected result[exempted] to be %v, got %v", tt.want.exempted, result["exempted"])
+			}
+			if result["reason"] != tt.want.reason {
+				t.Errorf("Expected result[reason] to be %v, got %v", tt.want.reason, result["reason"])
+			}
+		})
+	}
+}
+
+func TestStarlarkSemver(t *testing.T) {
+	type args struct {
+		scriptPath string
+		inputItem  model.PharosScanResult
+	}
+	type want struct {
+		critical bool
+		reason   string
+	}
+	tests := []struct {
+		name string
+		args args
+		want want
+	}{
+		{
+			name: "Test semver constraint",
+			args: args{
+				scriptPath: "../../testdata/enrichers/starlark/semver.star",
+				inputItem:  model.NewTestScanResult(model.NewTestScanTask(t, "test-2", "corda-1"), "test-engine-1"),
+			},
+			want: want{
+				critical: true,
+				reason:   "Log4j vulnerability",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Convert input to map and run the mapper
+			inputMap := map[string]interface{}{
+				"payload": ToMap(tt.args.inputItem),
+			}
+			result := NewStarlark(tt.args.scriptPath)(inputMap)
+
+			critical, err := strconv.ParseBool(result["critical"].(string))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if critical != tt.want.critical {
+				t.Errorf("Expected result[exempted] to be %v, got %v", tt.want.critical, result["critical"])
 			}
 			if result["reason"] != tt.want.reason {
 				t.Errorf("Expected result[reason] to be %v, got %v", tt.want.reason, result["reason"])

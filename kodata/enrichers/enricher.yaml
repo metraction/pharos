@@ -1,4 +1,4 @@
-results:
+enricher:
 - name: file
   config: eos.yaml
 - name: hbs
