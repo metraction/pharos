@@ -105,9 +105,13 @@ func (r *Route) UpdateAlertGroups() {
 			r.AlertGroups[groupKey].Alerts = []model.Alert{}
 		}
 		r.AlertGroups[groupKey].Alerts = append(r.AlertGroups[groupKey].Alerts, *alert)
-		r.Logger.Info().Str("groupKey", groupKey).Msg("Updating alert group and sending alerts")
-		r.Receiver.SendAlerts(r.AlertGroups[groupKey], r)
+		r.Logger.Debug().Str("groupKey", groupKey).Msg("Updating alert group")
 	}
+	for groupkey, group := range r.AlertGroups {
+		r.Logger.Debug().Str("groupKey", groupkey).Msg("Sending alerts for group")
+		r.Receiver.SendAlerts(group, r)
+	}
+
 }
 
 func (r *Route) GetRouteConfigForChild(childRouteconfig model.RouteConfig) *model.RouteConfig {
