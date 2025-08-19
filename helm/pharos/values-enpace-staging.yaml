@@ -56,7 +56,7 @@ alerting:
     - name: "default"
     - name: "jira"
       webhook_configs:
-        - url: "http://localhost:9097/alert"
+        - url: "pharos-staging-jiralert:9097/alert"
           send_resolved: true
 
 jiralert:
