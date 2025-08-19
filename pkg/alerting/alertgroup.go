@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"sort"
 	"time"
@@ -106,6 +107,12 @@ func (ag *AlertGroup) SendWebhookAlerts(webhook *WebHook, route *Route) error {
 	defer resp.Body.Close()
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		ag.Logger.Error().Int("status", resp.StatusCode).Msg("Webhook returned non-2xx status")
+		bodyBytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			ag.Logger.Error().Err(err).Msg("Failed to read webhook response body")
+		}
+		content := string(bodyBytes)
+		ag.Logger.Error().Str("response content", content).Msg("Webhook returned non-2xx status")
 		return fmt.Errorf("webhook returned status %d", resp.StatusCode)
 	}
 	ag.GroupInfo[indentifier].LastSentAt = time.Now()
