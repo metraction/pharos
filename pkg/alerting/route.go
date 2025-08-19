@@ -112,7 +112,7 @@ func (r *Route) UpdateAlertGroups() {
 	}
 	for groupkey, group := range r.AlertGroups {
 		if group.AlertsUpdated {
-			r.Logger.Debug().Str("groupKey", groupkey).Msg("Sending alerts for group")
+			r.Logger.Info().Str("groupKey", groupkey).Msg("Sending alerts for group")
 			r.Receiver.SendAlerts(group, r)
 		}
 	}
