@@ -93,15 +93,15 @@ jiralert:
       # Optional (default: always reopen)
       reopen_duration: 0h
       # Static label that will be added to the JIRA ticket alongisde the JIRALERT{...} or ALERT{...} label
-      static_labels: ["custom"]
+      # static_labels: ["custom"]
       # Other projects are the projects to search for existing issues for the given alerts if
       # the main project does not have it. If no issue was found in, the main projects will
       # be used to create a new one. If the old issue is found in one of the other projects
       # (first found is used in case of duplicates) that old project's issue will be used for
       # alert updates instead of creating on in the main project.
-      other_projects: []
-      # Include ticket update as comment. Optional (default: false).
-      update_in_comment: false
+      # other_projects: []
+      # # Include ticket update as comment. Optional (default: false).
+      # update_in_comment: false
 
     # Receiver definitions. At least one must be defined.
     receivers:
