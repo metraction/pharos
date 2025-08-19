@@ -63,6 +63,7 @@ jiralert:
   enabled: true
   extraArgs: 
     - -hash-jira-label
+    - -log.level=debug
   config:
     # File containing template definitions. Required.
     template: jiralert.tmpl
