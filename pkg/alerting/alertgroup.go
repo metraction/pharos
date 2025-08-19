@@ -73,7 +73,7 @@ func (ag *AlertGroup) SendWebhookAlerts(webhook *WebHook, route *Route) error {
 	if !shouldSend {
 		return nil
 	}
-
+	ag.Logger.Info().Str("webhook", webhook.String()).Any("grouplabels", payload.GroupLabels).Msg("Sending alert now.")
 	url := webhook.WebHookConfig.URL
 	client := &http.Client{Timeout: 10 * time.Second}
 	reqBody, err := json.Marshal(payload)
