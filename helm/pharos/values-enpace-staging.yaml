@@ -61,22 +61,8 @@ alerting:
 
 jiralert:
   enabled: true
-  env:
-    - name: USERNAME
-      valueFrom:
-        secretKeyRef:
-          name: jira-credentials
-          key: username
-    - name: PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: jira-credentials
-          key: password
-    - name: API_URL
-      valueFrom:
-        secretKeyRef:
-          name: jira-credentials
-          key: api_url
+  extraArgs: 
+    - -hash-jira-label
 
   config:
     # File containing template definitions. Required.
@@ -84,10 +70,10 @@ jiralert:
     # Global defaults, applied to all receivers where not explicitly overridden. Optional.
     defaults:
       # API access fields.
-      api_url: $(API_URL)
-      user: $(USERNAME)
+      api_url: api_url
+      user: username
       # Get password from the $PASSWORD environment variable.
-      password: $(PASSWORD)
+      password: password
       # Alternatively to user and password use a Personal Access Token
       # personal_access_token: "Your Personal Access Token". See https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html
       #personal_access_token: none
