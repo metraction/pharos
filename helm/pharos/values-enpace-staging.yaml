@@ -63,15 +63,13 @@ jiralert:
   enabled: true
   extraArgs: 
     - -hash-jira-label
-    - -log.level=debug
-
   config:
     # File containing template definitions. Required.
     template: jiralert.tmpl
     # Global defaults, applied to all receivers where not explicitly overridden. Optional.
     defaults:
       # API access fields.
-      api_url: api_url
+      api_url: http://myproject.atlassian.net
       user: username
       # Get password from the $PASSWORD environment variable.
       password: password
@@ -116,7 +114,6 @@ jiralert:
         # update_in_comment: false
         # Will be merged with the static_labels from the default map
         # static_labels: []
-        # err="error \"request failed. Please analyze the request body for more details. Status code: 400\", body \"{\\\"errorMessages\\\":[],\\\"errors\\\":{\\\"customfield_10060\\\":\\\"imagespec is required.\\\",\\\"customfield_10061\\\":\\\"namespace is required.\\\",\\\"customfield_10058\\\":\\\"digest is required.\\\",\\\"customfield_10059\\\":\\\"imageid is required.\\\"}}\"" receiver=jira groupLabels="unsupported value type"
         fields:
           # ImageSpec
           customfield_10060: '{{ template "jira.imagespec" . }}'
