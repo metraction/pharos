@@ -51,7 +51,7 @@ alerting:
           - imageid
           - imagespec
           - namespace
-        repeat_interval: 2m
+        repeat_interval: 20m
   receivers:
     - name: "default"
     - name: "jira"
