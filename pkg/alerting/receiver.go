@@ -26,6 +26,7 @@ func NewReceiver(config *model.ReceiverConfig) *Receiver {
 
 func (r *Receiver) SendAlerts(alertGroup *AlertGroup, route *Route) error {
 	// Send alerts to the configured receiver
+
 	for _, webhook := range r.WebHooks {
 		err := alertGroup.SendWebhookAlerts(webhook, route)
 		if err != nil {

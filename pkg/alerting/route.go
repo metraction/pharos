@@ -105,7 +105,7 @@ func (r *Route) UpdateAlertGroups() {
 			r.AlertGroups[groupKey].Alerts = []model.Alert{}
 		}
 		r.AlertGroups[groupKey].Alerts = append(r.AlertGroups[groupKey].Alerts, *alert)
-		r.Logger.Debug().Str("groupKey", groupKey).Msg("Updating alert group")
+		r.Logger.Info().Str("groupKey", groupKey).Msg("Updating alert group and sending alerts")
 		r.Receiver.SendAlerts(r.AlertGroups[groupKey], r)
 	}
 }
