@@ -100,6 +100,9 @@ func (r *Route) UpdateAlertGroups() {
 		// Check if the group already exists
 		if _, exists := r.AlertGroups[groupKey]; !exists {
 			r.AlertGroups[groupKey] = NewAlertGroup(r.RouteConfig, groupLabels)
+		} else {
+			// clear old alerts
+			r.AlertGroups[groupKey].Alerts = []model.Alert{}
 		}
 		r.AlertGroups[groupKey].Alerts = append(r.AlertGroups[groupKey].Alerts, *alert)
 		r.Logger.Debug().Str("groupKey", groupKey).Msg("Updating alert group")

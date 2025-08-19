@@ -20,9 +20,7 @@
                 "verysecret",
                 "--prometheus.auth.token",
                 "verysecrettoken",
-                // "--config",
-                // "./testdata/config/pharos.yaml",
-            ], 
+            ],
         },
         {
             "name": "Launch scheduler",
@@ -36,7 +34,7 @@
                 "./testdata/config/scheduler.yaml",
                 "--port",
                 "9080"
-            ], 
+            ],
         },
         {
             "name": "Launch scanner",
@@ -46,7 +44,7 @@
             "program": "main.go",
             "args": [
                 "scanner",
-            ], 
+            ],
         },
         {
             "name": "Launch prometheus reporter",
@@ -60,7 +58,21 @@
                 // "1m",
                 "--prometheus.url",
                 "https://prometheus.enpace.local",
-            ], 
+                "--prometheus.query",
+                "kube_pod_container_info{namespace=~\"pharos|nextcloud-.*|wordpress.*\"}"
+            ],
         },
+    ],
+    "compounds": [
+        {
+            "name": "Pharos",
+            "configurations": [
+                "Launch http",
+                "Launch scheduler",
+                "Launch scanner",
+                "Launch prometheus reporter"
+            ],
+            "stopAll": true
+        }
     ]
 }
