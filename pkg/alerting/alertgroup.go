@@ -24,10 +24,11 @@ type GroupInfo struct {
 
 // A grouped alert is dependend on a route.
 type AlertGroup struct {
-	GroupLabels map[string]string
-	Logger      *zerolog.Logger
-	Alerts      []model.Alert
-	GroupInfo   map[string]*GroupInfo
+	GroupLabels   map[string]string
+	Logger        *zerolog.Logger
+	Alerts        []model.Alert
+	GroupInfo     map[string]*GroupInfo
+	AlertsUpdated bool
 }
 
 func NewAlertGroup(routeConfig *model.RouteConfig, groupLabels map[string]string) *AlertGroup {
