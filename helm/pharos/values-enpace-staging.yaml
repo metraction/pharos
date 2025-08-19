@@ -129,40 +129,40 @@ jiralert:
         auto_resolve:
           state: "Done"
 
-issueTemplate: |
-  {{`
-  {{ define "jira.summary" }}[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .GroupLabels.imagespec }} in namespace {{ .GroupLabels.namespace }} has vulnerabilities{{ end }}
-  {{ define "jira.description" }}{{ range .Alerts.Firing }}
-  h4. Labels:
-  ||Name||Value||
-  {{ range .Labels.SortedPairs -}}
-  {{ $color := "black" -}}
-  {{ if eq .Name "Critical" }}{{ $color = "purple" }}{{ end -}}
-  {{ if eq .Name "High" }}{{ $color = "red" }}{{ end -}}
-  {{ if eq .Name "Medium" }}{{ $color = "orange" }}{{ end -}}
-  {{ if eq .Name "Low" }}{{ $color = "yellow" }}{{ end -}}
-  |{{ .Name }}|{color:{{ $color }}}{{ .Value }}{color}|
-  {{ end }}
-  h4. Annotations:
-  {{ range .Annotations.SortedPairs }} - {{ .Name }} = {{ .Value }}
-  {{ end }}
-  Source: {{ .GeneratorURL }}
-  {{ end }}
-  {{ end }}
+  issueTemplate: |
+    {{`
+    {{ define "jira.summary" }}[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .GroupLabels.imagespec }} in namespace {{ .GroupLabels.namespace }} has vulnerabilities{{ end }}
+    {{ define "jira.description" }}{{ range .Alerts.Firing }}
+    h4. Labels:
+    ||Name||Value||
+    {{ range .Labels.SortedPairs -}}
+    {{ $color := "black" -}}
+    {{ if eq .Name "Critical" }}{{ $color = "purple" }}{{ end -}}
+    {{ if eq .Name "High" }}{{ $color = "red" }}{{ end -}}
+    {{ if eq .Name "Medium" }}{{ $color = "orange" }}{{ end -}}
+    {{ if eq .Name "Low" }}{{ $color = "yellow" }}{{ end -}}
+    |{{ .Name }}|{color:{{ $color }}}{{ .Value }}{color}|
+    {{ end }}
+    h4. Annotations:
+    {{ range .Annotations.SortedPairs }} - {{ .Name }} = {{ .Value }}
+    {{ end }}
+    Source: {{ .GeneratorURL }}
+    {{ end }}
+    {{ end }}
 
-  {{ define "jira.namespace" }}
-  {{ .GroupLabels.namespace }}
-  {{ end }}
+    {{ define "jira.namespace" }}
+    {{ .GroupLabels.namespace }}
+    {{ end }}
 
-  {{ define "jira.imagespec" }}
-  {{ .GroupLabels.imagespec }}
-  {{ end }}
+    {{ define "jira.imagespec" }}
+    {{ .GroupLabels.imagespec }}
+    {{ end }}
 
-  {{ define "jira.imageid" }}
-  {{ .GroupLabels.imageid }}
-  {{ end }}
+    {{ define "jira.imageid" }}
+    {{ .GroupLabels.imageid }}
+    {{ end }}
 
-  {{ define "jira.digest" }}
-  {{ .GroupLabels.digest }}
-  {{ end }}
-  `}}
+    {{ define "jira.digest" }}
+    {{ .GroupLabels.digest }}
+    {{ end }}
+    `}}
