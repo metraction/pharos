@@ -157,7 +157,7 @@ func (mc *MetricsController) V1GetVulnerbilityMetrics() (huma.Operation, func(ct
 				mc.Logger.Info().Str("Handler", "VulnerbilityMetrics").Float64("duration_seconds", v).Msg("Metrics handler duration")
 			}))
 			defer timer.ObserveDuration()
-			registry, vulnerabilites, err := mc.NewVulnerabilityRegistry()
+			registry, _, err := mc.NewVulnerabilityRegistry()
 			if err != nil {
 				return nil, huma.Error500InternalServerError("Failed to create vulnerbility registry: " + err.Error())
 			}
@@ -184,12 +184,6 @@ func (mc *MetricsController) V1GetVulnerbilityMetrics() (huma.Operation, func(ct
 				if err := databaseContext.DB.Preload("Findings").Preload("ContextRoots.Contexts").First(&fullImage, "image_id = ?", image.ImageId).Error; err != nil {
 					mc.Logger.Warn().Err(err).Str("imageId", image.ImageId).Msg("Failed to retrieve Docker image")
 				} else {
-					summary := fullImage.GetSummary()
-					mc.Logger.Debug().Str("imageId", image.ImageId).Any("summary", summary).Msg("Found image in database")
-
-					for level, count := range summary.Severities {
-						vulnerabilites.WithLabelValues(fullImage.ImageSpec, fullImage.IndexDigest, fullImage.ImageId, fullImage.ArchOS+"/"+fullImage.ArchName, level).Set(float64(count))
-					}
 					for _, contextRoot := range fullImage.ContextRoots {
 						for _, context := range contextRoot.Contexts {
 							for label := range context.Data {

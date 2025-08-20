@@ -64,13 +64,6 @@ func HandleAlerts(databaseContext *model.DatabaseContext) func(item model.Pharos
 					}
 				}
 			}
-			severities := item.GetSummary().Severities
-			for k, v := range severities {
-				labels = append(labels, model.AlertLabel{
-					Name:  k,
-					Value: fmt.Sprintf("%v", v),
-				})
-			}
 			status := "firing"
 			if contextRoot.IsExpired() {
 				status = "resolved"
