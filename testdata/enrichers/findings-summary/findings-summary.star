@@ -1,30 +1,33 @@
 #!/usr/bin/env star
 
-# Function to check if an image is exempted
+# Return summary of findings
 def enrich(input):
     data = input.payload
-    Severity01Critical = 0
-    Severity02High = 0
-    Severity03Medium = 0
-    Severity04Low = 0
-    Severity05Negligible = 0
+    severity_01_critical = 0
+    severity_02_high = 0
+    severity_03_medium = 0
+    severity_04_low = 0
+    severity_05_negligible = 0
     for finding in data.Image.Findings:
         if finding.Severity == "Critical":
-            Severity01Critical += 1
+            severity_01_critical += 1
         elif finding.Severity == "High":
-            Severity02High += 1
+            severity_02_high += 1
         elif finding.Severity == "Medium":
-            Severity03Medium += 1
+            severity_03_medium += 1
         elif finding.Severity == "Low":
-            Severity04Low += 1
+            severity_04_low += 1
         elif finding.Severity == "Negligible":
-            Severity05Negligible += 1
-
+            severity_05_negligible += 1
+    alerted = false
+    if severity_01_critical > 0 or severity_02_high > 0:
+        alerted = true
     return { 
-        "Severity01Critical": Severity01Critical,
-        "Severity02High": Severity02High,
-        "Severity03Medium": Severity03Medium,
-        "Severity04Low": Severity04Low,
-        "Severity05Negligible": Severity05Negligible
-        }
+        "Severity01Critical": severity_01_critical,
+        "Severity02High": severity_02_high,
+        "Severity03Medium": severity_03_medium,
+        "Severity04Low": severity_04_low,
+        "Severity05Negligible": severity_05_negligible,
+        "Alerted": alerted
+    }
 

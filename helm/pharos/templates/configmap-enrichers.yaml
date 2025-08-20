@@ -6,9 +6,11 @@ data:
             - owner
         sources:
             - name: eos
-              path: eos-enricher.yaml
+              path: testdata/enrichers/eos
             - name: owner
-              path: owner-enricher.yaml
+              path: testdata/enrichers/owner
+            - name: findings-summary
+              path: testdata/enrichers/findings-summary
     eos-enricher.yaml: |
         enricher:
             - name: file
@@ -211,6 +213,12 @@ data:
             eos:  2029-06-30
     eos-eos_v1.hbs: |-
         {{ b64dec "ZGlzdHJvOiB7eyAucGF5bG9hZC5JbWFnZS5EaXN0cm9OYW1lIH19CnZlcnNpb246IHt7IC5wYXlsb2FkLkltYWdlLkRpc3Ryb1ZlcnNpb24gfX0KZW9zOiB7eyBpbmRleCAubWV0YS5lb3MgLnBheWxvYWQuSW1hZ2UuRGlzdHJvTmFtZSB8IGZpbHRlciAidmVyc2lvbiIgIm1hdGNoV2lsZGNhcmQiIC5wYXlsb2FkLkltYWdlLkRpc3Ryb1ZlcnNpb24gfCBtYXAgImZpZWxkIiAiZW9zIiB8IGZpcnN0IH19CiAg" | nindent 8 }}
+    findings-summary-enricher.yaml: |
+        enricher:
+            - name: starlark
+              config: findings-summary-findings-summary.star
+              ref: ""
+    findings-summary-findings-summary.star: "#!/usr/bin/env star\n\n# Return summary of findings\ndef enrich(input):\n    data = input.payload\n    severity_01_critical = 0\n    severity_02_high = 0\n    severity_03_medium = 0\n    severity_04_low = 0\n    severity_05_negligible = 0\n    for finding in data.Image.Findings:\n        if finding.Severity == \"Critical\":\n            severity_01_critical += 1\n        elif finding.Severity == \"High\":\n            severity_02_high += 1\n        elif finding.Severity == \"Medium\":\n            severity_03_medium += 1\n        elif finding.Severity == \"Low\":\n            severity_04_low += 1\n        elif finding.Severity == \"Negligible\":\n            severity_05_negligible += 1\n    alerted = false\n    if severity_01_critical > 0 or severity_02_high > 0:\n        alerted = true\n    return { \n        \"Severity01Critical\": severity_01_critical,\n        \"Severity02High\": severity_02_high,\n        \"Severity03Medium\": severity_03_medium,\n        \"Severity04Low\": severity_04_low,\n        \"Severity05Negligible\": severity_05_negligible,\n        \"Alerted\": alerted\n    }\n\n"
     owner-enricher.yaml: |
         enricher:
             - name: file

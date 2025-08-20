@@ -1,3 +1,3 @@
 enricher:
-- name: findings-summary
+- name: starlark
   config: findings-summary.star
