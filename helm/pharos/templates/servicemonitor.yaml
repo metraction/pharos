@@ -15,11 +15,11 @@ spec:
       relabelings:
         - targetLabel: type
           replacement: contexts
-    - path: /api/v1/metrics/vulnerabilities
+    - path: /api/v1/metrics/gauge
       port: http
       relabelings:
         - targetLabel: type
-          replacement: vulnerabilities
+          replacement: gauge
   namespaceSelector:
     matchNames:
       - {{ .Release.Namespace }}

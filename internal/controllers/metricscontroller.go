@@ -68,7 +68,7 @@ func NewMetricsController(api *huma.API, config *model.Config, taskChannel chan 
 
 func (mc *MetricsController) V1AddRoutes() {
 	{
-		op, handler := mc.V1GetVulnerbilityMetrics()
+		op, handler := mc.V1GetImageGaugeMetrics()
 		huma.Register(*mc.Api, op, handler)
 	}
 	{
@@ -115,31 +115,31 @@ func (mc *MetricsController) NewContextRegistry() (*prometheus.Registry, *promet
 	return registry, contexts, nil
 }
 
-func (mc *MetricsController) NewVulnerabilityRegistry() (*prometheus.Registry, *prometheus.GaugeVec, error) {
+func (mc *MetricsController) NewGaugeRegistry() (*prometheus.Registry, *prometheus.GaugeVec, error) {
 	registry := prometheus.NewRegistry()
 	desc := prometheus.GaugeOpts{
-		Name: "pharos_vulnerabilities",
-		Help: "Vulnerabilities for images",
+		Name: "pharos_image_gauge",
+		Help: "Gauge type metrics for images: int, float, bool",
 	}
-	vulnerabilities := prometheus.NewGaugeVec(desc, []string{"V1/image", "digest", "imageid", "platform", "severity"})
-	err := registry.Register(vulnerabilities)
+	gauges := prometheus.NewGaugeVec(desc, []string{"V1/image", "digest", "imageid", "platform", "label"})
+	err := registry.Register(gauges)
 	if err != nil {
 		return nil, nil, err
 
 	}
-	return registry, vulnerabilities, nil
+	return registry, gauges, nil
 }
 
 // Gets Vulnerability metrics for pharos controller, vulnerabilities, and images. We are registering an operation with a handler, and use writer and request from a middleware.
 // A bit of a hack, but now we have a common way to document things.
 
-func (mc *MetricsController) V1GetVulnerbilityMetrics() (huma.Operation, func(ctx context.Context, input *struct{}) (*struct{ Body string }, error)) {
+func (mc *MetricsController) V1GetImageGaugeMetrics() (huma.Operation, func(ctx context.Context, input *struct{}) (*struct{ Body string }, error)) {
 	return huma.Operation{
-			OperationID: "V1GetVulnerbilityMetrics",
+			OperationID: "V1GetImageGaugeMetrics",
 			Method:      "GET",
-			Path:        mc.Path + "/vulnerabilities",
-			Summary:     "Gets Vulnerbility metrics",
-			Description: "Gets Vulnerbility metrics",
+			Path:        mc.Path + "/gauge",
+			Summary:     "Gets gauge type metrics created by enrichers: int, bool, float",
+			Description: "Gets gauge type metrics created by enrichers: int, bool, float",
 			Tags:        []string{"V1/Metrics"},
 			Responses: map[string]*huma.Response{
 				"200": {
@@ -157,7 +157,7 @@ func (mc *MetricsController) V1GetVulnerbilityMetrics() (huma.Operation, func(ct
 				mc.Logger.Info().Str("Handler", "VulnerbilityMetrics").Float64("duration_seconds", v).Msg("Metrics handler duration")
 			}))
 			defer timer.ObserveDuration()
-			registry, vulnerabilites, err := mc.NewVulnerabilityRegistry()
+			registry, gauges, err := mc.NewGaugeRegistry()
 			if err != nil {
 				return nil, huma.Error500InternalServerError("Failed to create vulnerbility registry: " + err.Error())
 			}
@@ -181,19 +181,35 @@ func (mc *MetricsController) V1GetVulnerbilityMetrics() (huma.Operation, func(ct
 			}
 			for _, image := range images {
 				var fullImage model.PharosImageMeta
-				if err := databaseContext.DB.Preload("Findings").Preload("ContextRoots.Contexts").First(&fullImage, "image_id = ?", image.ImageId).Error; err != nil {
+				if err := databaseContext.DB.Preload("ContextRoots.Contexts").First(&fullImage, "image_id = ?", image.ImageId).Error; err != nil {
 					mc.Logger.Warn().Err(err).Str("imageId", image.ImageId).Msg("Failed to retrieve Docker image")
 				} else {
-					summary := fullImage.GetSummary()
-					mc.Logger.Debug().Str("imageId", image.ImageId).Any("summary", summary).Msg("Found image in database")
-
-					for level, count := range summary.Severities {
-						vulnerabilites.WithLabelValues(fullImage.ImageSpec, fullImage.IndexDigest, fullImage.ImageId, fullImage.ArchOS+"/"+fullImage.ArchName, level).Set(float64(count))
-					}
 					for _, contextRoot := range fullImage.ContextRoots {
 						for _, context := range contextRoot.Contexts {
 							for label := range context.Data {
-								mc.contextLabels[label] = ""
+								value := context.Data[label]
+								switch value.(type) {
+								case string, time.Time, time.Duration:
+									mc.contextLabels[label] = ""
+								case int, int32, int64, float32, float64:
+									fvalue, ok := value.(float64)
+									if !ok {
+										mc.Logger.Warn().Str("label", label).Msg("Unsupported numeric type for context label")
+									}
+									gauges.WithLabelValues(fullImage.ImageSpec, fullImage.IndexDigest, fullImage.ImageId, fullImage.ArchOS+"/"+fullImage.ArchName, label).Set(fvalue)
+								case bool:
+									bvalue, ok := value.(bool)
+									if !ok {
+										mc.Logger.Warn().Str("label", label).Msg("Unsupported numeric type for context label")
+									}
+									floatValue := 0.0
+									if bvalue {
+										floatValue = 1.0
+									}
+									gauges.WithLabelValues(fullImage.ImageSpec, fullImage.IndexDigest, fullImage.ImageId, fullImage.ArchOS+"/"+fullImage.ArchName, label).Set(floatValue)
+								default:
+
+								}
 							}
 						}
 					}
@@ -263,10 +279,10 @@ func (mc *MetricsController) V1GetContextMetrics() (huma.Operation, func(ctx con
 						for _, context := range contextRoot.Contexts {
 							for label, value := range context.Data {
 								switch v := value.(type) {
-								case string, int, int32, int64, float32, float64, bool, time.Time, time.Duration:
+								case string, time.Time, time.Duration:
 									mc.contextLabels[label] = fmt.Sprintf("%v", v)
 								default:
-									mc.contextLabels[label] = "UNSUPPORTED_TYPE"
+									//mc.contextLabels[label] = ""
 								}
 							}
 						}

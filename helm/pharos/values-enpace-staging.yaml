@@ -135,10 +135,10 @@ jiralert:
     ||Name||Value||
     {{ range .Labels.SortedPairs -}}
     {{ $color := "black" -}}
-    {{ if eq .Name "Critical" }}{{ $color = "purple" }}{{ end -}}
-    {{ if eq .Name "High" }}{{ $color = "red" }}{{ end -}}
-    {{ if eq .Name "Medium" }}{{ $color = "orange" }}{{ end -}}
-    {{ if eq .Name "Low" }}{{ $color = "yellow" }}{{ end -}}
+    {{ if eq .Name "Severity01Critical" }}{{ $color = "purple" }}{{ end -}}
+    {{ if eq .Name "Severity02High" }}{{ $color = "red" }}{{ end -}}
+    {{ if eq .Name "Severity03Medium" }}{{ $color = "orange" }}{{ end -}}
+    {{ if eq .Name "Severity04Low" }}{{ $color = "yellow" }}{{ end -}}
     |{{ .Name }}|{color:{{ $color }}}{{ .Value }}{color}|
     {{ end }}
     h4. Annotations:

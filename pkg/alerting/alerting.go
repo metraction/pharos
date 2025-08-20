@@ -64,13 +64,6 @@ func HandleAlerts(databaseContext *model.DatabaseContext) func(item model.Pharos
 					}
 				}
 			}
-			severities := item.GetSummary().Severities
-			for k, v := range severities {
-				labels = append(labels, model.AlertLabel{
-					Name:  k,
-					Value: fmt.Sprintf("%v", v),
-				})
-			}
 			status := "firing"
 			if contextRoot.IsExpired() {
 				status = "resolved"
@@ -97,6 +90,10 @@ func HandleAlerts(databaseContext *model.DatabaseContext) func(item model.Pharos
 				databaseContext.DB.Create(&alert)
 			} else {
 				databaseContext.Logger.Debug().Str("fingerprint", alert.Fingerprint).Str("imageid", item.ImageId).Str("imagespec", item.ImageSpec).Str("status", alert.Status).Msg("Updating existing alert")
+				tx := databaseContext.DB.Delete(&model.AlertLabel{}, "alert_fingerprint = ?", alert.Fingerprint)
+				if tx.Error != nil {
+					databaseContext.Logger.Error().Err(tx.Error).Msg("Failed to delete old alert labels")
+				}
 				databaseContext.DB.Save(&alert)
 			}
 		}
