@@ -68,7 +68,7 @@ func NewMetricsController(api *huma.API, config *model.Config, taskChannel chan 
 
 func (mc *MetricsController) V1AddRoutes() {
 	{
-		op, handler := mc.V1GetVulnerbilityMetrics()
+		op, handler := mc.V1GetImageGaugeMetrics()
 		huma.Register(*mc.Api, op, handler)
 	}
 	{
@@ -118,8 +118,8 @@ func (mc *MetricsController) NewContextRegistry() (*prometheus.Registry, *promet
 func (mc *MetricsController) NewVulnerabilityRegistry() (*prometheus.Registry, *prometheus.GaugeVec, error) {
 	registry := prometheus.NewRegistry()
 	desc := prometheus.GaugeOpts{
-		Name: "pharos_image_metrics",
-		Help: "Metrics for images",
+		Name: "pharos_image_gauge",
+		Help: "Gauge type metrics for images: int, float, bool",
 	}
 	vulnerabilities := prometheus.NewGaugeVec(desc, []string{"V1/image", "digest", "imageid", "platform", "label"})
 	err := registry.Register(vulnerabilities)
@@ -133,13 +133,13 @@ func (mc *MetricsController) NewVulnerabilityRegistry() (*prometheus.Registry, *
 // Gets Vulnerability metrics for pharos controller, vulnerabilities, and images. We are registering an operation with a handler, and use writer and request from a middleware.
 // A bit of a hack, but now we have a common way to document things.
 
-func (mc *MetricsController) V1GetVulnerbilityMetrics() (huma.Operation, func(ctx context.Context, input *struct{}) (*struct{ Body string }, error)) {
+func (mc *MetricsController) V1GetImageGaugeMetrics() (huma.Operation, func(ctx context.Context, input *struct{}) (*struct{ Body string }, error)) {
 	return huma.Operation{
-			OperationID: "V1GetVulnerbilityMetrics",
+			OperationID: "V1GetImageGaugeMetrics",
 			Method:      "GET",
-			Path:        mc.Path + "/vulnerabilities",
-			Summary:     "Gets Vulnerbility metrics",
-			Description: "Gets Vulnerbility metrics",
+			Path:        mc.Path + "/gauge",
+			Summary:     "Gets gauge type metrics created by enrichers: int, bool, float",
+			Description: "Gets gauge type metrics created by enrichers: int, bool, float",
 			Tags:        []string{"V1/Metrics"},
 			Responses: map[string]*huma.Response{
 				"200": {
@@ -196,23 +196,17 @@ func (mc *MetricsController) V1GetVulnerbilityMetrics() (huma.Operation, func(ct
 									if !ok {
 										mc.Logger.Warn().Str("label", label).Msg("Unsupported numeric type for context label")
 									}
-									// if !ok {
-									// 	// Try other numeric types
-									// 	switch v := value.(type) {
-									// 	case int:
-									// 		fvalue = float64(v)
-									// 	case int32:
-									// 		fvalue = float64(v)
-									// 	case int64:
-									// 		fvalue = float64(v)
-									// 	case float32:
-									// 		fvalue = float64(v)
-									// 	default:
-									// 		mc.Logger.Info().Str("label", label).Msg("Unsupported numeric type for context label")
-									// 		continue
-									// 	}
-									// }
 									vulnerabilities.WithLabelValues(fullImage.ImageSpec, fullImage.IndexDigest, fullImage.ImageId, fullImage.ArchOS+"/"+fullImage.ArchName, label).Set(fvalue)
+								case bool:
+									bvalue, ok := value.(bool)
+									if !ok {
+										mc.Logger.Warn().Str("label", label).Msg("Unsupported numeric type for context label")
+									}
+									floatValue := 0.0
+									if bvalue {
+										floatValue = 1.0
+									}
+									vulnerabilities.WithLabelValues(fullImage.ImageSpec, fullImage.IndexDigest, fullImage.ImageId, fullImage.ArchOS+"/"+fullImage.ArchName, label).Set(floatValue)
 								default:
 
 								}
