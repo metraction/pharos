@@ -25,8 +25,8 @@ func TestLoadEnrichersFromFile(t *testing.T) {
 		t.Errorf("Order items don't match expected values")
 	}
 
-	if len(enrichers.Sources) != 2 {
-		t.Errorf("Expected 2 items in Sources, got %d", len(enrichers.Sources))
+	if len(enrichers.Sources) != 3 {
+		t.Errorf("Expected 3 items in Sources, got %d", len(enrichers.Sources))
 	}
 	if enrichers.Sources[0].Name != "eos" || enrichers.Sources[1].Name != "owner" {
 		t.Errorf("Source names don't match expected values")
