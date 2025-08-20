@@ -118,10 +118,10 @@ func (mc *MetricsController) NewContextRegistry() (*prometheus.Registry, *promet
 func (mc *MetricsController) NewVulnerabilityRegistry() (*prometheus.Registry, *prometheus.GaugeVec, error) {
 	registry := prometheus.NewRegistry()
 	desc := prometheus.GaugeOpts{
-		Name: "pharos_vulnerabilities",
-		Help: "Vulnerabilities for images",
+		Name: "pharos_image_metrics",
+		Help: "Metrics for images",
 	}
-	vulnerabilities := prometheus.NewGaugeVec(desc, []string{"V1/image", "digest", "imageid", "platform", "severity"})
+	vulnerabilities := prometheus.NewGaugeVec(desc, []string{"V1/image", "digest", "imageid", "platform", "label"})
 	err := registry.Register(vulnerabilities)
 	if err != nil {
 		return nil, nil, err
@@ -157,7 +157,7 @@ func (mc *MetricsController) V1GetVulnerbilityMetrics() (huma.Operation, func(ct
 				mc.Logger.Info().Str("Handler", "VulnerbilityMetrics").Float64("duration_seconds", v).Msg("Metrics handler duration")
 			}))
 			defer timer.ObserveDuration()
-			registry, _, err := mc.NewVulnerabilityRegistry()
+			registry, vulnerabilities, err := mc.NewVulnerabilityRegistry()
 			if err != nil {
 				return nil, huma.Error500InternalServerError("Failed to create vulnerbility registry: " + err.Error())
 			}
@@ -187,7 +187,35 @@ func (mc *MetricsController) V1GetVulnerbilityMetrics() (huma.Operation, func(ct
 					for _, contextRoot := range fullImage.ContextRoots {
 						for _, context := range contextRoot.Contexts {
 							for label := range context.Data {
-								mc.contextLabels[label] = ""
+								value := context.Data[label]
+								switch value.(type) {
+								case string, time.Time, time.Duration:
+									mc.contextLabels[label] = ""
+								case int, int32, int64, float32, float64:
+									fvalue, ok := value.(float64)
+									if !ok {
+										mc.Logger.Warn().Str("label", label).Msg("Unsupported numeric type for context label")
+									}
+									// if !ok {
+									// 	// Try other numeric types
+									// 	switch v := value.(type) {
+									// 	case int:
+									// 		fvalue = float64(v)
+									// 	case int32:
+									// 		fvalue = float64(v)
+									// 	case int64:
+									// 		fvalue = float64(v)
+									// 	case float32:
+									// 		fvalue = float64(v)
+									// 	default:
+									// 		mc.Logger.Info().Str("label", label).Msg("Unsupported numeric type for context label")
+									// 		continue
+									// 	}
+									// }
+									vulnerabilities.WithLabelValues(fullImage.ImageSpec, fullImage.IndexDigest, fullImage.ImageId, fullImage.ArchOS+"/"+fullImage.ArchName, label).Set(fvalue)
+								default:
+
+								}
 							}
 						}
 					}
@@ -257,10 +285,10 @@ func (mc *MetricsController) V1GetContextMetrics() (huma.Operation, func(ctx con
 						for _, context := range contextRoot.Contexts {
 							for label, value := range context.Data {
 								switch v := value.(type) {
-								case string, int, int32, int64, float32, float64, bool, time.Time, time.Duration:
+								case string, time.Time, time.Duration:
 									mc.contextLabels[label] = fmt.Sprintf("%v", v)
 								default:
-									mc.contextLabels[label] = "UNSUPPORTED_TYPE"
+									//mc.contextLabels[label] = ""
 								}
 							}
 						}
