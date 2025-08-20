@@ -19,9 +19,9 @@ def enrich(input):
             severity_04_low += 1
         elif finding.Severity == "Negligible":
             severity_05_negligible += 1
-    alerted = false
+    alerted = False
     if severity_01_critical > 0 or severity_02_high > 0:
-        alerted = true
+        alerted = True
     return { 
         "Severity01Critical": severity_01_critical,
         "Severity02High": severity_02_high,
