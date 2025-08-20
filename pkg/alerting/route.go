@@ -117,7 +117,6 @@ func (r *Route) UpdateAlertGroups() {
 			r.Receiver.SendAlerts(group, r)
 		}
 	}
-
 }
 
 func (r *Route) GetRouteConfigForChild(childRouteconfig model.RouteConfig) *model.RouteConfig {

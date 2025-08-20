@@ -1,0 +1,3 @@
+enricher:
+- name: findings-summary
+  config: findings-summary.star
