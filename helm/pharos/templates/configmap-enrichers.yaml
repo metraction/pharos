@@ -6,8 +6,11 @@ data:
             - owner
         sources:
             - name: eos
+              path: eos-enricher.yaml
             - name: owner
+              path: owner-enricher.yaml
             - name: findings-summary
+              path: findings-summary-enricher.yaml
     eos-enricher.yaml: |
         enricher:
             - name: file
