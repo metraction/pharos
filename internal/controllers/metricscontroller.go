@@ -115,19 +115,19 @@ func (mc *MetricsController) NewContextRegistry() (*prometheus.Registry, *promet
 	return registry, contexts, nil
 }
 
-func (mc *MetricsController) NewVulnerabilityRegistry() (*prometheus.Registry, *prometheus.GaugeVec, error) {
+func (mc *MetricsController) NewGaugeRegistry() (*prometheus.Registry, *prometheus.GaugeVec, error) {
 	registry := prometheus.NewRegistry()
 	desc := prometheus.GaugeOpts{
 		Name: "pharos_image_gauge",
 		Help: "Gauge type metrics for images: int, float, bool",
 	}
-	vulnerabilities := prometheus.NewGaugeVec(desc, []string{"V1/image", "digest", "imageid", "platform", "label"})
-	err := registry.Register(vulnerabilities)
+	gauges := prometheus.NewGaugeVec(desc, []string{"V1/image", "digest", "imageid", "platform", "label"})
+	err := registry.Register(gauges)
 	if err != nil {
 		return nil, nil, err
 
 	}
-	return registry, vulnerabilities, nil
+	return registry, gauges, nil
 }
 
 // Gets Vulnerability metrics for pharos controller, vulnerabilities, and images. We are registering an operation with a handler, and use writer and request from a middleware.
@@ -157,7 +157,7 @@ func (mc *MetricsController) V1GetImageGaugeMetrics() (huma.Operation, func(ctx 
 				mc.Logger.Info().Str("Handler", "VulnerbilityMetrics").Float64("duration_seconds", v).Msg("Metrics handler duration")
 			}))
 			defer timer.ObserveDuration()
-			registry, vulnerabilities, err := mc.NewVulnerabilityRegistry()
+			registry, gauges, err := mc.NewGaugeRegistry()
 			if err != nil {
 				return nil, huma.Error500InternalServerError("Failed to create vulnerbility registry: " + err.Error())
 			}
@@ -181,7 +181,7 @@ func (mc *MetricsController) V1GetImageGaugeMetrics() (huma.Operation, func(ctx 
 			}
 			for _, image := range images {
 				var fullImage model.PharosImageMeta
-				if err := databaseContext.DB.Preload("Findings").Preload("ContextRoots.Contexts").First(&fullImage, "image_id = ?", image.ImageId).Error; err != nil {
+				if err := databaseContext.DB.Preload("ContextRoots.Contexts").First(&fullImage, "image_id = ?", image.ImageId).Error; err != nil {
 					mc.Logger.Warn().Err(err).Str("imageId", image.ImageId).Msg("Failed to retrieve Docker image")
 				} else {
 					for _, contextRoot := range fullImage.ContextRoots {
@@ -196,7 +196,7 @@ func (mc *MetricsController) V1GetImageGaugeMetrics() (huma.Operation, func(ctx 
 									if !ok {
 										mc.Logger.Warn().Str("label", label).Msg("Unsupported numeric type for context label")
 									}
-									vulnerabilities.WithLabelValues(fullImage.ImageSpec, fullImage.IndexDigest, fullImage.ImageId, fullImage.ArchOS+"/"+fullImage.ArchName, label).Set(fvalue)
+									gauges.WithLabelValues(fullImage.ImageSpec, fullImage.IndexDigest, fullImage.ImageId, fullImage.ArchOS+"/"+fullImage.ArchName, label).Set(fvalue)
 								case bool:
 									bvalue, ok := value.(bool)
 									if !ok {
@@ -206,7 +206,7 @@ func (mc *MetricsController) V1GetImageGaugeMetrics() (huma.Operation, func(ctx 
 									if bvalue {
 										floatValue = 1.0
 									}
-									vulnerabilities.WithLabelValues(fullImage.ImageSpec, fullImage.IndexDigest, fullImage.ImageId, fullImage.ArchOS+"/"+fullImage.ArchName, label).Set(floatValue)
+									gauges.WithLabelValues(fullImage.ImageSpec, fullImage.IndexDigest, fullImage.ImageId, fullImage.ArchOS+"/"+fullImage.ArchName, label).Set(floatValue)
 								default:
 
 								}
