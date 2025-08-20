@@ -8,7 +8,7 @@ def enrich(input):
     severity_03_medium = 0
     severity_04_low = 0
     severity_05_negligible = 0
-    if data.Image.Findings is not None:
+    if data.Image.Findings != None:
         for finding in data.Image.Findings:
             if finding.Severity == "Critical":
                 severity_01_critical += 1
