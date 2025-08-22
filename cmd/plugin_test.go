@@ -92,6 +92,30 @@ func TestStarlarkPlugin(t *testing.T) {
 	}
 }
 
+func TestCreateConfigMapConventions_HelmMode(t *testing.T) {
+	enrichers := &model.EnrichersConfig{
+		Order: []string{"eos", "owner", "findings-summary"},
+		Sources: []model.EnricherSource{
+			{Name: "eos"},
+			{Name: "owner"},
+			{Name: "findings-summary"},
+		},
+	}
+	configMap, err := createConfigMap(enrichers, "custom-name", false)
+	if err != nil {
+		t.Fatalf("createConfigMap error: %v", err)
+	}
+
+	data, ok := configMap["data"].(map[string]*yaml.Node)
+	if !ok {
+		t.Fatalf("data type = %T, want map[string]*yaml.Node", configMap["data"])
+	}
+
+	if data["enrichers.yaml"] == nil {
+		t.Fatalf("enrichers type = %T, want map[string]*yaml.Node", configMap["data"])
+	}
+}
+
 // getMapKeys returns a sorted slice of keys from a map[string]interface{}.
 func getMapKeys(m map[string]interface{}) []string {
 	keys := make([]string, 0, len(m))

@@ -102,14 +102,44 @@ var pluginConfigMapCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		// Load enrichers from file
-		enrichers, err := model.LoadEnrichersFromFile(args[0])
+		enrichers, err := enricher.LoadEnrichersFromFile(args[0])
 		if err != nil {
 			fmt.Printf("Error loading Enrichers from %s: %v\n", args[0], err)
 			return
 		}
 
 		// Create configmap with custom name if provided
-		configMap, err := createConfigMap(enrichers, configMapName)
+		configMap, err := createConfigMap(enrichers, configMapName, false)
+		if err != nil {
+			fmt.Printf("Error creating ConfigMap: %v\n", err)
+			return
+		}
+
+		// Print configmap
+		out, err := yaml.Marshal(configMap)
+		if err != nil {
+			fmt.Printf("Error: %v\n", err)
+			return
+		}
+		fmt.Println(string(out))
+	},
+}
+
+var pluginHelmCmd = &cobra.Command{
+	Use:   "helm [enrichers.yaml]",
+	Short: "Create a configmap for helm from an enrichers.yaml file",
+	Long:  `Create a configmap for helm from an enrichers.yaml file and include all referenced files.`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		// Load enrichers from file
+		enrichers, err := enricher.LoadEnrichersFromFile(args[0])
+		if err != nil {
+			fmt.Printf("Error loading Enrichers from %s: %v\n", args[0], err)
+			return
+		}
+
+		// Create configmap with custom name if provided
+		configMap, err := createConfigMap(enrichers, configMapName, true)
 		if err != nil {
 			fmt.Printf("Error creating ConfigMap: %v\n", err)
 			return
@@ -225,7 +255,7 @@ func CreateEnrichersFlow(plugin streams.Source, enrichers *model.EnrichersConfig
 
 // createConfigMap generates a Kubernetes ConfigMap from the enrichers configuration
 // It collects all files referenced by the enrichers and includes them in the ConfigMap
-func createConfigMap(enrichers *model.EnrichersConfig, name string) (map[string]interface{}, error) {
+func createConfigMap(enrichers *model.EnrichersConfig, name string, helm bool) (map[string]interface{}, error) {
 	// Use default name if not provided
 	configMapName := "pharos-enrichers"
 	if name != "" {
@@ -297,8 +327,12 @@ func createConfigMap(enrichers *model.EnrichersConfig, name string) (map[string]
 					// Use a YAML block scalar so the Helm template stays readable and preserves newlines after rendering.
 					encoded := base64.StdEncoding.EncodeToString(content)
 					// Indent decoded content so each line aligns under the YAML value position (8 spaces under data: keys)
-					helmExpr := "{{ b64dec \"" + encoded + "\" | nindent 8 }}"
-					configMapData[configMapKey] = &yaml.Node{Kind: yaml.ScalarNode, Style: yaml.LiteralStyle, Value: helmExpr}
+					if helm {
+						helmExpr := "{{ b64dec \"" + encoded + "\" | nindent 8 }}"
+						configMapData[configMapKey] = &yaml.Node{Kind: yaml.ScalarNode, Style: yaml.LiteralStyle, Value: helmExpr}
+					} else {
+						configMapData[configMapKey] = &yaml.Node{Kind: yaml.ScalarNode, Style: yaml.LiteralStyle, Value: string(content)}
+					}
 				} else if strings.ToLower(relPath) == "enricher.yaml" {
 					// Parse the YAML content
 					mapperConfig, err := mappers.LoadMappersConfig(content)
@@ -355,6 +389,7 @@ func flattenDirectory(source model.EnricherSource, path string) string {
 func init() {
 	rootCmd.AddCommand(pluginCmd)
 	pluginCmd.AddCommand(pluginConfigMapCmd)
+	pluginCmd.AddCommand(pluginHelmCmd)
 	pluginCmd.AddCommand(pluginDeconfigMapCmd)
 	pluginCmd.AddCommand(testCmd)
 
