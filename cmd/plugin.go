@@ -102,14 +102,44 @@ var pluginConfigMapCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		// Load enrichers from file
-		enrichers, err := model.LoadEnrichersFromFile(args[0])
+		enrichers, err := enricher.LoadEnrichersFromFile(args[0])
 		if err != nil {
 			fmt.Printf("Error loading Enrichers from %s: %v\n", args[0], err)
 			return
 		}
 
 		// Create configmap with custom name if provided
-		configMap, err := createConfigMap(enrichers, configMapName)
+		configMap, err := createConfigMap(enrichers, configMapName, false)
+		if err != nil {
+			fmt.Printf("Error creating ConfigMap: %v\n", err)
+			return
+		}
+
+		// Print configmap
+		out, err := yaml.Marshal(configMap)
+		if err != nil {
+			fmt.Printf("Error: %v\n", err)
+			return
+		}
+		fmt.Println(string(out))
+	},
+}
+
+var pluginHelmCmd = &cobra.Command{
+	Use:   "helm [enrichers.yaml]",
+	Short: "Create a configmap for helm from an enrichers.yaml file",
+	Long:  `Create a configmap for helm from an enrichers.yaml file and include all referenced files.`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		// Load enrichers from file
+		enrichers, err := enricher.LoadEnrichersFromFile(args[0])
+		if err != nil {
+			fmt.Printf("Error loading Enrichers from %s: %v\n", args[0], err)
+			return
+		}
+
+		// Create configmap with custom name if provided
+		configMap, err := createConfigMap(enrichers, configMapName, true)
 		if err != nil {
 			fmt.Printf("Error creating ConfigMap: %v\n", err)
 			return
@@ -225,7 +255,7 @@ func CreateEnrichersFlow(plugin streams.Source, enrichers *model.EnrichersConfig
 
 // createConfigMap generates a Kubernetes ConfigMap from the enrichers configuration
 // It collects all files referenced by the enrichers and includes them in the ConfigMap
-func createConfigMap(enrichers *model.EnrichersConfig, name string) (map[string]interface{}, error) {
+func createConfigMap(enrichers *model.EnrichersConfig, name string, helm bool) (map[string]interface{}, error) {
 	// Use default name if not provided
 	configMapName := "pharos-enrichers"
 	if name != "" {
@@ -263,66 +293,76 @@ func createConfigMap(enrichers *model.EnrichersConfig, name string) (map[string]
 			enrichers.Sources[i].Git = nil
 		} else if source.Path != "" {
 			enricherPath = source.Path
+			enrichers.Sources[i].Path = source.Name + "-enricher.yaml"
 		} else {
 			continue // Skip if no path or Git URL is provided
 		}
 
-		// Walk through the enricher directory and add all files to the ConfigMap
-		err := filepath.Walk(enricherPath, func(path string, info os.FileInfo, err error) error {
+		// Process the enricher.yaml file first
+		enricherYamlPath := filepath.Join(enricherPath, "enricher.yaml")
+		if _, err := os.Stat(enricherYamlPath); err == nil {
+			content, err := os.ReadFile(enricherYamlPath)
 			if err != nil {
-				return err
+				return nil, fmt.Errorf("failed to read file %s: %w", enricherYamlPath, err)
 			}
 
-			if !info.IsDir() {
-				// Read file content
-				content, err := os.ReadFile(path)
-				if err != nil {
-					return fmt.Errorf("failed to read file %s: %w", path, err)
+			// Parse the YAML content to get referenced files
+			mapperConfig, err := mappers.LoadMappersConfig(content)
+			if err != nil {
+				return nil, fmt.Errorf("failed to load mappers config: %w", err)
+			}
+
+			// Collect all referenced files
+			referencedFiles := make(map[string]bool)
+			referencedFiles["enricher.yaml"] = true // Always include the enricher.yaml itself
+
+			for _, configs := range mapperConfig {
+				for i := range configs {
+					if configs[i].Config != "" {
+						referencedFiles[configs[i].Config] = true
+					}
+					if configs[i].Name == "file" {
+						configs[i].Ref = mappers.CreateRef(configs[i].Config)
+					}
+					configs[i].Config = flattenDirectory(source, configs[i].Config)
+				}
+			}
+
+			// Process each referenced file
+			for fileName := range referencedFiles {
+				filePath := filepath.Join(enricherPath, fileName)
+				if _, err := os.Stat(filePath); err != nil {
+					continue // Skip files that don't exist
 				}
 
-				// Get relative path for ConfigMap key
-				relPath, err := filepath.Rel(enricherPath, path)
+				fileContent, err := os.ReadFile(filePath)
 				if err != nil {
-					return fmt.Errorf("failed to get relative path for %s: %w", path, err)
+					return nil, fmt.Errorf("failed to read file %s: %w", filePath, err)
 				}
 
-				// Use the source name as prefix in the ConfigMap to avoid conflicts
-				configMapKey := flattenDirectory(source, relPath)
+				configMapKey := flattenDirectory(source, fileName)
+				lowerPath := strings.ToLower(filePath)
+				ext := filepath.Ext(lowerPath)
 
-				path := strings.ToLower(path)
-				// Check if the file has an extension that might contain template expressions
-				ext := filepath.Ext(path)
-				if ext == ".hbs" || ext == ".tmpl" || ext == ".tpl" || strings.Contains(string(content), "{{") {
-					// For template-like content, embed a Helm-safe expression that decodes base64 at render time.
-					// Use a YAML block scalar so the Helm template stays readable and preserves newlines after rendering.
-					encoded := base64.StdEncoding.EncodeToString(content)
-					// Indent decoded content so each line aligns under the YAML value position (8 spaces under data: keys)
-					helmExpr := "{{ b64dec \"" + encoded + "\" | nindent 8 }}"
-					configMapData[configMapKey] = &yaml.Node{Kind: yaml.ScalarNode, Style: yaml.LiteralStyle, Value: helmExpr}
-				} else if strings.ToLower(relPath) == "enricher.yaml" {
-					// Parse the YAML content
-					mapperConfig, err := mappers.LoadMappersConfig(content)
-					if err != nil {
-						return fmt.Errorf("failed to load mappers config: %w", err)
-					}
-					for _, configs := range mapperConfig {
-						for i, _ := range configs {
-							if configs[i].Name == "file" {
-								configs[i].Ref = mappers.CreateRef(configs[i].Config)
-							}
-							configs[i].Config = flattenDirectory(source, configs[i].Config)
-						}
-					}
-
-					// Marshal the modified config back to YAML
+				if fileName == "enricher.yaml" {
+					// Use the modified config for enricher.yaml
 					modifiedContent, err := yaml.Marshal(mapperConfig)
 					if err != nil {
-						return fmt.Errorf("failed to marshal modified enricher config: %w", err)
+						return nil, fmt.Errorf("failed to marshal modified enricher config: %w", err)
 					}
 					configMapData[configMapKey] = &yaml.Node{Kind: yaml.ScalarNode, Style: yaml.LiteralStyle, Value: string(modifiedContent)}
+				} else if ext == ".hbs" || ext == ".tmpl" || ext == ".tpl" || strings.Contains(string(fileContent), "{{") {
+					// Handle template files
+					if helm {
+						encoded := base64.StdEncoding.EncodeToString(fileContent)
+						helmExpr := "{{ b64dec \"" + encoded + "\" | nindent 8 }}"
+						configMapData[configMapKey] = &yaml.Node{Kind: yaml.ScalarNode, Style: yaml.LiteralStyle, Value: helmExpr}
+					} else {
+						configMapData[configMapKey] = &yaml.Node{Kind: yaml.ScalarNode, Style: yaml.LiteralStyle, Value: string(fileContent)}
+					}
 				} else {
-					// Store regular content as is
-					value := string(content)
+					// Handle regular files
+					value := string(fileContent)
 					style := yaml.Style(0)
 					if strings.Contains(value, "\n") {
 						style = yaml.LiteralStyle
@@ -330,11 +370,6 @@ func createConfigMap(enrichers *model.EnrichersConfig, name string) (map[string]
 					configMapData[configMapKey] = &yaml.Node{Kind: yaml.ScalarNode, Style: style, Value: value}
 				}
 			}
-			return nil
-		})
-
-		if err != nil {
-			return nil, fmt.Errorf("error processing enricher files: %w", err)
 		}
 	}
 
@@ -355,6 +390,7 @@ func flattenDirectory(source model.EnricherSource, path string) string {
 func init() {
 	rootCmd.AddCommand(pluginCmd)
 	pluginCmd.AddCommand(pluginConfigMapCmd)
+	pluginCmd.AddCommand(pluginHelmCmd)
 	pluginCmd.AddCommand(pluginDeconfigMapCmd)
 	pluginCmd.AddCommand(testCmd)
 

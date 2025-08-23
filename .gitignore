@@ -38,3 +38,4 @@ _data/
 scantask.json
 *.db
 *.db.wal
+.idea

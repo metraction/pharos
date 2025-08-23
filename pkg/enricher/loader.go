@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
+	"gopkg.in/yaml.v3"
 
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/pkg/mappers"
@@ -23,7 +24,7 @@ func LoadEnrichersConfig(enrichersPath string) (*model.EnrichersConfig, error) {
 	// Check if args[0] points to enrichers.yaml file
 	if filepath.Base(enrichersPath) == "enrichers.yaml" {
 		logger.Info().Msgf("Loading Enrichers from file: %s\n", enrichersPath)
-		enrichers, err = model.LoadEnrichersFromFile(enrichersPath)
+		enrichers, err = LoadEnrichersFromFile(enrichersPath)
 		if err != nil {
 			logger.Error().Msgf("Error loading Enrichers from %s: %v\n", enrichersPath, err)
 			return nil, err
@@ -43,6 +44,59 @@ func LoadEnrichersConfig(enrichersPath string) (*model.EnrichersConfig, error) {
 		}
 	}
 	return enrichers, nil
+}
+
+// LoadEnrichersFromFile loads an Enrichers configuration from a YAML file.
+// The YAML file can either contain a direct Enrichers struct or have it nested under an "enrichers" key.
+func LoadEnrichersFromFile(path string) (*model.EnrichersConfig, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read enrichers file: %w", err)
+	}
+
+	// As configuration can contain auth data allow env variables
+	expandedContent := os.ExpandEnv(string(data))
+	var wrapper struct {
+		Enrichers model.EnrichersConfig `yaml:"enrichers"`
+	}
+
+	err = yaml.Unmarshal([]byte(expandedContent), &wrapper)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse enrichers file: %w", err)
+	}
+
+	// Check if we got any data
+	if len(wrapper.Enrichers.Order) == 0 && len(wrapper.Enrichers.Sources) == 0 {
+		return nil, fmt.Errorf("no valid enrichers configuration found in file")
+	}
+	enrichers := &wrapper.Enrichers
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to deserialize enrichers: %w", err)
+	}
+
+	dir := filepath.Dir(path)
+	applyEnrichersConventions(enrichers, dir)
+	return enrichers, nil
+}
+
+func applyEnrichersConventions(enrichers *model.EnrichersConfig, dir string) {
+	for i := range enrichers.Sources {
+		defaultPathToName(enrichers, i)
+		defaultRelativePathToEnricherDir(enrichers, i, dir)
+	}
+}
+
+func defaultRelativePathToEnricherDir(enrichers *model.EnrichersConfig, i int, dir string) {
+	if !filepath.IsAbs(enrichers.Sources[i].Path) {
+		enrichers.Sources[i].Path = filepath.Join(dir, enrichers.Sources[i].Path)
+	}
+}
+
+func defaultPathToName(enrichers *model.EnrichersConfig, i int) {
+	if enrichers.Sources[i].Path == "" {
+		enrichers.Sources[i].Path = enrichers.Sources[i].Name
+	}
 }
 
 func FetchEnricherFromGit(enricherUri string, destinationDir string) (enricherDir string, err error) {
