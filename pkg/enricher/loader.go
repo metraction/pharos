@@ -56,28 +56,25 @@ func LoadEnrichersFromFile(path string) (*model.EnrichersConfig, error) {
 
 	// As configuration can contain auth data allow env variables
 	expandedContent := os.ExpandEnv(string(data))
-	var wrapper struct {
-		Enrichers model.EnrichersConfig `yaml:"enrichers"`
-	}
+	var enrichers model.EnrichersConfig
 
-	err = yaml.Unmarshal([]byte(expandedContent), &wrapper)
+	err = yaml.Unmarshal([]byte(expandedContent), &enrichers)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse enrichers file: %w", err)
 	}
 
 	// Check if we got any data
-	if len(wrapper.Enrichers.Order) == 0 && len(wrapper.Enrichers.Sources) == 0 {
+	if len(enrichers.Order) == 0 && len(enrichers.Sources) == 0 {
 		return nil, fmt.Errorf("no valid enrichers configuration found in file")
 	}
-	enrichers := &wrapper.Enrichers
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to deserialize enrichers: %w", err)
 	}
 
 	dir := filepath.Dir(path)
-	applyEnrichersConventions(enrichers, dir)
-	return enrichers, nil
+	applyEnrichersConventions(&enrichers, dir)
+	return &enrichers, nil
 }
 
 func applyEnrichersConventions(enrichers *model.EnrichersConfig, dir string) {
