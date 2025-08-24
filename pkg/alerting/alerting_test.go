@@ -41,7 +41,7 @@ func StartMockServer(t *testing.T) {
 	})
 
 	server := &http.Server{
-		Addr:    ":8081",
+		Addr:    ":8085", // TODO pick port randomly as it clashes with integration tests
 		Handler: mux,
 	}
 
