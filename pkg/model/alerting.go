@@ -31,9 +31,9 @@ type Alert struct {
 	Status       string            `json:"status"`
 	Labels       []AlertLabel      `json:"labels" gorm:"foreignKey:AlertFingerprint;references:Fingerprint;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Annotations  []AlertAnnotation `json:"annotations" gorm:"foreignKey:AlertFingerprint;references:Fingerprint;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	StartsAt     time.Time         `json:"startsAt"`
-	EndsAt       time.Time         `json:"endsAt"`
-	GeneratorURL string            `json:"generatorURL"`
+	StartsAt     time.Time         `json:"startsAt" gorm:"index"`
+	EndsAt       time.Time         `json:"endsAt" gorm:"index"`
+	GeneratorURL string            `json:"generatorURL" gorm:"index"`
 	Fingerprint  string            `json:"fingerprint" gorm:"primaryKey"` // see how this is defined: https://stackoverflow.com/questions/59066569/is-the-fingerprint-field-in-alertmanager-unique
 }
 
