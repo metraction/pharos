@@ -5,10 +5,24 @@ import (
 	"log"
 	"reflect"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/reugn/go-streams/flow"
 	"github.com/traefik/yaegi/interp"
 	"github.com/traefik/yaegi/stdlib"
 )
+
+// semverConstraint is a wrapper function for Yaegi to use semver constraint checking
+func semverConstraint(version, constraint string) bool {
+	c, err := semver.NewConstraint(constraint)
+	if err != nil {
+		return false
+	}
+	v, err := semver.NewVersion(version)
+	if err != nil {
+		return false
+	}
+	return c.Check(v)
+}
 
 func NewYaegi(rule string) flow.MapFunction[map[string]interface{}, map[string]interface{}] {
 	fmt.Println("Creating Yaegi mapper for rule:", rule)
@@ -19,8 +33,21 @@ func NewYaegi(rule string) flow.MapFunction[map[string]interface{}, map[string]i
 		// Use the standard library
 		i.Use(stdlib.Symbols)
 
+		// Define the semverConstraint function as a global variable
+		_, err := i.Eval("var semverConstraint func(string, string) bool")
+		if err != nil {
+			log.Fatalf("Failed to define semverConstraint variable: %v", err)
+		}
+		
+		// Set the function value
+		semverConstraintVal, err := i.Eval("semverConstraint")
+		if err != nil {
+			log.Fatalf("Failed to get semverConstraint variable: %v", err)
+		}
+		semverConstraintVal.Set(reflect.ValueOf(semverConstraint))
+
 		// Execute the Yaegi script first
-		_, err := i.EvalPath(rule)
+		_, err = i.EvalPath(rule)
 		if err != nil {
 			log.Fatalf("Failed to execute Yaegi script: %v", err)
 		}
