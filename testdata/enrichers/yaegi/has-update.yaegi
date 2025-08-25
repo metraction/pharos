@@ -1,0 +1,162 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"regexp"
+	"strconv"
+	"strings"
+	"time"
+)
+
+type ArtifactHubPackage struct {
+	AppVersion string `json:"app_version"`
+	Version    string `json:"version"`
+}
+
+// enrich function that checks for Velero image updates
+func enrich(payload map[string]interface{}) map[string]interface{} {
+	result := make(map[string]interface{})
+	result["hasUpdate"] = false
+	result["reason"] = "No update check performed"
+
+	// Extract image information from payload
+	payloadData, ok := payload["payload"].(map[string]interface{})
+	if !ok {
+		result["reason"] = "Invalid payload structure"
+		return result
+	}
+
+	imageData, ok := payloadData["Image"].(map[string]interface{})
+	if !ok {
+		result["reason"] = "No image data found"
+		return result
+	}
+
+	imageSpec, ok := imageData["ImageSpec"].(string)
+	if !ok {
+		result["reason"] = "No image spec found"
+		return result
+	}
+
+	// Check if this is a Velero image
+	if !strings.Contains(strings.ToLower(imageSpec), "velero") {
+		result["reason"] = "Not a Velero image"
+		return result
+	}
+
+	// Extract version from image spec (e.g., velero/velero:v1.12.0)
+	versionRegex := regexp.MustCompile(`velero.*:v?(\d+\.\d+\.\d+)`)
+	matches := versionRegex.FindStringSubmatch(imageSpec)
+	if len(matches) < 2 {
+		result["reason"] = "Could not extract version from Velero image"
+		return result
+	}
+
+	currentVersion := matches[1]
+	
+	// Get latest version from Artifact Hub API
+	latestVersion, err := getLatestVeleroVersion()
+	if err != nil {
+		result["reason"] = fmt.Sprintf("Failed to get latest version: %v", err)
+		return result
+	}
+
+	// Compare versions using simple semantic version comparison
+	isNewer, err := isVersionNewer(latestVersion, currentVersion)
+	if err != nil {
+		result["reason"] = fmt.Sprintf("Version comparison failed: %v", err)
+		return result
+	}
+
+	if isNewer {
+		result["hasUpdate"] = true
+		result["reason"] = fmt.Sprintf("Update available: %s -> %s", currentVersion, latestVersion)
+	} else {
+		result["reason"] = fmt.Sprintf("Current version %s is up to date (latest: %s)", currentVersion, latestVersion)
+	}
+
+	return result
+}
+
+func getLatestVeleroVersion() (string, error) {
+	// Artifact Hub API endpoint for Velero Helm chart
+	url := "https://artifacthub.io/api/v1/packages/helm/vmware-tanzu/velero"
+	
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+	}
+	
+	resp, err := client.Get(url)
+	if err != nil {
+		return "", fmt.Errorf("failed to fetch from Artifact Hub: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("API returned status %d", resp.StatusCode)
+	}
+
+	var pkg ArtifactHubPackage
+	if err := json.NewDecoder(resp.Body).Decode(&pkg); err != nil {
+		return "", fmt.Errorf("failed to decode response: %v", err)
+	}
+
+	if pkg.AppVersion == "" {
+		return "", fmt.Errorf("no app version found in response")
+	}
+
+	// Remove 'v' prefix if present
+	version := strings.TrimPrefix(pkg.AppVersion, "v")
+	return version, nil
+}
+
+// isVersionNewer compares two semantic versions and returns true if v1 > v2
+func isVersionNewer(v1, v2 string) (bool, error) {
+	parts1, err := parseVersion(v1)
+	if err != nil {
+		return false, fmt.Errorf("invalid version v1: %v", err)
+	}
+	
+	parts2, err := parseVersion(v2)
+	if err != nil {
+		return false, fmt.Errorf("invalid version v2: %v", err)
+	}
+	
+	// Compare major, minor, patch
+	for i := 0; i < 3; i++ {
+		if parts1[i] > parts2[i] {
+			return true, nil
+		}
+		if parts1[i] < parts2[i] {
+			return false, nil
+		}
+	}
+	
+	return false, nil // versions are equal
+}
+
+// parseVersion parses a semantic version string into [major, minor, patch]
+func parseVersion(version string) ([3]int, error) {
+	var parts [3]int
+	
+	// Remove 'v' prefix if present
+	version = strings.TrimPrefix(version, "v")
+	
+	// Split by dots
+	segments := strings.Split(version, ".")
+	if len(segments) != 3 {
+		return parts, fmt.Errorf("version must have 3 parts (major.minor.patch)")
+	}
+	
+	for i, segment := range segments {
+		num, err := strconv.Atoi(segment)
+		if err != nil {
+			return parts, fmt.Errorf("invalid number in version: %s", segment)
+		}
+		parts[i] = num
+	}
+	
+	return parts, nil
+}
