@@ -99,7 +99,7 @@ func (pc *PharosImageMetaController) V1Get() (huma.Operation, func(ctx context.C
 			if err != nil {
 				return nil, huma.Error500InternalServerError("Database context not found in request context")
 			}
-			input.ImageId = strings.ReplaceAll(input.ImageId, "sha256%3A", ":")
+			input.ImageId = strings.ReplaceAll(input.ImageId, "sha256%3A", "sha256:") // bug?
 			var value model.PharosImageMeta
 			var query = model.PharosImageMeta{
 				ImageId: input.ImageId,
