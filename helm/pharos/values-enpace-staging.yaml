@@ -145,8 +145,9 @@ jiralert:
     {{ range .Annotations.SortedPairs }} - {{ .Name }} = {{ .Value }}
     {{ end }}
     Source: {{ .GeneratorURL }}
-    Details: [View in Pharos](https://pharos-client.enpace.local/images/{{ .GroupLabels.imageid }})
     {{ end }}
+    h4. Details:
+      - [View in Pharos](https://pharos-client.enpace.local/images/{{ .GroupLabels.imageid }})
     {{ end }}
 
     {{ define "jira.namespace" }}
