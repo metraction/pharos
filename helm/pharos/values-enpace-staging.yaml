@@ -145,6 +145,7 @@ jiralert:
     {{ range .Annotations.SortedPairs }} - {{ .Name }} = {{ .Value }}
     {{ end }}
     Source: {{ .GeneratorURL }}
+    Details: [View in Pharos](https://pharos-client.enpace.local/images/{{ .GroupLabels.imageid }})
     {{ end }}
     {{ end }}
 
