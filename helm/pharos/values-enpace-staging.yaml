@@ -146,6 +146,8 @@ jiralert:
     {{ end }}
     Source: {{ .GeneratorURL }}
     {{ end }}
+    h4. Details:
+      - [https://pharos-client.enpace.local/images/{{ .GroupLabels.imageid }}]
     {{ end }}
 
     {{ define "jira.namespace" }}
