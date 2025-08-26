@@ -147,7 +147,7 @@ jiralert:
     Source: {{ .GeneratorURL }}
     {{ end }}
     h4. Details:
-      - [View in Pharos](https://pharos-client.enpace.local/images/{{ .GroupLabels.imageid }})
+      - [https://pharos-client.enpace.local/images/{{ .GroupLabels.imageid }}]
     {{ end }}
 
     {{ define "jira.namespace" }}
