@@ -85,7 +85,7 @@ type Delete_PharosScanEngine struct {
 // metadata about the asset (image, code, vm, ..)
 type PharosImageMeta struct {
 	ImageSpec          string                `json:"ImageSpec" yaml:"ImageSpec" required:"true" doc:"image url, e.g. docker.io/nginx:latest"` // scan input / image uri
-	ImageId            string                `json:"ImageId" yaml:"ImageId" gorm:"primaryKey" hidden:"true" doc:"internal image ID, e.g. sha256:1234.."`
+	ImageId            string                `json:"ImageId" yaml:"ImageId" gorm:"primaryKey" hidden:"false" doc:"internal image ID, e.g. sha256:1234.."`
 	IndexDigest        string                `json:"IndexDigest" yaml:"IndexDigest" required:"true" gorm:"index"` // internal ID for cache
 	ManifestDigest     string                `json:"ManifestDigest" yaml:"ManifestDigest" required:"false" gorm:"index"`
 	RepoDigests        StringSlice           `json:"RepoDigests" yaml:"RepoDigests" required:"false" gorm:"type:VARCHAR"`
