@@ -15,9 +15,10 @@ type PharosScanTaskHandler struct {
 	Logger            *zerolog.Logger
 	ScanTaskStatus    *prometheus.GaugeVec   // Metric to track scan task status
 	scanTaskProcessed *prometheus.CounterVec // Metric to track processed scan tasks
+	DatabaseContext   *model.DatabaseContext // needed to update CreatedAt value
 }
 
-func NewPharosScanTaskHandler() *PharosScanTaskHandler {
+func NewPharosScanTaskHandler(databaseContext *model.DatabaseContext) *PharosScanTaskHandler {
 	logger := logging.NewLogger("info", "component", "PharosScanTaskHandler")
 	scanTaskStatus := prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "pharos_scantask_status",
@@ -39,6 +40,7 @@ func NewPharosScanTaskHandler() *PharosScanTaskHandler {
 		Logger:            logger,
 		ScanTaskStatus:    scanTaskStatus,
 		scanTaskProcessed: scanTaskProcessed,
+		DatabaseContext:   databaseContext,
 	}
 }
 
@@ -65,6 +67,44 @@ func (ph *PharosScanTaskHandler) FilterFailedTasks(item model.PharosScanResult) 
 	} else {
 		return true
 	}
+}
+
+func (ph *PharosScanTaskHandler) SetFirstSeen(item model.PharosScanResult) model.PharosScanResult {
+	ph.Logger.Info().Str("ImageId", item.Image.ImageId).Msg("Updating vulnerabilities CreatedAt fields")
+	if ph.DatabaseContext == nil {
+		ph.Logger.Warn().Msg("No database context available to update CreatedAt fields")
+		return item
+	}
+	for _, vulnerability := range item.Image.Vulnerabilities {
+		var dbVulnerability model.PharosVulnerability
+		if vulnerability.CreatedAt.IsZero() { // it is not zero if we do the internalflow, it is zero if scanner returns value.
+			search := model.PharosVulnerability{
+				AdvId:     vulnerability.AdvId,
+				AdvSource: vulnerability.AdvSource,
+			}
+			tx := ph.DatabaseContext.DB.First(&dbVulnerability, search)
+			if tx.Error != nil {
+				ph.Logger.Info().Str("AdvId", vulnerability.AdvId).Msg("Failed to find vulnerability in database, this is new.")
+			} else {
+				if dbVulnerability.CreatedAt.IsZero() {
+					ph.Logger.Info().Str("AdvId", vulnerability.AdvId).Msg("Setting CreatedAt for vulnerability to now")
+					vulnerability.CreatedAt = time.Now()
+				} else {
+					vulnerability.CreatedAt = dbVulnerability.CreatedAt
+				}
+			}
+		}
+		// now update item.Image.FirstSeen we find the Finding that has the same AdvId as the vulnerability
+		// We always run this, if we import vulnerabilites.CreatedAt from another installation, we have to set it here.
+		for i, finding := range item.Image.Findings {
+			if finding.AdvId == vulnerability.AdvId && finding.AdvSource == vulnerability.AdvSource {
+				item.Image.Findings[i].FirstSeen = vulnerability.CreatedAt
+				break
+			}
+		}
+	}
+	item.Image.LastSuccessfulScan = time.Now()
+	return item
 }
 
 func (ph *PharosScanTaskHandler) UpdateScanTime(item model.PharosScanResult) model.PharosScanResult {

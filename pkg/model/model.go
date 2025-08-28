@@ -118,7 +118,8 @@ type PharosScanFinding struct {
 	DueDate     time.Time   `json:"DueDate" yaml:"DueDate"` // needs to be fixed by
 	FixState    string      `json:"FixState" yaml:"FixState"`
 	FixVersions StringSlice `json:"FixVersions" yaml:"FixVersions" gorm:"type:VARCHAR"`
-	FoundIn     StringSlice `json:"FoundIn" yaml:"FoundIn" gorm:"type:VARCHAR"` // Paths of vulnerable artifacts
+	FoundIn     StringSlice `json:"FoundIn" yaml:"FoundIn" gorm:"type:VARCHAR"` // Paths of vulnerable artifact
+	FirstSeen   time.Time   `json:"FirstSeen" yaml:"FirstSeen"`
 }
 
 // a vulnerability is generic description of a weakness, a scan finds vulns in packages
@@ -139,6 +140,7 @@ type PharosVulnerability struct {
 	References     StringSlice `json:"References" yaml:"References" gorm:"type:VARCHAR"` // external references
 	RansomwareUsed string      `json:"RansomwareUsed" yaml:"RansomwareUsed"`             // Exploit used in ransomware
 	Description    string      `json:"Description" yaml:"Description"`
+	CreatedAt      time.Time   `json:"CreatedAt" yaml:"CreatedAt"` // can be used for FirstSeen
 }
 
 // sbom packages

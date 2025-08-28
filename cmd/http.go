@@ -72,13 +72,14 @@ These submissions are then published to a Redis stream for further processing by
 			cmd.Context(),
 			config,
 			extension.NewChanSource(taskChannel),
+			databaseContext,
 			logger,
 		)
 		go CreateEnrichersFlow(collectorFlow, enrichers).
 			To(db.NewImageDbSink(databaseContext))
 
 		// Create results flow without redis
-		internalFlow := routing.NewScanResultsInternalFlow(extension.NewChanSource(resultChannel))
+		internalFlow := routing.NewScanResultsInternalFlow(extension.NewChanSource(resultChannel), databaseContext)
 
 		go CreateEnrichersFlow(internalFlow, enrichers).
 			To(db.NewImageDbSink(databaseContext))

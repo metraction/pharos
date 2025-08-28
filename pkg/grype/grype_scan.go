@@ -108,6 +108,10 @@ func ScanImage(task model.PharosScanTask2, scanEngine *GrypeScanner, kvc *cache.
 	}
 	// set ttl
 	result.Image.TTL = task.ScanTTL // set image ttl to scan ttl
+	// must be done, or image will not have findings, vulnerabilities and packages and the enrichers will not run after scan.
+	result.Image.Findings = result.Findings
+	result.Image.Vulnerabilities = result.Vulnerabilities
+	result.Image.Packages = result.Packages
 
 	result.ScanTask.Status = "done"
 	logger.Info().
