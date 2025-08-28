@@ -88,6 +88,14 @@ func (is *ImageDbSink) process() {
 				continue
 			}
 			logger.Info().Msg("Updated image metadata in database")
+			for _, finding := range pharosScanResult.Image.Findings {
+				tx := is.DatabaseContext.DB.Save(&finding)
+				if tx.Error != nil {
+					logger.Error().Err(tx.Error).Msg("Failed to update finding in database")
+					continue
+				}
+			}
+			logger.Info().Msg("Updated findings in database")
 		}
 		logger.Info().Msg("Image saved successfully")
 	}
