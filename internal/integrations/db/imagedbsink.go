@@ -5,6 +5,7 @@ import (
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/reugn/go-streams"
 	"github.com/rs/zerolog"
+	"gorm.io/gorm"
 )
 
 var _ streams.Sink = (*ImageDbSink)(nil)
@@ -37,9 +38,6 @@ func (is *ImageDbSink) process() {
 			continue
 		}
 		logger := is.Logger.With().Str("ImageId", pharosScanResult.Image.ImageId).Logger()
-		pharosScanResult.Image.Vulnerabilities = pharosScanResult.Vulnerabilities // Ensure vulnerabilities are set
-		pharosScanResult.Image.Findings = pharosScanResult.Findings               // Ensure findings are set
-		pharosScanResult.Image.Packages = pharosScanResult.Packages               // Ensure packages are set
 		// Does the image already exist in the database?
 		var value model.PharosImageMeta
 		var query = model.PharosImageMeta{
@@ -82,12 +80,13 @@ func (is *ImageDbSink) process() {
 				logger.Error().Err(tx.Error).Msg("Failed to delete associations")
 				continue
 			}
-			tx = is.DatabaseContext.DB.Save(pharosScanResult.Image) // Try to Save the updated image metadata
+			tx = is.DatabaseContext.DB.Session(&gorm.Session{FullSaveAssociations: true}).Save(pharosScanResult.Image) // Try to Save the updated image metadata
 			if tx.Error != nil {
 				logger.Error().Err(tx.Error).Msg("Failed to save image metadata in database")
 				continue
 			}
 			logger.Info().Msg("Updated image metadata in database")
+
 		}
 		logger.Info().Msg("Image saved successfully")
 	}
