@@ -103,6 +103,7 @@ func (rx *PharosScanResult) LoadGrypeImageScan(sbom syfttype.SyftSbomType, scan 
 			Name:    artifact.Name,
 			Version: artifact.Version,
 			Purl:    utils.DecodePurl(artifact.Purl),
+			Key:     utils.DecodePurl(artifact.Purl), // This is the primary key for now.
 		}
 
 		if !lo.HasKey(packagesList, pack.Purl) {
