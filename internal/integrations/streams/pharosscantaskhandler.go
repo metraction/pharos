@@ -70,14 +70,14 @@ func (ph *PharosScanTaskHandler) FilterFailedTasks(item model.PharosScanResult) 
 }
 
 func (ph *PharosScanTaskHandler) SetFirstSeen(item model.PharosScanResult) model.PharosScanResult {
-	ph.Logger.Info().Str("ImageId", item.Image.ImageId).Msg("Updating vulnerabilities CreatedAt fields")
+	ph.Logger.Info().Str("ImageId", item.Image.ImageId).Msg("Updating vulnerabilities FirstSeen fields")
 	if ph.DatabaseContext == nil {
-		ph.Logger.Warn().Msg("No database context available to update CreatedAt fields")
+		ph.Logger.Warn().Msg("No database context available to update FirestSeen fields")
 		return item
 	}
-	for _, vulnerability := range item.Image.Vulnerabilities {
+	for i, vulnerability := range item.Image.Vulnerabilities {
 		var dbVulnerability model.PharosVulnerability
-		if vulnerability.CreatedAt.IsZero() { // it is not zero if we do the internalflow, it is zero if scanner returns value.
+		if vulnerability.FirstSeen.IsZero() { // it is not zero if we do the internalflow, it is zero if scanner returns value.
 			search := model.PharosVulnerability{
 				AdvId:     vulnerability.AdvId,
 				AdvSource: vulnerability.AdvSource,
@@ -85,13 +85,13 @@ func (ph *PharosScanTaskHandler) SetFirstSeen(item model.PharosScanResult) model
 			tx := ph.DatabaseContext.DB.First(&dbVulnerability, search)
 			if tx.Error != nil {
 				ph.Logger.Info().Str("AdvId", vulnerability.AdvId).Msg("Failed to find vulnerability in database, this is new.")
-				vulnerability.CreatedAt = time.Now()
+				item.Image.Vulnerabilities[i].FirstSeen = time.Now()
 			} else {
-				if dbVulnerability.CreatedAt.IsZero() {
-					ph.Logger.Info().Str("AdvId", vulnerability.AdvId).Msg("Setting CreatedAt for vulnerability to now")
-					vulnerability.CreatedAt = time.Now()
+				if dbVulnerability.FirstSeen.IsZero() {
+					ph.Logger.Info().Str("AdvId", vulnerability.AdvId).Msg("Setting FirstSeen for vulnerability to now")
+					item.Image.Vulnerabilities[i].FirstSeen = time.Now()
 				} else {
-					vulnerability.CreatedAt = dbVulnerability.CreatedAt
+					item.Image.Vulnerabilities[i].FirstSeen = dbVulnerability.FirstSeen
 				}
 			}
 		}
@@ -99,7 +99,7 @@ func (ph *PharosScanTaskHandler) SetFirstSeen(item model.PharosScanResult) model
 		// We always run this, if we import vulnerabilites.CreatedAt from another installation, we have to set it here.
 		for i, finding := range item.Image.Findings {
 			if finding.AdvId == vulnerability.AdvId && finding.AdvSource == vulnerability.AdvSource {
-				item.Image.Findings[i].FirstSeen = vulnerability.CreatedAt
+				item.Image.Findings[i].FirstSeen = vulnerability.FirstSeen
 				break
 			}
 		}

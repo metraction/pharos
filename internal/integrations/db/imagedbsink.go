@@ -85,6 +85,7 @@ func (is *ImageDbSink) process() {
 				continue
 			}
 			logger.Info().Msg("Updated image metadata in database")
+
 		}
 		logger.Info().Msg("Image saved successfully")
 	}

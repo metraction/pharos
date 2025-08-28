@@ -140,7 +140,8 @@ type PharosVulnerability struct {
 	References     StringSlice `json:"References" yaml:"References" gorm:"type:VARCHAR"` // external references
 	RansomwareUsed string      `json:"RansomwareUsed" yaml:"RansomwareUsed"`             // Exploit used in ransomware
 	Description    string      `json:"Description" yaml:"Description"`
-	CreatedAt      time.Time   `json:"CreatedAt" yaml:"CreatedAt"` // can be used for FirstSeen
+	FirstSeen      time.Time   `json:"FirstSeen" yaml:"FirstSeen"` // can be used for FirstSeen
+
 }
 
 // sbom packages
