@@ -103,6 +103,7 @@ func (ph *PharosScanTaskHandler) SetFirstSeen(item model.PharosScanResult) model
 				break
 			}
 		}
+
 	}
 	item.Image.LastSuccessfulScan = time.Now()
 	return item
