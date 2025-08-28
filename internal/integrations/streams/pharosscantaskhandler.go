@@ -85,6 +85,7 @@ func (ph *PharosScanTaskHandler) SetFirstSeen(item model.PharosScanResult) model
 			tx := ph.DatabaseContext.DB.First(&dbVulnerability, search)
 			if tx.Error != nil {
 				ph.Logger.Info().Str("AdvId", vulnerability.AdvId).Msg("Failed to find vulnerability in database, this is new.")
+				vulnerability.CreatedAt = time.Now()
 			} else {
 				if dbVulnerability.CreatedAt.IsZero() {
 					ph.Logger.Info().Str("AdvId", vulnerability.AdvId).Msg("Setting CreatedAt for vulnerability to now")
