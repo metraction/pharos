@@ -5,6 +5,7 @@ import (
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/reugn/go-streams"
 	"github.com/rs/zerolog"
+	"gorm.io/gorm"
 )
 
 var _ streams.Sink = (*ImageDbSink)(nil)
@@ -79,7 +80,7 @@ func (is *ImageDbSink) process() {
 				logger.Error().Err(tx.Error).Msg("Failed to delete associations")
 				continue
 			}
-			tx = is.DatabaseContext.DB.Save(pharosScanResult.Image) // Try to Save the updated image metadata
+			tx = is.DatabaseContext.DB.Session(&gorm.Session{FullSaveAssociations: true}).Save(pharosScanResult.Image) // Try to Save the updated image metadata
 			if tx.Error != nil {
 				logger.Error().Err(tx.Error).Msg("Failed to save image metadata in database")
 				continue
