@@ -1,10 +1,10 @@
-<img src="pharos.svg" alt="Pharos Logo" width="200" height="200">
+<img src="images/pharos.svg" alt="Pharos Logo" width="200" height="200">
 
 # Pharos: Automated Container Image Security and Compliance Platform
 
 ## Abstract
 
-Pharos is an open-source platform designed to automate the security scanning, vulnerability management, and compliance reporting of container images in modern DevOps environments. It integrates with CI/CD pipelines, Kubernetes clusters, and monitoring tools to provide real-time insights into image security, streamline vulnerability remediation, and helps support regulatory compliance.
+Pharos is an open-source platform designed to automate the security scanning, vulnerability management, and compliance reporting of container images in modern DevOps environments. It integrates with CI/CD pipelines, *Kubernetes* clusters, and monitoring tools to provide real-time insights into image security, streamline vulnerability remediation, and helps support regulatory compliance.
 
 ## Introduction
 
@@ -14,13 +14,14 @@ Containerization has revolutionized software deployment, but it introduces new s
 
 Pharos is built in Go and leverages a modular architecture:
 
+<img src="images/architecture.excalidraw.png" alt="Grafana Scaling Example">
+
 - **Core Components**: 
-    - REST API server handles scanning, reporting and Enrichment,
+    - Controller handles API,scanning, enrichment,
     - Prometheus reporter, handles submission of images
     - Scheduler handles database maintenance and submission of alerts.
-- **Supported Scanners**: Integrates with Grype and Trivy for vulnerability analysis.
-- **Requirements**: Relies on Redis and PostgreSQL for queueing and persistent storage.
-- **Deployment**: Designed to run on Kubernetes, with Helm charts for simplified installation and management.
+- **Supported Scanners**: Integrates with *Grype* and *Trivy* for vulnerability analysis.
+- **Deployment**: Designed to run on *Kubernetes*, with Helm charts for simplified installation and management.
 - **Extensibility**: Custom enrichers/mappers, plugin support, and integration with external systems.
 
 ## Key Features
@@ -30,7 +31,7 @@ Pharos is open source, new features can be added or bugs addressed by the commun
 
 ### Automated Image Scanning
 
-All scan requests are processed through the Pharos Controller, which orchestrates vulnerability analysis and compliance checks using Grype or Trivy.
+All scan requests are processed through the Pharos Controller, which orchestrates vulnerability analysis and compliance checks using *Grype* or *Trivy*.
 
 ### Queue-Based Processing
 
@@ -44,13 +45,13 @@ Pharos provides endpoints for submitting scan tasks, retrieving results, and int
 
 The Controller with Scanner and REST API components can be scaled horizontally to meet increasing demands in large environments.
 
-<img src="grafana-scaling.png" alt="Grafana Scaling Example" width="70%">
+<img src="images/grafana-scaling.png" alt="Grafana Scaling Example">
 
 ### Real-Time Reporting
 
 Prometheus integration enables real-time metrics collection, with Grafana dashboards available for visualization and monitoring.
 
-<img src="grafana-example.png" alt="Grafana Dashboard Example" width="100%">
+<img src="images/grafana-example.png" alt="Scaling">
 
 ### Extensible Enrichment
 
@@ -104,19 +105,22 @@ def enrich(input):
 
 ### Alerting & Integration
 
-Scan results can trigger alerts via webhooks, including automated Jira ticket creation for detected vulnerabilities. Jiralert is included as an optional component to simplify ticket management.
+Scan results can trigger alerts via webhooks, including automated *Jira* ticket creation for detected vulnerabilities. *Jiralert* is included as an optional component to simplify ticket management.
+
+- No need for prometheus or alertmanager to fire alerts.
+- Simplifies alerting, workflows and ticket creation.
 
 Labels added by the enrichment process are added to the alert. 
 
-Example of Jira Ticket created with enriched Data from above.
+Example of *Jira* Ticket created with enriched Data from above.
 
-<img src="jira-ticket.png" alt="Jira Ticket Example" width="50%">
-
+<img src="images/jira-ticket.png" alt="Jira Ticket Example">
 
 ## Deployment
 
-Examples for helm deployment are included, this also includes optionally the creation of Jira tickets via Jiralert
+Examples for helm deployment are included, this also includes optionally the creation of *Jira* tickets via *Jiralert*
 
 ## Roadmap and future enhancements
 
 - Modern Web UI to manage images, enrichers, create reports and manually waiving images.
+
