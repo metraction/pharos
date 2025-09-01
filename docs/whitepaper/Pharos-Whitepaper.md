@@ -1,4 +1,4 @@
-<img src="images/pharos.svg" alt="Pharos Logo" width="200" height="200">
+<img src="./images/pharos.svg" alt="Pharos Logo" width="200" height="200">
 
 # Pharos: Automated Container Image Security and Compliance Platform
 
@@ -14,7 +14,7 @@ Containerization has revolutionized software deployment, but it introduces new s
 
 Pharos is built in Go and leverages a modular architecture:
 
-<img src="images/architecture.excalidraw.png" alt="Grafana Scaling Example">
+<img src="./images/architecture.png" alt="Grafana Scaling Example">
 
 - **Core Components**: 
     - Controller handles API,scanning, enrichment,
@@ -45,13 +45,13 @@ Pharos provides endpoints for submitting scan tasks, retrieving results, and int
 
 The Controller with Scanner and REST API components can be scaled horizontally to meet increasing demands in large environments.
 
-<img src="images/grafana-scaling.png" alt="Grafana Scaling Example">
+<img src="./images/grafana-scaling.png" alt="Grafana Scaling Example">
 
 ### Real-Time Reporting
 
 Prometheus integration enables real-time metrics collection, with Grafana dashboards available for visualization and monitoring.
 
-<img src="images/grafana-example.png" alt="Scaling">
+<img src=":/images/grafana-example.png" alt="Scaling">
 
 ### Extensible Enrichment
 
@@ -114,7 +114,7 @@ Labels added by the enrichment process are added to the alert.
 
 Example of *Jira* Ticket created with enriched Data from above.
 
-<img src="images/jira-ticket.png" alt="Jira Ticket Example">
+<img src="./images/jira-ticket.png" alt="Jira Ticket Example">
 
 ## Deployment
 
