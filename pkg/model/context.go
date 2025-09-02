@@ -18,18 +18,18 @@ func (cr *ContextRoot) IsExpired() bool {
 }
 
 type Context struct {
-	ID             uint          `json:"ID" yaml:"ID" gorm:"primaryKey"` // Auto-incrementing primary key
-	ContextRootKey string        `json:"ContextRootKey" yaml:"ContextRootKey"` // Composite Foreign Key to the ContextRoot Table
-	ImageId        string        `json:"ImageId" yaml:"ImageId"` // Composite Foreign Key to the ContextRoot Table
-	Owner          string        `json:"Owner" yaml:"Owner"` // The owner of the Context, this is the plugin that has created / changed it. Will be a Foreign Key to the Plugins Table
-	UpdatedAt      time.Time     `json:"UpdatedAt" yaml:"UpdatedAt"`
+	ID             uint           `json:"ID" yaml:"ID" gorm:"primaryKey"`       // Auto-incrementing primary key
+	ContextRootKey string         `json:"ContextRootKey" yaml:"ContextRootKey"` // Composite Foreign Key to the ContextRoot Table
+	ImageId        string         `json:"ImageId" yaml:"ImageId"`               // Composite Foreign Key to the ContextRoot Table
+	Owner          string         `json:"Owner" yaml:"Owner"`                   // The owner of the Context, this is the plugin that has created / changed it. Will be a Foreign Key to the Plugins Table
+	UpdatedAt      time.Time      `json:"UpdatedAt" yaml:"UpdatedAt"`
 	Data           map[string]any `json:"Data" yaml:"Data" gorm:"serializer:json"` // Context data
 }
 
 type ContextEntry struct {
 	ContextRootKey string    `json:"ContextRootKey" yaml:"ContextRootKey"` // Composite Foreign Key to the ContextRoot Table
 	Owner          string    `json:"Owner" yaml:"Owner"`
-	Key            string    `json:"Key" yaml:"Key"`       // Composite Key to the ContextRoot Table
-	Value          any       `json:"Value" yaml:"Value"`     // Value of the context entry
+	Key            string    `json:"Key" yaml:"Key"`             // Composite Key to the ContextRoot Table
+	Value          any       `json:"Value" yaml:"Value"`         // Value of the context entry
 	UpdatedAt      time.Time `json:"UpdatedAt" yaml:"UpdatedAt"` // Last update timestamp
 }

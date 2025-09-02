@@ -18,11 +18,12 @@ type Route struct {
 	RepeatInterval time.Duration
 	Path           string // Path to the route, used for storing data about when an alert was sent the last time.
 	// B-Tree structure
-	FirstChild  *Route
-	NextSibling *Route
+	FirstChild      *Route
+	NextSibling     *Route
+	DatabaseContext *model.DatabaseContext
 }
 
-func NewRoute(routeConfig *model.RouteConfig, alertingConfig *model.AlertingConfig, path string) *Route {
+func NewRoute(routeConfig *model.RouteConfig, alertingConfig *model.AlertingConfig, path string, databaseContext *model.DatabaseContext) *Route {
 	if path == "" {
 		path = "root"
 	}
@@ -36,11 +37,12 @@ func NewRoute(routeConfig *model.RouteConfig, alertingConfig *model.AlertingConf
 	}
 
 	r := &Route{
-		RouteConfig: routeConfig,
-		Receiver:    receiver,
-		Alerts:      []*model.Alert{},
-		Logger:      logging.NewLogger("info", "component", fmt.Sprintf("Route %s", path)),
-		Path:        path,
+		RouteConfig:     routeConfig,
+		Receiver:        receiver,
+		Alerts:          []*model.Alert{},
+		Logger:          logging.NewLogger("info", "component", fmt.Sprintf("Route %s", path)),
+		Path:            path,
+		DatabaseContext: databaseContext,
 	}
 	if receiver == nil {
 		r.Logger.Panic().Str("receiver", routeConfig.Receiver).Msg("Receiver not found")
@@ -65,13 +67,13 @@ func NewRoute(routeConfig *model.RouteConfig, alertingConfig *model.AlertingConf
 	r.RepeatInterval = repeatInterval
 	// Handle child
 	if len(routeConfig.ChildRoutes) > 0 {
-		r.FirstChild = NewRoute(r.GetRouteConfigForChild(routeConfig.ChildRoutes[0]), alertingConfig, path+"[0]")
+		r.FirstChild = NewRoute(r.GetRouteConfigForChild(routeConfig.ChildRoutes[0]), alertingConfig, path+"[0]", databaseContext)
 	}
 	// Handle siblings of child
 	if len(routeConfig.ChildRoutes) > 1 {
 		current := r.FirstChild
 		for i := 1; i < len(routeConfig.ChildRoutes); i++ {
-			next := NewRoute(r.GetRouteConfigForChild(routeConfig.ChildRoutes[i]), alertingConfig, fmt.Sprintf("%s[%d]", path, i))
+			next := NewRoute(r.GetRouteConfigForChild(routeConfig.ChildRoutes[i]), alertingConfig, fmt.Sprintf("%s[%d]", path, i), databaseContext)
 			current.NextSibling = next
 			current = next
 		}
@@ -89,7 +91,7 @@ func (r *Route) UpdateAlertGroups() {
 	}
 	for groupkey, group := range r.AlertGroups {
 		r.Logger.Info().Str("groupKey", groupkey).Msg("Clearing old alerts")
-		group.Alerts = []model.Alert{}
+		group.Alerts = []*model.Alert{}
 		group.AlertsUpdated = false
 	}
 	for _, alert := range r.Alerts {
@@ -104,9 +106,9 @@ func (r *Route) UpdateAlertGroups() {
 		groupKey := getGroupKey(groupLabels)
 		// Check if the group already exists
 		if _, exists := r.AlertGroups[groupKey]; !exists {
-			r.AlertGroups[groupKey] = NewAlertGroup(r.RouteConfig, groupLabels)
+			r.AlertGroups[groupKey] = NewAlertGroup(r.RouteConfig, groupLabels, r.DatabaseContext)
 		}
-		r.AlertGroups[groupKey].Alerts = append(r.AlertGroups[groupKey].Alerts, *alert)
+		r.AlertGroups[groupKey].Alerts = append(r.AlertGroups[groupKey].Alerts, alert)
 		r.AlertGroups[groupKey].AlertsUpdated = true
 		r.Logger.Debug().Str("groupKey", groupKey).Msg("Updating alert group")
 	}

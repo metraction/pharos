@@ -35,6 +35,15 @@ type AlertSearchInput struct {
 	Detail bool `query:"detail" default:"true" doc:"If true, returns detailed information about the alert"`
 }
 
+type AlertPayloads struct {
+	Body []model.AlertPayload `json:"body"`
+}
+
+type AlertPayloadSearchInput struct {
+	Pagination
+	Detail bool `query:"detail" default:"true" doc:"If true, returns detailed information about the alert payload"`
+}
+
 func NewAlertController(api *huma.API, config *model.Config) *AlertController {
 	ac := &AlertController{
 		Path:    "/alert",
@@ -53,6 +62,10 @@ func (ac *AlertController) V1AddRoutes() {
 	}
 	{
 		op, handler := ac.V1PrometheusAlertsGetBySearch()
+		huma.Register(*ac.Api, op, handler)
+	}
+	{
+		op, handler := ac.V1AlertPayloadsGetBySearch()
 		huma.Register(*ac.Api, op, handler)
 	}
 }
@@ -141,6 +154,49 @@ func (ac *AlertController) V1AlertsGetBySearch() (huma.Operation, func(ctx conte
 				return nil, huma.Error500InternalServerError("Failed to retrieve alerts: " + result.Error.Error())
 			}
 			return &Alerts{
+				Body: values,
+			}, nil
+		}
+}
+
+func (ac *AlertController) V1AlertPayloadsGetBySearch() (huma.Operation, func(ctx context.Context, input *AlertPayloadSearchInput) (*AlertPayloads, error)) {
+	return huma.Operation{
+			OperationID: "V1SearchAlertPayloads",
+			Method:      "GET",
+			Path:        ac.Path + "/payloads",
+			Summary:     "Search for alert payloads",
+			Description: "Retrieves alert payloads stored in the database as internal representation",
+			Tags:        []string{"V1/Alert"},
+			Responses: map[string]*huma.Response{
+				"200": {
+					Description: "A list of alert payloads",
+				},
+				"500": {
+					Description: "Internal server error",
+				},
+			},
+		}, func(ctx context.Context, input *AlertPayloadSearchInput) (*AlertPayloads, error) {
+			databaseContext, err := getDatabaseContext(ctx)
+			if err != nil {
+				return nil, huma.Error500InternalServerError("Database context not found in request context")
+			}
+			var db *gorm.DB
+			if input.Detail {
+				db = databaseContext.DB.
+					Preload("Alerts").
+					Preload("Alerts.Labels").
+					Preload("Alerts.Annotations")
+			} else {
+				db = databaseContext.DB.Omit(clause.Associations)
+			}
+			db = db.Order("group_key,receiver ASC")
+
+			var values []model.AlertPayload
+			result := db.Scopes(Paginate(&input.Pagination)).Find(&values)
+			if result.Error != nil {
+				return nil, huma.Error500InternalServerError("Failed to retrieve alerts: " + result.Error.Error())
+			}
+			return &AlertPayloads{
 				Body: values,
 			}, nil
 		}
