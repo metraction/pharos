@@ -11,7 +11,7 @@ alerting:
           - namespace
         continue: true
         matchers:
-          - namespace =~ "pharos|nextcloud.*"
+          - namespace = "pharos"
       - receiver: default
         group_by: 
           - imageid
