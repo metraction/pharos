@@ -55,7 +55,9 @@ postgres:
   # -- PostgreSQL authentication
   auth:
     # -- Use an existing secret for PostgreSQL connection
-    existingSecret: "postgres-connection"  
+    user: "pharos"
+    postgresPassword: "pharos"
+    password: "pharos"
   primary:
     persistence:
       enabled: true
