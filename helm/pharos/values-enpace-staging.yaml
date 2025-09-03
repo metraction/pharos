@@ -60,6 +60,13 @@ alerting:
           send_resolved: true
 
 jiralert:
+  image:
+    pullPolicy: Always
+  # -- jiralert image registry
+    repository: docker.io/enpace/jiralert-linux-amd64
+  # -- jiralert image tag (immutable tags are recommended).
+  # @default -- `.Chart.AppVersion`
+    tag: "development"
   enabled: true
   extraArgs: 
     - -hash-jira-label
