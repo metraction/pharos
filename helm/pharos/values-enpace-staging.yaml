@@ -169,6 +169,6 @@ jiralert:
     {{ end }}
 
     {{ define "jira.waived" }}
-    {{ .GroupLabels.waived | default "false" }}
+    {{ .GroupLabels.waived }}
     {{ end }}
     `}}
