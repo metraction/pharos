@@ -131,7 +131,7 @@ jiralert:
 
   issueTemplate: |
     {{`
-    {{ define "jira.summary" }}[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .GroupLabels.imagespec }} in namespace {{ .GroupLabels.namespace }} has vulnerabilities{{ end }}
+    {{ define "jira.summary" }}[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .GroupLabels.imagespec }} in namespace {{ .GroupLabels.namespace }} has vulnerabilities ({{ template "jira.priority" . }}){{ end }}
     {{ define "jira.description" }}{{ range .Alerts.Firing }}
     h4. Labels:
     ||Name||Value||
@@ -169,8 +169,9 @@ jiralert:
     {{ end }}
 
     {{ define "jira.waived" }}
-    {{ (index .Alerts.Firing 0 ).Labels.waived }}
+    false
     {{ end }}
 
-    {{ define "jira.priority" }}{{ if eq  (index .Alerts.Firing 0 ).Labels.waived "true" }}Waived{{ else }}Medium{{ end }}{{ end }}
+    {{ define "jira.priority" }}{{ if gt (len .Alerts.Firing) 0 }}{{ if eq  (index .Alerts.Firing 0 ).Labels.waived "true" }}Waived{{ else }}Medium{{ end }}{{ else }}Medium{{ end }}{{ end }}
+
     `}}
