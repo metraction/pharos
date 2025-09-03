@@ -159,6 +159,9 @@ func (ag *AlertGroup) GetAlertPayload(receiverName string) *model.AlertPayload {
 			ag.Logger.Error().Err(tx.Error).Msg("Failed to create alert payload in database")
 		}
 	} else {
+		if len(alertPayload.ExtraLabels) > 0 {
+			ag.Logger.Debug().Msg("Alert payload has extra labels")
+		}
 		tx = ag.DatabaseContext.DB.Save(alertPayload)
 		if tx.Error != nil {
 			ag.Logger.Error().Err(tx.Error).Msg("Failed to update alert payload in database")
@@ -170,9 +173,12 @@ func (ag *AlertGroup) GetAlertPayload(receiverName string) *model.AlertPayload {
 func (ag *AlertGroup) GetWebhookPayload(webhook *WebHook, receiverName string) *model.WebHookPayload {
 	alertPayload := ag.GetAlertPayload(receiverName)
 	prometheusAlerts := make([]*model.PrometheusAlert, len(ag.Alerts))
-	commonLabels := ag.GroupLabels
+	commonLabels := make(map[string]string)
 	// Add extra labels to commonLabels
 	for key, value := range alertPayload.ExtraLabels {
+		commonLabels[key] = value
+	}
+	for key, value := range ag.GroupLabels {
 		commonLabels[key] = value
 	}
 	// TODO: crashes if someone else changes alerts while we're processing them
@@ -190,6 +196,9 @@ func (ag *AlertGroup) GetWebhookPayload(webhook *WebHook, receiverName string) *
 			prometheusAlerts[i].Labels[key] = value
 		}
 	}
+	if len(alertPayload.ExtraLabels) > 0 {
+		ag.Logger.Debug().Msg("Alert payload has extra labels")
+	}
 	return &model.WebHookPayload{
 		Version:           "4",
 		GroupKey:          ag.String(),
@@ -202,6 +211,7 @@ func (ag *AlertGroup) GetWebhookPayload(webhook *WebHook, receiverName string) *
 		ExternalURL:       "todo",
 		Alerts:            prometheusAlerts,
 	}
+
 }
 
 // return a hash of this AlertGroup, to see if it has changed
