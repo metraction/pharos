@@ -64,7 +64,6 @@ jiralert:
   extraArgs: 
     - -hash-jira-label
     - -log.level='info'
-    - -update-priority
   config:
     # File containing template definitions. Required.
     template: jiralert.tmpl
