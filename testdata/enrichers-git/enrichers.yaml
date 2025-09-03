@@ -12,3 +12,6 @@ enrichers:
     - name: findings-summary
       # path: findings-summary # If not specified uses name as directory location
       git: https://$GITHUB_PLUGIN_USER:$GITHUB_PLUGIN_TOKEN@github.com/metraction/pharos-plugins/tree/main/findings-summary # Takes precedence over path
+    - name: waive-images
+      # path: waive-images # If not specified uses name as directory location
+      git: https://$GITHUB_PLUGIN_USER:$GITHUB_PLUGIN_TOKEN@github.com/metraction/pharos-plugins/tree/main/waive-images # Takes precedence over path
