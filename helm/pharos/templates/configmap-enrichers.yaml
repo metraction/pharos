@@ -11,6 +11,8 @@ data:
               path: owner-enricher.yaml
             - name: findings-summary
               path: findings-summary-enricher.yaml
+            - name: waive-images
+              path: waive-images-enricher.yaml
     eos-enricher.yaml: |
         enricher:
             - name: file
@@ -211,8 +213,7 @@ data:
             eos:  2025-06-30
           - version: 2023
             eos:  2029-06-30
-    eos-eos_v1.hbs: |-
-        {{ b64dec "ZGlzdHJvOiB7eyAucGF5bG9hZC5JbWFnZS5EaXN0cm9OYW1lIH19CnZlcnNpb246IHt7IC5wYXlsb2FkLkltYWdlLkRpc3Ryb1ZlcnNpb24gfX0KZW9zOiB7eyBpbmRleCAubWV0YS5lb3MgLnBheWxvYWQuSW1hZ2UuRGlzdHJvTmFtZSB8IGZpbHRlciAidmVyc2lvbiIgIm1hdGNoV2lsZGNhcmQiIC5wYXlsb2FkLkltYWdlLkRpc3Ryb1ZlcnNpb24gfCBtYXAgImZpZWxkIiAiZW9zIiB8IGZpcnN0IH19CiAg" | nindent 8 }}
+    eos-eos_v1.hbs: "distro: {{ .payload.Image.DistroName }}\nversion: {{ .payload.Image.DistroVersion }}\neos: {{ index .meta.eos .payload.Image.DistroName | filter \"version\" \"matchWildcard\" .payload.Image.DistroVersion | map \"field\" \"eos\" | first }}\n  "
     findings-summary-enricher.yaml: |
         enricher:
             - name: starlark
@@ -233,8 +234,16 @@ data:
             owner: john@mail.com
           - namespace: default
             owner: jessica@mail.com
-    owner-owners_v1.hbs: |-
-        {{ b64dec "e3stICRjb250ZXh0Um9vdCA6PSAucGF5bG9hZC5JbWFnZS5Db250ZXh0Um9vdHMgfCBmaXJzdCB9fQp7ey0gJG5hbWVzcGFjZSA6PSAoJGNvbnRleHRSb290LkNvbnRleHRzIHwgZmlsdGVyICJPd25lciIgInN0YXJ0c1dpdGgiICJwaGFyb3MtY29udHJvbGxlciIgfCBmaXJzdCkuRGF0YS5uYW1lc3BhY2UgfX0Kb3duZXI6IHt7IC5tZXRhLm93bmVycy5ieU5hbWVzcGFjZSB8IGZpbHRlciAibmFtZXNwYWNlIiAic3RhcnRzV2l0aCIgJG5hbWVzcGFjZSB8IG1hcCAiZmllbGQiICJvd25lciIgfCBmaXJzdCB8IHRvWWFtbCB8IG5pbmRlbnQgMiB9fQo=" | nindent 8 }}
+    owner-owners_v1.hbs: |
+        {{- $contextRoot := .payload.Image.ContextRoots | first }}
+        {{- $namespace := ($contextRoot.Contexts | filter "Owner" "startsWith" "pharos-controller" | first).Data.namespace }}
+        owner: {{ .meta.owners.byNamespace | filter "namespace" "startsWith" $namespace | map "field" "owner" | first | toYaml | nindent 2 }}
+    waive-images-enricher.yaml: |
+        enricher:
+            - name: starlark
+              config: waive-images-waive-images.star
+              ref: ""
+    waive-images-waive-images.star: "#!/usr/bin/env star\n\n# Return summary of findings\ndef enrich(input):\n    data = input.payload\n    waived = \"false\"\n    namespace = data.Image.ContextRoots[0].Contexts[0].Data.namespace\n    if namespace == \"kube-system\":\n       waived = \"true\"\n    if namespace == \"cattle-system\":\n       waived = \"true\"\n    if namespace == \"cattle-fleet-system\":\n       waived = \"true\"\n    if namespace == \"cattle-monitoring-system\":\n       waived = \"true\"\n    return { \n        \"waived\": waived,\n    }\n\n"
 kind: ConfigMap
 metadata:
     labels:
