@@ -124,6 +124,8 @@ jiralert:
           customfield_10058: '{{ template "jira.digest" . }}'
           # ImageID
           customfield_10059: '{{ template "jira.imageid" . }}'
+          # Waived
+          customfield_10091: '{{ template "jira.waived" . }}'
         auto_resolve:
           state: "Done"
 
@@ -164,5 +166,9 @@ jiralert:
 
     {{ define "jira.digest" }}
     {{ .GroupLabels.digest }}
+    {{ end }}
+
+    {{ define "jira.waived" }}
+    {{ .GroupLabels.waived | default "false" }}
     {{ end }}
     `}}
