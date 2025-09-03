@@ -173,6 +173,6 @@ jiralert:
     {{ end }}
 
     {{ define "jira.priority" }}
-    {{ if eq .Alerts[0].Labels.waived "true" }}{{ "Waived" }}{{ else }}"Medium"{{ end }}
+    {{ if eq .Alerts[0].Labels.waived "true" }}Waived{{ else }}Medium{{ end }}
     {{ end }}
     `}}
