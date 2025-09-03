@@ -171,6 +171,7 @@ func (ag *AlertGroup) GetWebhookPayload(webhook *WebHook, receiverName string) *
 	alertPayload := ag.GetAlertPayload(receiverName)
 	prometheusAlerts := make([]*model.PrometheusAlert, len(ag.Alerts))
 	commonLabels := ag.GroupLabels
+	// Add extra labels to commonLabels
 	for key, value := range alertPayload.ExtraLabels {
 		commonLabels[key] = value
 	}
@@ -183,6 +184,10 @@ func (ag *AlertGroup) GetWebhookPayload(webhook *WebHook, receiverName string) *
 				"summary":     summary,
 				"description": summary,
 			}
+		}
+		// Add extra labels to each alert
+		for key, value := range alertPayload.ExtraLabels {
+			prometheusAlerts[i].Labels[key] = value
 		}
 	}
 	return &model.WebHookPayload{
