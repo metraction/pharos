@@ -170,6 +170,10 @@ func (ag *AlertGroup) GetAlertPayload(receiverName string) *model.AlertPayload {
 func (ag *AlertGroup) GetWebhookPayload(webhook *WebHook, receiverName string) *model.WebHookPayload {
 	alertPayload := ag.GetAlertPayload(receiverName)
 	prometheusAlerts := make([]*model.PrometheusAlert, len(ag.Alerts))
+	commonLabels := ag.GroupLabels
+	for key, value := range alertPayload.ExtraLabels {
+		commonLabels[key] = value
+	}
 	// TODO: crashes if someone else changes alerts while we're processing them
 	for i, alert := range ag.Alerts {
 		if webhook.WebHookConfig.SendResolved || alert.Status == "firing" {
@@ -188,7 +192,7 @@ func (ag *AlertGroup) GetWebhookPayload(webhook *WebHook, receiverName string) *
 		Status:            alertPayload.Status,
 		Receiver:          receiverName,
 		GroupLabels:       ag.GroupLabels,
-		CommonLabels:      ag.GroupLabels,
+		CommonLabels:      commonLabels,
 		CommonAnnotations: make(map[string]string),
 		ExternalURL:       "todo",
 		Alerts:            prometheusAlerts,
