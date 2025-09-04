@@ -59,7 +59,8 @@
                 "--prometheus.url",
                 "https://prometheus.enpace.local",
                 "--prometheus.query",
-                "kube_pod_container_info{namespace=~\"pharos|nextcloud-.*|wordpress.*\"}"
+                "kube_pod_container_info{namespace=~\"nextcloud-.*\"}"
+                //"kube_pod_container_info{namespace=~\"pharos|nextcloud-.*|wordpress.*\"}"
             ],
         },
     ],

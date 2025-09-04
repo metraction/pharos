@@ -127,7 +127,7 @@ func TestDatabase(t *testing.T) {
 		require.NoError(t, tx.Error)
 		t.Logf("Retrieved %d alerts from the database", len(alerts))
 		require.Equal(t, alertSize, len(alerts), "expected %d alerts in the database", alertSize)
-		rootRoute := NewRoute(&config.Alerting.Route, &config.Alerting, "root")
+		rootRoute := NewRoute(&config.Alerting.Route, &config.Alerting, "root", &databaseContext)
 		rootRoute.SendAlerts(alerts)
 		require.NotNil(t, rootRoute, "AlertGroup should not be nil")
 		// we have 2 alerts in the first child

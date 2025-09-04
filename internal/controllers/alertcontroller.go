@@ -4,6 +4,7 @@ package controllers
 
 import (
 	"context"
+	"strings"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/metraction/pharos/internal/logging"
@@ -35,6 +36,25 @@ type AlertSearchInput struct {
 	Detail bool `query:"detail" default:"true" doc:"If true, returns detailed information about the alert"`
 }
 
+type AlertPayloads struct {
+	Body []model.AlertPayload `json:"body"`
+}
+
+type AlertPayloadSearchInput struct {
+	Pagination
+	Detail   bool   `query:"detail" default:"true" doc:"If true, returns detailed information about the alert payload"`
+	GroupKey string `query:"groupKey" doc:"GroupKey of the to retrieve, can be a glob pattern, exclusive with search"`
+	Receiver string `query:"receiver" doc:"Receiver of the alert payload to retrieve, can be a glob pattern, exclusive with search"`
+}
+
+type AlertPayloadsUpdateInput struct {
+	Body struct {
+		GroupKey    string            `json:"groupKey" query:"groupKey" doc:"GroupKey of the to retrieve, can be a glob pattern, exclusive with search"`
+		Receiver    string            `json:"receiver" query:"receiver" doc:"Receiver of the alert payload to retrieve, can be a glob pattern, exclusive with search"`
+		ExtraLabels map[string]string `json:"extraLabels" doc:"Extra labels to add to the alert payload"`
+	}
+}
+
 func NewAlertController(api *huma.API, config *model.Config) *AlertController {
 	ac := &AlertController{
 		Path:    "/alert",
@@ -53,6 +73,14 @@ func (ac *AlertController) V1AddRoutes() {
 	}
 	{
 		op, handler := ac.V1PrometheusAlertsGetBySearch()
+		huma.Register(*ac.Api, op, handler)
+	}
+	{
+		op, handler := ac.V1AlertPayloadsGetBySearch()
+		huma.Register(*ac.Api, op, handler)
+	}
+	{
+		op, handler := ac.V1AlertPayloadsUpdateExtraLabels()
 		huma.Register(*ac.Api, op, handler)
 	}
 }
@@ -141,6 +169,109 @@ func (ac *AlertController) V1AlertsGetBySearch() (huma.Operation, func(ctx conte
 				return nil, huma.Error500InternalServerError("Failed to retrieve alerts: " + result.Error.Error())
 			}
 			return &Alerts{
+				Body: values,
+			}, nil
+		}
+}
+
+func (ac *AlertController) V1AlertPayloadsGetBySearch() (huma.Operation, func(ctx context.Context, input *AlertPayloadSearchInput) (*AlertPayloads, error)) {
+	return huma.Operation{
+			OperationID: "V1SearchAlertPayloads",
+			Method:      "GET",
+			Path:        ac.Path + "/payloads",
+			Summary:     "Search for alert payloads",
+			Description: "Retrieves alert payloads stored in the database as internal representation",
+			Tags:        []string{"V1/Alert"},
+			Responses: map[string]*huma.Response{
+				"200": {
+					Description: "A list of alert payloads",
+				},
+				"500": {
+					Description: "Internal server error",
+				},
+			},
+		}, func(ctx context.Context, input *AlertPayloadSearchInput) (*AlertPayloads, error) {
+			databaseContext, err := getDatabaseContext(ctx)
+			if err != nil {
+				return nil, huma.Error500InternalServerError("Database context not found in request context")
+			}
+			var db *gorm.DB
+			if input.Detail {
+				db = databaseContext.DB.
+					Preload("Alerts").
+					Preload("Alerts.Labels").
+					Preload("Alerts.Annotations")
+			} else {
+				db = databaseContext.DB.Omit(clause.Associations)
+			}
+
+			if input.GroupKey != "" {
+				db = db.Where("group_key LIKE ?", strings.ReplaceAll(input.GroupKey, "*", "%"))
+			}
+			if input.Receiver != "" {
+				db = db.Where("receiver LIKE ?", strings.ReplaceAll(input.Receiver, "*", "%"))
+
+			}
+			db = db.Order("group_key,receiver ASC")
+
+			var values []model.AlertPayload
+			result := db.Scopes(Paginate(&input.Pagination)).Find(&values)
+			if result.Error != nil {
+				return nil, huma.Error500InternalServerError("Failed to retrieve alerts: " + result.Error.Error())
+			}
+			return &AlertPayloads{
+				Body: values,
+			}, nil
+		}
+}
+
+func (ac *AlertController) V1AlertPayloadsUpdateExtraLabels() (huma.Operation, func(ctx context.Context, input *AlertPayloadsUpdateInput) (*AlertPayloads, error)) {
+	return huma.Operation{
+			OperationID: "V1SearchAlertPayloadsUpdateExtraLabels",
+			Method:      "POST",
+			Path:        ac.Path + "/updatepayloads",
+			Summary:     "Update alert payloads",
+			Description: "Updates alert payloads",
+			Tags:        []string{"V1/Alert"},
+			Responses: map[string]*huma.Response{
+				"200": {
+					Description: "A list of alert payloads",
+				},
+				"500": {
+					Description: "Internal server error",
+				},
+			},
+		}, func(ctx context.Context, input *AlertPayloadsUpdateInput) (*AlertPayloads, error) {
+			databaseContext, err := getDatabaseContext(ctx)
+			if err != nil {
+				return nil, huma.Error500InternalServerError("Database context not found in request context")
+			}
+			var db *gorm.DB
+
+			db = databaseContext.DB
+
+			if input.Body.GroupKey != "" {
+				db = db.Where("group_key LIKE ?", strings.ReplaceAll(input.Body.GroupKey, "*", "%"))
+			}
+			if input.Body.Receiver != "" {
+				db = db.Where("receiver LIKE ?", strings.ReplaceAll(input.Body.Receiver, "*", "%"))
+
+			}
+			db = db.Order("group_key,receiver ASC")
+
+			var values []model.AlertPayload
+			result := db.Find(&values)
+			if result.Error != nil {
+				return nil, huma.Error500InternalServerError("Failed to retrieve alerts: " + result.Error.Error())
+			}
+			for i, _ := range values {
+				values[i].ExtraLabels = input.Body.ExtraLabels
+			}
+			tx := db.Save(&values)
+			if tx.Error != nil {
+				return nil, huma.Error500InternalServerError("Failed to update alert payloads: " + tx.Error.Error())
+			}
+			return &AlertPayloads{
 				Body: values,
 			}, nil
 		}

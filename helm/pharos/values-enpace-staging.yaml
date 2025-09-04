@@ -60,10 +60,17 @@ alerting:
           send_resolved: true
 
 jiralert:
+  image:
+    pullPolicy: Always
+  # -- jiralert image registry
+    repository: docker.io/enpace/jiralert-linux-amd64
+  # -- jiralert image tag (immutable tags are recommended).
+  # @default -- `.Chart.AppVersion`
+    tag: "development"
   enabled: true
   extraArgs: 
     - -hash-jira-label
-    - -log.level=debug
+    - -log.level='debug'
   config:
     # File containing template definitions. Required.
     template: jiralert.tmpl
@@ -80,7 +87,7 @@ jiralert:
       # The type of JIRA issue to create. Required.
       issue_type: Vulnerability
       # Issue priority. Optional.
-      priority: Medium
+      priority: '{{ template "jira.priority" . }}'
       # Go template invocation for generating the summary. Required.
       summary: '{{ template "jira.summary" . }}'
       # Go template invocation for generating the description. Optional.
@@ -124,12 +131,14 @@ jiralert:
           customfield_10058: '{{ template "jira.digest" . }}'
           # ImageID
           customfield_10059: '{{ template "jira.imageid" . }}'
+          # Waived
+          customfield_10091: '{{ template "jira.waived" . }}'
         auto_resolve:
           state: "Done"
 
   issueTemplate: |
     {{`
-    {{ define "jira.summary" }}[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .GroupLabels.imagespec }} in namespace {{ .GroupLabels.namespace }} has vulnerabilities{{ end }}
+    {{ define "jira.summary" }}[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .GroupLabels.imagespec }} in namespace {{ .GroupLabels.namespace }} has vulnerabilities ({{ template "jira.priority" . }}){{ end }}
     {{ define "jira.description" }}{{ range .Alerts.Firing }}
     h4. Labels:
     ||Name||Value||
@@ -165,4 +174,11 @@ jiralert:
     {{ define "jira.digest" }}
     {{ .GroupLabels.digest }}
     {{ end }}
+
+    {{ define "jira.waived" }}
+    false
+    {{ end }}
+
+    {{ define "jira.priority" }}{{ if gt (len .Alerts.Firing) 0 }}{{ if eq  (index .Alerts.Firing 0 ).Labels.waived "true" }}Waived{{ else }}Medium{{ end }}{{ else }}Medium{{ end }}{{ end }}
+
     `}}

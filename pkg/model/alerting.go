@@ -4,6 +4,18 @@ import (
 	"time"
 )
 
+// AlertPayload is something we store in the database. An Alert Payload
+// is identified by its GroupKey and Receiver. It is exposed by the API and we can manually silence it
+// or add more commonlabels/annotations to it.
+type AlertPayload struct {
+	Receiver    string            `json:"receiver" gorm:"primary_key"`
+	GroupKey    string            `json:"groupKey" gorm:"primary_key"`
+	GroupedBy   StringSlice       `json:"groupedBy" gorm:"type:VARCHAR"`
+	Status      string            `json:"status"` // "firing" or "resolved"
+	Alerts      []*Alert          `json:"alerts" gorm:"many2many:join_alert_payload_with_alert;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	ExtraLabels map[string]string `json:"extraLabels" yaml:"extraLabels" gorm:"serializer:json"` // Context data
+}
+
 type WebHookPayload struct {
 	Version           string             `json:"version"`
 	GroupKey          string             `json:"groupKey"`

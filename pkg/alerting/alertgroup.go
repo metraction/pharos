@@ -18,24 +18,26 @@ import (
 
 type GroupInfo struct {
 	LastSentAt     time.Time
-	LastSentHash   string
+	LastSentHash   string // Hash of the last sent alert payload, so we know it has changed.
 	ResolutionSent bool
 }
 
 // A grouped alert is dependend on a route.
 type AlertGroup struct {
-	GroupLabels   map[string]string
-	Logger        *zerolog.Logger
-	Alerts        []model.Alert
-	GroupInfo     map[string]*GroupInfo
-	AlertsUpdated bool
+	GroupLabels     map[string]string
+	Logger          *zerolog.Logger
+	Alerts          []*model.Alert
+	GroupInfo       map[string]*GroupInfo
+	DatabaseContext *model.DatabaseContext
+	AlertsUpdated   bool
 }
 
-func NewAlertGroup(routeConfig *model.RouteConfig, groupLabels map[string]string) *AlertGroup {
+func NewAlertGroup(routeConfig *model.RouteConfig, groupLabels map[string]string, databaseContext *model.DatabaseContext) *AlertGroup {
 	return &AlertGroup{
-		GroupLabels: groupLabels,
-		GroupInfo:   make(map[string]*GroupInfo),
-		Logger:      logging.NewLogger("info", "component", "AlertGroup "+getGroupKey(groupLabels)),
+		GroupLabels:     groupLabels,
+		GroupInfo:       make(map[string]*GroupInfo),
+		Logger:          logging.NewLogger("info", "component", "AlertGroup "+getGroupKey(groupLabels)),
+		DatabaseContext: databaseContext,
 	}
 }
 
@@ -51,7 +53,11 @@ func (ag *AlertGroup) SendWebhookAlerts(webhook *WebHook, route *Route) error {
 		shouldSend = true
 		ag.Logger.Info().Str("webhook", webhook.String()).Str("route", route.String()).Msg("Sending alert because this is the first time.")
 	}
-	payload := ag.GetWebhookPayload(webhook, route.Receiver.Config.Name)
+	payload, err := ag.GetWebhookPayload(webhook, route.Receiver.Config.Name)
+	if err != nil {
+		ag.Logger.Error().Err(err).Msg("Failed to get webhook payload")
+		return err
+	}
 	if !shouldSend && ag.GetHash() != ag.GroupInfo[indentifier].LastSentHash {
 		shouldSend = true
 		ag.Logger.Info().Str("webhook", webhook.String()).Msg("Sending alert because the alertgroup has changed.")
@@ -124,35 +130,99 @@ func (ag *AlertGroup) SendWebhookAlerts(webhook *WebHook, route *Route) error {
 	return nil
 }
 
-func (ag *AlertGroup) GetWebhookPayload(webhook *WebHook, receiverName string) *model.WebHookPayload {
-	prometheusAlerts := make([]*model.PrometheusAlert, len(ag.Alerts))
+func (ag *AlertGroup) GetAlertPayload(receiverName string) (*model.AlertPayload, error) {
+	// First we need to try to get the payload from the database
+	var alertPayload model.AlertPayload
+	newPayload := false
+	tx := ag.DatabaseContext.DB.Where("receiver = ? AND group_key = ?", receiverName, ag.String()).Find(&alertPayload)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+	if tx.RowsAffected == 0 {
+
+		ag.Logger.Info().Msg("This is a new alertpayload")
+		newPayload = true
+		var keys []string
+		for k := range ag.GroupLabels {
+			keys = append(keys, k)
+		}
+		alertPayload = model.AlertPayload{
+			GroupKey:  ag.String(),
+			Receiver:  receiverName,
+			GroupedBy: keys,
+		}
+	}
+	// Set the Status of the alert payload
 	status := "resolved"
+	for _, alert := range ag.Alerts {
+		if alert.Status == "firing" {
+			status = "firing"
+		}
+	}
+	alertPayload.Status = status
+	alertPayload.Alerts = ag.Alerts
+	if newPayload {
+		tx = ag.DatabaseContext.DB.Create(alertPayload)
+		if tx.Error != nil {
+			ag.Logger.Error().Err(tx.Error).Msg("Failed to create alert payload in database")
+		}
+	} else {
+		if len(alertPayload.ExtraLabels) > 0 {
+			ag.Logger.Debug().Msg("Alert payload has extra labels")
+		}
+		tx = ag.DatabaseContext.DB.Save(alertPayload)
+		if tx.Error != nil {
+			ag.Logger.Error().Err(tx.Error).Msg("Failed to update alert payload in database")
+		}
+	}
+	return &alertPayload, nil
+}
+
+func (ag *AlertGroup) GetWebhookPayload(webhook *WebHook, receiverName string) (*model.WebHookPayload, error) {
+	alertPayload, err := ag.GetAlertPayload(receiverName)
+	if err != nil {
+		return nil, err
+	}
+	prometheusAlerts := make([]*model.PrometheusAlert, len(ag.Alerts))
+	commonLabels := make(map[string]string)
+	// Add extra labels to commonLabels
+	for key, value := range alertPayload.ExtraLabels {
+		commonLabels[key] = value
+	}
+	for key, value := range ag.GroupLabels {
+		commonLabels[key] = value
+	}
 	// TODO: crashes if someone else changes alerts while we're processing them
 	for i, alert := range ag.Alerts {
 		if webhook.WebHookConfig.SendResolved || alert.Status == "firing" {
-			prometheusAlerts[i] = GetPrometheusAlert(&alert)
+			prometheusAlerts[i] = GetPrometheusAlert(alert)
 			summary := fmt.Sprintf("Image %s has vulnerabilities in namespace %s", prometheusAlerts[i].Labels["imagespec"], prometheusAlerts[i].Labels["namespace"])
 			prometheusAlerts[i].Annotations = map[string]string{
 				"summary":     summary,
 				"description": summary,
 			}
-			if alert.Status == "firing" {
-				status = "firing"
-			}
 		}
+		// Add extra labels to each alert, we override the existing labels from enrichers.
+		for key, value := range alertPayload.ExtraLabels {
+			prometheusAlerts[i].Labels[key] = value
+		}
+	}
+	if len(alertPayload.ExtraLabels) > 0 {
+		ag.Logger.Debug().Msg("Alert payload has extra labels")
 	}
 	return &model.WebHookPayload{
 		Version:           "4",
 		GroupKey:          ag.String(),
 		TruncatedAlerts:   0,
-		Status:            status,
+		Status:            alertPayload.Status,
 		Receiver:          receiverName,
 		GroupLabels:       ag.GroupLabels,
-		CommonLabels:      ag.GroupLabels,
+		CommonLabels:      commonLabels,
 		CommonAnnotations: make(map[string]string),
 		ExternalURL:       "todo",
 		Alerts:            prometheusAlerts,
-	}
+	}, nil
+
 }
 
 // return a hash of this AlertGroup, to see if it has changed

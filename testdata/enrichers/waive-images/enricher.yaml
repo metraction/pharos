@@ -1,0 +1,3 @@
+enricher:
+- name: starlark
+  config: waive-images.star

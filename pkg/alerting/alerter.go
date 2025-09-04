@@ -20,7 +20,7 @@ func NewAlerter(databaseContext *model.DatabaseContext, config *model.AlertingCo
 		DatabaseContext: databaseContext,
 		Logger:          logging.NewLogger("info", "component", "Alerter"),
 		AlertingConfig:  config,
-		RootRoute:       NewRoute(&config.Route, config, "root"),
+		RootRoute:       NewRoute(&config.Route, config, "root", databaseContext),
 	}
 	al.Run() // Start the periodic run
 	return al
