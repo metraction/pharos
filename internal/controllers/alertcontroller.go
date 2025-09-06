@@ -203,7 +203,7 @@ func (ac *AlertController) V1AlertPayloadsGetBySearch() (huma.Operation, func(ct
 			// in controller code and not in the database query.
 			// also if we search by labels, details have to be enabled.
 			if len(input.Body.Labels) > 0 {
-				input.Body.Pagination.PageSize = -1
+				input.Body.Pagination.PageSize = 10e9 // effectively disable pagination
 				input.Body.Detail = true
 			}
 			if input.Body.Detail {
