@@ -41,10 +41,13 @@ type AlertPayloads struct {
 }
 
 type AlertPayloadSearchInput struct {
-	Pagination
-	Detail   bool   `query:"detail" default:"true" doc:"If true, returns detailed information about the alert payload"`
-	GroupKey string `query:"groupKey" doc:"GroupKey of the to retrieve, can be a glob pattern, exclusive with search"`
-	Receiver string `query:"receiver" doc:"Receiver of the alert payload to retrieve, can be a glob pattern, exclusive with search"`
+	Body struct {
+		Pagination
+		Detail   bool              `query:"detail" default:"true" doc:"If true, returns detailed information about the alert payload"`
+		GroupKey string            `query:"groupKey" doc:"GroupKey of the to retrieve, can be a glob pattern, exclusive with search"`
+		Receiver string            `query:"receiver" doc:"Receiver of the alert payload to retrieve, can be a glob pattern, exclusive with search"`
+		Labels   map[string]string `query:"labels" doc:"Labels to filter the alert payloads, key=value pairs. If set, then pagination is disabled and detail is enabled."`
+	}
 }
 
 type AlertPayloadsUpdateInput struct {
@@ -177,7 +180,7 @@ func (ac *AlertController) V1AlertsGetBySearch() (huma.Operation, func(ctx conte
 func (ac *AlertController) V1AlertPayloadsGetBySearch() (huma.Operation, func(ctx context.Context, input *AlertPayloadSearchInput) (*AlertPayloads, error)) {
 	return huma.Operation{
 			OperationID: "V1SearchAlertPayloads",
-			Method:      "GET",
+			Method:      "POST",
 			Path:        ac.Path + "/payloads",
 			Summary:     "Search for alert payloads",
 			Description: "Retrieves alert payloads stored in the database as internal representation",
@@ -196,7 +199,14 @@ func (ac *AlertController) V1AlertPayloadsGetBySearch() (huma.Operation, func(ct
 				return nil, huma.Error500InternalServerError("Database context not found in request context")
 			}
 			var db *gorm.DB
-			if input.Detail {
+			// we have to disable pagination if we filter by alerts, because the logic is implemente
+			// in controller code and not in the database query.
+			// also if we search by labels, details have to be enabled.
+			if len(input.Body.Labels) > 0 {
+				input.Body.Pagination.PageSize = -1
+				input.Body.Detail = true
+			}
+			if input.Body.Detail {
 				db = databaseContext.DB.
 					Preload("Alerts").
 					Preload("Alerts.Labels").
@@ -205,17 +215,37 @@ func (ac *AlertController) V1AlertPayloadsGetBySearch() (huma.Operation, func(ct
 				db = databaseContext.DB.Omit(clause.Associations)
 			}
 
-			if input.GroupKey != "" {
-				db = db.Where("group_key LIKE ?", strings.ReplaceAll(input.GroupKey, "*", "%"))
+			if input.Body.GroupKey != "" {
+				db = db.Where("group_key LIKE ?", strings.ReplaceAll(input.Body.GroupKey, "*", "%"))
 			}
-			if input.Receiver != "" {
-				db = db.Where("receiver LIKE ?", strings.ReplaceAll(input.Receiver, "*", "%"))
+			if input.Body.Receiver != "" {
+				db = db.Where("receiver LIKE ?", strings.ReplaceAll(input.Body.Receiver, "*", "%"))
 
 			}
 			db = db.Order("group_key,receiver ASC")
 
 			var values []model.AlertPayload
-			result := db.Scopes(Paginate(&input.Pagination)).Find(&values)
+			var filteredValues []model.AlertPayload
+			result := db.Scopes(Paginate(&input.Body.Pagination)).Find(&values)
+			if len(input.Body.Labels) > 0 {
+				for i, payload := range values {
+					matched := false
+					for _, alert := range payload.Alerts {
+						for _, payloadLabel := range alert.Labels {
+							for inputKey, inputValue := range input.Body.Labels {
+								if payloadLabel.Name == inputKey && payloadLabel.Value == inputValue {
+									matched = true
+								}
+							}
+						}
+					}
+					if matched {
+						filteredValues = append(filteredValues, values[i])
+					}
+				}
+				values = filteredValues
+			}
+
 			if result.Error != nil {
 				return nil, huma.Error500InternalServerError("Failed to retrieve alerts: " + result.Error.Error())
 			}
