@@ -4,6 +4,7 @@ package controllers
 
 import (
 	"context"
+	"encoding/json"
 	"sort"
 	"strings"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/metraction/pharos/pkg/alerting"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/rs/zerolog"
+	"github.com/theory/jsonpath"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -56,10 +58,10 @@ type AlertValuesSearchInput struct {
 type AlertPayloadSearchInput struct {
 	Body struct {
 		Pagination
-		Detail   bool              `query:"detail" default:"true" doc:"If true, returns detailed information about the alert payload"`
-		GroupKey string            `query:"groupKey" doc:"GroupKey of the to retrieve, can be a glob pattern, exclusive with search"`
-		Receiver string            `query:"receiver" doc:"Receiver of the alert payload to retrieve, can be a glob pattern, exclusive with search"`
-		Labels   map[string]string `query:"labels" doc:"Labels to filter the alert payloads, key=value pairs. If set, then pagination is disabled and detail is enabled."`
+		Detail   bool   `query:"detail" default:"true" doc:"If true, returns detailed information about the alert payload"`
+		GroupKey string `query:"groupKey" doc:"GroupKey of the to retrieve, can be a glob pattern, exclusive with search"`
+		Receiver string `query:"receiver" doc:"Receiver of the alert payload to retrieve, can be a glob pattern, exclusive with search"`
+		JSONPath string `query:"jsonPath" doc:"Use RFC9535 jsonPath to filter alert payloads, exclusive with groupKey and receiver"`
 	}
 }
 
@@ -223,10 +225,6 @@ func (ac *AlertController) V1AlertPayloadsGetBySearch() (huma.Operation, func(ct
 			// we have to disable pagination if we filter by alerts, because the logic is implemente
 			// in controller code and not in the database query.
 			// also if we search by labels, details have to be enabled.
-			if len(input.Body.Labels) > 0 {
-				input.Body.Pagination.PageSize = 10e9 // effectively disable pagination
-				input.Body.Detail = true
-			}
 			if input.Body.Detail {
 				db = databaseContext.DB.
 					Preload("Alerts").
@@ -246,32 +244,49 @@ func (ac *AlertController) V1AlertPayloadsGetBySearch() (huma.Operation, func(ct
 			db = db.Order("group_key,receiver ASC")
 
 			var values []model.AlertPayload
-			var filteredValues []model.AlertPayload
 			result := db.Scopes(Paginate(&input.Body.Pagination)).Find(&values)
-			if len(input.Body.Labels) > 0 {
-				for i, payload := range values {
-					matched := false
-					for _, alert := range payload.Alerts {
-						for _, payloadLabel := range alert.Labels {
-							for inputKey, inputValue := range input.Body.Labels {
-								if payloadLabel.Name == inputKey && payloadLabel.Value == inputValue {
-									matched = true
-								}
-							}
-						}
-					}
-					if matched {
-						filteredValues = append(filteredValues, values[i])
-					}
-				}
-				values = filteredValues
-			}
-
 			if result.Error != nil {
 				return nil, huma.Error500InternalServerError("Failed to retrieve alerts: " + result.Error.Error())
 			}
+			if input.Body.JSONPath == "" {
+				input.Body.JSONPath = "$[*]"
+			}
+			parser := jsonpath.NewParser()
+			p, err := parser.Parse(input.Body.JSONPath)
+			if err != nil {
+				return nil, huma.Error400BadRequest("Invalid jsonPath: " + err.Error())
+			}
+
+			jsonBytes, err := json.Marshal(&values)
+			if err != nil {
+				return nil, huma.Error500InternalServerError("Failed to marshal alert payloads: " + err.Error())
+			}
+			var data interface{}
+			if err := json.Unmarshal(jsonBytes, &data); err != nil {
+				return nil, huma.Error500InternalServerError("Failed to unmarshal alert payloads: " + err.Error())
+			}
+			selected := p.Select(data)
+			if len(selected) == 0 {
+				return &AlertPayloads{
+					Body: []model.AlertPayload{},
+				}, nil
+			}
+			jsonBytes, err = json.Marshal(selected)
+			// var filteredValues []model.AlertPayload
+			// for _, v := range selected {
+			// 	if ap, ok := v.(*model.AlertPayload); ok {
+			// 		filteredValues = append(filteredValues, *ap)
+			// 	} else {
+			// 		ac.Logger.Warn().Msgf("Failed to convert selected value to AlertPayload: %v", v)
+			// 		return nil, huma.Error500InternalServerError("Failed to convert selected value to AlertPayload")
+			// 	}
+			// }
+			var filteredValues []model.AlertPayload
+			if err := json.Unmarshal(jsonBytes, &filteredValues); err != nil {
+				return nil, huma.Error500InternalServerError("Failed to unmarshal filtered alert payloads: " + err.Error())
+			}
 			return &AlertPayloads{
-				Body: values,
+				Body: filteredValues,
 			}, nil
 		}
 }

@@ -45,6 +45,7 @@ require (
 )
 
 require (
+	github.com/Masterminds/semver/v3 v3.3.0
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/alicebob/miniredis v2.5.0+incompatible
 	github.com/danielgtaylor/huma/v2 v2.32.0
@@ -55,6 +56,8 @@ require (
 	github.com/metraction/handwheel v0.0.3
 	github.com/otiai10/copy v1.14.1
 	github.com/prometheus/client_golang v1.22.0
+	github.com/theory/jsonpath v0.10.0
+	github.com/traefik/yaegi v0.16.1
 	go.starlark.net v0.0.0-20240123142251-f86470692795
 	gopkg.in/yaml.v2 v2.4.0
 	gorm.io/driver/sqlite v1.6.0
@@ -67,7 +70,6 @@ require (
 	dario.cat/mergo v1.0.1 // indirect
 	github.com/1set/starlight v0.1.2 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
-	github.com/Masterminds/semver/v3 v3.3.0 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/ProtonMail/go-crypto v1.1.6 // indirect
 	github.com/alicebob/gopher-json v0.0.0-20200520072559-a9ecdc9d1d3a // indirect
@@ -117,7 +119,6 @@ require (
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/skeema/knownhosts v1.3.1 // indirect
 	github.com/spyzhov/ajson v0.9.6 // indirect
-	github.com/traefik/yaegi v0.16.1 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	github.com/yuin/gopher-lua v1.1.1 // indirect
