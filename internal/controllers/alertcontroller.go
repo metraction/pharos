@@ -244,7 +244,7 @@ func (ac *AlertController) V1AlertPayloadsGetBySearch() (huma.Operation, func(ct
 			db = db.Order("group_key,receiver ASC")
 
 			var values []model.AlertPayload
-			result := db.Scopes(Paginate(&input.Body.Pagination)).Find(&values)
+			result := db.Find(&values)
 			if result.Error != nil {
 				return nil, huma.Error500InternalServerError("Failed to retrieve alerts: " + result.Error.Error())
 			}
