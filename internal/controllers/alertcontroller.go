@@ -4,6 +4,8 @@ package controllers
 
 import (
 	"context"
+	"encoding/json"
+	"sort"
 	"strings"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -11,6 +13,7 @@ import (
 	"github.com/metraction/pharos/pkg/alerting"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/rs/zerolog"
+	"github.com/theory/jsonpath"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -40,11 +43,26 @@ type AlertPayloads struct {
 	Body []model.AlertPayload `json:"body"`
 }
 
+type AlertLabels struct {
+	Body []string `json:"body"`
+}
+
+type AlertValues struct {
+	Body []string `json:"body"`
+}
+
+type AlertValuesSearchInput struct {
+	LabelName string `query:"labelName"`
+}
+
 type AlertPayloadSearchInput struct {
-	Pagination
-	Detail   bool   `query:"detail" default:"true" doc:"If true, returns detailed information about the alert payload"`
-	GroupKey string `query:"groupKey" doc:"GroupKey of the to retrieve, can be a glob pattern, exclusive with search"`
-	Receiver string `query:"receiver" doc:"Receiver of the alert payload to retrieve, can be a glob pattern, exclusive with search"`
+	Body struct {
+		Pagination
+		Detail   bool   `query:"detail" default:"true" doc:"If true, returns detailed information about the alert payload"`
+		GroupKey string `query:"groupKey" doc:"GroupKey of the to retrieve, can be a glob pattern, exclusive with search"`
+		Receiver string `query:"receiver" doc:"Receiver of the alert payload to retrieve, can be a glob pattern, exclusive with search"`
+		JSONPath string `query:"jsonPath" doc:"Use RFC9535 jsonPath to filter alert payloads, exclusive with groupKey and receiver"`
+	}
 }
 
 type AlertPayloadsUpdateInput struct {
@@ -81,6 +99,14 @@ func (ac *AlertController) V1AddRoutes() {
 	}
 	{
 		op, handler := ac.V1AlertPayloadsUpdateExtraLabels()
+		huma.Register(*ac.Api, op, handler)
+	}
+	{
+		op, handler := ac.V1AlertLabelNamesGet()
+		huma.Register(*ac.Api, op, handler)
+	}
+	{
+		op, handler := ac.V1AlertLabelValuesGet()
 		huma.Register(*ac.Api, op, handler)
 	}
 }
@@ -177,7 +203,7 @@ func (ac *AlertController) V1AlertsGetBySearch() (huma.Operation, func(ctx conte
 func (ac *AlertController) V1AlertPayloadsGetBySearch() (huma.Operation, func(ctx context.Context, input *AlertPayloadSearchInput) (*AlertPayloads, error)) {
 	return huma.Operation{
 			OperationID: "V1SearchAlertPayloads",
-			Method:      "GET",
+			Method:      "POST",
 			Path:        ac.Path + "/payloads",
 			Summary:     "Search for alert payloads",
 			Description: "Retrieves alert payloads stored in the database as internal representation",
@@ -196,7 +222,10 @@ func (ac *AlertController) V1AlertPayloadsGetBySearch() (huma.Operation, func(ct
 				return nil, huma.Error500InternalServerError("Database context not found in request context")
 			}
 			var db *gorm.DB
-			if input.Detail {
+			// we have to disable pagination if we filter by alerts, because the logic is implemente
+			// in controller code and not in the database query.
+			// also if we search by labels, details have to be enabled.
+			if input.Body.Detail {
 				db = databaseContext.DB.
 					Preload("Alerts").
 					Preload("Alerts.Labels").
@@ -205,21 +234,189 @@ func (ac *AlertController) V1AlertPayloadsGetBySearch() (huma.Operation, func(ct
 				db = databaseContext.DB.Omit(clause.Associations)
 			}
 
-			if input.GroupKey != "" {
-				db = db.Where("group_key LIKE ?", strings.ReplaceAll(input.GroupKey, "*", "%"))
+			if input.Body.GroupKey != "" {
+				db = db.Where("group_key LIKE ?", strings.ReplaceAll(input.Body.GroupKey, "*", "%"))
 			}
-			if input.Receiver != "" {
-				db = db.Where("receiver LIKE ?", strings.ReplaceAll(input.Receiver, "*", "%"))
+			if input.Body.Receiver != "" {
+				db = db.Where("receiver LIKE ?", strings.ReplaceAll(input.Body.Receiver, "*", "%"))
 
 			}
 			db = db.Order("group_key,receiver ASC")
 
 			var values []model.AlertPayload
-			result := db.Scopes(Paginate(&input.Pagination)).Find(&values)
+			result := db.Find(&values)
 			if result.Error != nil {
 				return nil, huma.Error500InternalServerError("Failed to retrieve alerts: " + result.Error.Error())
 			}
+			if input.Body.JSONPath == "" {
+				input.Body.JSONPath = "$[*]"
+			}
+			parser := jsonpath.NewParser()
+			p, err := parser.Parse(input.Body.JSONPath)
+			if err != nil {
+				return nil, huma.Error400BadRequest("Invalid jsonPath: " + err.Error())
+			}
+
+			jsonBytes, err := json.Marshal(&values)
+			if err != nil {
+				return nil, huma.Error500InternalServerError("Failed to marshal alert payloads: " + err.Error())
+			}
+			var data interface{}
+			if err := json.Unmarshal(jsonBytes, &data); err != nil {
+				return nil, huma.Error500InternalServerError("Failed to unmarshal alert payloads: " + err.Error())
+			}
+			selected := p.Select(data)
+			if len(selected) == 0 {
+				return &AlertPayloads{
+					Body: []model.AlertPayload{},
+				}, nil
+			}
+			jsonBytes, err = json.Marshal(selected)
+			// var filteredValues []model.AlertPayload
+			// for _, v := range selected {
+			// 	if ap, ok := v.(*model.AlertPayload); ok {
+			// 		filteredValues = append(filteredValues, *ap)
+			// 	} else {
+			// 		ac.Logger.Warn().Msgf("Failed to convert selected value to AlertPayload: %v", v)
+			// 		return nil, huma.Error500InternalServerError("Failed to convert selected value to AlertPayload")
+			// 	}
+			// }
+			var filteredValues []model.AlertPayload
+			if err := json.Unmarshal(jsonBytes, &filteredValues); err != nil {
+				return nil, huma.Error500InternalServerError("Failed to unmarshal filtered alert payloads: " + err.Error())
+			}
 			return &AlertPayloads{
+				Body: filteredValues,
+			}, nil
+		}
+}
+
+func (ac *AlertController) getAllAlertLabels(ctx context.Context) ([]model.AlertLabel, error) {
+	databaseContext, err := getDatabaseContext(ctx)
+	if err != nil {
+		return nil, huma.Error500InternalServerError("Database context not found in request context")
+	}
+	var alertLabels []model.AlertLabel
+	result := databaseContext.DB.Find(&alertLabels)
+	if result.Error != nil {
+		return nil, huma.Error500InternalServerError("Failed to retrieve alert labels: " + result.Error.Error())
+	}
+	labels := []model.AlertLabel{}
+	for _, label := range alertLabels {
+		exists := false
+		for _, existing := range labels {
+			if existing.Name == label.Name && existing.Value == label.Value {
+				exists = true
+				break
+			}
+		}
+		if !exists {
+			labels = append(labels, model.AlertLabel{
+				Name:  label.Name,
+				Value: label.Value,
+			})
+		}
+	}
+	var AlertPayloads []model.AlertPayload
+	result = databaseContext.DB.Find(&AlertPayloads)
+	if result.Error != nil {
+		return nil, huma.Error500InternalServerError("Failed to retrieve alert payloads: " + result.Error.Error())
+	}
+	for _, alertPayload := range AlertPayloads {
+		for label := range alertPayload.ExtraLabels {
+			exists := false
+			for _, existing := range labels {
+				if existing.Name == label && existing.Value == alertPayload.ExtraLabels[label] {
+					exists = true
+					break
+				}
+			}
+			if !exists {
+				labels = append(labels, model.AlertLabel{
+					Name:  label,
+					Value: alertPayload.ExtraLabels[label],
+				})
+			}
+		}
+	}
+	return labels, nil
+}
+
+func (ac *AlertController) V1AlertLabelNamesGet() (huma.Operation, func(ctx context.Context, input *struct{}) (*AlertLabels, error)) {
+	return huma.Operation{
+			OperationID: "V1GetAlertLabelNames",
+			Method:      "GET",
+			Path:        ac.Path + "/labelnames",
+			Summary:     "Get all alert label names",
+			Description: "Returns all unique label key-value pairs that exist in all alerts",
+			Tags:        []string{"V1/Alert"},
+			Responses: map[string]*huma.Response{
+				"200": {
+					Description: "A map of all alert labels",
+				},
+				"500": {
+					Description: "Internal server error",
+				},
+			},
+		}, func(ctx context.Context, input *struct{}) (*AlertLabels, error) {
+			labels, err := ac.getAllAlertLabels(ctx)
+			if err != nil {
+				return nil, err
+			}
+			labelNames := []string{}
+			seen := make(map[string]struct{})
+			for _, label := range labels {
+				if _, exists := seen[label.Name]; !exists {
+					labelNames = append(labelNames, label.Name)
+					seen[label.Name] = struct{}{}
+				}
+			}
+			sort.Strings(labelNames)
+			return &AlertLabels{
+				Body: labelNames,
+			}, nil
+		}
+}
+
+func (ac *AlertController) V1AlertLabelValuesGet() (huma.Operation, func(ctx context.Context, input *AlertValuesSearchInput) (*AlertValues, error)) {
+	return huma.Operation{
+			OperationID: "V1GetAlertLabelValues",
+			Method:      "GET",
+			Path:        ac.Path + "/labelvalues",
+			Summary:     "Get all values for a given alert label name",
+			Description: "Returns all unique values for a given label name across all alerts and alert payloads",
+			Tags:        []string{"V1/Alert"},
+			Responses: map[string]*huma.Response{
+				"200": {
+					Description: "A list of label values",
+				},
+				"500": {
+					Description: "Internal server error",
+				},
+				"400": {
+					Description: "Bad request",
+				},
+			},
+		}, func(ctx context.Context, input *AlertValuesSearchInput) (*AlertValues, error) {
+			if input.LabelName == "" {
+				return nil, huma.Error400BadRequest("labelName query parameter is required")
+			}
+			labels, err := ac.getAllAlertLabels(ctx)
+			if err != nil {
+				return nil, err
+			}
+			valueSet := make(map[string]struct{})
+			for _, label := range labels {
+				if label.Name == input.LabelName {
+					valueSet[label.Value] = struct{}{}
+				}
+			}
+			values := make([]string, 0, len(valueSet))
+			for v := range valueSet {
+				values = append(values, v)
+			}
+			sort.Strings(values)
+			return &AlertValues{
 				Body: values,
 			}, nil
 		}
