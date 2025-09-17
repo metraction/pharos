@@ -162,7 +162,93 @@ func TestServer(t *testing.T) {
 		//require.Greater(t, lines, 0)
 		//require.Greater(t, vulnerabilites, 0, "Expected at least one pharos_vulnerabilities metric")
 	})
-	t.Run("04 Cleanup", func(t *testing.T) {
+	t.Run("05 Test enricher controller", func(t *testing.T) {
+		// Setup: Add a test image meta to the database
+		enricher := model.Enricher{
+			Name:        "Test Enricher",
+			Type:        model.EnricherTypeYaegi,
+			Description: "A test enricher that adds dummy data",
+		}
+
+		// Setup: Create EnricherController and add routes
+		enricherController := NewEnricherController(&v1Api, config)
+		enricherController.V1AddRoutes()
+
+		// Simulate enrichment via API (assuming POST /api/v1/enricher)
+		enrichURL := "http://localhost:8081/api/v1/enricher"
+		enricherJSON, err := json.Marshal(enricher)
+		require.NoError(t, err)
+		reqBody := strings.NewReader(string(enricherJSON))
+		resp, err := http.Post(enrichURL, "application/json", reqBody)
+		require.NoError(t, err)
+		defer resp.Body.Close()
+		require.Equal(t, http.StatusOK, resp.StatusCode, "Expected status OK from enrichment endpoint")
+
+		// Query the enricher endpoint to verify the enricher was added
+		getURL := "http://localhost:8081/api/v1/enricher/1"
+		resp, err = http.Get(getURL)
+		require.NoError(t, err)
+		defer resp.Body.Close()
+		require.Equal(t, http.StatusOK, resp.StatusCode, "Expected status OK from GET enricher endpoint")
+
+		err = json.NewDecoder(resp.Body).Decode(&enricher)
+		require.NoError(t, err)
+		require.Equal(t, "Test Enricher", enricher.Name)
+		require.Equal(t, model.EnricherTypeYaegi, enricher.Type)
+		require.Equal(t, "A test enricher that adds dummy data", enricher.Description)
+		// Test deletion of enricher via API (assuming DELETE /api/v1/enricher/{id})
+		deleteURL := "http://localhost:8081/api/v1/enricher/1"
+		req, err := http.NewRequest(http.MethodDelete, deleteURL, nil)
+		require.NoError(t, err)
+		client := &http.Client{}
+		resp, err = client.Do(req)
+		require.NoError(t, err)
+		defer resp.Body.Close()
+		require.Equal(t, http.StatusNoContent, resp.StatusCode, "Expected status NoContent from DELETE enricher endpoint")
+
+		// Verify enricher is deleted by trying to GET it again
+		resp, err = http.Get(deleteURL)
+		require.NoError(t, err)
+		defer resp.Body.Close()
+		require.Equal(t, http.StatusNotFound, resp.StatusCode, "Expected status NotFound after deletion")
+
+		// Test listing enrichers (should be empty after deletion)
+		listURL := "http://localhost:8081/api/v1/enricher"
+		resp, err = http.Get(listURL)
+		require.NoError(t, err)
+		defer resp.Body.Close()
+		require.Equal(t, http.StatusOK, resp.StatusCode, "Expected status OK from GET enricher list endpoint")
+		var enrichers []model.Enricher
+		err = json.NewDecoder(resp.Body).Decode(&enrichers)
+		require.NoError(t, err)
+		require.Len(t, enrichers, 0, "Expected no enrichers after deletion")
+
+		// Test creating multiple enrichers and listing them
+		for i := 2; i <= 3; i++ {
+			enricher := model.Enricher{
+				Name:        fmt.Sprintf("Enricher %d", i),
+				Type:        model.EnricherTypeYaegi,
+				Description: fmt.Sprintf("Description %d", i),
+			}
+			enricherJSON, err := json.Marshal(enricher)
+			require.NoError(t, err)
+			reqBody := strings.NewReader(string(enricherJSON))
+			resp, err := http.Post(enrichURL, "application/json", reqBody)
+			require.NoError(t, err)
+			defer resp.Body.Close()
+			require.Equal(t, http.StatusOK, resp.StatusCode)
+		}
+		resp, err = http.Get(listURL)
+		require.NoError(t, err)
+		defer resp.Body.Close()
+		require.Equal(t, http.StatusOK, resp.StatusCode)
+		err = json.NewDecoder(resp.Body).Decode(&enrichers)
+		require.NoError(t, err)
+		require.Len(t, enrichers, 2, "Expected two enrichers after adding")
+		require.Equal(t, "Enricher 2", enrichers[0].Name)
+		require.Equal(t, "Enricher 3", enrichers[1].Name)
+	})
+	t.Run("05 Cleanup", func(t *testing.T) {
 		go routing.NewImageSchedulerFlow(&databaseContext, config)
 		// Allow cleanup to run
 		time.Sleep(10 * time.Second)
