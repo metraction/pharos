@@ -16,4 +16,5 @@ type Enricher struct {
 	Description string       `json:"description"`
 	Enabled     bool         `json:"enabled"`
 	Code        string       `json:"code"`
+	Preview     string       `json:"preview"`
 }
