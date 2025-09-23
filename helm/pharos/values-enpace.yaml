@@ -41,4 +41,7 @@ caCertificates:
   # -- ConfigMap name for CA certificates, bring your own if configMapEnabled is true
   configMapName: ca-certificates
 
+# enrichers:
+#   uiUrl: "http://pharos-client.pharos-client.svc.cluster.local:3000" # URL to the Pharos UI, used in enrichers to run visual enrichers.
+
     

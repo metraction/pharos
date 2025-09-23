@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -79,15 +78,17 @@ These submissions are then published to a Redis stream for further processing by
 		// Create results flow without redis
 		internalFlow := routing.NewScanResultsInternalFlow(extension.NewChanSource(resultChannel), databaseContext)
 
-		ctx, cancel := context.WithCancel(context.Background())
+		//ctx, cancel := context.WithCancel(context.Background())
 
-		go CreateEnrichersFlow(collectorFlow, enrichers, databaseContext, &config.EnricherCommon, ctx).
+		enricherFlowInternal := NewEnricherFlow(enrichers, databaseContext, &config.EnricherCommon)
+		enricherFlowCollector := NewEnricherFlow(enrichers, databaseContext, &config.EnricherCommon)
+
+		go collectorFlow.Via(enricherFlowCollector).
 			To(db.NewImageDbSink(databaseContext))
 
-		go CreateEnrichersFlow(internalFlow, enrichers, databaseContext, &config.EnricherCommon, ctx).
+		go internalFlow.Via(enricherFlowInternal).
 			To(db.NewImageDbSink(databaseContext))
 
-		cancel()
 		// Base Router
 		baseRouter := chi.NewRouter()
 		commonController := controllers.NewCommonController()

@@ -82,7 +82,7 @@ var testCmd = &cobra.Command{
 
 		plugin := CreateEnrichersFlow(extension.NewChanSource(inputChannel), enrichers, nil, nil, context.Background())
 
-		result := (<-(plugin.(streams.Flow)).Out()).(model.PharosScanResult)
+		result := (<-plugin.Out()).(model.PharosScanResult)
 
 		out, err := yaml.Marshal(result.Image.ContextRoots)
 		if err != nil {
@@ -228,6 +228,76 @@ var pluginDeconfigMapCmd = &cobra.Command{
 	},
 }
 
+type EnricherFlow struct {
+	in              chan any
+	out             chan any
+	enrichers       *model.EnrichersConfig
+	databaseContext *model.DatabaseContext
+	enricherCommon  *model.EnricherCommonConfig
+	processing      bool
+	sink            streams.Sink
+}
+
+var _ streams.Flow = (*EnricherFlow)(nil)
+
+func NewEnricherFlow(enrichers *model.EnrichersConfig, databaseContext *model.DatabaseContext, enricherCommon *model.EnricherCommonConfig) *EnricherFlow {
+	enricherFlow := &EnricherFlow{
+		in:              make(chan any),
+		out:             make(chan any),
+		enrichers:       enrichers,
+		databaseContext: databaseContext,
+		enricherCommon:  enricherCommon,
+		processing:      false,
+	}
+	go enricherFlow.stream()
+
+	return enricherFlow
+
+}
+
+// Via asynchronously streams data to the given Flow and returns it.
+func (ef *EnricherFlow) Via(flow streams.Flow) streams.Flow {
+	go ef.transmit(flow)
+	return flow
+}
+
+// func (ef *EnricherFlow) ApplyEnrichers() streams.Flow {
+// 	flow := CreateEnrichersFlow(ef, ef.enrichers, ef.databaseContext, ef.enricherCommon, context.Background())
+// 	return ef.Via(flow)
+// }
+
+func (ef *EnricherFlow) To(sink streams.Sink) {
+	//flow := CreateEnrichersFlow(ef, ef.enrichers, ef.databaseContext, ef.enricherCommon, context.Background())
+	for element := range ef.out {
+		flow := CreateEnrichersFlow(ef, ef.enrichers, ef.databaseContext, ef.enricherCommon, context.Background())
+		flow.In() <- element
+		processedElement := <-flow.Out()
+		sink.In() <- processedElement
+	}
+}
+
+func (ef *EnricherFlow) Out() <-chan any {
+	return ef.out
+}
+
+func (ef *EnricherFlow) In() chan<- any {
+	return ef.in
+}
+
+func (ef *EnricherFlow) transmit(inlet streams.Inlet) {
+	for element := range ef.Out() {
+		inlet.In() <- element
+	}
+	close(inlet.In())
+}
+
+func (ef *EnricherFlow) stream() {
+	for element := range ef.in {
+		ef.out <- element
+	}
+	close(ef.out)
+}
+
 func CreateEnrichersFlow(plugin streams.Source, enrichers *model.EnrichersConfig, databaseContext *model.DatabaseContext, enricherCommon *model.EnricherCommonConfig, ctx context.Context) streams.Flow {
 	for _, source := range enrichers.Sources {
 		// Load the plugin
@@ -254,18 +324,20 @@ func CreateEnrichersFlow(plugin streams.Source, enrichers *model.EnrichersConfig
 	if databaseContext != nil {
 		// here we load enrichers from database and add them to the flow
 		var dbEnrichers []model.Enricher
-		result := databaseContext.DB.Find(&dbEnrichers).Where("enabled = ?", true)
+		result := databaseContext.DB.Find(&dbEnrichers)
 		if result.Error != nil {
 			logger.Error().Err(result.Error).Msg("Error loading enrichers from database")
 			return plugin.(streams.Flow)
 		}
 		for _, dbEnricher := range dbEnrichers {
-			enricherConfig := model.EnricherConfig{
-				BasePath: "",
-				Configs:  []model.MapperConfig{},
-				Enricher: &dbEnricher,
+			if dbEnricher.Enabled {
+				enricherConfig := model.EnricherConfig{
+					BasePath: "",
+					Configs:  []model.MapperConfig{},
+					Enricher: &dbEnricher,
+				}
+				plugin = plugin.Via(mappers.NewEnricherMap(dbEnricher.Name, enricherConfig, enricherCommon))
 			}
-			plugin = plugin.Via(mappers.NewEnricherMap(dbEnricher.Name, enricherConfig, enricherCommon))
 		}
 	}
 	return plugin.(streams.Flow)
