@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	"encoding/base64"
 	"fmt"
 	"os"
@@ -80,7 +79,7 @@ var testCmd = &cobra.Command{
 		inputChannel <- *testResult
 		close(inputChannel)
 
-		plugin := CreateEnrichersFlow(extension.NewChanSource(inputChannel), enrichers, nil, nil, context.Background())
+		plugin := CreateEnrichersFlow(extension.NewChanSource(inputChannel), enrichers, nil, nil)
 
 		result := (<-plugin.Out()).(model.PharosScanResult)
 
@@ -228,6 +227,9 @@ var pluginDeconfigMapCmd = &cobra.Command{
 	},
 }
 
+// EnricherFlow is a custom implementation of streams.Flow that applies a series of enrichers to incoming data.
+// It adds the flows dynamically based on the provided EnrichersConfig and the database context.
+
 type EnricherFlow struct {
 	in              chan any
 	out             chan any
@@ -255,25 +257,24 @@ func NewEnricherFlow(enrichers *model.EnrichersConfig, databaseContext *model.Da
 
 }
 
-// Via asynchronously streams data to the given Flow and returns it.
+// Via asynchronously streams data to the given Flow and returns it. Here we cannot create dynamic flows.
 func (ef *EnricherFlow) Via(flow streams.Flow) streams.Flow {
 	go ef.transmit(flow)
 	return flow
 }
 
-// func (ef *EnricherFlow) ApplyEnrichers() streams.Flow {
-// 	flow := CreateEnrichersFlow(ef, ef.enrichers, ef.databaseContext, ef.enricherCommon, context.Background())
-// 	return ef.Via(flow)
-// }
-
 func (ef *EnricherFlow) To(sink streams.Sink) {
-	//flow := CreateEnrichersFlow(ef, ef.enrichers, ef.databaseContext, ef.enricherCommon, context.Background())
+
+	//flow := CreateEnrichersFlow(source, ef.enrichers, ef.databaseContext, ef.enricherCommon)
 	for element := range ef.out {
-		flow := CreateEnrichersFlow(ef, ef.enrichers, ef.databaseContext, ef.enricherCommon, context.Background())
-		flow.In() <- element
+		sourceChannel := make(chan any, 1)
+		source := extension.NewChanSource(sourceChannel)
+		flow := CreateEnrichersFlow(source, ef.enrichers, ef.databaseContext, ef.enricherCommon)
+		sourceChannel <- element
 		processedElement := <-flow.Out()
 		sink.In() <- processedElement
 	}
+	close(ef.in)
 }
 
 func (ef *EnricherFlow) Out() <-chan any {
@@ -298,7 +299,7 @@ func (ef *EnricherFlow) stream() {
 	close(ef.out)
 }
 
-func CreateEnrichersFlow(plugin streams.Source, enrichers *model.EnrichersConfig, databaseContext *model.DatabaseContext, enricherCommon *model.EnricherCommonConfig, ctx context.Context) streams.Flow {
+func CreateEnrichersFlow(plugin streams.Source, enrichers *model.EnrichersConfig, databaseContext *model.DatabaseContext, enricherCommon *model.EnricherCommonConfig) streams.Flow {
 	for _, source := range enrichers.Sources {
 		// Load the plugin
 		var enricherPath string

@@ -75,10 +75,16 @@ These submissions are then published to a Redis stream for further processing by
 			databaseContext,
 			logger,
 		)
+
 		// Create results flow without redis
 		internalFlow := routing.NewScanResultsInternalFlow(extension.NewChanSource(resultChannel), databaseContext)
 
-		//ctx, cancel := context.WithCancel(context.Background())
+		// go CreateEnrichersFlow(internalFlow, enrichers, databaseContext, &config.EnricherCommon).
+		// 	To(db.NewImageDbSink(databaseContext))
+		// go CreateEnrichersFlow(collectorFlow, enrichers, databaseContext, &config.EnricherCommon).
+		// 	To(db.NewImageDbSink(databaseContext))
+
+		// //ctx, cancel := context.WithCancel(context.Background())
 
 		enricherFlowInternal := NewEnricherFlow(enrichers, databaseContext, &config.EnricherCommon)
 		enricherFlowCollector := NewEnricherFlow(enrichers, databaseContext, &config.EnricherCommon)

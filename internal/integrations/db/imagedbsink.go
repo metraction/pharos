@@ -80,6 +80,11 @@ func (is *ImageDbSink) process() {
 				logger.Error().Err(tx.Error).Msg("Failed to delete associations")
 				continue
 			}
+			// tx = is.DatabaseContext.DB.Where("image_id = ?", pharosScanResult.Image.ImageId).Where("context_root_key = ?", pharosScanResult.ScanTask.ContextRootKey).Delete(&model.Context{})
+			// if tx.Error != nil {
+			// 	logger.Error().Err(tx.Error).Msg("Failed to delete associations")
+			// 	continue
+			// }
 			tx = is.DatabaseContext.DB.Session(&gorm.Session{FullSaveAssociations: true}).Save(pharosScanResult.Image) // Try to Save the updated image metadata
 			if tx.Error != nil {
 				logger.Error().Err(tx.Error).Msg("Failed to save image metadata in database")
