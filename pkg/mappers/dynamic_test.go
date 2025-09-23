@@ -26,7 +26,7 @@ func TestDynamicWrapperStream(t *testing.T) {
 
 	source := extension.NewChanSource(outChan)
 	//stream := NewResultEnricherStream(source, "eos-passthrough", enricher)
-	stream := source.Via(NewEnricherMap("eos-passthrough", enricher))
+	stream := source.Via(NewEnricherMap("eos-passthrough", enricher, nil))
 	result := (<-stream.Out()).(model.PharosScanResult)
 
 	// Assert that the result contains the same scan result that was passed in

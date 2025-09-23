@@ -12,7 +12,7 @@
             "program": "main.go",
             "args": [
                 "http",
-                "--enricherPath",
+                "--enrichercommon.enricherPath",
                 "../testdata/enrichers/enrichers.yaml",
                 "--prometheus.auth.username",
                 "admin",

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"encoding/base64"
 	"fmt"
 	"os"
@@ -52,7 +53,7 @@ var testCmd = &cobra.Command{
 		var enrichersPath string
 		if len(args) == 0 {
 			fmt.Println("No arguments provided. Using default enrichers.")
-			enrichersPath = config.EnricherPath
+			enrichersPath = config.EnricherCommon.EnricherPath
 		} else {
 			enrichersPath = args[0]
 		}
@@ -79,7 +80,7 @@ var testCmd = &cobra.Command{
 		inputChannel <- *testResult
 		close(inputChannel)
 
-		plugin := CreateEnrichersFlow(extension.NewChanSource(inputChannel), enrichers)
+		plugin := CreateEnrichersFlow(extension.NewChanSource(inputChannel), enrichers, nil, nil, context.Background())
 
 		result := (<-(plugin.(streams.Flow)).Out()).(model.PharosScanResult)
 
@@ -227,7 +228,7 @@ var pluginDeconfigMapCmd = &cobra.Command{
 	},
 }
 
-func CreateEnrichersFlow(plugin streams.Source, enrichers *model.EnrichersConfig) streams.Flow {
+func CreateEnrichersFlow(plugin streams.Source, enrichers *model.EnrichersConfig, databaseContext *model.DatabaseContext, enricherCommon *model.EnricherCommonConfig, ctx context.Context) streams.Flow {
 	for _, source := range enrichers.Sources {
 		// Load the plugin
 		var enricherPath string
@@ -248,7 +249,24 @@ func CreateEnrichersFlow(plugin streams.Source, enrichers *model.EnrichersConfig
 		}
 		enricherPath = addBasePathToRelative(config, enricherPath)
 		enricherConfig := enricher.LoadEnricherConfig(enricherPath, source.Name)
-		plugin = plugin.Via(mappers.NewEnricherMap(source.Name, enricherConfig))
+		plugin = plugin.Via(mappers.NewEnricherMap(source.Name, enricherConfig, &config.EnricherCommon))
+	}
+	if databaseContext != nil {
+		// here we load enrichers from database and add them to the flow
+		var dbEnrichers []model.Enricher
+		result := databaseContext.DB.Find(&dbEnrichers).Where("enabled = ?", true)
+		if result.Error != nil {
+			logger.Error().Err(result.Error).Msg("Error loading enrichers from database")
+			return plugin.(streams.Flow)
+		}
+		for _, dbEnricher := range dbEnrichers {
+			enricherConfig := model.EnricherConfig{
+				BasePath: "",
+				Configs:  []model.MapperConfig{},
+				Enricher: &dbEnricher,
+			}
+			plugin = plugin.Via(mappers.NewEnricherMap(dbEnricher.Name, enricherConfig, enricherCommon))
+		}
 	}
 	return plugin.(streams.Flow)
 }

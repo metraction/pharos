@@ -186,7 +186,8 @@ func init() {
 	rootCmd.PersistentFlags().String("database.dsn", defaultDSN, "Database DSN for the scanner, for postgres it is the connection string.")
 
 	// It should work for dev, docker and k8s: files located in kodada; $KO_DATA_PATH; configMap
-	rootCmd.PersistentFlags().String("enricherPath", "enrichers", "Base path for the enrichers")
+	rootCmd.PersistentFlags().String("enrichercommon.enricherPath", "enrichers", "Base path for the enrichers")
+	rootCmd.PersistentFlags().String("enrichercommon.uiUrl", "http://localhost:3000", "URL of the Pharos UI server, used for visual enrichers")
 
 	rootCmd.AddCommand(scannerCmd)
 }

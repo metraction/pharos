@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"sort"
 	"testing"
@@ -54,7 +55,7 @@ func TestStarlarkPlugin(t *testing.T) {
 			inputChannel <- tt.args.inputItem
 			close(inputChannel)
 
-			plugin := CreateEnrichersFlow(extension.NewChanSource(inputChannel), enrichers)
+			plugin := CreateEnrichersFlow(extension.NewChanSource(inputChannel), enrichers, nil, nil, context.Background())
 			result := (<-(plugin.(streams.Flow)).Out()).(model.PharosScanResult)
 
 			// Find the results context

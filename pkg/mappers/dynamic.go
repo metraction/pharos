@@ -24,9 +24,9 @@ func LoadMappersConfig(data []byte) (map[string][]model.MapperConfig, error) {
 	return configMap, nil
 }
 
-func NewEnricherMap(name string, enricher model.EnricherConfig) streams.Flow {
+func NewEnricherMap(name string, enricher model.EnricherConfig, enricherCommon *model.EnricherCommonConfig) streams.Flow {
 	// Create a single functions composition of functions resulting in
-	logger.Info().Interface("enricher", enricher).Msg("Creating enricher map")
+	logger.Info().Str("enricher", enricher.BasePath).Str("name", name).Msg("Creating enricher map")
 	// WrappedResult and passing it to next function
 	return flow.NewMap(func(scanResult model.PharosScanResult) model.PharosScanResult {
 		// Step 1: Wrap the result
@@ -47,7 +47,15 @@ func NewEnricherMap(name string, enricher model.EnricherConfig) streams.Flow {
 			}
 		}
 
-		// Step 3: Unwrap the result
+		// Step 3: Apply database enrichers if present
+		if enricher.Enricher != nil {
+			logger.Info().Str("name", name).Msg("Applying database enricher")
+			if enricher.Enricher.Type == "visual" {
+				wrapped = Wrap(NewVisual(enricher.Enricher, enricherCommon))(wrapped)
+			}
+		}
+
+		// Step 4: Unwrap the result
 		return ToUnWrappedResult(name)(wrapped)
 	}, 1)
 }

@@ -74,7 +74,7 @@ func TestIntegrationScanResultCollectorFlow(t *testing.T) {
 
 	source := extension.NewChanSource(outChan)
 	stream := NewScanResultCollectorFlow(context.Background(), config, source, nil, logger) // Testing this without a database and we do not handle CreatedAt for Vulnerabilities
-	stream = stream.Via(mappers.NewEnricherMap("result", enricherConfig))
+	stream = stream.Via(mappers.NewEnricherMap("result", enricherConfig, &config.EnricherCommon))
 
 	result := (<-stream.Out()).(model.PharosScanResult)
 

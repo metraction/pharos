@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -48,7 +49,7 @@ These submissions are then published to a Redis stream for further processing by
 		resultChannel := make(chan any, config.ResultCollector.QueueSize)
 
 		// TODO other commands expect current path, but for http default file are in kodata...
-		enricherPath := config.EnricherPath
+		enricherPath := config.EnricherCommon.EnricherPath
 		koDataPath := os.Getenv("KO_DATA_PATH")
 		if koDataPath == "" && !filepath.IsAbs(enricherPath) {
 			// So append kodada if command is executed with go run .
@@ -75,15 +76,18 @@ These submissions are then published to a Redis stream for further processing by
 			databaseContext,
 			logger,
 		)
-		go CreateEnrichersFlow(collectorFlow, enrichers).
-			To(db.NewImageDbSink(databaseContext))
-
 		// Create results flow without redis
 		internalFlow := routing.NewScanResultsInternalFlow(extension.NewChanSource(resultChannel), databaseContext)
 
-		go CreateEnrichersFlow(internalFlow, enrichers).
+		ctx, cancel := context.WithCancel(context.Background())
+
+		go CreateEnrichersFlow(collectorFlow, enrichers, databaseContext, &config.EnricherCommon, ctx).
 			To(db.NewImageDbSink(databaseContext))
 
+		go CreateEnrichersFlow(internalFlow, enrichers, databaseContext, &config.EnricherCommon, ctx).
+			To(db.NewImageDbSink(databaseContext))
+
+		cancel()
 		// Base Router
 		baseRouter := chi.NewRouter()
 		commonController := controllers.NewCommonController()

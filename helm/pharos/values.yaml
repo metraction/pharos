@@ -129,6 +129,8 @@ enrichers:
         eos: {{ index .meta.eos .payload.Image.DistroName | filter "version" "matchWildcard" .payload.Image.DistroVersion | map "field" "eos" | first }}
     files:
       eos.yaml: files/eos.yaml
+  #uiUrl: "" # leave empty to disable UI enrichers
+  uiUrl: "http://pharos-client.pharos-client.svc.cluster.local:3000" # URL to the Pharos UI, used in enrichers to run visual enrichers.
 
 caCertificates:
   # -- Enable CA certificates configMap
