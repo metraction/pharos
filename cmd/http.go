@@ -84,8 +84,6 @@ These submissions are then published to a Redis stream for further processing by
 		// go CreateEnrichersFlow(collectorFlow, enrichers, databaseContext, &config.EnricherCommon).
 		// 	To(db.NewImageDbSink(databaseContext))
 
-		// //ctx, cancel := context.WithCancel(context.Background())
-
 		enricherFlowInternal := NewEnricherFlow(enrichers, databaseContext, &config.EnricherCommon)
 		enricherFlowCollector := NewEnricherFlow(enrichers, databaseContext, &config.EnricherCommon)
 

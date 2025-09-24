@@ -264,17 +264,8 @@ func (ef *EnricherFlow) Via(flow streams.Flow) streams.Flow {
 }
 
 func (ef *EnricherFlow) To(sink streams.Sink) {
-
-	//flow := CreateEnrichersFlow(source, ef.enrichers, ef.databaseContext, ef.enricherCommon)
-	for element := range ef.out {
-		sourceChannel := make(chan any, 1)
-		source := extension.NewChanSource(sourceChannel)
-		flow := CreateEnrichersFlow(source, ef.enrichers, ef.databaseContext, ef.enricherCommon)
-		sourceChannel <- element
-		processedElement := <-flow.Out()
-		sink.In() <- processedElement
-	}
-	close(ef.in)
+	ef.transmit(sink)
+	sink.AwaitCompletion()
 }
 
 func (ef *EnricherFlow) Out() <-chan any {
@@ -286,8 +277,13 @@ func (ef *EnricherFlow) In() chan<- any {
 }
 
 func (ef *EnricherFlow) transmit(inlet streams.Inlet) {
-	for element := range ef.Out() {
-		inlet.In() <- element
+	for element := range ef.out {
+		sourceChannel := make(chan any, 1)
+		source := extension.NewChanSource(sourceChannel)
+		flow := CreateEnrichersFlow(source, ef.enrichers, ef.databaseContext, ef.enricherCommon)
+		sourceChannel <- element
+		processedElement := <-flow.Out()
+		inlet.In() <- processedElement
 	}
 	close(inlet.In())
 }
