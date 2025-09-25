@@ -54,9 +54,11 @@ spec:
           - name: APP_DATA_PATH
             value: "/pharos"
           {{- with .Values.enrichers }}
-          - name: PHAROS_ENRICHERPATH
+          - name: PHAROS_ENRICHERCOMMON_ENRICHERPATH
             value: "/pharos/enrichers/enrichers.yaml"
           {{- end }}
+          - name: PHAROS_ENRICHERCOMMON_UIURL
+            value: "{{ .Values.enrichers.uiUrl }}"
         volumeMounts:
           - name: config-volume
             mountPath: /config/.pharos.yaml

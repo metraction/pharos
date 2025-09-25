@@ -19,8 +19,13 @@ type Config struct {
 	ResultCollector ResultCollectorConfig    `mapstructure:"collector"`
 	Command         string                   `mapstructure:"command"`
 	BasePath        string
-	EnricherPath    string
-	Alerting        AlertingConfig `mapstructure:"alerting" yaml:"alerting" json:"alerting"`
+	EnricherCommon  EnricherCommonConfig `mapstructure:"enricherCommon" yaml:"enricherCommon" json:"enricherCommon"`
+	Alerting        AlertingConfig       `mapstructure:"alerting" yaml:"alerting" json:"alerting"`
+}
+
+type EnricherCommonConfig struct {
+	EnricherPath string `yaml:"enricherPath"`
+	UiUrl        string `yaml:"uiUrl"`
 }
 
 // ObfuscateSensitiveData replaces passwords and tokens in the config with "***".
@@ -129,6 +134,8 @@ type EnricherSource struct {
 	Path string `mapstructure:"path" yaml:"path" json:"path"`
 	// Git is a pointer to string to allow it to be nil
 	Git *string `mapstructure:"git" yaml:"git,omitempty" json:"git,omitempty"`
+	// ID is the ID of the enricher in the database, optional, can be null if not stored in database
+	ID *string `mapstructure:"id" yaml:"id,omitempty" json:"id,omitempty"`
 }
 
 /*
@@ -138,6 +145,7 @@ They are not part of Config structure.
 type EnricherConfig struct {
 	BasePath string         `yaml:"basePath"`
 	Configs  []MapperConfig `yaml:"configs"`
+	Enricher *Enricher      `yaml:"enricher"` // Enricher configuration if loaded from database
 }
 
 type MapperConfig struct {

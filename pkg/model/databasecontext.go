@@ -28,6 +28,7 @@ var Models = []interface{}{
 	AlertLabel{},
 	AlertAnnotation{},
 	AlertPayload{},
+	Enricher{},
 }
 
 // DefaultGormModel provides a base model with common fields for GORM models, removing the DeletedAt field.

@@ -24,30 +24,52 @@ func LoadMappersConfig(data []byte) (map[string][]model.MapperConfig, error) {
 	return configMap, nil
 }
 
-func NewEnricherMap(name string, enricher model.EnricherConfig) streams.Flow {
+func NewEnricherMap(name string, enricher model.EnricherConfig, enricherCommon *model.EnricherCommonConfig) streams.Flow {
 	// Create a single functions composition of functions resulting in
-	logger.Info().Interface("enricher", enricher).Msg("Creating enricher map")
+	logger.Info().Str("enricher", enricher.BasePath).Str("name", name).Msg("Creating enricher map")
 	// WrappedResult and passing it to next function
-	return flow.NewMap(func(scanResult model.PharosScanResult) model.PharosScanResult {
-		// Step 1: Wrap the result
-		wrapped := ToWrappedResult(scanResult)
+	if enricher.Enricher == nil {
+		return flow.NewMap(func(scanResult model.PharosScanResult) model.PharosScanResult {
+			// Step 1: Wrap the result
+			wrapped := ToWrappedResult(scanResult)
+			processed := false
 
-		// Step 2: Apply all enrichers in sequence
-		for _, mapper := range enricher.Configs {
-			config := filepath.Join(enricher.BasePath, mapper.Config)
-			switch mapper.Name {
-			case "file":
-				wrapped = Wrap(NewAppendFile(config, mapper.Ref))(wrapped)
-			case "hbs":
-				wrapped = Wrap(NewPureHbs[map[string]interface{}, map[string]interface{}](config))(wrapped)
-			case "starlark":
-				wrapped = Wrap(NewStarlark(config))(wrapped)
-			case "debug":
-				wrapped = Wrap(NewDebug(config))(wrapped)
+			// Step 2: Apply all enrichers in sequence
+			for _, mapper := range enricher.Configs {
+				config := filepath.Join(enricher.BasePath, mapper.Config)
+
+				switch mapper.Name {
+				case "file":
+					wrapped = Wrap(NewAppendFile(config, mapper.Ref))(wrapped)
+					processed = true
+				case "hbs":
+					wrapped = Wrap(NewPureHbs[map[string]interface{}, map[string]interface{}](config))(wrapped)
+					processed = true
+				case "starlark":
+					wrapped = Wrap(NewStarlark(config))(wrapped)
+					processed = true
+				case "debug":
+					wrapped = Wrap(NewDebug(config))(wrapped)
+					processed = true
+				}
 			}
-		}
 
-		// Step 3: Unwrap the result
-		return ToUnWrappedResult(name)(wrapped)
-	}, 1)
+			if !processed {
+				logger.Warn().Str("name", name).Msg("No valid enricher found, passing through")
+				return scanResult
+			}
+
+			// Step 4: Unwrap the result
+			return ToUnWrappedResult(name)(wrapped)
+		}, 1)
+	} else {
+		return flow.NewMap(func(scanResult model.PharosScanResult) model.PharosScanResult {
+			wrapped := ToWrappedResult(scanResult)
+			logger.Info().Str("name", enricher.Enricher.Name).Msg("Applying database enricher")
+			if enricher.Enricher.Type == "visual" {
+				wrapped = Wrap(NewVisual(enricher.Enricher, enricherCommon))(wrapped)
+			}
+			return ToUnWrappedResult(enricher.Enricher.Name)(wrapped)
+		}, 1)
+	}
 }

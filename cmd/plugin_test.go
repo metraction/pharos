@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/metraction/pharos/pkg/model"
-	"github.com/reugn/go-streams"
 	"github.com/reugn/go-streams/extension"
 	"gopkg.in/yaml.v3"
 )
@@ -54,8 +53,8 @@ func TestStarlarkPlugin(t *testing.T) {
 			inputChannel <- tt.args.inputItem
 			close(inputChannel)
 
-			plugin := CreateEnrichersFlow(extension.NewChanSource(inputChannel), enrichers)
-			result := (<-(plugin.(streams.Flow)).Out()).(model.PharosScanResult)
+			plugin := CreateEnrichersFlow(extension.NewChanSource(inputChannel), enrichers, nil, nil)
+			result := (<-plugin.Out()).(model.PharosScanResult)
 
 			// Find the results context
 			var starlarkContext *model.Context
