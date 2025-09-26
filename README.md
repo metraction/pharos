@@ -38,6 +38,8 @@ In addition Pharos can be executed as a cli tool for following tasks:
 
 ## Support
 
+
 This project is under patronage of
 
 [![Support](docs/whitepaper/images/enpace-small.png)](https://enpace.ch)
+
