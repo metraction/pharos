@@ -2,7 +2,7 @@ image:
   # -- registry for pharos-image
   registry: ghcr.io
   # -- repository for pharos-image
-  repository: metraction/pharos/pharos
+  repository: metraction/pharos
   # -- pull policy for pharos-image
   pullPolicy: Always
 
