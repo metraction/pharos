@@ -12,11 +12,11 @@ Contexts enrichments and rules are highly customizable using plugins, which coul
 
 ## Installation
 
-## Helm Chart
+### Helm Chart
 
-See [helm chart](../helm/pharos/) how to install pharos via helm chart.
+See [helm chart](./helm/pharos/README.md) how to install pharos via helm chart.
 
-## Grafana
+### Grafana
 
 Import the [dashboard](./grafana/pharos-dashboard.json) into your Grafana installation
 
