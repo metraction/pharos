@@ -7,7 +7,7 @@
 *.dll
 *.so
 *.dylib
-__debug*
+__debug
 
 # Test binary, built with `go test -c`
 *.test
@@ -39,3 +39,6 @@ scantask.json
 *.db
 *.db.wal
 .idea
+_registry
+_runtest
+.vscode
