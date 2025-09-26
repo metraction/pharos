@@ -1,6 +1,14 @@
 # Pharos
 
-Pharos is an open-source platform designed to automate the security scanning, vulnerability management, and compliance reporting of container images in modern DevOps environments. It integrates with CI/CD pipelines, *Kubernetes* clusters, and monitoring tools to provide real-time insights into image security, streamline vulnerability remediation, and helps support regulatory compliance.
+## What is Pharos?
+
+Pharos is an open-source platform, designed to automate the security scanning, vulnerability management and compliance reporting.
+
+It pulls running containers from Prometheus, enriches data with contexts important for the deployments, provides information on Grafana dashboards and creates tickets, based on the rules defined by the organization.
+
+![Pharos Architecture](docs/whitepaper/images/architecture.png)
+
+Contexts enrichments and rules are highly customizable using plugins, which could be written as go scripts using [Yaegi](https://github.com/traefik/yaegi), python like language using [Starlark](https://github.com/google/starlark-go/blob/master/doc/spec.md) or [go templates](https://pkg.go.dev/text/template).
 
 [Read the Whitepaper](./docs/whitepaper/Pharos-Whitepaper.md) to find out more about Pharos.
 
@@ -8,7 +16,7 @@ Pharos is an open-source platform designed to automate the security scanning, vu
 
 ### Helm Chart
 
-See [helm chart](./helm/pharos/) how to install pharos via helm chart.
+See [helm chart](./helm/pharos/README.md) how to install pharos via helm chart.
 
 ### Grafana
 
@@ -20,94 +28,17 @@ Create datasources for Pharos:
 - Name: The namespace where it runs in
 - Base URL: The URL defined by the [ingres in values.yaml](./helm/pharos/values.yaml)
 
-## Run and test it.
 
-`go run main.go`
+## Usage
 
-### Pharos CLI Parameters
-
-#### Collector
-| Flag | Type | Default | Description |
-|------|------|---------|-------------|
-| `--collector.blockTimeout` | duration | `5m0s` | Block timeout while waiting on collector stream. |
-| `--collector.consumerName` | string | `"single"` | Consumer name for collector group. |
-| `--collector.groupName` | string | `"collector"` | Redis consumer group for collector. |
-| `--collector.queueName` | string | `"scanresult"` | Collector result queue name. |
-| `--collector.queueSize` | int | `100` | Internal collector queue size. |
-
-#### Core / Global
-| Flag | Type | Default | Description |
-|------|------|---------|-------------|
-| `--command` | string | `"http"` | Default subcommand to run (CI convenience). |
-| `--config` | string | `$HOME/.pharos.yaml` | Path to config file. |
-| `-h, --help` | - | - | Show help. |
-
-#### Database
-| Flag | Type | Default | Description |
-|------|------|---------|-------------|
-| `--database.driver` | string | `"postgres"` | Database driver (only postgres supported). |
-| `--database.dsn` | string | `postgres://postgres:postgres@localhost:5432/pharos?sslmode=disable` | Database connection string. |
-
-#### Enricher
-| Flag | Type | Default | Description |
-|------|------|---------|-------------|
-| `--enrichercommon.enricherPath` | string | `enrichers` | Base directory for enrichers. |
-| `--enrichercommon.uiUrl` | string | `http://localhost:3000` | UI base URL for visual enrichers. |
-
-#### Prometheus Reporter
-| Flag | Type | Default | Description |
-|------|------|---------|-------------|
-| `--prometheus.auth.username` | string | - | Basic auth username. |
-| `--prometheus.auth.password` | string | - | Basic auth password. |
-| `--prometheus.auth.token` | string | - | Bearer/OAuth token. |
-| `--prometheus.contextLabels` | string | `namespace` | Comma-separated label keys to attach as context. |
-| `--prometheus.interval` | string | `3600s` | Scrape interval. |
-| `--prometheus.namespace` | string | `pharos` | Metrics namespace prefix. |
-| `--prometheus.pharosUrl` | string | `http://localhost:8080` | Pharos API root for task submission. |
-| `--prometheus.platform` | string | `linux/amd64` | Target platform for discovered images. |
-| `--prometheus.query` | string | `kube_pod_container_info` | Prometheus query for container enumeration. |
-| `--prometheus.ttl` | string | `12h` | Minimum time between re-scans of same image. |
-| `--prometheus.url` | string | `http://prometheus.prometheus.svc.cluster.local:9090` | Prometheus server URL. |
-
-#### Publisher
-| Flag | Type | Default | Description |
-|------|------|---------|-------------|
-| `--publisher.priorityRequestQueue` | string | `priorityScantasks` | Priority task request stream. |
-| `--publisher.priorityResponseQueue` | string | `priorityScanresult` | Priority task response stream. |
-| `--publisher.queueSize` | int | `1000` | Internal publisher queue size. |
-| `--publisher.requestQueue` | string | `scantasks` | Standard async request stream. |
-| `--publisher.responseQueue` | string | `scanresult` | Standard async response stream. |
-| `--publisher.timeout` | string | `300s` | Publication timeout per task batch. |
-
-#### Redis
-| Flag | Type | Default | Description |
-|------|------|---------|-------------|
-| `--redis.dsn` | string | `localhost:6379` | Redis endpoint (host:port). |
-
-#### Scanner
-| Flag | Type | Default | Description |
-|------|------|---------|-------------|
-| `--scanner.cacheEndpoint` | string | `redis://localhost:6379` | Cache endpoint (content / metadata reuse). |
-| `--scanner.requestQueue` | string | `scantasks` | Scanner input task stream. |
-| `--scanner.responseQueue` | string | `scanresult` | Scanner output result stream. |
-| `--scanner.timeout` | string | `300s` | Max scan duration per task. |
+In addition Pharos can be executed as a cli tool for following tasks:
+- Testing plugins
+- Packaging plugins for the deployments
 
 
-These parameters allow you to configure connectivity, authentication, queueing, and runtime behavior for Pharos.
+## Support
 
-> **Note:** Each command line parameter can also be set using an environment variable. The environment variable name is derived by converting the parameter to uppercase, replacing dots (`.`) with underscores (`_`), and prefixing with `PHAROS_`. For example, `--database.driver` can be set with `PHAROS_DATABASE_DRIVER`.
+This project is under patronage of
 
-### Test it
-
-Run the controller with: 
-
-```bash
-go run main.go http
-```
-
-- Point your browser to: http://localhost:8080/api/docs
-- Submit a scan task with sync scan: http://localhost:8080/api/v1/docs#/operations/V1PostSyncScan
-
-You can also use Swagger at http://localhost:8080/api/swagger
-
+[![Support](docs/whitepaper/images/enpace-small.png)](https://enpace.ch)
 

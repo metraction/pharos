@@ -1,44 +1,47 @@
-# Pharos
+# pharos
 
-## What is Pharos?
+![Version: 0.0.1](https://img.shields.io/badge/Version-0.0.1-informational?style=flat-square) ![AppVersion: 0.0.1-testtesttesttesttesttesttesttesttesttesttesttesttest1234567890](https://img.shields.io/badge/AppVersion-0.0.1--testtesttesttesttesttesttesttesttesttesttesttesttest1234567890-informational?style=flat-square)
 
-Pharos is an open-source platform, designed to automate the security scanning, vulnerability management and compliance reporting.
+Helm chart for pharos
 
-It pulls running containers from Prometheus, enriches data with contexts important for the deployments, provides information on Grafana dashboards and creates tickets, based on the rules defined by the organization.
+## Requirements
 
-![Pharos Architecture](docs/whitepaper/images/architecture.png)
+| Repository | Name | Version |
+|------------|------|---------|
+| https://charts.bitnami.com/bitnami | postgres(postgresql) | ~12.5.7 |
+| https://charts.bitnami.com/bitnami | redis(redis) | ~17.0.0 |
 
-Contexts enrichments and rules are highly customizable using plugins, which could be written as go scripts using [Yaegi](https://github.com/traefik/yaegi), python like language using [Starlark](https://github.com/google/starlark-go/blob/master/doc/spec.md) or [go templates](https://pkg.go.dev/text/template).
+## Values
 
-[Read the Whitepaper](./docs/whitepaper/Pharos-Whitepaper.md) to find out more about Pharos.
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| externalPostgres.dsn | string | `"postgres://postgres:postgres@localhost:5432/pharos?sslmode=disable"` |  |
+| externalRedis | object | `{"host":"localhost","port":6379}` | External Redis configuration (used when redis.enabled=false) |
+| image.pullPolicy | string | `"Always"` | pull policy for pharos-image |
+| image.registry | string | `"ghcr.io"` | registry for pharos-image |
+| image.repository | string | `"metraction/pharos/pharos"` | repository for pharos-image |
+| imagePullSecrets | list | `[]` | list of imagePullSecrets to use. These secrets are also used to get the images to scan. |
+| ingress.enabled | bool | `false` |  |
+| mappers | object | `{"files":{"eos.yaml":"files/eos.yaml"},"hbs":{"eos_v1.hbs":"distro: {{ .data.Image.DistroName }}\nversion: {{ .data.Image.DistroVersion }}\neos: {{ index .eos .data.Image.DistroName | filter \"version\" \"matchWildcard\" .data.Image.DistroVersion | map \"field\" \"eos\" | first }}\n"}}` | Mappers configuration |
+| postgres | object | `{"auth":{"existingSecret":"postgres-connection"},"enabled":true,"primary":{"persistence":{"enabled":true,"size":"1Gi"}}}` | PostgreSQL configuration |
+| postgres.auth | object | `{"existingSecret":"postgres-connection"}` | PostgreSQL authentication |
+| postgres.auth.existingSecret | string | `"postgres-connection"` | Use an existing secret for PostgreSQL connection |
+| postgres.enabled | bool | `true` | Enable PostgreSQL deployment |
+| priorityScannerPod.enabled | bool | `false` | Enable the scanner pod, only needed if you are not using direct scan |
+| prometheus | object | `{"interval":"10m","query":"kube_pod_container_info{}","url":"http://prometheus.prometheus.svc.cluster.local:9090"}` | Prometheus configuration for scanning images |
+| prometheus.interval | string | `"10m"` | Interval for scanning images |
+| prometheus.query | string | `"kube_pod_container_info{}"` | Prometheus query to get the images to scan |
+| prometheus.url | string | `"http://prometheus.prometheus.svc.cluster.local:9090"` | Url of the Prometheus server |
+| redis.auth | object | `{"enabled":false}` | Redis authentication |
+| redis.auth.enabled | bool | `false` | Enable Redis authentication |
+| redis.enabled | bool | `true` | Enable Redis deployment |
+| redis.replica | object | `{"replicaCount":1}` | Redis replica configuration |
+| redis.replica.replicaCount | int | `1` | Number of Redis replicas to deploy |
+| replicaCount | int | `1` |  |
+| role | object | `{"create":true}` | Role configuration - needed to read ImagePullSecrets |
+| scannerPod.enabled | bool | `false` | Enable the scanner pod, only neeed if you are not using direct scan |
+| service.port | int | `8080` | port for the service |
+| serviceAccount | object | `{"create":true}` | Service account configuration - needed to read ImagePullSecrets |
 
-## Installation
-
-### Helm Chart
-
-See [helm chart](./helm/pharos/README.md) how to install pharos via helm chart.
-
-### Grafana
-
-Import the [dashboard](./grafana/pharos-dashboard.json) into your Grafana installation
-
-Create datasources for Pharos:
-
-- Type: Infinity
-- Name: The namespace where it runs in
-- Base URL: The URL defined by the [ingres in values.yaml](./helm/pharos/values.yaml)
-
-
-## Usage
-
-In addition Pharos can be executed as a cli tool for following tasks:
-- Testing plugins
-- Packaging plugins for the deployments
-
-
-## Support
-
-This project is under patronage of
-
-[![Support](docs/whitepaper/images/enpace-small.png)](https://enpace.ch)
-
+----------------------------------------------
+Autogenerated from chart metadata using [helm-docs v1.14.2](https://github.com/norwoodj/helm-docs/releases/v1.14.2)
