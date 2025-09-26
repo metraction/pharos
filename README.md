@@ -10,6 +10,8 @@ It pulls running containers from Prometheus, enriches data with contexts importa
 
 Contexts enrichments and rules are highly customizable using plugins, which could be written as go scripts using [Yaegi](https://github.com/traefik/yaegi), python like language using [Starlark](https://github.com/google/starlark-go/blob/master/doc/spec.md) or [go templates](https://pkg.go.dev/text/template).
 
+[Read the Whitepaper](./docs/whitepaper/Pharos-Whitepaper.md) to find out more about Pharos.
+
 ## Installation
 
 ### Helm Chart
