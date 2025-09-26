@@ -1,14 +1,11 @@
 # Pharos
 
-Pharos is an open-source platform designed to automate the security scanning, vulnerability management, and compliance reporting of container images in modern DevOps environments. It integrates with CI/CD pipelines, *Kubernetes* clusters, and monitoring tools to provide real-time insights into image security, streamline vulnerability remediation, and helps support regulatory compliance.
-
-[Read the Whitepaper](./docs/whitepaper/Pharos-Whitepaper.md) to find out more about Pharos.
-
 ## Installation
 
 ### Helm Chart
 
 See [helm chart](./helm/pharos/) how to install pharos via helm chart.
+
 
 ### Grafana
 
@@ -22,76 +19,71 @@ Create datasources for Pharos:
 
 ## Run and test it.
 
+### How run Pharos from the command line
+
 `go run main.go`
 
-### Pharos CLI Parameters
+#### Positional Commands
 
-#### Collector
-| Flag | Type | Default | Description |
-|------|------|---------|-------------|
-| `--collector.blockTimeout` | duration | `5m0s` | Block timeout while waiting on collector stream. |
-| `--collector.consumerName` | string | `"single"` | Consumer name for collector group. |
-| `--collector.groupName` | string | `"collector"` | Redis consumer group for collector. |
-| `--collector.queueName` | string | `"scanresult"` | Collector result queue name. |
-| `--collector.queueSize` | int | `100` | Internal collector queue size. |
+Available Commands:
 
-#### Core / Global
-| Flag | Type | Default | Description |
-|------|------|---------|-------------|
-| `--command` | string | `"http"` | Default subcommand to run (CI convenience). |
-| `--config` | string | `$HOME/.pharos.yaml` | Path to config file. |
-| `-h, --help` | - | - | Show help. |
+- **`completion`**: Generate the autocompletion script for the specified shell.
+- **`help`**: Help about any command.
+- **`http`**: Starts an HTTP server to accept image scan requests.
+- **`prometheus-reporter`**: Report images from Prometheus to Pharos.
+- **`scanner`**: Run the Pharos scanner.
 
-#### Database
-| Flag | Type | Default | Description |
-|------|------|---------|-------------|
-| `--database.driver` | string | `"postgres"` | Database driver (only postgres supported). |
-| `--database.dsn` | string | `postgres://postgres:postgres@localhost:5432/pharos?sslmode=disable` | Database connection string. |
+The following command line parameters are available:
 
-#### Enricher
-| Flag | Type | Default | Description |
-|------|------|---------|-------------|
-| `--enrichercommon.enricherPath` | string | `enrichers` | Base directory for enrichers. |
-| `--enrichercommon.uiUrl` | string | `http://localhost:3000` | UI base URL for visual enrichers. |
+- **`--config <path>`**: Path to the configuration file (default: `$HOME/.pharos.yaml`).
+- **`--help`, `-h`**: Display help for the root command.
 
-#### Prometheus Reporter
-| Flag | Type | Default | Description |
-|------|------|---------|-------------|
-| `--prometheus.auth.username` | string | - | Basic auth username. |
-| `--prometheus.auth.password` | string | - | Basic auth password. |
-| `--prometheus.auth.token` | string | - | Bearer/OAuth token. |
-| `--prometheus.contextLabels` | string | `namespace` | Comma-separated label keys to attach as context. |
-| `--prometheus.interval` | string | `3600s` | Scrape interval. |
-| `--prometheus.namespace` | string | `pharos` | Metrics namespace prefix. |
-| `--prometheus.pharosUrl` | string | `http://localhost:8080` | Pharos API root for task submission. |
-| `--prometheus.platform` | string | `linux/amd64` | Target platform for discovered images. |
-| `--prometheus.query` | string | `kube_pod_container_info` | Prometheus query for container enumeration. |
-| `--prometheus.ttl` | string | `12h` | Minimum time between re-scans of same image. |
-| `--prometheus.url` | string | `http://prometheus.prometheus.svc.cluster.local:9090` | Prometheus server URL. |
+##### Database Parameters
 
-#### Publisher
-| Flag | Type | Default | Description |
-|------|------|---------|-------------|
-| `--publisher.priorityRequestQueue` | string | `priorityScantasks` | Priority task request stream. |
-| `--publisher.priorityResponseQueue` | string | `priorityScanresult` | Priority task response stream. |
-| `--publisher.queueSize` | int | `1000` | Internal publisher queue size. |
-| `--publisher.requestQueue` | string | `scantasks` | Standard async request stream. |
-| `--publisher.responseQueue` | string | `scanresult` | Standard async response stream. |
-| `--publisher.timeout` | string | `300s` | Publication timeout per task batch. |
+- **`--database.driver <driver>`**: Database driver (default: `postgres`).
+- **`--database.dsn <dsn>`**: Database DSN/connection string (default: `postgres://postgres:postgres@localhost:5432/pharos?sslmode=disable`).
 
-#### Redis
-| Flag | Type | Default | Description |
-|------|------|---------|-------------|
-| `--redis.dsn` | string | `localhost:6379` | Redis endpoint (host:port). |
+##### Redis & Queue Parameters
 
-#### Scanner
-| Flag | Type | Default | Description |
-|------|------|---------|-------------|
-| `--scanner.cacheEndpoint` | string | `redis://localhost:6379` | Cache endpoint (content / metadata reuse). |
-| `--scanner.requestQueue` | string | `scantasks` | Scanner input task stream. |
-| `--scanner.responseQueue` | string | `scanresult` | Scanner output result stream. |
-| `--scanner.timeout` | string | `300s` | Max scan duration per task. |
+- **`--redis.dsn <dsn>`**: Redis address (default: `localhost:6379`).
+- **`--publisher.requestQueue <name>`**: Redis stream for async requests (default: `scantasks`).
+- **`--publisher.responseQueue <name>`**: Redis stream for async responses (default: `scanresult`).
+- **`--publisher.priorityRequestQueue <name>`**: Redis stream for sync requests (default: `priorityScantasks`).
+- **`--publisher.priorityResponseQueue <name>`**: Redis stream for sync responses (default: `priorityScanresult`).
+- **`--publisher.timeout <duration>`**: Publisher timeout (default: `300s`).
 
+##### Scanner Parameters
+
+- **`--scanner.cacheEndpoint <url>`**: Scanner cache endpoint (default: `redis://localhost:6379`).
+- **`--scanner.requestQueue <name>`**: Redis stream for requests (default: `scantasks`).
+- **`--scanner.responseQueue <name>`**: Redis stream for responses (default: `scanresult`).
+- **`--scanner.timeout <duration>`**: Scanner timeout (default: `300s`).
+
+##### Collector Parameters
+
+- **`--collector.blockTimeout <duration>`**: Redis stream block timeout for async responses (default: `5m0s`).
+- **`--collector.consumerName <name>`**: Redis stream consumer name (default: `single`).
+- **`--collector.groupName <name>`**: Redis stream group name (default: `collector`).
+- **`--collector.messageCount <count>`**: Redis stream message count (default: `100`).
+- **`--collector.queueName <name>`**: Redis stream queue name (default: `scanresult`).
+
+##### Mapper Parameters
+
+- **`--mapper.basePath <path>`**: Base path for the mappers (default: `cmd/kodata/enrichers`).
+
+##### Prometheus Reporter Parameters
+
+- **`--prometheus.auth.username <username>`**: Username for Prometheus authentication.
+- **`--prometheus.auth.password <password>`**: Password for Prometheus authentication.
+- **`--prometheus.auth.token <token>`**: Token for Prometheus authentication.
+- **`--prometheus.contextLabels <labels>`**: Labels to add to the Prometheus context (default: `namespace`).
+- **`--prometheus.interval <duration>`**: Interval for scraping Prometheus metrics (default: `3600s`).
+- **`--prometheus.namespace <namespace>`**: Namespace for Prometheus metrics (default: `pharos`).
+- **`--prometheus.pharosUrl <url>`**: Root URL of the Pharos server (default: `http://localhost:8080`).
+- **`--prometheus.platform <platform>`**: Platform for metrics collection (default: `linux/amd64`).
+- **`--prometheus.query <query>`**: Query for fetching metrics (default: `kube_pod_container_info`).
+- **`--prometheus.ttl <duration>`**: Time to live for scan results (default: `12h`).
+- **`--prometheus.url <url>`**: URL of the Prometheus server (default: `http://prometheus.prometheus.svc.cluster.local:9090`).
 
 These parameters allow you to configure connectivity, authentication, queueing, and runtime behavior for Pharos.
 
@@ -106,8 +98,46 @@ go run main.go http
 ```
 
 - Point your browser to: http://localhost:8080/api/docs
-- Submit a scan task with sync scan: http://localhost:8080/api/v1/docs#/operations/V1PostSyncScan
+- Submit a scan task with sync scan: http://localhost:8080/api/docs#/operations/SyncScan (you can use the simple example provided)
+
+```bash
+curl --request POST \
+  --url http://localhost:8080/api/pharosscantask/syncscan \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --data '{
+"imageSpec": {
+"image": "redis:latest"
+}
+}'
+```
+
+- The Sanner returns the scan result and saves to the database.
+
+- Do an async scan: http://localhost:8080/api/docs#/operations/AsyncScan
+
+```bash
+curl --request POST \
+  --url http://localhost:8080/api/pharosscantask/asyncsyncscan \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --data '{
+"imageSpec": {
+"image": "nginx:latest"
+}
+}'
+```
+
+- Get all Images: http://localhost:8080/api/docs#/operations/GetAllImages (Without vulnerabilities)
+- Get Image with all Details (Vulnerabilities, Packages and Findings from the datase): http://localhost:8080/api/docs#/operations/Getimage (Take any ImageId from the previous step)
+
+```bash
+curl --request GET \
+  --url http://localhost:8080/api/pharosimagemeta/sha256:1e5f3c5b981a9f91ca91cf13ce87c2eedfc7a083f4f279552084dd08fc477512 \
+  --header 'Accept: application/json'
+```
+
+> ImageId is not the digest, but some internal id we get from the scanner. So you have to find it by getting all images. (we will provide a function later.)
 
 You can also use Swagger at http://localhost:8080/api/swagger
-
 
