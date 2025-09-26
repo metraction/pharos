@@ -2,7 +2,7 @@
 
 ## What is Pharos?
 
-Pharos is an open-source platform designed to automate the security scanning, vulnerability management and compliance reporting.
+Pharos is an open-source platform, designed to automate the security scanning, vulnerability management and compliance reporting.
 
 It pull running containers from Prometheus, enriches data with contexts important for the deployments, provides information on Grafana dashboards and creates tickets, based on the rules defined by the organization.
 
