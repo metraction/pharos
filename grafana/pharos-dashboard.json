@@ -22,12 +22,37 @@
   "links": [],
   "panels": [
     {
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 13,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "## Link to Pharos client\n\nFor markdown syntax help: [See Vulnerability in Pharos](https://pharos-client.enpace.local/images/${imageid})",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.1.1",
+      "title": "Info",
+      "type": "text"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 4
       },
       "id": 11,
       "panels": [],
@@ -83,7 +108,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -98,7 +124,7 @@
         "h": 10,
         "w": 11,
         "x": 0,
-        "y": 1
+        "y": 5
       },
       "id": 6,
       "options": {
@@ -114,7 +140,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.0.1",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -122,7 +148,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "count(count by (imageid) (pharos_vulnerabilities{namespace=~\"$namespace\"}))",
+          "expr": "count(count by (imageid) (pharos_image_gauge{namespace=~\"$namespace\"}))",
           "legendFormat": "count",
           "range": true,
           "refId": "A"
@@ -180,7 +206,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -282,7 +309,7 @@
         "h": 10,
         "w": 13,
         "x": 11,
-        "y": 1
+        "y": 5
       },
       "id": 7,
       "options": {
@@ -298,7 +325,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.0.1",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -399,7 +426,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -415,7 +443,7 @@
         "h": 8,
         "w": 11,
         "x": 0,
-        "y": 11
+        "y": 15
       },
       "id": 9,
       "options": {
@@ -431,7 +459,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.0.1",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -497,7 +525,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -513,7 +542,7 @@
         "h": 8,
         "w": 13,
         "x": 11,
-        "y": 11
+        "y": 15
       },
       "id": 8,
       "options": {
@@ -529,7 +558,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.0.1",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -552,7 +581,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 19
+        "y": 23
       },
       "id": 10,
       "panels": [],
@@ -581,7 +610,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -596,7 +626,7 @@
         "h": 10,
         "w": 10,
         "x": 0,
-        "y": 20
+        "y": 24
       },
       "id": 4,
       "options": {
@@ -617,7 +647,7 @@
           }
         ]
       },
-      "pluginVersion": "12.0.1",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "columns": [],
@@ -684,7 +714,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -714,7 +745,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "green"
+                      "color": "green",
+                      "value": 0
                     },
                     {
                       "color": "#EAB839",
@@ -872,7 +904,7 @@
         "h": 15,
         "w": 14,
         "x": 10,
-        "y": 20
+        "y": 24
       },
       "id": 3,
       "options": {
@@ -893,7 +925,7 @@
           }
         ]
       },
-      "pluginVersion": "12.0.1",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "columns": [],
@@ -962,7 +994,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -1082,7 +1115,7 @@
         "h": 5,
         "w": 10,
         "x": 0,
-        "y": 30
+        "y": 34
       },
       "id": 5,
       "options": {
@@ -1098,7 +1131,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "12.0.1",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "columns": [],
@@ -1190,7 +1223,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -1240,7 +1274,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 35
+        "y": 39
       },
       "id": 12,
       "options": {
@@ -1261,7 +1295,7 @@
           }
         ]
       },
-      "pluginVersion": "12.0.1",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "editorMode": "code",
@@ -1335,7 +1369,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "transparent"
+                "color": "transparent",
+                "value": 0
               },
               {
                 "color": "red",
@@ -1546,45 +1581,6 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Scanner status"
-            },
-            "properties": [
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-text"
-                }
-              },
-              {
-                "id": "mappings",
-                "value": [
-                  {
-                    "options": {
-                      "0": {
-                        "color": "green",
-                        "index": 0,
-                        "text": "success"
-                      },
-                      "1": {
-                        "color": "red",
-                        "index": 1,
-                        "text": "error creating sbom"
-                      },
-                      "2": {
-                        "color": "blue",
-                        "index": 2,
-                        "text": "scanning"
-                      }
-                    },
-                    "type": "value"
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
               "options": "SBOM duration"
             },
             "properties": [
@@ -1636,18 +1632,6 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "platform"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 175
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
               "options": "digest"
             },
             "properties": [
@@ -1668,6 +1652,40 @@
                 "value": 243
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Alerted"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": {
+                        "color": "#404040",
+                        "index": 1,
+                        "text": "no"
+                      },
+                      "1": {
+                        "color": "dark-red",
+                        "index": 0,
+                        "text": "yes"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
           }
         ]
       },
@@ -1675,7 +1693,7 @@
         "h": 32,
         "w": 24,
         "x": 0,
-        "y": 42
+        "y": 46
       },
       "id": 1,
       "options": {
@@ -1696,7 +1714,7 @@
           }
         ]
       },
-      "pluginVersion": "12.0.1",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -1705,7 +1723,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max without (severity,pod,instance) (pharos_vulnerabilities{image=~\"$image\",namespace=~\"$namespace\",severity=\"Critical\"})",
+          "expr": "max without (label,pod,instance) (pharos_image_gauge{image=~\"$image\",namespace=~\"$namespace\",label=\"Severity01Critical\"})",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1720,7 +1738,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max without (severity,pod,instance) (pharos_vulnerabilities{image=~\"$image\",namespace=~\"$namespace\",severity=\"High\"})",
+          "expr": "max without (label,pod,instance) (pharos_image_gauge{image=~\"$image\",namespace=~\"$namespace\",label=\"Severity02High\"})",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1735,7 +1753,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max without (severity,pod,instance) (pharos_vulnerabilities{image=~\"$image\",namespace=~\"$namespace\",severity=\"Medium\"})",
+          "expr": "max without (label,pod,instance) (pharos_image_gauge{image=~\"$image\",namespace=~\"$namespace\",label=\"Severity03Medium\"})",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1750,7 +1768,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max without (severity,pod,instance) (pharos_vulnerabilities{image=~\"$image\",namespace=~\"$namespace\",severity=\"Low\"})",
+          "expr": "max without (label,pod,instance) (pharos_image_gauge{image=~\"$image\",namespace=~\"$namespace\",label=\"Severity04Low\"})",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1765,7 +1783,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max without (severity,pod,instance) (pharos_vulnerabilities{image=~\"$image\",namespace=~\"$namespace\",severity=\"Negligible\"})",
+          "expr": "max without (label,pod,instance) (pharos_image_gauge{image=~\"$image\",namespace=~\"$namespace\",label=\"Severity05Negligible\"})",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1787,6 +1805,21 @@
           "legendFormat": "__auto",
           "range": false,
           "refId": "F"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "max without (label,pod,instance) (pharos_image_gauge{image=~\"$image\",namespace=~\"$namespace\",label=\"Alerted\"})",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "G"
         }
       ],
       "title": "Vulnerbilities Overview",
@@ -1794,7 +1827,7 @@
         {
           "filter": {
             "id": "byRefId",
-            "options": "/^(?:A|B|C|D|E)$/"
+            "options": "/^(?:A|B|C|D|E|G)$/"
           },
           "id": "merge",
           "options": {},
@@ -1854,7 +1887,7 @@
             "indexByName": {
               "Time 1": 2,
               "Time 2": 10,
-              "V1_image": 25,
+              "V1_image": 27,
               "Value #A": 20,
               "Value #B": 21,
               "Value #C": 22,
@@ -1878,8 +1911,8 @@
               "platform 2": 17,
               "service 1": 9,
               "service 2": 18,
-              "type 1": 26,
-              "type 2": 27
+              "type 1": 25,
+              "type 2": 26
             },
             "renameByName": {
               "V1_image": "",
@@ -1889,12 +1922,13 @@
               "Value #D": "Low",
               "Value #E": "Neglegible",
               "Value #F": "",
-              "Value #G": "SBOM duration",
+              "Value #G": "Alerted",
               "Value #H": "Grype duration",
               "arch": "",
               "endpoint 1": "",
               "exported_namespace": "namespace",
               "image 1": "image",
+              "type 1": "",
               "version": ""
             }
           }
@@ -1934,18 +1968,18 @@
       },
       {
         "current": {
-          "text": "sha256:db0ba12d071e5ddea84f9bc267d06c6a9b399d686695fd3bfeaaabf12d10ffaa",
-          "value": "sha256:db0ba12d071e5ddea84f9bc267d06c6a9b399d686695fd3bfeaaabf12d10ffaa"
+          "text": "sha256:6aeb18dc6ed731d37b2c8f5833d92270b5d0faeab93f82f43a36d70bc1e21e7c",
+          "value": "sha256:6aeb18dc6ed731d37b2c8f5833d92270b5d0faeab93f82f43a36d70bc1e21e7c"
         },
         "name": "imageid",
         "options": [
           {
             "selected": true,
-            "text": "sha256:db0ba12d071e5ddea84f9bc267d06c6a9b399d686695fd3bfeaaabf12d10ffaa",
-            "value": "sha256:db0ba12d071e5ddea84f9bc267d06c6a9b399d686695fd3bfeaaabf12d10ffaa"
+            "text": "sha256:6aeb18dc6ed731d37b2c8f5833d92270b5d0faeab93f82f43a36d70bc1e21e7c",
+            "value": "sha256:6aeb18dc6ed731d37b2c8f5833d92270b5d0faeab93f82f43a36d70bc1e21e7c"
           }
         ],
-        "query": "sha256:db0ba12d071e5ddea84f9bc267d06c6a9b399d686695fd3bfeaaabf12d10ffaa",
+        "query": "sha256:6aeb18dc6ed731d37b2c8f5833d92270b5d0faeab93f82f43a36d70bc1e21e7c",
         "type": "textbox"
       },
       {
@@ -1974,13 +2008,13 @@
           "type": "prometheus",
           "uid": "${datasource}"
         },
-        "definition": "label_values(pharos_vulnerabilities,namespace)",
+        "definition": "label_values(pharos_image_gauge,namespace)",
         "label": "Pharos",
         "name": "namespace",
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(pharos_vulnerabilities,namespace)",
+          "query": "label_values(pharos_image_gauge,namespace)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
@@ -2004,12 +2038,12 @@
     ]
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-30m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "Vulnerabilities",
   "uid": "c5875242-bfbe-4f7e-a1bf-0885d6ff19e5",
-  "version": 85
+  "version": 92
 }

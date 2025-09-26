@@ -39,3 +39,7 @@ scantask.json
 *.db
 *.db.wal
 .idea
+_registry
+_runtest
+.vscode
+.old

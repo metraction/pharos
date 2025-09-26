@@ -26,9 +26,9 @@ var config *model.Config = &model.Config{}
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "scanner",
-	Short: "Pharos scanner",
-	Long:  `Pharos scanner (using grype)`,
+	Use:   "pharos",
+	Short: "Pharos",
+	Long:  `Pharos Automated Container Image Security and Compliance Platform`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		ctx := context.WithValue(cmd.Context(), "config", config)
 		cmd.SetContext(ctx)
@@ -146,7 +146,7 @@ func initConfig() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().String("command", "scanner", "CI command") // Use dot-notation for Viper key compatibility with nested structs.
+	rootCmd.PersistentFlags().String("command", "http", "CI command") // Use dot-notation for Viper key compatibility with nested structs.
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.pharos.yaml)") // cfgFile is handled specially for file loading, so direct binding is fine.
 	rootCmd.PersistentFlags().String("redis.dsn", "localhost:6379", "Redis address")                           // Use dot-notation for Viper key compatibility with nested structs.

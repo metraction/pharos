@@ -43,3 +43,5 @@ This project is under patronage of
 [![Support](docs/whitepaper/images/enpace-small.png)](https://enpace.ch)
 
 
+[![Support](docs/whitepaper/images/enpace-small.png)](https://enpace.ch)
+
