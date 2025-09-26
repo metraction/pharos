@@ -19,7 +19,7 @@ Helm chart for pharos
 | externalRedis | object | `{"host":"localhost","port":6379}` | External Redis configuration (used when redis.enabled=false) |
 | image.pullPolicy | string | `"Always"` | pull policy for pharos-image |
 | image.registry | string | `"ghcr.io"` | registry for pharos-image |
-| image.repository | string | `"metraction/pharos/pharos-c52785725d1132c2f91e01422b7f40ba"` | repository for pharos-image |
+| image.repository | string | `"metraction/pharos/pharos"` | repository for pharos-image |
 | imagePullSecrets | list | `[]` | list of imagePullSecrets to use. These secrets are also used to get the images to scan. |
 | ingress.enabled | bool | `false` |  |
 | mappers | object | `{"files":{"eos.yaml":"files/eos.yaml"},"hbs":{"eos_v1.hbs":"distro: {{ .data.Image.DistroName }}\nversion: {{ .data.Image.DistroVersion }}\neos: {{ index .eos .data.Image.DistroName | filter \"version\" \"matchWildcard\" .data.Image.DistroVersion | map \"field\" \"eos\" | first }}\n"}}` | Mappers configuration |
