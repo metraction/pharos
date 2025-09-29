@@ -21,7 +21,7 @@ alerting:
 jiralert:
   image:
     pullPolicy: Always
-  # -- jiralert image registry
+  # -- jiralert image registry - this one is the latest build at the moment, fixing some problems with Jira's API changes. See discussion here: https://github.com/prometheus-community/jiralert/pull/205#issuecomment-3324541899
     repository: docker.io/enpace/jiralert-linux-amd64
   # -- jiralert image tag (immutable tags are recommended).
   # @default -- `.Chart.AppVersion`
