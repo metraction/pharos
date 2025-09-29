@@ -154,7 +154,7 @@ alerting:
     # Uncomment the following to enable alerting via jiralert, or see a complete example in values-jiralert-example.yaml
     # - name: "jira"
     #   webhook_configs:
-    #     - url: "http://pharos-staging-jiralert:9097/alert"
+    #     - url: "http://pharos-jiralert:9097/alert"
     #       send_resolved: true
 
 # JIRA alerting configuration, this will install jiralert, see: https://github.com/prometheus-community/jiralert
