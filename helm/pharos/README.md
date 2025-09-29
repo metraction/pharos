@@ -1,6 +1,6 @@
 # pharos
 
-Helm chart for pharos
+Helm chart for Pharos
 
 ## Requirements
 
