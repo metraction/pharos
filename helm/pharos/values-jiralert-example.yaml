@@ -1,0 +1,140 @@
+alerting:
+  route:
+    group_by: ["..."]
+    continue: true
+    receiver: default
+    child_routes:
+      - receiver: jira
+        group_by:
+          - digest
+          - imageid
+          - imagespec
+          - namespace
+        repeat_interval: 20m
+  receivers:
+    - name: "default"
+    - name: "jira"
+      webhook_configs:
+        - url: "http://pharos-jiralert:9097/alert"
+          send_resolved: true
+
+jiralert:
+  image:
+    pullPolicy: Always
+  # -- jiralert image registry
+    repository: docker.io/enpace/jiralert-linux-amd64
+  # -- jiralert image tag (immutable tags are recommended).
+  # @default -- `.Chart.AppVersion`
+    tag: "development"
+  enabled: true
+  extraArgs: 
+    - -hash-jira-label
+    - -log.level='debug'
+  config:
+    # File containing template definitions. Required.
+    template: jiralert.tmpl
+    # Global defaults, applied to all receivers where not explicitly overridden. Optional.
+    defaults:
+      api_url: https://mydomain.atlassian.net
+      password: mytoken
+      # Alternatively to user and password use a Personal Access Token
+      # personal_access_token: "Your Personal Access Token". See https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html
+      #personal_access_token: none
+      # The type of JIRA issue to create. Required.
+      issue_type: Vulnerability
+      # Issue priority. Optional.
+      priority: '{{ template "jira.priority" . }}'
+      # Go template invocation for generating the summary. Required.
+      summary: '{{ template "jira.summary" . }}'
+      # Go template invocation for generating the description. Optional.
+      description: '{{ template "jira.description" . }}'
+      # State to transition into when reopening a closed issue. Required.
+      reopen_state: "To Do"
+      # Do not reopen issues with this resolution. Optional.
+      wont_fix_resolution: "Won't Fix"
+      # Amount of time after being closed that an issue should be reopened, after which, a new issue is created.
+      # Optional (default: always reopen)
+      reopen_duration: 0h
+      # Static label that will be added to the JIRA ticket alongisde the JIRALERT{...} or ALERT{...} label
+      # static_labels: ["custom"]
+      # Other projects are the projects to search for existing issues for the given alerts if
+      # the main project does not have it. If no issue was found in, the main projects will
+      # be used to create a new one. If the old issue is found in one of the other projects
+      # (first found is used in case of duplicates) that old project's issue will be used for
+      # alert updates instead of creating on in the main project.
+      # other_projects: []
+      # # Include ticket update as comment. Optional (default: false).
+      # update_in_comment: false
+
+    # Receiver definitions. At least one must be defined.
+    receivers:
+      # Must match the Alertmanager receiver name. Required.
+      - name: "jira"
+        # JIRA project to create the issue in. Required.
+        project: PHAR
+        # Copy all Prometheus labels into separate JIRA labels. Optional (default: false).
+        add_group_labels: false
+        # Include ticket update as comment too. Optional (default: false).
+        # update_in_comment: false
+        # Will be merged with the static_labels from the default map
+        # static_labels: []
+        fields:
+          # ImageSpec
+          customfield_10060: '{{ template "jira.imagespec" . }}'
+          # Namespace
+          customfield_10061: '{{ template "jira.namespace" . }}'
+          # Digest
+          customfield_10058: '{{ template "jira.digest" . }}'
+          # ImageID
+          customfield_10059: '{{ template "jira.imageid" . }}'
+          # Waived
+          customfield_10091: '{{ template "jira.waived" . }}'
+        auto_resolve:
+          state: "Done"
+
+  issueTemplate: |
+    {{`
+    {{ define "jira.summary" }}[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .GroupLabels.imagespec }} in namespace {{ .GroupLabels.namespace }} has vulnerabilities ({{ template "jira.priority" . }}){{ end }}
+    {{ define "jira.description" }}{{ range .Alerts.Firing }}
+    h4. Labels:
+    ||Name||Value||
+    {{ range .Labels.SortedPairs -}}
+    {{ $color := "black" -}}
+    {{ if eq .Name "Severity01Critical" }}{{ $color = "purple" }}{{ end -}}
+    {{ if eq .Name "Severity02High" }}{{ $color = "red" }}{{ end -}}
+    {{ if eq .Name "Severity03Medium" }}{{ $color = "orange" }}{{ end -}}
+    {{ if eq .Name "Severity04Low" }}{{ $color = "yellow" }}{{ end -}}
+    |{{ .Name }}|{color:{{ $color }}}{{ .Value }}{color}|
+    {{ end }}
+    h4. Annotations:
+    {{ range .Annotations.SortedPairs }} - {{ .Name }} = {{ .Value }}
+    {{ end }}
+    Source: {{ .GeneratorURL }}
+    {{ end }}
+    h4. Details:
+      - [https://pharos.enpace.local/api/v1/pharosimagemeta/{{ .GroupLabels.imageid }}]
+    {{ end }}
+
+    {{ define "jira.namespace" }}
+    {{ .GroupLabels.namespace }}
+    {{ end }}
+
+    {{ define "jira.imagespec" }}
+    {{ .GroupLabels.imagespec }}
+    {{ end }}
+
+    {{ define "jira.imageid" }}
+    {{ .GroupLabels.imageid }}
+    {{ end }}
+
+    {{ define "jira.digest" }}
+    {{ .GroupLabels.digest }}
+    {{ end }}
+
+    {{ define "jira.waived" }}
+    false
+    {{ end }}
+
+    {{ define "jira.priority" }}{{ if gt (len .Alerts.Firing) 0 }}{{ if eq  (index .Alerts.Firing 0 ).Labels.waived "true" }}Waived{{ else }}Medium{{ end }}{{ else }}Medium{{ end }}{{ end }}
+
+    `}}

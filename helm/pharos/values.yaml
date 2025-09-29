@@ -11,6 +11,7 @@ imagePullSecrets: []
   # - name: github-registry
 
 ingress:
+  # -- Enable ingress for pharos
   enabled: false
   # host: "pharos.my-domain.com"
   # className: nginx
@@ -141,17 +142,24 @@ caCertificates:
   configMapName: ca-certificates
     
 alerting:
+  # -- Alerting configuration this basically follows the prometheus alertmanager configuration
   route:
     group_by: ["..."]
     continue: true
     receiver: default
     child_routes: []
   receivers:
+    # -- list of receivers to receive alerts
     - name: "default"
+    # Uncomment the following to enable alerting via jiralert, or see a complete example in values-jiralert-example.yaml
+    # - name: "jira"
+    #   webhook_configs:
+    #     - url: "http://pharos-staging-jiralert:9097/alert"
+    #       send_resolved: true
 
-
-# JIRA alerting configuration, this will install jiralert.
+# JIRA alerting configuration, this will install jiralert, see: https://github.com/prometheus-community/jiralert
 jiralert:
+  # -- Enable JIRA alerting
   enabled: false
 #   extraArgs: 
 #     - -hash-jira-label
