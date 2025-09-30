@@ -1,3 +1,5 @@
+# yaml-language-server: $schema=./values.schema.json
+
 alerting:
   route:
     group_by: ["..."]
@@ -112,7 +114,7 @@ jiralert:
     Source: {{ .GeneratorURL }}
     {{ end }}
     h4. Details:
-      - [https://pharos.enpace.local/api/v1/pharosimagemeta/{{ .GroupLabels.imageid }}]
+      - [https://pharos.my-domain.com/api/v1/pharosimagemeta/{{ .GroupLabels.imageid }}]
     {{ end }}
 
     {{ define "jira.namespace" }}
