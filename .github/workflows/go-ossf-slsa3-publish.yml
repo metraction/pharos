@@ -16,9 +16,9 @@ on:
   push:
     branches:
       - releases
-      - main
-    tags:
-      - '*'
+    #   - main
+    # tags:
+    #   - '*'
 
 # permissions: read-all
 
@@ -42,6 +42,7 @@ jobs:
           echo "Using version: $VERSION"
       - name: Create Release
         id: create_release
+        if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
@@ -52,6 +53,19 @@ jobs:
             Changes in this Release
             - First Change
             - Second Change
+          draft: false
+          prerelease: false
+      - name: Create Pre Release
+        id: create_prerelease
+        if: github.ref == 'refs/heads/releases' && !contains(github.ref, 'refs/tags/')
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          release_name: Pre-Release ${{ steps.version.outputs.version }}
+          body: |
+            This is a pre-release.
           draft: false
           prerelease: true
       - id: ldflags
