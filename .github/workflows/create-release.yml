@@ -104,10 +104,10 @@ jobs:
         os:
           - linux
           # - windows
-          # - darwin
+          - darwin
         arch:
           - amd64
-          # - arm64
+          - arm64
     with:
       go-version-file: ./go.mod
       config-file: .slsa-goreleaser/${{matrix.os}}-${{matrix.arch}}.yml
