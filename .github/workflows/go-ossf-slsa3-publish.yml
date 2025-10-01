@@ -15,10 +15,56 @@ name: SLSA Go releaser
 on:
   release:
     types: [published]
+  push:
+    branches:
+      - main
 
 # permissions: read-all
 
 jobs:
+  release-on-push:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - name: update
+        id: update
+        run: |
+          git tag -l
+          git config --global user.email "actions@metraction.org"
+          git config --global user.name "GitHub Actions"
+          echo "Bumping version: $1"
+          oldtag=$(git describe --tags --abbrev=0 | sed 's/^v//')
+          IFS=. read -r major minor patch <<EOF
+          $oldtag
+          EOF
+
+          echo "old: $oldtag"
+          tag="$major.$minor.$((patch + 1))"
+          echo "new: $tag"
+          git tag -a "v$tag" -m "v$tag"
+          git push origin "v$tag"
+          echo "version=v$tag" >> "$GITHUB_OUTPUT"
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: ${{ steps.update.outputs.version }}
+          release_name: ${{ steps.update.outputs.version }}
+          body: |
+            Changes in this Release
+            - First Change
+            - Second Change
+          draft: false
+          prerelease: false
   args:
     runs-on: ubuntu-latest
     outputs:
@@ -32,25 +78,14 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
-      # - name: Create Release
-      #   id: create_release
-      #   uses: actions/create-release@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-      #   with:
-      #     tag_name: ${{ github.ref }}
-      #     release_name: ${{ steps.version.outputs.version }}
-      #     body: |
-      #       Changes in this Release
-      #       - First Change
-      #       - Second Change
-      #     draft: false
-      #     prerelease: false
+      - name: Get Version
+        id: version
+        run: |
+          echo "version=$(git describe --tags --abbrev=0)" >> "$GITHUB_OUTPUT"
       - id: ldflags
         run: |
           echo "commit-date=$(git log --date=iso8601-strict -1 --pretty=%ct)" >> "$GITHUB_OUTPUT"
           echo "commit=$GITHUB_SHA" >> "$GITHUB_OUTPUT"
-          # echo "version=$(git describe --tags --always --dirty)" >> "$GITHUB_OUTPUT"
           echo "tree-state=$(if git diff --quiet; then echo "clean"; else echo "dirty"; fi)" >> "$GITHUB_OUTPUT"
   # ========================================================================================================================================
   #     Prerequesite: Create a .slsa-goreleaser.yml in the root directory of your project.
@@ -75,7 +110,7 @@ jobs:
     with:
       go-version-file: ./go.mod
       config-file: .slsa-goreleaser/${{matrix.os}}-${{matrix.arch}}.yml
-      evaluated-envs: "COMMIT_DATE:${{needs.args.outputs.commit-date}}, COMMIT:${{needs.args.outputs.commit}}, VERSION:${{ github.ref }}, TREE_STATE:${{needs.args.outputs.tree-state}}"
+      evaluated-envs: "COMMIT_DATE:${{needs.args.outputs.commit-date}}, COMMIT:${{needs.args.outputs.commit}}, VERSION:${{ needs.args.outputs.version }}, TREE_STATE:${{needs.args.outputs.tree-state}}"
       #upload-tag-name: ${{ github.ref }}
       # =============================================================================================================
       #     Optional: For more options, see https://github.com/slsa-framework/slsa-github-generator#golang-projects
