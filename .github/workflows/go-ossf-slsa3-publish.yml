@@ -38,6 +38,7 @@ jobs:
         id: version
         run: |
           VERSION=${{ github.ref_name }}
+          echo $VERSION >> "$GITHUB_OUTPUT"
           echo "Using version: $VERSION"
       - name: Create Release
         id: create_release
