@@ -2,7 +2,6 @@ name: Build
 on:
   push:
     branches: 
-    - main
     - '140-*'
     - 'PH-120/*'
     - 'PH-99/*'
@@ -13,8 +12,6 @@ on:
     - '107-*'
     - '35-*'
     - '171-*'
-    tags:
-    - 'v*'
   pull_request:
     branches:
     - main

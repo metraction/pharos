@@ -16,9 +16,9 @@ on:
   push:
     branches:
       - releases
-    #   - main
-    # tags:
-    #   - '*'
+      - main
+    tags:
+      - '*'
 
 # permissions: read-all
 
@@ -42,7 +42,7 @@ jobs:
           echo "Using version: $VERSION"
       - name: Create Release
         id: create_release
-        if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
+        if: "!contains(github.ref, 'refs/tags/')"
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
@@ -57,7 +57,7 @@ jobs:
           prerelease: false
       - name: Create Pre Release
         id: create_prerelease
-        if: github.ref == 'refs/heads/releases' && !contains(github.ref, 'refs/tags/')
+        if: "!contains(github.ref, 'refs/tags/')"
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
