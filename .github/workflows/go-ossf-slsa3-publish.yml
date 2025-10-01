@@ -41,7 +41,7 @@ jobs:
         draft: false
         prerelease: true
   args:
-    needs: create-release
+    needs: create_release
     runs-on: ubuntu-latest
     outputs:
       commit-date: ${{ steps.ldflags.outputs.commit-date }}
