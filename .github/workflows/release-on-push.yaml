@@ -24,7 +24,7 @@ jobs:
           git config --global user.email "actions@metraction.org"
           git config --global user.name "GitHub Actions"
           echo "Bumping version: $1"
-          oldtag=$(git describe --tags --abbrev=0)
+          oldtag=$(git describe --tags --abbrev=0 | sed 's/^v//')
           IFS=. read -r major minor patch <<EOF
           $oldtag
           EOF
