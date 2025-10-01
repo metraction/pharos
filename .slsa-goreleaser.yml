@@ -5,7 +5,6 @@ version: 1
 env:
   - GO111MODULE=on
   - CGO_ENABLED=0
-  - VERSION={{ .Major }}.{{ .Minor }}.{{ .Patch }}
 
 # (Optional) Flags for the compiler.
 flags:
