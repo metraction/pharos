@@ -16,6 +16,7 @@ on:
   push:
     branches:
       - release
+      - main
     tags:
       - '*'
 
@@ -64,11 +65,11 @@ jobs:
   #       See format in https://github.com/slsa-framework/slsa-github-generator/blob/main/internal/builders/go/README.md#configuration-file
   #=========================================================================================================================================
   build:
-    runs-on: ubuntu-latest
     permissions:
       id-token: write # To sign.
       contents: write # To upload release assets.
       actions: read   # To read workflow path.
+    uses: slsa-framework/slsa-github-generator/.github/workflows/builder_go_slsa3.yml@v2.1.0
     needs: args
     strategy:
       matrix:
@@ -79,15 +80,22 @@ jobs:
         arch:
           - amd64
           # - arm64
-    steps: 
-      - name: build-go-binary
-        uses: slsa-framework/slsa-github-generator/.github/workflows/builder_go_slsa3.yml@v2.1.0
-        with:
-          go-version-file: ./go.mod
-          config-file: .slsa-goreleaser/${{matrix.os}}-${{matrix.arch}}.yml
-          evaluated-envs: "COMMIT_DATE:${{needs.args.outputs.commit-date}}, COMMIT:${{needs.args.outputs.commit}}, VERSION:${{needs.args.outputs.version}}, TREE_STATE:${{needs.args.outputs.tree-state}}"
-          upload-assets: false
-          # =============================================================================================================
-          #     Optional: For more options, see https://github.com/slsa-framework/slsa-github-generator#golang-projects
-          # =============================================================================================================
+    with:
+      go-version-file: ./go.mod
+      config-file: .slsa-goreleaser/${{matrix.os}}-${{matrix.arch}}.yml
+      evaluated-envs: "COMMIT_DATE:${{needs.args.outputs.commit-date}}, COMMIT:${{needs.args.outputs.commit}}, VERSION:${{needs.args.outputs.version}}, TREE_STATE:${{needs.args.outputs.tree-state}}"
+      upload-assets: false
+      # =============================================================================================================
+      #     Optional: For more options, see https://github.com/slsa-framework/slsa-github-generator#golang-projects
+      # =============================================================================================================
+  upload-assets:
+    needs: [build, args]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # To upload release assets.
+    steps:
+      - name: debug
+        id: version
+        run: |
+          ls -lah
 
