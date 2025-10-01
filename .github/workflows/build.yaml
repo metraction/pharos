@@ -2,6 +2,7 @@ name: Build
 on:
   push:
     branches: 
+    # do not run on main, the create-release workflow will to this by adding a tag and creating a release.
     - '140-*'
     - 'PH-120/*'
     - 'PH-99/*'
