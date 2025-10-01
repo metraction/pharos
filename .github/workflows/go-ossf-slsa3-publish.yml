@@ -25,19 +25,26 @@ jobs:
     outputs:
       commit-date: ${{ steps.ldflags.outputs.commit-date }}
       commit: ${{ steps.ldflags.outputs.commit }}
-      version: ${{ steps.ldflags.outputs.version }}
+      version: ${{ steps.version.outputs.version }}
       tree-state: ${{ steps.ldflags.outputs.tree-state }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+      - name: Get version from semver.sh
+        id: version
+        run: |
+          VERSION=$(curl -sSL "https://raw.githubusercontent.com/metraction/github-actions/refs/heads/main/scripts/semver.sh" | bash)
+          VERSION=$(echo "$VERSION" | sed 's/+/_/g')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Using version: $VERSION"
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: ${{ steps.version.outputs.version }}
+          release_name: Release ${{ steps.version.outputs.version }}
           body: |
             Changes in this Release
             - First Change
