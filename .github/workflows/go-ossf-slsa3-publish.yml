@@ -29,7 +29,7 @@ jobs:
       tree-state: ${{ steps.ldflags.outputs.tree-state }}
     steps:
       - id: checkout
-        uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # tag=v2.3.4
+        uses: actions/checkout@v2 # tag=v2.3.4
         with:
           fetch-depth: 0
       - id: ldflags
@@ -51,6 +51,7 @@ jobs:
     needs: args
     with:
       go-version-file: ./go.mod
+      config-file: .slsa-goreleaser/${{matrix.os}}-${{matrix.arch}}.yml
       evaluated-envs: "COMMIT_DATE:${{needs.args.outputs.commit-date}}, COMMIT:${{needs.args.outputs.commit}}, VERSION:${{needs.args.outputs.version}}, TREE_STATE:${{needs.args.outputs.tree-state}}"
 
       # =============================================================================================================
