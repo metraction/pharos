@@ -51,6 +51,11 @@ jobs:
           git tag -a "v$tag" -m "v$tag"
           git push origin "v$tag"
           echo "version=v$tag" >> "$GITHUB_OUTPUT"
+      - name: Build Changelog
+        id: github_release
+        uses: mikepenz/release-changelog-builder-action@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -59,10 +64,7 @@ jobs:
         with:
           tag_name: ${{ steps.update.outputs.version }}
           release_name: ${{ steps.update.outputs.version }}
-          body: |
-            Changes in this Release
-            - First Change
-            - Second Change
+          body:  ${{steps.github_release.outputs.changelog}}
           draft: false
           prerelease: false
   args:
