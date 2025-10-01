@@ -15,15 +15,14 @@ jobs:
           fetch-depth: 0
       - name: Debug
         run: |
+          echo "Bumping version: $1"
           oldtag=$(git tag -l | tail -n 1 | sed 's/^v//g')
-          IFS=. read -r version minor patch <<EOF
+          IFS=. read -r major minor patch <<EOF
           $oldtag
           EOF
 
-          case "$1" in
-          patch) tag="$version.$minor.$((patch+1))"; ;;
-          major) tag="$((version+1)).0.0"; ;;
-          *)     tag="$version.$((minor+1)).0"; ;;
-          esac
-
-          echo $tag
+          echo "old: $oldtag"
+          tag="$major.$minor.$((patch + 1))"
+          echo "new: $tag"
+          git tag -a "v$tag" -m "v$tag"
+          git push origin "v$tag"
