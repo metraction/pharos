@@ -36,12 +36,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          fetch-tags: true
       - name: Get version
         id: version
         run: |
-          VERSION=${{ github.ref_name }}
+          VERSION=$(git describe --tags --long --always)
           echo version="$VERSION" >> "$GITHUB_OUTPUT"
-          git describe --tags --long --always
           echo "Using version: $VERSION"
       - name: Create Release
         id: create_release
