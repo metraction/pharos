@@ -42,6 +42,7 @@ jobs:
         run: |
           VERSION=$(git describe --tags --long --always)
           echo version="$VERSION" >> "$GITHUB_OUTPUT"
+          git rev-parse --abbrev-ref HEAD
           echo "Using version: $VERSION"
       - name: Create Release
         id: create_release
@@ -51,7 +52,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
           tag_name: ${{ steps.version.outputs.version }}
-          release_name: Release ${{ steps.version.outputs.version }}
+          release_name: ${{ steps.version.outputs.version }}
           body: |
             Changes in this Release
             - First Change
@@ -66,7 +67,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
           tag_name: ${{ steps.version.outputs.version }}
-          release_name: Pre-Release ${{ steps.version.outputs.version }}
+          release_name: ${{ steps.version.outputs.version }}
           body: |
             This is a pre-release.
           draft: false
