@@ -82,7 +82,7 @@ jobs:
           echo "tree-state=$(if git diff --quiet; then echo "clean"; else echo "dirty"; fi)" >> "$GITHUB_OUTPUT"
 
   ko-build:
-    needs: [go-test]
+    needs: [release-on-push, go-test]
     uses: metraction/github-actions/.github/workflows/ko-build.yaml@main
     secrets: inherit
     
