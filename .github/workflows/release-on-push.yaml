@@ -19,6 +19,7 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
       - name: update
+        id: update
         run: |
           git tag -l
           git config --global user.email "actions@metraction.org"
