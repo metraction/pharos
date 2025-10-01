@@ -33,12 +33,17 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Get version from semver.sh
+      - name: Get version
+        if: "contains(github.ref, 'refs/tags/')"
         id: version
         run: |
-          VERSION=$(curl -sSL "https://raw.githubusercontent.com/metraction/github-actions/refs/heads/incremental/scripts/semver.sh" | bash)
-          VERSION=$(echo "$VERSION" | sed 's/+/_/g')
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          VERSION=$(git describe --tags --long --always)
+          echo "Using version: $VERSION"
+      - name: Get pre version
+        if: "!contains(github.ref, 'refs/tags/')"
+        id: version
+        run: |
+          VERSION=$(git describe --tags --long --always)
           echo "Using version: $VERSION"
       - name: Create Release
         id: create_release
