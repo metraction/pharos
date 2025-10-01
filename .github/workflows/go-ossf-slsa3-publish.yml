@@ -14,7 +14,7 @@
 name: SLSA Go releaser
 on:
   release:
-    types: [created, published]
+    types: [created]
 
 # permissions: read-all
 
