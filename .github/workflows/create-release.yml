@@ -11,7 +11,7 @@ on:
 
 jobs:
   go-test:
-    uses: ./.github/workflows/go-test.yaml@main
+    uses: ./.github/workflows/go-test.yaml
     secrets: inherit
   release-on-push:
     if: github.event_name == 'push'
