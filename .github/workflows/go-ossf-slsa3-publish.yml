@@ -82,7 +82,9 @@ jobs:
       - name: Get Version
         id: version
         run: |
-          echo "version=$(git describe --tags --abbrev=0)" >> "$GITHUB_OUTPUT"
+          VERSION=$(git describe --tags --abbrev=0)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Creating binaries for: $VERSION"
       - id: ldflags
         run: |
           echo "commit-date=$(git log --date=iso8601-strict -1 --pretty=%ct)" >> "$GITHUB_OUTPUT"
