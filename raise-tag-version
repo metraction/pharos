@@ -1,0 +1,9 @@
+echo "Bumping version: $1"
+oldtag=$(git tag -l | tail -n 1 | sed 's/^v//g')
+IFS=. read -r major minor patch <<EOF
+$oldtag
+EOF
+
+echo "old: $oldtag"
+tag="$major.$minor.$((patch + 1))"
+echo $tag
