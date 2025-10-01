@@ -15,7 +15,7 @@ name: SLSA Go releaser
 on:
   push:
     branches:
-      - release
+      - releases
       - main
     tags:
       - '*'
