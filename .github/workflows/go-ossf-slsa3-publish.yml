@@ -13,9 +13,8 @@
 
 name: SLSA Go releaser
 on:
-  push:
-    tags:
-      - 'v*'
+  release:
+    types: [published]
 
 # permissions: read-all
 
@@ -33,20 +32,20 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ steps.version.outputs.version }}
-          body: |
-            Changes in this Release
-            - First Change
-            - Second Change
-          draft: false
-          prerelease: false
+      # - name: Create Release
+      #   id: create_release
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      #   with:
+      #     tag_name: ${{ github.ref }}
+      #     release_name: ${{ steps.version.outputs.version }}
+      #     body: |
+      #       Changes in this Release
+      #       - First Change
+      #       - Second Change
+      #     draft: false
+      #     prerelease: false
       - id: ldflags
         run: |
           echo "commit-date=$(git log --date=iso8601-strict -1 --pretty=%ct)" >> "$GITHUB_OUTPUT"
