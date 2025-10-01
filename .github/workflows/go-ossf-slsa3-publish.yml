@@ -13,12 +13,8 @@
 
 name: SLSA Go releaser
 on:
-  push:
-    branches:
-      - releases
-      - main
-    tags:
-      - '*'
+  release:
+    types: [published]
 
 # permissions: read-all
 
@@ -32,40 +28,24 @@ jobs:
       tree-state: ${{ steps.ldflags.outputs.tree-state }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Get version
-        id: version
-        run: |
-          VERSION=$(git describe --tags --long --always)
-          echo "Using version: $VERSION"
-      - name: Create Release
-        id: create_release
-        if: "contains(github.ref, 'refs/tags/')"
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        uses: actions/checkout@v5
         with:
-          tag_name: ${{ steps.version.outputs.version }}
-          release_name: Release ${{ steps.version.outputs.version }}
-          body: |
-            Changes in this Release
-            - First Change
-            - Second Change
-          draft: false
-          prerelease: false
-      - name: Create Pre Release
-        id: create_prerelease
-        if: "!contains(github.ref, 'refs/tags/')"
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-        with:
-          tag_name: ${{ steps.version.outputs.version }}
-          release_name: Pre-Release ${{ steps.version.outputs.version }}
-          body: |
-            This is a pre-release.
-          draft: false
-          prerelease: true
+          fetch-depth: 0
+          fetch-tags: true
+      # - name: Create Release
+      #   id: create_release
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      #   with:
+      #     tag_name: ${{ github.ref }}
+      #     release_name: ${{ steps.version.outputs.version }}
+      #     body: |
+      #       Changes in this Release
+      #       - First Change
+      #       - Second Change
+      #     draft: false
+      #     prerelease: false
       - id: ldflags
         run: |
           echo "commit-date=$(git log --date=iso8601-strict -1 --pretty=%ct)" >> "$GITHUB_OUTPUT"
@@ -95,8 +75,8 @@ jobs:
     with:
       go-version-file: ./go.mod
       config-file: .slsa-goreleaser/${{matrix.os}}-${{matrix.arch}}.yml
-      evaluated-envs: "COMMIT_DATE:${{needs.args.outputs.commit-date}}, COMMIT:${{needs.args.outputs.commit}}, VERSION:${{needs.args.outputs.version}}, TREE_STATE:${{needs.args.outputs.tree-state}}"
-      upload-tag-name: ${{needs.args.outputs.version}}
+      evaluated-envs: "COMMIT_DATE:${{needs.args.outputs.commit-date}}, COMMIT:${{needs.args.outputs.commit}}, VERSION:${{ github.ref }}, TREE_STATE:${{needs.args.outputs.tree-state}}"
+      #upload-tag-name: ${{ github.ref }}
       # =============================================================================================================
       #     Optional: For more options, see https://github.com/slsa-framework/slsa-github-generator#golang-projects
       # =============================================================================================================
