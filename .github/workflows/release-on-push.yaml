@@ -41,6 +41,7 @@ jobs:
         with:
           tag_name: ${{ steps.update.outputs.version }}
           release_name: ${{ steps.update.outputs.version }}
+          
           body: |
             Changes in this Release
             - First Change
