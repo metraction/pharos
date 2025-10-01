@@ -15,4 +15,4 @@ jobs:
           fetch-depth: 0
       - name: Debug
         run: |
-          git tag -l
+          git tag -l | tail -n 1
