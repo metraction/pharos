@@ -16,6 +16,7 @@ on:
   push:
     branches:
       - releases
+      - releases-*
       - main
     tags:
       - '*'
