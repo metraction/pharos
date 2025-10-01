@@ -19,6 +19,8 @@ jobs:
           fetch-depth: 0
       - name: Debug
         run: |
+          git config --global user.email "actions@metraction.org"
+          git config --global user.name "GitHub Actions"
           echo "Bumping version: $1"
           oldtag=$(git tag -l | tail -n 1 | sed 's/^v//g')
           IFS=. read -r major minor patch <<EOF
