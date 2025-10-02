@@ -3,9 +3,9 @@ name: SLSA Go releaser
 on:
   release:
     types: [published]
-  push:
-    branches:
-      - main
+  # push:
+  #   branches:
+  #     - main
 
 # permissions: read-all
 
@@ -83,13 +83,13 @@ jobs:
 
   ko-build:
     needs: [release-on-push, go-test, prepare-args]
-    uses: metraction/github-actions/.github/workflows/ko-build.yaml@allow-version-input
+    uses: metraction/github-actions/.github/workflows/ko-build.yaml@main
     secrets: inherit
     with:
       version: ${{ needs.prepare-args.outputs.version }}
     
   push-helm-chart:
-    uses: metraction/github-actions/.github/workflows/helm-push.yaml@allow-version-input
+    uses: metraction/github-actions/.github/workflows/helm-push.yaml@main
     needs: [ko-build, prepare-args]
     with:
       chart_dir: helm/pharos
