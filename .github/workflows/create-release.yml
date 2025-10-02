@@ -83,11 +83,11 @@ jobs:
 
   ko-build:
     needs: [release-on-push, go-test]
-    uses: metraction/github-actions/.github/workflows/ko-build.yaml@main
+    uses: metraction/github-actions/.github/workflows/ko-build.yaml@allow-version-input
     secrets: inherit
     
   push-helm-chart:
-    uses: metraction/github-actions/.github/workflows/helm-push.yaml@main
+    uses: metraction/github-actions/.github/workflows/helm-push.yaml@allow-version-input
     needs: [ko-build]
     with:
       chart_dir: helm/pharos
