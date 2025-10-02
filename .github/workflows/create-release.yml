@@ -85,6 +85,8 @@ jobs:
     needs: [release-on-push, go-test]
     uses: metraction/github-actions/.github/workflows/ko-build.yaml@allow-version-input
     secrets: inherit
+    with:
+      version: ${{ needs.prepare-args.outputs.version }}
     
   push-helm-chart:
     uses: metraction/github-actions/.github/workflows/helm-push.yaml@allow-version-input
@@ -94,6 +96,7 @@ jobs:
       chart_name: pharos
       destination: .
       registry: oci://ghcr.io/metraction/charts
+      version: ${{ needs.prepare-args.outputs.version }}
     secrets: inherit
 
   #  See here:  https://github.com/slsa-framework/slsa-github-generator/blob/main/internal/builders/go/README.md#configuration-file
