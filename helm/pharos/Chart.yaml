@@ -1,8 +1,8 @@
 apiVersion: v2
 name: pharos
 version: 0.0.1
-description: Helm chart for pharos
-appVersion: 0.0.1-testtesttesttesttesttesttesttesttesttesttesttesttest1234567890
+description: Helm chart for Pharos
+appVersion: 0.0.9
 dependencies:
   - name: redis
     alias: redis

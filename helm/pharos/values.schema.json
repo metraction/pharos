@@ -1,0 +1,305 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Pharos Helm Chart Values",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "image": {
+      "type": "object",
+      "description": "Container image configuration for Pharos",
+      "properties": {
+        "registry": { "type": "string", "description": "Registry for pharos image" },
+        "repository": { "type": "string", "description": "Repository for pharos image" },
+        "pullPolicy": {
+          "type": "string",
+            "description": "Image pull policy",
+            "enum": ["Always", "IfNotPresent", "Never"]
+        }
+      }
+    },
+    "imagePullSecrets": {
+      "type": "array",
+      "description": "List of imagePullSecrets to use (also used to pull images to scan)",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string", "description": "Secret name" }
+        }
+      }
+    },
+    "ingress": {
+      "type": "object",
+      "description": "Ingress configuration",
+      "properties": {
+        "enabled": { "type": "boolean", "description": "Enable ingress" },
+        "host": { "type": "string", "description": "Ingress host" },
+        "className": { "type": "string", "description": "Ingress class name" },
+        "tls": { "type": "boolean", "description": "Enable TLS" },
+        "tlsSecretName": { "type": "string", "description": "TLS secret name" },
+        "annotations": {
+          "type": "object",
+          "description": "Ingress annotations",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "service": {
+      "type": "object",
+      "description": "Kubernetes service configuration",
+      "properties": {
+        "port": { "type": "integer", "description": "Service port", "minimum": 1 }
+      }
+    },
+    "redis": {
+      "type": "object",
+      "description": "Embedded Redis configuration",
+      "properties": {
+        "enabled": { "type": "boolean", "description": "Deploy Redis" },
+        "auth": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "description": "Enable Redis AUTH" }
+          }
+        },
+        "replica": {
+          "type": "object",
+          "properties": {
+            "replicaCount": { "type": "integer", "description": "Replica count", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "scannerPod": {
+      "type": "object",
+      "description": "Legacy scanner pod (if not using direct scan)",
+      "properties": {
+        "enabled": { "type": "boolean", "description": "Enable scanner pod" }
+      }
+    },
+    "priorityScannerPod": {
+      "type": "object",
+      "description": "Priority scanner pod (if not using direct scan)",
+      "properties": {
+        "enabled": { "type": "boolean", "description": "Enable priority scanner pod" }
+      }
+    },
+    "postgres": {
+      "type": "object",
+      "description": "PostgreSQL configuration",
+      "properties": {
+        "enabled": { "type": "boolean", "description": "Deploy PostgreSQL" },
+        "auth": {
+          "type": "object",
+          "properties": {
+            "existingSecret": { "type": "string", "description": "Existing secret name for connection" }
+          }
+        },
+        "primary": {
+          "type": "object",
+          "properties": {
+            "persistence": {
+              "type": "object",
+              "properties": {
+                "enabled": { "type": "boolean", "description": "Enable PVC" },
+                "size": { "type": "string", "description": "PVC size (e.g. 1Gi)" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "externalRedis": {
+      "type": "object",
+      "description": "External Redis configuration (used when embedded disabled)",
+      "properties": {
+        "host": { "type": "string", "description": "External Redis host" },
+        "port": { "type": "integer", "description": "External Redis port", "minimum": 1 }
+      }
+    },
+    "serviceAccount": {
+      "type": "object",
+      "description": "ServiceAccount configuration",
+      "properties": {
+        "create": { "type": "boolean", "description": "Create ServiceAccount" }
+      }
+    },
+    "role": {
+      "type": "object",
+      "description": "Role configuration",
+      "additionalProperties": false,
+      "properties": {
+        "create": { "type": "boolean", "description": "Create Role" }
+      }
+    },
+    "controller": {
+      "type": "object",
+      "description": "Controller deployment configuration",
+      "additionalProperties": false,
+      "properties": {
+        "replicas": { "type": "integer", "description": "Controller replicas", "minimum": 1 },
+        "collector": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "queueSize": { "type": "integer", "description": "Collector queue size", "minimum": 0 }
+          }
+        },
+        "publisher": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "queueSize": { "type": "integer", "description": "Publisher queue size", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "prometheus": {
+      "type": "object",
+      "description": "Prometheus-based image discovery and scheduling",
+      "properties": {
+        "url": { "type": "string", "description": "Prometheus server URL" },
+        "query": { "type": "string", "description": "Prometheus query to get images" },
+        "interval": {
+          "type": "string",
+          "description": "Poll interval (duration)",
+          "pattern": "^[0-9]+(ms|s|m|h)$"
+        },
+        "contextLabels": { "type": "string", "description": "Comma separated labels to add to context" },
+        "ttl": {
+          "type": "string",
+          "description": "Scan result TTL (duration)",
+          "pattern": "^[0-9]+(ms|s|m|h)$"
+        },
+        "auth": {
+          "type": "object",
+          "properties": {
+            "username": { "type": "string", "description": "Basic auth username" },
+            "password": { "type": "string", "description": "Basic auth password" },
+            "token": { "type": "string", "description": "Bearer token" }
+          }
+        },
+        "authFromSecret": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "description": "Enable reading auth from secret" },
+            "existingSecret": { "type": "string", "description": "Secret name" },
+            "usernameKey": { "type": "string", "description": "Key for username" },
+            "passwordKey": { "type": "string", "description": "Key for password" },
+            "tokenKey": { "type": "string", "description": "Key for token" }
+          }
+        }
+      }
+    },
+    "enrichers": {
+      "type": "object",
+      "description": "Enrichers and mappers configuration",
+      "properties": {
+        "configMap": { "type": "string", "description": "ConfigMap name for enrichers" },
+        "config": { "type": "string", "description": "Path to base enricher config" },
+        "mappers": {
+          "type": "object",
+          "properties": {
+            "hbs": {
+              "type": "object",
+              "description": "Inline handlebars templates",
+              "additionalProperties": { "type": "string" }
+            },
+            "files": {
+              "type": "object",
+              "description": "External mapper files",
+              "additionalProperties": { "type": "string" }
+            }
+          }
+        },
+        "uiUrl": { "type": "string", "description": "URL to Pharos UI for visual enrichers (empty disables)" }
+      }
+    },
+    "caCertificates": {
+      "type": "object",
+      "description": "Custom CA certificates configuration",
+      "properties": {
+        "configMapEnabled": { "type": "boolean", "description": "Enable CA certs ConfigMap creation" },
+        "enabled": { "type": "boolean", "description": "Mount CA certs into reporter pod" },
+        "configMapName": { "type": "string", "description": "Name of existing CA certs ConfigMap" }
+      }
+    },
+    "alerting": {
+      "type": "object",
+      "description": "Alert routing and receivers (Prometheus Alertmanager style)",
+      "properties": {
+        "route": {
+          "type": "object",
+          "properties": {
+            "group_by": { "type": "array", "items": { "type": "string" }, "description": "Group by labels" },
+            "continue": { "type": "boolean", "description": "Continue processing child routes" },
+            "receiver": { "type": "string", "description": "Default receiver name" },
+            "child_routes": { "type": "array", "items": { "type": "object" }, "description": "Nested routes" }
+          }
+        },
+        "receivers": {
+          "type": "array",
+          "description": "Alert receivers",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string", "description": "Receiver name" },
+              "webhook_configs": {
+                "type": "array",
+                "description": "Webhook configurations",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "url": { "type": "string", "description": "Webhook URL" },
+                    "send_resolved": { "type": "boolean", "description": "Send resolved notifications" }
+                  }
+                }
+              }
+            },
+            "required": ["name"]
+          }
+        }
+      }
+    },
+    "jiralert": {
+      "type": "object",
+      "description": "JIRA alerting (jiralert) deployment configuration",
+      "properties": {
+        "enabled": { "type": "boolean", "description": "Enable Jiralert deployment" },
+        "extraArgs": {
+          "type": "array",
+          "description": "Extra CLI args for jiralert",
+          "items": { "type": "string" }
+        },
+        "config": {
+          "type": "object",
+          "description": "Jiralert configuration file contents",
+          "properties": {
+            "template": { "type": "string", "description": "Template file path" },
+            "defaults": {
+              "type": "object",
+              "description": "Global default settings",
+              "additionalProperties": true
+            },
+            "receivers": {
+              "type": "array",
+              "description": "Receiver definitions",
+              "items": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                  "name": { "type": "string" },
+                  "project": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "issueTemplate": {
+          "type": "string",
+          "description": "Inline JIRA template definitions"
+        }
+      }
+    }
+  }
+}
