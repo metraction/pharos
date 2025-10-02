@@ -82,7 +82,7 @@ jobs:
           echo "tree-state=$(if git diff --quiet; then echo "clean"; else echo "dirty"; fi)" >> "$GITHUB_OUTPUT"
 
   ko-build:
-    needs: [release-on-push, go-test]
+    needs: [release-on-push, go-test, prepare-args]
     uses: metraction/github-actions/.github/workflows/ko-build.yaml@allow-version-input
     secrets: inherit
     with:
@@ -90,7 +90,7 @@ jobs:
     
   push-helm-chart:
     uses: metraction/github-actions/.github/workflows/helm-push.yaml@allow-version-input
-    needs: [ko-build]
+    needs: [ko-build, prepare-args]
     with:
       chart_dir: helm/pharos
       chart_name: pharos
