@@ -36,18 +36,17 @@ jobs:
           IFS=. read -r major minor patch <<EOF
           $oldtag
           EOF
-          if [[ ${{ (contains(github.event.head_commit.message, 'action:create-release:major')) }} == 'true' ]]; then
+          if [[ "${{ github.event.head_commit.message }}" == *"action:create-release:major"* ]]; then
             major=$((major + 1))
             minor=0
             patch=0
             echo "Bumping major version"
-          elif [[ ${{ (contains(github.event.head_commit.message, 'action:create-release:minor')) }} == 'true' ]]; then
+          elif [[ "${{ github.event.head_commit.message }}" == *"action:create-release:minor"* ]]; then
             minor=$((minor + 1))
             patch=0
             echo "Bumping minor version"
           else
             patch=$((patch + 1))
-            echo "Bumping patch version"
           fi
           tag="$major.$minor.$patch"
           echo "New tag: v$tag"
