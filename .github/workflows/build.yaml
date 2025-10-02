@@ -2,7 +2,7 @@ name: Build
 on:
   push:
     branches: 
-    # do not run on main, the create-release workflow will to this by adding a tag and creating a release.
+    # do not run on main, the create-release workflow will to this by adding action:create-release to the commit message
     - '140-*'
     - 'PH-120/*'
     - 'PH-99/*'
