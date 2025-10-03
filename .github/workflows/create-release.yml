@@ -151,4 +151,3 @@ jobs:
       config-file: .slsa-goreleaser/${{matrix.os}}-${{matrix.arch}}.yml
       evaluated-envs: "COMMIT_DATE:${{needs.prepare-args.outputs.commit-date}}, COMMIT:${{needs.prepare-args.outputs.commit}}, VERSION:${{ needs.prepare-args.outputs.version }}, TREE_STATE:${{needs.prepare-args.outputs.tree-state}}"
       upload-tag-name: ${{ needs.prepare-args.outputs.version }}
-
