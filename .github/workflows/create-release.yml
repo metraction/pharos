@@ -112,7 +112,7 @@ jobs:
     uses: metraction/github-actions/.github/workflows/ko-build.yaml@main
     secrets: inherit
     with:
-      version: ${{ needs.prepare-args.outputs.version }}
+      version: ${{ replace(needs.prepare-args.outputs.version, 'v', '') }}
     
   push-helm-chart:
     if: (contains(github.event.head_commit.message, 'action:create-release') && github.event_name == 'push') || github.event_name == 'release'
@@ -123,7 +123,7 @@ jobs:
       chart_name: pharos
       destination: .
       registry: oci://ghcr.io/metraction/charts
-      version: ${{ needs.prepare-args.outputs.version }}
+      version: ${{ replace(needs.prepare-args.outputs.version, 'v', '') }}
     secrets: inherit
 
   #  This job uses the SLSA Go builder to create binaries for multiple OS/ARCH combinations.
