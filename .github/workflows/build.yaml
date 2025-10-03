@@ -2,7 +2,7 @@ name: Build
 on:
   push:
     branches: 
-    - main
+    # do not run on main, the create-release workflow will to this by adding action:create-release to the commit message
     - '140-*'
     - 'PH-120/*'
     - 'PH-99/*'
@@ -13,8 +13,6 @@ on:
     - '107-*'
     - '35-*'
     - '171-*'
-    tags:
-    - 'v*'
   pull_request:
     branches:
     - main
@@ -30,38 +28,9 @@ permissions:
 
 jobs:
   go-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.23'
-          cache: true
-
-      - name: Go mod cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
-      - name: Run unit tests
-        run: go test ./... -v -race -coverprofile=coverage.txt -covermode=atomic
-
-      - name: Upload coverage report
-        uses: codecov/codecov-action@v4
-        with:
-          file: ./coverage.txt
-          fail_ci_if_error: false
-          token: ${{ secrets.CODECOV_TOKEN }}
+    if: (contains(github.event.head_commit.message, 'action:create-release') && github.event_name == 'push') || github.event_name == 'release'
+    uses: ./.github/workflows/go-test.yaml
+    secrets: inherit
 
   ko-build:
     # Run this job on push events and pull requests
