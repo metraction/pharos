@@ -51,6 +51,7 @@ jobs:
           git tag -a "v$tag" -m "v$tag"
           git push origin "v$tag"
           echo "version=v$tag" >> "$GITHUB_OUTPUT"
+          echo "ociversion=$tag" >> "$GITHUB_OUTPUT"
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -64,17 +65,17 @@ jobs:
             ## Download Docker image
             Install from the command line
             ```
-            docker pull ghcr.io/metraction/pharos:${{ steps.update.outputs.version }}
+            docker pull ghcr.io/metraction/pharos:${{ steps.update.outputs.ociversion }}
             ```
             Use as base image in Dockerfile:
             ```
-            FROM ghcr.io/metraction/pharos:${{ steps.update.outputs.version }}
+            FROM ghcr.io/metraction/pharos:${{ steps.update.outputs.ociversion }}
             ```
             ## Use helm chart
 
             Pull the helm chart
             ```
-            helm pull oci://ghcr.io:443/metraction/charts/pharos --version ${{ steps.update.outputs.version }}
+            helm pull oci://ghcr.io:443/metraction/charts/pharos --version ${{ steps.update.outputs.ociversion }}
             ```      
 
           draft: false
@@ -112,7 +113,7 @@ jobs:
     uses: metraction/github-actions/.github/workflows/ko-build.yaml@main
     secrets: inherit
     with:
-      version: ${{ replace(needs.prepare-args.outputs.version, 'v', '') }}
+      version: ${{ needs.prepare-args.outputs.ociversion }}
     
   push-helm-chart:
     if: (contains(github.event.head_commit.message, 'action:create-release') && github.event_name == 'push') || github.event_name == 'release'
@@ -123,7 +124,7 @@ jobs:
       chart_name: pharos
       destination: .
       registry: oci://ghcr.io/metraction/charts
-      version: ${{ replace(needs.prepare-args.outputs.version, 'v', '') }}
+      version: ${{ needs.prepare-args.outputs.ociversion }}
     secrets: inherit
 
   #  This job uses the SLSA Go builder to create binaries for multiple OS/ARCH combinations.
