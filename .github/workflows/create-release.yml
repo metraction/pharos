@@ -77,7 +77,6 @@ jobs:
             ```
             helm pull oci://ghcr.io:443/metraction/charts/pharos --version ${{ steps.update.outputs.ociversion }}
             ```      
-
           draft: false
           prerelease: false
   prepare-args:
