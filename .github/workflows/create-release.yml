@@ -30,7 +30,7 @@ jobs:
           git tag -l
           git config --global user.email "actions@metraction.org"
           git config --global user.name "GitHub Actions"
-          oldtag=$(git describe --tags --abbrev=0)
+          oldtag=$(git describe --tags --abbrev=0 | sed 's/^v//')
           IFS=. read -r major minor patch <<EOF
           $oldtag
           EOF
@@ -48,9 +48,10 @@ jobs:
           fi
           tag="$major.$minor.$patch"
           echo "New tag: $tag"
-          git tag -a "$tag" -m "$tag"
-          git push origin "$tag"
-          echo "version=$tag" >> "$GITHUB_OUTPUT"
+          git tag -a "v$tag" -m "v$tag"
+          git push origin "v$tag"
+          echo "version=v$tag" >> "$GITHUB_OUTPUT"
+          echo "ociversion=$tag" >> "$GITHUB_OUTPUT"
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -64,17 +65,17 @@ jobs:
             ## Download Docker image
             Install from the command line
             ```
-            docker pull ghcr.io/metraction/pharos:${{ steps.update.outputs.version }}
+            docker pull ghcr.io/metraction/pharos:${{ steps.update.outputs.ociversion }}
             ```
             Use as base image in Dockerfile:
             ```
-            FROM ghcr.io/metraction/pharos:${{ steps.update.outputs.version }}
+            FROM ghcr.io/metraction/pharos:${{ steps.update.outputs.ociversion }}
             ```
             ## Use helm chart
 
             Pull the helm chart
             ```
-            helm pull oci://ghcr.io:443/metraction/charts/pharos --version ${{ steps.update.outputs.version }}
+            helm pull oci://ghcr.io:443/metraction/charts/pharos --version ${{ steps.update.outputs.ociversion }}
             ```      
           draft: false
           prerelease: false
@@ -86,6 +87,7 @@ jobs:
       commit-date: ${{ steps.ldflags.outputs.commit-date }}
       commit: ${{ steps.ldflags.outputs.commit }}
       version: ${{ steps.version.outputs.version }}
+      ociversion: ${{ steps.version.outputs.ociversion }}
       tree-state: ${{ steps.ldflags.outputs.tree-state }}
     steps:
       - name: Checkout code
@@ -98,7 +100,10 @@ jobs:
         run: |
           VERSION=$(git describe --tags --abbrev=0)
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          ociversion=$(echo "$VERSION" | sed 's/^v//')
+          echo "ociversion=$ociversion" >> "$GITHUB_OUTPUT"
           echo "Creating binaries for: $VERSION"
+          echo "Creating helm charts for: $ociversion"
       - id: ldflags
         run: |
           echo "commit-date=$(git log --date=iso8601-strict -1 --pretty=%ct)" >> "$GITHUB_OUTPUT"
@@ -111,7 +116,7 @@ jobs:
     uses: metraction/github-actions/.github/workflows/ko-build.yaml@main
     secrets: inherit
     with:
-      version: ${{ needs.prepare-args.outputs.version }}
+      version: ${{ needs.prepare-args.outputs.ociversion }}
     
   push-helm-chart:
     if: (contains(github.event.head_commit.message, 'action:create-release') && github.event_name == 'push') || github.event_name == 'release'
@@ -122,7 +127,7 @@ jobs:
       chart_name: pharos
       destination: .
       registry: oci://ghcr.io/metraction/charts
-      version: ${{ needs.prepare-args.outputs.version }}
+      version: ${{ needs.prepare-args.outputs.ociversion }}
     secrets: inherit
 
   #  This job uses the SLSA Go builder to create binaries for multiple OS/ARCH combinations.
