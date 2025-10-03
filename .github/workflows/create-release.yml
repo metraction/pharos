@@ -100,7 +100,7 @@ jobs:
         run: |
           VERSION=$(git describe --tags --abbrev=0)
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          ociversion=$(echo $VERSION | sed 's/^v//')
+          ociversion=$(echo "$VERSION" | sed 's/^v//')
           echo "ociversion=$ociversion" >> "$GITHUB_OUTPUT"
           echo "Creating binaries for: $VERSION"
           echo "Creating helm charts for: $ociversion"
