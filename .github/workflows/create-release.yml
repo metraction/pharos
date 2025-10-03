@@ -61,6 +61,22 @@ jobs:
           release_name: ${{ steps.update.outputs.version }}
           body:  |
             ## Changes in version ${{ steps.update.outputs.version }}
+            ## Download Docker image
+            Install from the command line
+            ```
+            docker pull ghcr.io/metraction/pharos:${{ steps.update.outputs.version }}
+            ```
+            Use as base image in Dockerfile:
+            ```
+            FROM ghcr.io/metraction/pharos:${{ steps.update.outputs.version }}
+            ```
+            ## Use helm chart
+
+            Pull the helm chart
+            ```
+            helm pull oci://ghcr.io:443/metraction/charts/pharos --version ${{ steps.update.outputs.version }}
+            ```      
+
           draft: false
           prerelease: false
   prepare-args:
