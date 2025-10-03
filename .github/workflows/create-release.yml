@@ -30,7 +30,7 @@ jobs:
           git tag -l
           git config --global user.email "actions@metraction.org"
           git config --global user.name "GitHub Actions"
-          oldtag=$(git describe --tags --abbrev=0 | sed 's/^v//')
+          oldtag=$(git describe --tags --abbrev=0)
           IFS=. read -r major minor patch <<EOF
           $oldtag
           EOF
@@ -47,10 +47,10 @@ jobs:
             patch=$((patch + 1))
           fi
           tag="$major.$minor.$patch"
-          echo "New tag: v$tag"
-          git tag -a "v$tag" -m "v$tag"
-          git push origin "v$tag"
-          echo "version=v$tag" >> "$GITHUB_OUTPUT"
+          echo "New tag: $tag"
+          git tag -a "$tag" -m "$tag"
+          git push origin "$tag"
+          echo "version=$tag" >> "$GITHUB_OUTPUT"
           echo "ociversion=$tag" >> "$GITHUB_OUTPUT"
       - name: Create Release
         id: create_release
