@@ -92,7 +92,10 @@
         "auth": {
           "type": "object",
           "properties": {
-            "existingSecret": { "type": "string", "description": "Existing secret name for connection" }
+            "existingSecret": { "type": "string", "description": "Existing secret name for connection" },
+            "username": { "type": "string", "description": "Database username" },
+            "password": { "type": "string", "description": "Database password" },
+            "database": { "type": "string", "description": "Database name" }
           }
         },
         "primary": {

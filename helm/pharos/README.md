@@ -2,6 +2,11 @@
 
 Helm chart for Pharos
 
+You should at least point to the url of your prometheus installation, example for rancher:
+```
+prometheus.url=http://rancher-monitoring-prometheus.cattle-monitoring-system.svc.cluster.local:9090
+```
+
 ## Requirements
 
 | Repository | Name | Version |

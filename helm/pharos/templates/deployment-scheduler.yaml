@@ -24,7 +24,7 @@ spec:
       containers:
       - name: pharos-scheduler
         image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-        args: ["scheduler", "--config", "/config/.pharos.yaml"]
+        args: ["scheduler", "--config", "/config/.pharos.yaml", "--database.dsn", "postgres://$(PHAROS_DATABASE_USERNAME):$(PHAROS_DATABASE_PASSWORD)@{{ include "pharos.fullname" . }}-postgres:5432/$(PHAROS_DATABASE)?sslmode=disable", "--database.driver", "postgres"]
         ports:
           - containerPort: 8080
         livenessProbe:
@@ -42,11 +42,25 @@ spec:
           failureThreshold: 1
           periodSeconds: 10
         env:
-          - name: PHAROS_DATABASE_DSN
+          {{- if .Values.postgres.auth.existingSecret }}
+          - name: PHAROS_DATABASE_USERNAME
             valueFrom:
               secretKeyRef:
-                name: postgres-connection
-                key: dsn
+                name: {{ .Values.postgres.auth.existingSecret }}
+                key: username
+          - name: PHAROS_DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.postgres.auth.existingSecret }}
+                key: password
+          {{- else }}
+          - name: PHAROS_DATABASE_USERNAME
+            value: "{{ .Values.postgres.auth.username }}"
+          - name: PHAROS_DATABASE_PASSWORD
+            value: "{{ .Values.postgres.auth.password }}"
+          {{- end }}
+          - name: PHAROS_DATABASE
+            value: "{{ .Values.postgres.auth.database }}"
           - name: APP_DATA_PATH
             value: "/pharos"
         volumeMounts:
