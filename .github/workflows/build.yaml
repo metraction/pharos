@@ -29,7 +29,6 @@ permissions:
 
 jobs:
   go-test:
-    if: (contains(github.event.head_commit.message, 'action:create-release') && github.event_name == 'push') || github.event_name == 'release'
     uses: ./.github/workflows/go-test.yaml
     secrets: inherit
 
