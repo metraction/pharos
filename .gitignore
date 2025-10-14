@@ -42,4 +42,5 @@ scantask.json
 _registry
 _runtest
 .vscode
+.config
 .old

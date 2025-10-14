@@ -24,7 +24,11 @@ spec:
       containers:
       - name: pharos-scheduler
         image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        {{- if .Values.postgres.enabled }}
         args: ["scheduler", "--config", "/config/.pharos.yaml", "--database.dsn", "postgres://$(PHAROS_DATABASE_USERNAME):$(PHAROS_DATABASE_PASSWORD)@{{ include "pharos.fullname" . }}-postgres:5432/$(PHAROS_DATABASE)?sslmode=disable", "--database.driver", "postgres"]
+        {{- else }}
+        args: ["scheduler", "--config", "/config/.pharos.yaml", "--database.dsn", "$(PHAROS_DATABASE_DSN)", "--database.driver", "postgres"]
+        {{- end }}
         ports:
           - containerPort: 8080
         livenessProbe:
@@ -42,6 +46,7 @@ spec:
           failureThreshold: 1
           periodSeconds: 10
         env:
+          {{- if .Values.postgres.enabled }}
           {{- if .Values.postgres.auth.existingSecret }}
           - name: PHAROS_DATABASE_USERNAME
             valueFrom:
@@ -61,6 +66,13 @@ spec:
           {{- end }}
           - name: PHAROS_DATABASE
             value: "{{ .Values.postgres.auth.database }}"
+          {{- else }}
+          - name: PHAROS_DATABASE_DSN
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.externalDatabase.secret }}
+                key: dsn
+          {{- end }}
           - name: APP_DATA_PATH
             value: "/pharos"
         volumeMounts:

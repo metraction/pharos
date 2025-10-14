@@ -4,16 +4,11 @@ version: 0.0.1
 description: Helm chart for Pharos
 appVersion: 0.0.9
 dependencies:
-  - name: redis
+  - name: redis-ha
     alias: redis
-    version: ~17.0.0
-    repository: https://charts.bitnami.com/bitnami
+    version: ~4.35.0
+    repository: https://dandydeveloper.github.io/charts
     condition: redis.enabled
-  - name: postgresql
-    alias: postgres
-    version: ~12.5.7
-    repository: https://charts.bitnami.com/bitnami
-    condition: postgres.enabled
   - name: jiralert
     version: 1.8.1
     repository: https://prometheus-community.github.io/helm-charts

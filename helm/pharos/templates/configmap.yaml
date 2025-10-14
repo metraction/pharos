@@ -8,13 +8,18 @@ data:
   .pharos.yaml: |
     {{- if .Values.redis.enabled }}
     redis: 
-      dsn: {{ .Release.Namespace }}-redis-master.{{ .Release.Namespace }}.svc.cluster.local:6379
+      dsn: {{ .Release.Namespace }}-redis.{{ .Release.Namespace }}.svc.cluster.local:6379
     {{- else }}
     redis: 
       dsn: {{ .Values.externalRedis.host | default "localhost" }}:{{ .Values.externalRedis.port | default 6379 }}
     {{- end }}
+    {{- if .Values.redis.enabled }}
     scanner:
-      cacheEndpoint: redis://{{ .Release.Namespace }}-redis-master.{{ .Release.Namespace }}.svc.cluster.local:6379
+      cacheEndpoint: redis://{{ .Release.Namespace }}-redis.{{ .Release.Namespace }}.svc.cluster.local:6379
+    {{- else }}
+    scanner: 
+      cacheEndpoint: redis://{{ .Values.externalRedis.host | default "localhost" }}:{{ .Values.externalRedis.port | default 6379 }}
+    {{- end }}
     {{- with .Values.alerting }}
     alerting:
       {{- toYaml . | nindent 6 }}
