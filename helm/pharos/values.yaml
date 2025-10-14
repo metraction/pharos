@@ -35,13 +35,9 @@ redis:
   # -- Enable Redis deployment
   enabled: true
   # -- Redis authentication
-  auth:
-    # -- Enable Redis authentication
-    enabled: false
+  auth: false
   # -- Redis replica configuration
-  replica:
-    # -- Number of Redis replicas to deploy
-    replicaCount: 1
+  replicas: 1
 
 scannerPod:
   # -- Enable the scanner pod, only neeed if you are not using direct scan
@@ -51,11 +47,117 @@ priorityScannerPod:
   # -- Enable the scanner pod, only needed if you are not using direct scan
   enabled: false
 
+externalDatabase:
+  # -- Existing Secret containing dsn for an external database, set this if postgres.enabled=false must contain dsn: "postgres://username:password@hostname:5432/dbname?sslmode=disable"
+  secret: "postgres-connection"
+
 # -- PostgreSQL configuration
 postgres:
-  # -- Enable PostgreSQL deployment
   enabled: true
-  architecture: "standalone"
+  image:
+    registry: "docker.io"
+    repository: "postgres"
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "17.6"
+  # -- Enable PostgreSQL deployment
+  dataDir: "/var/lib/postgresql/data"
+  pgDir: "pg"
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: false
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+  # -- PostgreSQL startup probe configuration
+  startupProbe:
+    enabled: true
+    initialDelaySeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 30
+    successThreshold: 1
+    periodSeconds: 10
+  # -- PostgreSQL liveness probe configuration  
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+    successThreshold: 1
+    periodSeconds: 10
+  # -- PostgreSQL readiness probe configuration  
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+    successThreshold: 1
+    periodSeconds: 10
+  # -- PostgreSQL resources 
+  resources: {}
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+  # -- PostgreSQL persistence storage configuration  
+  storage:
+    ## Internal volume name and prefix of a created PVC
+    volumeName: "postgres-data"
+    ## Alternative set requestedSize to define a size for a dynmaically created PVC
+    requestedSize: 1Gi
+    ## the storage class name
+    className:
+    ## Default access mode (ReadWriteOnce)
+    accessModes:
+      - ReadWriteOnce
+    ## Keep a created Persistent volume claim when uninstalling the helm chart (only for option useDeployment: true)
+    keepPvc: false
+    ## Additional storage annotations
+    annotations: {}
+    ## Additional storage labels
+    labels: {}
+  ## Pod management policy
+  podManagementPolicy: OrderedReady
+  ## Pod update strategy
+  updateStrategyType: RollingUpdate
+
+  ## Pod security context uses file system group 999 (postgres)
+  podSecurityContext:
+    fsGroup: 999
+    supplementalGroups:
+      - 999
+
+  ## Default security options to run PostgreSQL as non-root (postgres user), read only container without privilege escalation
+  securityContext:
+    allowPrivilegeEscalation: false
+    privileged: false
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsGroup: 999
+    runAsUser: 999
+    capabilities:
+      drop:
+        - ALL
+  ## The postgres service configuration (Default is ClusterIP with port 5432)
+  service:
+    type: ClusterIP
+    port: 5432
+    ## The node port (only relevant for type LoadBalancer or NodePort)
+    nodePort:
+    ## The cluster ip address (only relevant for type LoadBalancer or NodePort)
+    clusterIP:
+    ## The loadbalancer ip address (only relevant for type LoadBalancer)
+    loadBalancerIP:
+    ## The list of IP CIDR ranges that are allowed to access the load balancer (only relevent for type LoadBalancer)
+    loadBalancerSourceRanges: []
+    ## Annotations to add to the service
+    annotations: {}
+    ## Labels to add to the service
+    labels: {}
   # -- PostgreSQL authentication
   auth:
     # -- Use an existing secret for PostgreSQL connection
@@ -67,11 +169,6 @@ postgres:
     # secretKeys:
     #   adminPasswordKey: ""
     #   userPasswordKey: ""
-    #   replicationPasswordKey: ""
-  primary:
-    persistence:
-      enabled: true
-      size: 1Gi
 
 # -- External Redis configuration (used when redis.enabled=false)
 externalRedis:

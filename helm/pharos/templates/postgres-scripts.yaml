@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "pharos.postgres.fullname" . }}-scripts
+  labels:
+    {{- include "pharos.postgres.labels" . | nindent 4 }}
+data:
+  01-init-userdb.sh: |
+    #!/bin/sh
+    create_user()
+    {
+    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" -v USERDB_DATABASE="$USERDB_DATABASE" -v USERDBUSER="$USERDB_USER" -v USERDBPASSWORD="'$USERDB_PASSWORD'" <<-EOSQL
+      CREATE DATABASE :USERDB_DATABASE;
+      CREATE USER :USERDBUSER WITH PASSWORD :USERDBPASSWORD;
+      GRANT ALL PRIVILEGES ON DATABASE :USERDB_DATABASE TO :USERDBUSER;
+      ALTER DATABASE :USERDB_DATABASE OWNER TO :USERDBUSER;
+    EOSQL
+    }
+    set -e
+    if [ ! -z "$USERDB_DATABASE" ] && [ ! -z "$USERDB_USER" ] && [ ! -z "$USERDB_PASSWORD" ]; then
+      create_user
+    fi
+  init.sh: |
+    #!/bin/sh
+    echo "Start initialization"
+    echo "Copy init-userdb script"
+    cp /initscripts/01-init-userdb.sh /scripts
+    echo "Initialization done."

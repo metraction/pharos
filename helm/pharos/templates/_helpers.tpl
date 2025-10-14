@@ -23,6 +23,10 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 {{- end }}
 
+{{- define "pharos.postgres.fullname" -}}
+{{ template "pharos.fullname" . }}-postgres
+{{- end }}
+
 {{/*
 Create chart name and version as used by the chart label.
 */}}
@@ -42,12 +46,22 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | replace "+" "_" | trunc 63 | t
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
+{{- define "pharos.postgres.labels" -}}
+{{ include "pharos.labels" . }}
+app.kubernetes.io/component: postgres
+{{- end }}
+
 {{/*
 Selector labels
 */}}
 {{- define "pharos.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "pharos.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{- define "pharos.postgres.selectorLabels" -}}
+{{ include "pharos.selectorLabels" . }}
+app.kubernetes.io/component: postgres
 {{- end }}
 
 {{/*
@@ -58,5 +72,13 @@ Create the name of the service account to use
 {{- default (include "pharos.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
+{{- end }}
+{{- end }}
+
+{{- define "pharos.postgres.serviceAccountName" -}}
+{{- if .Values.postgres.serviceAccount.create }}
+{{- default (include "pharos.postgres.fullname" .) .Values.postgres.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.postgres.serviceAccount.name }}
 {{- end }}
 {{- end }}
