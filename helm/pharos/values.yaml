@@ -37,7 +37,9 @@ redis:
   # -- Redis authentication
   auth: false
   # -- Redis replica configuration
-  replicas: 1
+  replicas: 3
+  persistentVolume:
+    size: 2Gi
 
 scannerPod:
   # -- Enable the scanner pod, only neeed if you are not using direct scan
