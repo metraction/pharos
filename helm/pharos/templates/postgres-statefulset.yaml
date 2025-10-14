@@ -3,7 +3,7 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ $fullname }}-postgres
+  name: {{ $fullname }}
   labels:
     {{- include "pharos.postgres.labels" . | nindent 4 }}
     {{- with .Values.customLabels }}
