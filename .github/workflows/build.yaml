@@ -15,6 +15,7 @@ on:
     - '171-*'
     - '175-*'
     - '188-*'
+    - '190-*'
   pull_request:
     branches:
     - main
