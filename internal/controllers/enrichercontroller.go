@@ -185,12 +185,13 @@ func (ec *EnricherController) V1GetBySearch() (huma.Operation, func(ctx context.
 
 func (ec *EnricherController) V1UpsertEnricher() (huma.Operation, func(ctx context.Context, input *UpsertEnricherInput) (*Enricher, error)) {
 	op := huma.Operation{
-		OperationID: "V1UpsertEnricher",
-		Method:      "POST",
-		Path:        ec.Path,
-		Summary:     "Create or update an enricher",
-		Description: "Creates a new enricher or updates an existing one by ID.",
-		Tags:        []string{"V1/Enricher"},
+		OperationID:  "V1UpsertEnricher",
+		Method:       "POST",
+		Path:         ec.Path,
+		MaxBodyBytes: 100 * 1024 * 1024,
+		Summary:      "Create or update an enricher",
+		Description:  "Creates a new enricher or updates an existing one by ID.",
+		Tags:         []string{"V1/Enricher"},
 		Responses: map[string]*huma.Response{
 			"200": {
 				Description: "Enricher created or updated",
