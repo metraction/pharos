@@ -75,6 +75,10 @@ spec:
           {{- end }}
           - name: APP_DATA_PATH
             value: "/pharos"
+        {{- with .Values.scheduler.resources }}
+        resources:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
         volumeMounts:
           - name: config-volume
             mountPath: /config/.pharos.yaml

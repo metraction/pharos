@@ -83,6 +83,10 @@ spec:
           {{- end }}
           - name: PHAROS_ENRICHERCOMMON_UIURL
             value: "{{ .Values.enrichers.uiUrl }}"
+        {{- with .Values.controller.resources }}
+        resources:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
         volumeMounts:
           - name: config-volume
             mountPath: /config/.pharos.yaml
