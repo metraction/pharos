@@ -233,6 +233,32 @@
         "create": { "type": "boolean", "description": "Create Role" }
       }
     },
+    "scheduler": {
+      "type": "object",
+      "description": "Scheduler deployment configuration",
+      "properties": {
+        "resources": { "type": "object",
+          "properties": {
+            "limits": {
+              "type": "object",
+              "description": "Resource limits for scheduler pods",
+              "properties": {
+                "cpu": { "type": "string", "description": "CPU limit" },
+                "memory": { "type": "string", "description": "Memory limit" }
+              }
+            },
+            "requests": {
+              "type": "object",
+              "description": "Resource requests for scheduler pods",
+              "properties": {
+                "cpu": { "type": "string", "description": "CPU request" },
+                "memory": { "type": "string", "description": "Memory request" }
+              }
+            }
+          }
+        }
+      }
+    },
     "controller": {
       "type": "object",
       "description": "Controller deployment configuration",
@@ -248,6 +274,26 @@
           "type": "object",
           "properties": {
             "queueSize": { "type": "integer", "description": "Publisher queue size", "minimum": 0 }
+          }
+        },
+        "resources": { "type": "object",
+          "properties": {
+            "limits": {
+              "type": "object",
+              "description": "Resource limits for controller pods",
+              "properties": {
+                "cpu": { "type": "string", "description": "CPU limit" },
+                "memory": { "type": "string", "description": "Memory limit" }
+              }
+            },
+            "requests": {
+              "type": "object",
+              "description": "Resource requests for controller pods",
+              "properties": {
+                "cpu": { "type": "string", "description": "CPU request" },
+                "memory": { "type": "string", "description": "Memory request" }
+              }
+            }
           }
         }
       }
