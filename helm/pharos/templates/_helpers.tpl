@@ -85,7 +85,7 @@ Create the name of the service account to use
 
 {{- define "pharos.dbEnvVars" -}}
 {{- if .Values.postgres.enabled }}
-{{- if .Values.postgres.auth.existingSecret -}}
+{{- if .Values.postgres.auth.existingSecret }}
 - name: PHAROS_DATABASE_USERNAME
   valueFrom:
     secretKeyRef:

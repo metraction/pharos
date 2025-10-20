@@ -125,6 +125,7 @@ func GetGrypeUpdate(scannerBin, targetDir string) error {
 	cmd.Stderr = &stderr
 
 	err := cmd.Run()
+	fmt.Println("grype update output:", utils.NoColorCodes(stdout.String()))
 	if err != nil {
 		return fmt.Errorf("grype update %s [%s]", utils.NoColorCodes(stderr.String()), targetDir)
 	}
