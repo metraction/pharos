@@ -318,25 +318,25 @@ func CreateEnrichersFlow(plugin streams.Source, enrichers *model.EnrichersConfig
 		enricherConfig := enricher.LoadEnricherConfig(enricherPath, source.Name)
 		plugin = plugin.Via(mappers.NewEnricherMap(source.Name, enricherConfig, &config.EnricherCommon))
 	}
-	if databaseContext != nil {
-		// here we load enrichers from database and add them to the flow
-		var dbEnrichers []model.Enricher
-		result := databaseContext.DB.Find(&dbEnrichers)
-		if result.Error != nil {
-			logger.Error().Err(result.Error).Msg("Error loading enrichers from database")
-			return plugin.(streams.Flow)
-		}
-		for _, dbEnricher := range dbEnrichers {
-			if dbEnricher.Enabled {
-				enricherConfig := model.EnricherConfig{
-					BasePath: "",
-					Configs:  []model.MapperConfig{},
-					Enricher: &dbEnricher,
-				}
-				plugin = plugin.Via(mappers.NewEnricherMap(dbEnricher.Name, enricherConfig, enricherCommon))
-			}
-		}
-	}
+	// if databaseContext != nil {
+	// 	// here we load enrichers from database and add them to the flow
+	// 	var dbEnrichers []model.Enricher
+	// 	result := databaseContext.DB.Find(&dbEnrichers)
+	// 	if result.Error != nil {
+	// 		logger.Error().Err(result.Error).Msg("Error loading enrichers from database")
+	// 		return plugin.(streams.Flow)
+	// 	}
+	// 	for _, dbEnricher := range dbEnrichers {
+	// 		if dbEnricher.Enabled {
+	// 			enricherConfig := model.EnricherConfig{
+	// 				BasePath: "",
+	// 				Configs:  []model.MapperConfig{},
+	// 				Enricher: &dbEnricher,
+	// 			}
+	// 			plugin = plugin.Via(mappers.NewEnricherMap(dbEnricher.Name, enricherConfig, enricherCommon))
+	// 		}
+	// 	}
+	// }
 	return plugin.(streams.Flow)
 }
 

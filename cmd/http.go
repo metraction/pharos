@@ -88,7 +88,6 @@ These submissions are then published to a Redis stream for further processing by
 			// So append kodada if command is executed with go run .
 			enricherPath = filepath.Join("kodata", enricherPath)
 		}
-
 		enrichersPath := addBasePathToRelative(config, enricherPath)
 		//		enricherConfig := enricher.LoadEnricher(enricherPath, "results")
 		enrichers, err := enricher.LoadEnrichersConfig(enrichersPath)
