@@ -73,7 +73,7 @@ spec:
               value: "{{ .Values.enrichers.uiUrl }}"
           {{- with .Values.controller.resources }}
           resources:
-            {{- toYaml . | nindent 10 }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
           volumeMounts:
             - name: config-volume
