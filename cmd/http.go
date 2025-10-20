@@ -16,6 +16,7 @@ import (
 	"github.com/metraction/pharos/internal/metriccollectors"
 	"github.com/metraction/pharos/internal/routing"
 	"github.com/metraction/pharos/pkg/enricher"
+	"github.com/metraction/pharos/pkg/grype"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/reugn/go-streams/extension"
@@ -42,6 +43,13 @@ These submissions are then published to a Redis stream for further processing by
 		databaseContext := model.NewDatabaseContext(&config.Database, config.Init)
 		databaseContext.Migrate()
 		if config.Init {
+
+			if _, err := grype.NewGrypeScanner(60, true, "", logger); err != nil {
+				dbCacheDir := os.Getenv("GRYPE_DB_CACHE_DIR")
+				logger.Debug().Str("GRYPE_DB_CACHE_DIR", dbCacheDir).Msg("Grype settings: ")
+				logger.Fatal().Err(err).Msg("NewGrypeScanner()")
+			}
+
 			logger.Info().Msg("Init flag set, exiting after migrations.")
 			os.Exit(0)
 		}

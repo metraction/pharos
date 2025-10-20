@@ -35,6 +35,8 @@ spec:
             - name: config-volume
               mountPath: /config/.pharos.yaml
               subPath: .pharos.yaml
+            - name: grype-db-stage
+              mountPath: /tmp/grype-db-stage
       containers:
         - name: pharos-controller
           image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -81,6 +83,8 @@ spec:
               subPath: .pharos.yaml
             - name: enrichers-volume
               mountPath: /pharos/enrichers
+            - name: grype-db-stage
+              mountPath: /tmp/grype-db-stage
       volumes:
         - name: config-volume
           configMap:
@@ -88,3 +92,5 @@ spec:
         - name: enrichers-volume
           configMap:
             name: {{ .Values.enrichers.configMap }}
+        - name: grype-db-stage
+          emptyDir: {}
