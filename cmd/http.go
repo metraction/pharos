@@ -11,6 +11,7 @@ import (
 	_ "github.com/danielgtaylor/huma/v2/adapters/humachi"
 	"github.com/go-chi/chi/v5"
 	"github.com/metraction/pharos/internal/controllers"
+	"github.com/metraction/pharos/internal/integrations/cache"
 	"github.com/metraction/pharos/internal/integrations/db"
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/internal/metriccollectors"
@@ -43,14 +44,30 @@ These submissions are then published to a Redis stream for further processing by
 		databaseContext := model.NewDatabaseContext(&config.Database, config.Init)
 		databaseContext.Migrate()
 		if config.Init {
-
+			ctx := cmd.Context()
+			ok := false
+			logger.Info().Msg("Checking Redis cache...")
+			for !ok {
+				kvc, err := cache.NewPharosCache(config.Scanner.CacheEndpoint, logger)
+				if err != nil {
+					logger.Err(err).Msg("Redis cache create")
+				}
+				if err != nil {
+					if err = kvc.Connect(ctx); err != nil {
+						logger.Err(err).Msg("Redis cache connect")
+					}
+				} else {
+					ok = true
+					logger.Info().Str("redis_version", kvc.Version(ctx)).Msg("PharosCache.Connect() OK")
+				}
+			}
+			logger.Info().Msg("Updating Grype scanner...")
 			if _, err := grype.NewGrypeScanner(60, true, "", logger); err != nil {
 				dbCacheDir := os.Getenv("GRYPE_DB_CACHE_DIR")
 				logger.Debug().Str("GRYPE_DB_CACHE_DIR", dbCacheDir).Msg("Grype settings: ")
 				logger.Fatal().Err(err).Msg("NewGrypeScanner()")
 			}
-
-			logger.Info().Msg("Init flag set, exiting after migrations.")
+			logger.Info().Msg("Init flag set, exiting.")
 			os.Exit(0)
 		}
 
