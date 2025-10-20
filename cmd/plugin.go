@@ -12,6 +12,8 @@ import (
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/reugn/go-streams"
 	"github.com/reugn/go-streams/extension"
+	"github.com/reugn/go-streams/flow"
+	_ "github.com/reugn/go-streams/flow"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 )
@@ -284,6 +286,7 @@ func (ef *EnricherFlow) transmit(inlet streams.Inlet) {
 		sourceChannel <- element
 		processedElement := <-flow.Out()
 		inlet.In() <- processedElement
+		close(sourceChannel)
 	}
 	close(inlet.In())
 }
@@ -318,26 +321,26 @@ func CreateEnrichersFlow(plugin streams.Source, enrichers *model.EnrichersConfig
 		enricherConfig := enricher.LoadEnricherConfig(enricherPath, source.Name)
 		plugin = plugin.Via(mappers.NewEnricherMap(source.Name, enricherConfig, &config.EnricherCommon))
 	}
-	// if databaseContext != nil {
-	// 	// here we load enrichers from database and add them to the flow
-	// 	var dbEnrichers []model.Enricher
-	// 	result := databaseContext.DB.Find(&dbEnrichers)
-	// 	if result.Error != nil {
-	// 		logger.Error().Err(result.Error).Msg("Error loading enrichers from database")
-	// 		return plugin.(streams.Flow)
-	// 	}
-	// 	for _, dbEnricher := range dbEnrichers {
-	// 		if dbEnricher.Enabled {
-	// 			enricherConfig := model.EnricherConfig{
-	// 				BasePath: "",
-	// 				Configs:  []model.MapperConfig{},
-	// 				Enricher: &dbEnricher,
-	// 			}
-	// 			plugin = plugin.Via(mappers.NewEnricherMap(dbEnricher.Name, enricherConfig, enricherCommon))
-	// 		}
-	// 	}
-	// }
-	return plugin.(streams.Flow)
+	if databaseContext != nil {
+		// here we load enrichers from database and add them to the flow
+		var dbEnrichers []model.Enricher
+		result := databaseContext.DB.Find(&dbEnrichers)
+		if result.Error != nil {
+			logger.Error().Err(result.Error).Msg("Error loading enrichers from database")
+			return plugin.(streams.Flow)
+		}
+		for _, dbEnricher := range dbEnrichers {
+			if dbEnricher.Enabled {
+				enricherConfig := model.EnricherConfig{
+					BasePath: "",
+					Configs:  []model.MapperConfig{},
+					Enricher: &dbEnricher,
+				}
+				plugin = plugin.Via(mappers.NewEnricherMap(dbEnricher.Name, enricherConfig, enricherCommon))
+			}
+		}
+	}
+	return plugin.Via(flow.NewPassThrough())
 }
 
 // createConfigMap generates a Kubernetes ConfigMap from the enrichers configuration
