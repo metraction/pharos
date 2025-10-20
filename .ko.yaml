@@ -1,6 +1,6 @@
 builds:
   - id: scanner
 
-defaultBaseImage: ghcr.io/metraction/base-images/scanner:0.0.2
+defaultBaseImage: ghcr.io/metraction/scanner:0.0.2
 
     
