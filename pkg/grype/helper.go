@@ -11,7 +11,6 @@ import (
 
 	"github.com/metraction/pharos/internal/utils"
 	cpy "github.com/otiai10/copy"
-	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 )
 
@@ -115,7 +114,7 @@ func GrypeUpdateRequired(scannerBin, targetDir string) bool {
 }
 
 // check if update is required, if so download to targetDir
-func GetGrypeUpdate(scannerBin, targetDir string, logger *zerolog.Logger) error {
+func GetGrypeUpdate(scannerBin, targetDir string) error {
 
 	// do update
 	var stdout, stderr bytes.Buffer
@@ -124,9 +123,7 @@ func GetGrypeUpdate(scannerBin, targetDir string, logger *zerolog.Logger) error 
 	cmd.Env = append(cmd.Env, "GRYPE_DB_CACHE_DIR="+targetDir)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
-	logger.Info().Msg("Running grype update...")
 	err := cmd.Run()
-	logger.Info().Str("output", utils.NoColorCodes(stdout.String())).Msg("grype update output")
 	if err != nil {
 		return fmt.Errorf("grype update %s [%s]", utils.NoColorCodes(stderr.String()), targetDir)
 	}

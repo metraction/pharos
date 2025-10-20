@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humachi"
@@ -45,20 +46,24 @@ These submissions are then published to a Redis stream for further processing by
 		databaseContext.Migrate()
 		if config.Init {
 			ctx := cmd.Context()
-			ok := false
+			redisOk := false
 			logger.Info().Msg("Checking Redis cache...")
-			for !ok {
+			for !redisOk {
 				kvc, err := cache.NewPharosCache(config.Scanner.CacheEndpoint, logger)
 				if err != nil {
 					logger.Err(err).Msg("Redis cache create")
 				}
-				if err != nil {
+				if err == nil {
 					if err = kvc.Connect(ctx); err != nil {
 						logger.Err(err).Msg("Redis cache connect")
+					} else {
+						redisOk = true
+						logger.Info().Str("redis_version", kvc.Version(ctx)).Msg("PharosCache.Connect() OK")
 					}
-				} else {
-					ok = true
-					logger.Info().Str("redis_version", kvc.Version(ctx)).Msg("PharosCache.Connect() OK")
+				}
+				if !redisOk {
+					logger.Info().Msg("Retrying Redis cache connection in 5 seconds...")
+					<-time.After(5 * time.Second)
 				}
 			}
 			logger.Info().Msg("Updating Grype scanner...")
