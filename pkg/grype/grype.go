@@ -134,7 +134,7 @@ func (rx *GrypeScanner) UpdateDatabase() error {
 
 		if updStage {
 			rx.logger.Info().Msg("UpdateDatabase() staging download..")
-			if err := GetGrypeUpdate(rx.ScannerBin, rx.DbStageDir, rx.logger); err != nil {
+			if err := GetGrypeUpdate(rx.ScannerBin, rx.DbStageDir); err != nil {
 				return err
 			}
 		}

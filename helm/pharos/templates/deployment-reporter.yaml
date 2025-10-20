@@ -22,66 +22,77 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "pharos.serviceAccountName" . }}
+      initContainers:
+        - name: wait-for-pharos
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          args: ["prometheus-reporter", "--init", "--config", "/config/.pharos.yaml"]
+          volumeMounts:
+            - name: config-volume
+              mountPath: /config/.pharos.yaml
+              subPath: .pharos.yaml
+          env:
+            - name: PHAROS_PROMETHEUS_PHAROSURL
+              value: http://{{ include "pharos.fullname" . }}:{{ .Values.service.port }}
       containers:
-      - name: pharos-reporter
-        image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-        args: ["prometheus-reporter", "--config", "/config/.pharos.yaml"]
-        ports:
-          - containerPort: 8080
-        env:
-          - name: PHAROS_PROMETHEUS_TTL
-            value: {{ .Values.prometheus.ttl | default "12h" | quote }}
-          - name: PHAROS_PROMETHEUS_URL
-            value: {{ .Values.prometheus.url | quote }}
-          - name: PHAROS_PROMETHEUS_QUERY
-            value: {{ .Values.prometheus.query }}
-          - name: PHAROS_PROMETHEUS_INTERVAL
-            value: {{ .Values.prometheus.interval }}
-          - name: PHAROS_PROMETHEUS_NAMESPACE
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.namespace
-          {{- if .Values.prometheus.authFromSecret.enabled }}
-          {{- if .Values.prometheus.authFromSecret.usernameKey }}
-          - name: PHAROS_PROMETHEUS_AUTH_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Values.prometheus.authFromSecret.existingSecret }}
-                key: {{ .Values.prometheus.authFromSecret.usernameKey }}
-          {{- end }}
-          {{- if .Values.prometheus.authFromSecret.passwordKey }}
-          - name: PHAROS_PROMETHEUS_AUTH_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Values.prometheus.authFromSecret.existingSecret }}
-                key: {{ .Values.prometheus.authFromSecret.passwordKey }}
-          {{- end }}
-          {{- if .Values.prometheus.authFromSecret.tokenKey }}      
-          - name: PHAROS_PROMETHEUS_AUTH_TOKEN
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Values.prometheus.authFromSecret.existingSecret }}
-                key: {{ .Values.prometheus.authFromSecret.tokenKey }}
-          {{- end }}
-          {{- else }}
-          - name: PHAROS_PROMETHEUS_AUTH_USERNAME
-            value: {{ .Values.prometheus.auth.username | quote }}
-          - name: PHAROS_PROMETHEUS_AUTH_PASSWORD
-            value: {{ .Values.prometheus.auth.password | quote }}
-          - name: PHAROS_PROMETHEUS_AUTH_TOKEN
-            value: {{ .Values.prometheus.auth.token | quote }}
-          {{- end }}
-          - name: PHAROS_PROMETHEUS_PHAROSURL
-            value: http://{{ include "pharos.fullname" . }}:{{ .Values.service.port }}
-        volumeMounts:
-          - name: config-volume
-            mountPath: /config/.pharos.yaml
-            subPath: .pharos.yaml
-          {{- if .Values.caCertificates.enabled }}
-          - name: ca-certificates
-            mountPath: /etc/ssl/certs/ca-certificates.crt
-            subPath: ca-certificates.crt
-          {{- end }}
+        - name: pharos-reporter
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          args: ["prometheus-reporter", "--config", "/config/.pharos.yaml"]
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PHAROS_PROMETHEUS_TTL
+              value: {{ .Values.prometheus.ttl | default "12h" | quote }}
+            - name: PHAROS_PROMETHEUS_URL
+              value: {{ .Values.prometheus.url | quote }}
+            - name: PHAROS_PROMETHEUS_QUERY
+              value: {{ .Values.prometheus.query }}
+            - name: PHAROS_PROMETHEUS_INTERVAL
+              value: {{ .Values.prometheus.interval }}
+            - name: PHAROS_PROMETHEUS_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            {{- if .Values.prometheus.authFromSecret.enabled }}
+            {{- if .Values.prometheus.authFromSecret.usernameKey }}
+            - name: PHAROS_PROMETHEUS_AUTH_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.prometheus.authFromSecret.existingSecret }}
+                  key: {{ .Values.prometheus.authFromSecret.usernameKey }}
+            {{- end }}
+            {{- if .Values.prometheus.authFromSecret.passwordKey }}
+            - name: PHAROS_PROMETHEUS_AUTH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.prometheus.authFromSecret.existingSecret }}
+                  key: {{ .Values.prometheus.authFromSecret.passwordKey }}
+            {{- end }}
+            {{- if .Values.prometheus.authFromSecret.tokenKey }}      
+            - name: PHAROS_PROMETHEUS_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.prometheus.authFromSecret.existingSecret }}
+                  key: {{ .Values.prometheus.authFromSecret.tokenKey }}
+            {{- end }}
+            {{- else }}
+            - name: PHAROS_PROMETHEUS_AUTH_USERNAME
+              value: {{ .Values.prometheus.auth.username | quote }}
+            - name: PHAROS_PROMETHEUS_AUTH_PASSWORD
+              value: {{ .Values.prometheus.auth.password | quote }}
+            - name: PHAROS_PROMETHEUS_AUTH_TOKEN
+              value: {{ .Values.prometheus.auth.token | quote }}
+            {{- end }}
+            - name: PHAROS_PROMETHEUS_PHAROSURL
+              value: http://{{ include "pharos.fullname" . }}:{{ .Values.service.port }}
+          volumeMounts:
+            - name: config-volume
+              mountPath: /config/.pharos.yaml
+              subPath: .pharos.yaml
+            {{- if .Values.caCertificates.enabled }}
+            - name: ca-certificates
+              mountPath: /etc/ssl/certs/ca-certificates.crt
+              subPath: ca-certificates.crt
+            {{- end }}
       volumes:
         - name: config-volume
           configMap:
