@@ -5,17 +5,20 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humachi"
 	_ "github.com/danielgtaylor/huma/v2/adapters/humachi"
 	"github.com/go-chi/chi/v5"
 	"github.com/metraction/pharos/internal/controllers"
+	"github.com/metraction/pharos/internal/integrations/cache"
 	"github.com/metraction/pharos/internal/integrations/db"
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/internal/metriccollectors"
 	"github.com/metraction/pharos/internal/routing"
 	"github.com/metraction/pharos/pkg/enricher"
+	"github.com/metraction/pharos/pkg/grype"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/reugn/go-streams/extension"
@@ -39,8 +42,39 @@ These submissions are then published to a Redis stream for further processing by
 		if !ok || config == nil {
 			logger.Fatal().Msg("Invalid configuration type in context.")
 		}
-		databaseContext := model.NewDatabaseContext(&config.Database)
+		databaseContext := model.NewDatabaseContext(&config.Database, config.Init)
 		databaseContext.Migrate()
+		if config.Init {
+			ctx := cmd.Context()
+			redisOk := false
+			logger.Info().Msg("Checking Redis cache...")
+			for !redisOk {
+				kvc, err := cache.NewPharosCache(config.Scanner.CacheEndpoint, logger)
+				if err != nil {
+					logger.Err(err).Msg("Redis cache create")
+				}
+				if err == nil {
+					if err = kvc.Connect(ctx); err != nil {
+						logger.Err(err).Msg("Redis cache connect")
+					} else {
+						redisOk = true
+						logger.Info().Str("redis_version", kvc.Version(ctx)).Msg("PharosCache.Connect() OK")
+					}
+				}
+				if !redisOk {
+					logger.Info().Msg("Retrying Redis cache connection in 5 seconds...")
+					<-time.After(5 * time.Second)
+				}
+			}
+			logger.Info().Msg("Updating Grype scanner...")
+			if _, err := grype.NewGrypeScanner(60, true, "", logger); err != nil {
+				dbCacheDir := os.Getenv("GRYPE_DB_CACHE_DIR")
+				logger.Debug().Str("GRYPE_DB_CACHE_DIR", dbCacheDir).Msg("Grype settings: ")
+				logger.Fatal().Err(err).Msg("NewGrypeScanner()")
+			}
+			logger.Info().Msg("Init flag set, exiting.")
+			os.Exit(0)
+		}
 
 		// For scan tasks
 		taskChannel := make(chan any, config.Publisher.QueueSize)
@@ -54,7 +88,6 @@ These submissions are then published to a Redis stream for further processing by
 			// So append kodada if command is executed with go run .
 			enricherPath = filepath.Join("kodata", enricherPath)
 		}
-
 		enrichersPath := addBasePathToRelative(config, enricherPath)
 		//		enricherConfig := enricher.LoadEnricher(enricherPath, "results")
 		enrichers, err := enricher.LoadEnrichersConfig(enrichersPath)

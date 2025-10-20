@@ -21,6 +21,7 @@ type Config struct {
 	BasePath        string
 	EnricherCommon  EnricherCommonConfig `mapstructure:"enricherCommon" yaml:"enricherCommon" json:"enricherCommon"`
 	Alerting        AlertingConfig       `mapstructure:"alerting" yaml:"alerting" json:"alerting"`
+	Init            bool                 `mapstructure:"init" yaml:"init" json:"init"` // If true, used as an init container to wait for dependencies to be ready
 }
 
 type EnricherCommonConfig struct {

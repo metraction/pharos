@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	_ "github.com/danielgtaylor/huma/v2/adapters/humachi"
 	"github.com/metraction/pharos/internal/routing"
@@ -25,9 +26,12 @@ var schedulerCmd = &cobra.Command{
 		if !ok || config == nil {
 			logger.Fatal().Msg("Invalid configuration type in context.")
 		}
-		databaseContext := model.NewDatabaseContext(&config.Database)
+		databaseContext := model.NewDatabaseContext(&config.Database, config.Init)
 		databaseContext.Migrate()
-
+		if config.Init {
+			logger.Info().Msg("Init flag set, exiting after migrations.")
+			os.Exit(0)
+		}
 		go routing.NewImageSchedulerFlow(databaseContext, config)
 		go alerting.NewAlerter(databaseContext, &config.Alerting)
 

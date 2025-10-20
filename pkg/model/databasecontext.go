@@ -38,7 +38,7 @@ type DefaultGormModel struct {
 	UpdatedAt time.Time
 }
 
-func NewDatabaseContext(config *Database) *DatabaseContext {
+func NewDatabaseContext(config *Database, init bool) *DatabaseContext {
 	dsn := config.Dsn
 	logger := logging.NewLogger("info", "component", "DatabaseContext")
 	var dialector gorm.Dialector
@@ -54,6 +54,11 @@ func NewDatabaseContext(config *Database) *DatabaseContext {
 		DisableForeignKeyConstraintWhenMigrating: false,
 	})
 	if err != nil {
+		if init {
+			logger.Info().Msg("Database not ready yet, retrying...")
+			time.Sleep(5 * time.Second)
+			return NewDatabaseContext(config, init)
+		}
 		logger.Panic().Err(err).Msg("Failed to connect to database")
 	}
 	return &DatabaseContext{

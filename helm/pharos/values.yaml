@@ -193,7 +193,25 @@ controller:
     queueSize: 100
   publisher:
     # -- Queue size for the publisher
-    queueSize: 1000  
+    queueSize: 1000
+  # Resources for the controller
+  resources: {}
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+scheduler:
+  # Resources for the scheduler
+  resources: {}
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
 
 # -- Prometheus configuration for scanning images
 prometheus:

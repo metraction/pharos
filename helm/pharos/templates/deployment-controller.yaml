@@ -21,74 +21,72 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      containers:
-      - name: pharos-controller
-        image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-        {{- if .Values.postgres.enabled }}
-        args: ["http", "--config", "/config/.pharos.yaml", "--database.dsn", "postgres://$(PHAROS_DATABASE_USERNAME):$(PHAROS_DATABASE_PASSWORD)@{{ include "pharos.fullname" . }}-postgres:5432/$(PHAROS_DATABASE)?sslmode=disable", "--database.driver", "postgres"]
-        {{- else }}
-        args: ["http", "--config", "/config/.pharos.yaml", "--database.dsn", "$(PHAROS_DATABASE_DSN)", "--database.driver", "postgres"]
-        {{- end }}
-        livenessProbe:
-          httpGet:
-            path: /api/v1/metrics/liveness
-            port: 8080
-            httpHeaders:
-          failureThreshold: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /api/v1/metrics/readiness
-            port: 8080
-            httpHeaders:
-          failureThreshold: 1
-          periodSeconds: 10
-        env:
+      initContainers:
+        - name: wait-for-db
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           {{- if .Values.postgres.enabled }}
-          {{- if .Values.postgres.auth.existingSecret }}
-          - name: PHAROS_DATABASE_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Values.postgres.auth.existingSecret }}
-                key: username
-          - name: PHAROS_DATABASE_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Values.postgres.auth.existingSecret }}
-                key: password
+          args: ["http", "--init", "--config", "/config/.pharos.yaml", "--database.dsn", "postgres://$(PHAROS_DATABASE_USERNAME):$(PHAROS_DATABASE_PASSWORD)@{{ include "pharos.fullname" . }}-postgres:5432/$(PHAROS_DATABASE)?sslmode=disable", "--database.driver", "postgres"]
           {{- else }}
-          - name: PHAROS_DATABASE_USERNAME
-            value: "{{ .Values.postgres.auth.username }}"
-          - name: PHAROS_DATABASE_PASSWORD
-            value: "{{ .Values.postgres.auth.password }}"
+          args: ["http", "--init", "--config", "/config/.pharos.yaml", "--database.dsn", "$(PHAROS_DATABASE_DSN)", "--database.driver", "postgres"]
           {{- end }}
-          - name: PHAROS_DATABASE
-            value: "{{ .Values.postgres.auth.database }}"
+          env:
+            {{ include "pharos.dbEnvVars" . | indent 12 }}
+          volumeMounts:
+            - name: config-volume
+              mountPath: /config/.pharos.yaml
+              subPath: .pharos.yaml
+            - name: grype-db-stage
+              mountPath: /tmp/grype-db-stage
+      containers:
+        - name: pharos-controller
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- if .Values.postgres.enabled }}
+          args: ["http", "--config", "/config/.pharos.yaml", "--database.dsn", "postgres://$(PHAROS_DATABASE_USERNAME):$(PHAROS_DATABASE_PASSWORD)@{{ include "pharos.fullname" . }}-postgres:5432/$(PHAROS_DATABASE)?sslmode=disable", "--database.driver", "postgres"]
           {{- else }}
-          - name: PHAROS_DATABASE_DSN
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Values.externalDatabase.secret }}
-                key: dsn
+          args: ["http", "--config", "/config/.pharos.yaml", "--database.dsn", "$(PHAROS_DATABASE_DSN)", "--database.driver", "postgres"]
           {{- end }}
-          - name: PHAROS_COLLECTOR_QUEUESIZE
-            value: "{{ .Values.controller.collector.queueSize }}"
-          - name: PHAROS_PUBLISHER_QUEUESIZE
-            value: "{{ .Values.controller.publisher.queueSize }}"
-          - name: APP_DATA_PATH
-            value: "/pharos"
-          {{- with .Values.enrichers }}
-          - name: PHAROS_ENRICHERCOMMON_ENRICHERPATH
-            value: "/pharos/enrichers/enrichers.yaml"
+          livenessProbe:
+            httpGet:
+              path: /api/v1/metrics/liveness
+              port: 8080
+              httpHeaders:
+            failureThreshold: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/v1/metrics/readiness
+              port: 8080
+              httpHeaders:
+            failureThreshold: 1
+            periodSeconds: 10
+          env:
+            {{ include "pharos.dbEnvVars" . | indent 12 }}
+            - name: PHAROS_COLLECTOR_QUEUESIZE
+              value: "{{ .Values.controller.collector.queueSize }}"
+            - name: PHAROS_PUBLISHER_QUEUESIZE
+              value: "{{ .Values.controller.publisher.queueSize }}"
+            - name: APP_DATA_PATH
+              value: "/pharos"
+            {{- with .Values.enrichers }}
+            - name: PHAROS_ENRICHERCOMMON_ENRICHERPATH
+              value: "/pharos/enrichers/enrichers.yaml"
+            {{- end }}
+            - name: PHAROS_ENRICHERCOMMON_UIURL
+              value: "{{ .Values.enrichers.uiUrl }}"
+            - name: GOMEMLIMIT
+              value: "1GiB"
+          {{- with .Values.controller.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
           {{- end }}
-          - name: PHAROS_ENRICHERCOMMON_UIURL
-            value: "{{ .Values.enrichers.uiUrl }}"
-        volumeMounts:
-          - name: config-volume
-            mountPath: /config/.pharos.yaml
-            subPath: .pharos.yaml
-          - name: enrichers-volume
-            mountPath: /pharos/enrichers
+          volumeMounts:
+            - name: config-volume
+              mountPath: /config/.pharos.yaml
+              subPath: .pharos.yaml
+            - name: enrichers-volume
+              mountPath: /pharos/enrichers
+            - name: grype-db-stage
+              mountPath: /tmp/grype-db-stage
       volumes:
         - name: config-volume
           configMap:
@@ -96,3 +94,5 @@ spec:
         - name: enrichers-volume
           configMap:
             name: {{ .Values.enrichers.configMap }}
+        - name: grype-db-stage
+          emptyDir: {}

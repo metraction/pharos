@@ -79,11 +79,11 @@ func NewGrypeScanner(scanTimeout time.Duration, updateDb bool, vulnDbDir string,
 		return nil, err
 	}
 
-	// check if vuln database is healty with test scan. If not delete db folter to remive invalid db and trigger update
+	// check if vuln database is healty with test scan. If not delete db folder to remove invalid db and trigger update
 	logger.Info().Msg("NewGrypeScanner() verify vuln db")
 	for _, dbdir := range []string{scanner.DbProdDir, scanner.DbStageDir} {
 		if err = GrypeTestScan(scanner.ScannerBin, dbdir); err != nil {
-			logger.Error().Str("dbdir", dbdir).Msg("reset vuln db")
+			logger.Warn().Str("dbdir", dbdir).Msg("Vuln database test scan failed, recreating db dir")
 			os.RemoveAll(dbdir)
 			if err := os.MkdirAll(dbdir, 0755); err != nil {
 				if !os.IsExist(err) {
@@ -130,12 +130,15 @@ func (rx *GrypeScanner) UpdateDatabase() error {
 		rx.logger.Info().
 			Str("stage", rx.DbStageDir).
 			Str("prod", rx.DbProdDir).
-			Msg("UpdateDatabase() downloading..")
+			Msg("UpdateDatabase() updating..")
 
 		if updStage {
+			rx.logger.Info().Msg("UpdateDatabase() staging download..")
 			if err := GetGrypeUpdate(rx.ScannerBin, rx.DbStageDir); err != nil {
 				return err
 			}
+		} else {
+			rx.logger.Info().Msg("UpdateDatabase() staging already up-to-date")
 		}
 		// make scanner wait while update is in progress
 		rx.wgDbUpdate.Add(1)

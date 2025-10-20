@@ -12,6 +12,8 @@ import (
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/reugn/go-streams"
 	"github.com/reugn/go-streams/extension"
+	"github.com/reugn/go-streams/flow"
+	_ "github.com/reugn/go-streams/flow"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 )
@@ -284,6 +286,7 @@ func (ef *EnricherFlow) transmit(inlet streams.Inlet) {
 		sourceChannel <- element
 		processedElement := <-flow.Out()
 		inlet.In() <- processedElement
+		close(sourceChannel)
 	}
 	close(inlet.In())
 }
@@ -337,7 +340,7 @@ func CreateEnrichersFlow(plugin streams.Source, enrichers *model.EnrichersConfig
 			}
 		}
 	}
-	return plugin.(streams.Flow)
+	return plugin.Via(flow.NewPassThrough())
 }
 
 // createConfigMap generates a Kubernetes ConfigMap from the enrichers configuration

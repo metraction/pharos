@@ -118,12 +118,11 @@ func GetGrypeUpdate(scannerBin, targetDir string) error {
 
 	// do update
 	var stdout, stderr bytes.Buffer
-	cmd := exec.Command(scannerBin, "db", "update")
+	cmd := exec.Command(scannerBin, "db", "update", "--quiet")
 	cmd.Env = append(cmd.Env, "GRYPE_CHECK_FOR_APP_UPDATE=false")
 	cmd.Env = append(cmd.Env, "GRYPE_DB_CACHE_DIR="+targetDir)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
-
 	err := cmd.Run()
 	if err != nil {
 		return fmt.Errorf("grype update %s [%s]", utils.NoColorCodes(stderr.String()), targetDir)
