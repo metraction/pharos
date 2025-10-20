@@ -83,7 +83,7 @@ func NewGrypeScanner(scanTimeout time.Duration, updateDb bool, vulnDbDir string,
 	logger.Info().Msg("NewGrypeScanner() verify vuln db")
 	for _, dbdir := range []string{scanner.DbProdDir, scanner.DbStageDir} {
 		if err = GrypeTestScan(scanner.ScannerBin, dbdir); err != nil {
-			logger.Error().Str("dbdir", dbdir).Msg("reset vuln db")
+			logger.Warn().Str("dbdir", dbdir).Msg("Vuln database test scan failed, recreating db dir")
 			os.RemoveAll(dbdir)
 			if err := os.MkdirAll(dbdir, 0755); err != nil {
 				if !os.IsExist(err) {
