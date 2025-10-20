@@ -79,7 +79,7 @@ func NewGrypeScanner(scanTimeout time.Duration, updateDb bool, vulnDbDir string,
 		return nil, err
 	}
 
-	// check if vuln database is healty with test scan. If not delete db folter to remive invalid db and trigger update
+	// check if vuln database is healty with test scan. If not delete db folder to remove invalid db and trigger update
 	logger.Info().Msg("NewGrypeScanner() verify vuln db")
 	for _, dbdir := range []string{scanner.DbProdDir, scanner.DbStageDir} {
 		if err = GrypeTestScan(scanner.ScannerBin, dbdir); err != nil {
