@@ -130,13 +130,15 @@ func (rx *GrypeScanner) UpdateDatabase() error {
 		rx.logger.Info().
 			Str("stage", rx.DbStageDir).
 			Str("prod", rx.DbProdDir).
-			Msg("UpdateDatabase() downloading..")
+			Msg("UpdateDatabase() updating..")
 
 		if updStage {
 			rx.logger.Info().Msg("UpdateDatabase() staging download..")
 			if err := GetGrypeUpdate(rx.ScannerBin, rx.DbStageDir); err != nil {
 				return err
 			}
+		} else {
+			rx.logger.Info().Msg("UpdateDatabase() staging already up-to-date")
 		}
 		// make scanner wait while update is in progress
 		rx.wgDbUpdate.Add(1)
