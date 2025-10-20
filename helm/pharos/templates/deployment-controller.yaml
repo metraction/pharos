@@ -74,7 +74,7 @@ spec:
             - name: PHAROS_ENRICHERCOMMON_UIURL
               value: "{{ .Values.enrichers.uiUrl }}"
             - name: GOMEMLIMIT
-              value: "1 GiB"
+              value: "1GiB"
           {{- with .Values.controller.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
