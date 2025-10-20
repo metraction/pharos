@@ -147,6 +147,7 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().String("command", "http", "CI command") // Use dot-notation for Viper key compatibility with nested structs.
+	rootCmd.PersistentFlags().Bool("init", false, "If true, used as an init container to wait for dependencies to be ready")
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.pharos.yaml)") // cfgFile is handled specially for file loading, so direct binding is fine.
 	rootCmd.PersistentFlags().String("redis.dsn", "localhost:6379", "Redis address")                           // Use dot-notation for Viper key compatibility with nested structs.

@@ -25,7 +25,7 @@ var schedulerCmd = &cobra.Command{
 		if !ok || config == nil {
 			logger.Fatal().Msg("Invalid configuration type in context.")
 		}
-		databaseContext := model.NewDatabaseContext(&config.Database)
+		databaseContext := model.NewDatabaseContext(&config.Database, config.Init)
 		databaseContext.Migrate()
 
 		go routing.NewImageSchedulerFlow(databaseContext, config)

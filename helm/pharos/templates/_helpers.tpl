@@ -82,3 +82,33 @@ Create the name of the service account to use
 {{- default "default" .Values.postgres.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{- define "pharos.dbEnvVars" -}}
+{{- if .Values.postgres.enabled }}
+{{- if .Values.postgres.auth.existingSecret -}}
+- name: PHAROS_DATABASE_USERNAME
+  valueFrom:
+    secretKeyRef:
+    name: {{ .Values.postgres.auth.existingSecret }}
+    key: username
+- name: PHAROS_DATABASE_PASSWORD
+  valueFrom:
+    secretKeyRef:
+    name: {{ .Values.postgres.auth.existingSecret }}
+    key: password
+{{- else }}
+- name: PHAROS_DATABASE_USERNAME
+  value: "{{ .Values.postgres.auth.username }}"
+- name: PHAROS_DATABASE_PASSWORD
+  value: "{{ .Values.postgres.auth.password }}"
+{{- end }}
+- name: PHAROS_DATABASE
+  value: "{{ .Values.postgres.auth.database }}"
+{{- else }}
+- name: PHAROS_DATABASE_DSN
+  valueFrom:
+    secretKeyRef:
+    name: {{ .Values.externalDatabase.secret }}
+    key: dsn
+{{- end }}
+{{- end }}

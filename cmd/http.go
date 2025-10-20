@@ -39,8 +39,12 @@ These submissions are then published to a Redis stream for further processing by
 		if !ok || config == nil {
 			logger.Fatal().Msg("Invalid configuration type in context.")
 		}
-		databaseContext := model.NewDatabaseContext(&config.Database)
+		databaseContext := model.NewDatabaseContext(&config.Database, config.Init)
 		databaseContext.Migrate()
+		if config.Init {
+			logger.Info().Msg("Init flag set, exiting after migrations.")
+			os.Exit(0)
+		}
 
 		// For scan tasks
 		taskChannel := make(chan any, config.Publisher.QueueSize)
