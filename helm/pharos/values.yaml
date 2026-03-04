@@ -259,8 +259,7 @@ enrichers:
     files:
       eos.yaml: files/eos.yaml
   additionalEnrichers:
-    - name: findings-summary
-      enricher: 
+    findings-summary:
         - name: starlark
           config: 
             name: findings-summary-enricher.star

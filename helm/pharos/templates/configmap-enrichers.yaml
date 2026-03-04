@@ -278,17 +278,17 @@ data:
               config: waive-images-waive-images.star
               ref: ""
     waive-images-waive-images.star: "#!/usr/bin/env star\n\n# Return summary of findings\ndef enrich(input):\n    data = input.payload\n    waived = \"false\"\n    namespace = data.Image.ContextRoots[0].Contexts[0].Data.namespace\n    if namespace == \"kube-system\":\n       waived = \"true\"\n    if namespace == \"cattle-system\":\n       waived = \"true\"\n    if namespace == \"cattle-fleet-system\":\n       waived = \"true\"\n    if namespace == \"cattle-monitoring-system\":\n       waived = \"true\"\n    return { \n        \"waived\": waived,\n    }\n\n"
-    {{- range .Values.enrichers.additionalEnrichers | default (list) }}
-    {{ .name }}-enricher.yaml:
+    {{- range $key, $value := .Values.enrichers.additionalEnrichers | default dict }}
+    {{ $key }}-enricher.yaml:
       enricher:
-        {{- range .enricher }}
+        {{- range . }}
         - name: {{ .name }}
           config: {{ .config.name }}
           ref: {{ .ref | default "" }}
         {{- end }}
     {{- end }}
-    {{- range .Values.enrichers.additionalEnrichers | default (list) }}
-    {{- range .enricher }}
+    {{- range $key, $value := .Values.enrichers.additionalEnrichers | default dict }}
+    {{- range $value }}
     {{ .config.name }}: |
     {{- .config.content | default "" | nindent 6 }}
     {{- end }}
