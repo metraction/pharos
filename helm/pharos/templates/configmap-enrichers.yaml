@@ -221,6 +221,9 @@ data:
               config: findings-summary-findings-summary.star
               ref: ""
     findings-summary-findings-summary.star: |
+      #!/usr/bin/env star
+
+      # Return summary of findings
       def enrich(input):
         data = input.payload
         severity_01_critical = 0
