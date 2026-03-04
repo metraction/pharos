@@ -1,0 +1,191 @@
+# Alpine: https://www.alpinelinux.org/releases/
+#
+alpine:
+  - version: 3.3.%
+    eos: 2017-11-01
+  - version: 3.4.%
+    eos: 2018-05-01
+  - version: 3.5.%
+    eos: 2018-11-01
+  - version: 3.6.%
+    eos: 2019-05-01
+  - version: 3.7.%
+    eos: 2019-11-01
+  - version: 3.8.%
+    eos: 2020-05-01
+  - version: 3.9.%
+    eos: 2020-11-01
+  - version: 3.10.%
+    eos: 2021-05-01
+  - version: 3.11.%
+    eos: 2021-11-01
+  - version: 3.12.%
+    eos: 2022-05-01
+  - version: 3.13.%
+    eos: 2022-11-01
+  - version: 3.14.%
+    eos: 2023-05-01
+  - version: 3.15.%
+    eos: 2023-11-01
+  - version: 3.16.%
+    eos: 2024-05-23
+  - version: 3.17.%
+    eos: 2024-11-22
+  - version: 3.18.%
+    eos: 2025-05-09
+  - version: 3.19.%
+    eos: 2025-11-01
+  - version: 3.20.%
+    eos: 2026-04-01
+  - version: 3.21.%
+    eos: 2026-11-01
+  - version: 3.22.%
+    eos: 2027-05-01
+
+# Redhat
+#   https://access.redhat.com/support/policy/updates/errata/
+#   https://access.redhat.com/product-life-cycles?product=Red%20Hat%20Enterprise%20Linux,OpenShift%20Container%20Platform%204
+
+# 2024-07-03 Update Redhat 8.10, 9.10
+rhel:
+  - version: 7.7
+    eos: 2019-08-06
+  - version: 7.8
+    eos: 2019-08-06
+  - version: 7.9
+    eos: 2019-08-06
+
+  - version: 8.0
+    eos: 2020-05-31
+  - version: 8.1
+    eos: 2021-12-31
+  - version: 8.2
+    eos: 2022-05-31
+  - version: 8.3
+    eos: 2021-05-31
+  - version: 8.4
+    eos: 2023-05-31
+  - version: 8.5
+    eos: 2022-05-31
+  - version: 8.6
+    eos: 2024-05-31
+
+  - version: 8.7
+    eos: 2023-05-31
+  - version: 8.8
+    eos: 2025-05-31
+  - version: 8.9
+    eos: 2024-05-31
+  - version: 8.10
+    eos: 2029-05-31
+
+  - version: 9.0
+    eos: 2024-05-31
+  - version: 9.1
+    eos: 2023-05-31
+  - version: 9.2
+    eos: 2025-05-31
+  - version: 9.3
+    eos: 2024-05-31
+  - version: 9.4
+    eos: 2026-05-31
+  - version: 9.5
+    eos: 2025-05-31
+  - version: 9.6
+    eos: 2027-05-31
+  - version: 9.7
+    eos: 2026-05-31
+  - version: 9.8
+    eos: 2028-05-31
+  - version: 9.9
+    eos: 2027-05-31
+  - version: 9.10
+    eos: 2032-05-31
+
+# Centos  https://www.redhat.com/en/topics/linux/centos-linux-eol
+#         https://endoflife.date/centos
+centos:
+  - version: 7
+    eos: 2020-08-06
+  - version: 8
+    eos: 2024-06-30
+
+# Ubuntu
+#   Source: https://endoflife.software/operating-systems/linux/ubuntu
+#
+ubuntu:
+  - version: 18.04
+    eos: 2023-04-01
+  - version: 19.04
+    eos: 2020-01-01
+  - version: 19.10
+    eos: 2020-07-01
+  - version: 20.04
+    eos: 2025-04-01
+  - version: 21.04
+    eos: 2022-01-01
+  - version: 21.10
+    eos: 2022-07-01
+  - version: 22.04
+    eos: 2027-04-01
+  - version: 24.04
+    eos: 2029-04-01
+
+# Debian
+#   Source: https://wiki.debian.org/DebianReleases
+#           https://endoflife.date/debian
+#
+#   EOL for security support!
+#
+debian:
+  - version: 8
+    eos: 2020-06-30
+  - version: 9
+    eos: 2020-07-18
+  - version: 10
+    eos: 2022-09-10
+  - version: 11
+    eos: 2024-07-01
+  - version: 12
+    eos: 2026-06-10
+
+# Mariner | Microsoft Azure Linux
+#   Source:   https://microsoft.github.io/CBL-Mariner/announcing-mariner-2.0/
+#   Releases: https://github.com/microsoft/CBL-Mariner/releases
+mariner:
+  - version: 1.0
+    eos: 2022-11-23
+  - version: 2.0
+    eos: 2024-05-23
+
+# Busybox
+#   Source: https://www.busybox.net/
+#
+#   EOL is set 2 years after release
+busybox:
+  - version: 1.31.%
+    eos: 2022-05-03
+
+  - version: 1.32.%
+    eos: 2022-05-03
+
+  - version: 1.33.%
+    eos: 2023-05-03
+  - version: 1.34.%
+    eos: 2023-09-10
+  - version: 1.35.%
+    eos: 2023-12-26
+  - version: 1.35.%
+    eos: 2023-12-26
+  - version: 1.36.%
+    eos: 2025-05-23
+
+# Amazon Linux
+# EOL: https://endoflife.date/amazon-linux
+# Source: https://aws.amazon.com/amazon-linux-2/features/
+# Releases: https://docs.aws.amazon.com/AL2/latest/relnotes/relnotes-al2.html
+amazonlinux:
+  - version: 2
+    eos:  2025-06-30
+  - version: 2023
+    eos:  2029-06-30
