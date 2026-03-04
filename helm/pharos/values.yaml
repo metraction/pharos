@@ -259,6 +259,25 @@ enrichers:
   #   files:
   #     eos.yaml: files/eos.yaml
   additionalEnrichers:
+    owner:
+      - name: file
+        config:
+          name: owner-owners.yaml
+          ref: owners
+          content: |
+            byNamespace:
+              - namespace: kube-system
+                owner: john@mail.com
+              - namespace: default
+                owner: jessica@mail.com
+      - name: hbs
+        config:
+          name: owner-owners_v1.hbs
+          ref: ""
+          content: |
+            {{- $contextRoot := .payload.Image.ContextRoots | first }}
+            {{- $namespace := ($contextRoot.Contexts | filter "Owner" "startsWith" "pharos-controller" | first).Data.namespace }}
+            owner: {{ .meta.owners.byNamespace | filter "namespace" "startsWith" $namespace | map "field" "owner" | first | toYaml | nindent 2 }}
     waive-images:
       - name: starlark
         config:
