@@ -247,14 +247,18 @@ prometheus:
 
 # -- Enrichers configuration
 enrichers:
+  # -- where to store the enricher configuration, this will create a configMap with the given name and store the enricher configuration there, the controller will then read the enricher configuration from this configMap
   configMap: pharos-enrichers
   config: enrichers/enricher.yaml
+  # -- order of the enrichers, this is the order in which the enrichers will be executed, if not set, the enrichers will be executed in the order they are defined in the configMap
   order:
     - eos
     - owner
     - waive-images
     - findings-summary
+  # -- definitions of the enrichers, this is where you define the enrichers, the name of the enricher will be used in the order section to define the order   
   definitions:
+    # -- End of support enricher, this enricher will add the end of support date for the base image, it uses the eos-eos.yaml file to get the end of support date for the base image, you can customize this file to add more images and their end of support date
     eos:
       - type: file
         name: eos-eos.yaml
@@ -266,6 +270,7 @@ enrichers:
           distro: {{ .payload.Image.DistroName }}
           version: {{ .payload.Image.DistroVersion }}
           eos: {{ index .meta.eos .payload.Image.DistroName | filter "version" "matchWildcard" .payload.Image.DistroVersion | map "field" "eos" | first }}
+    # -- Owner enricher, this enricher will add the owner of the image, you can customize this enricher to add more logic to determine the owner of the image, for example based on the namespace or other context labels
     owner:
       - type: file
         name: owner-owners.yaml
@@ -283,6 +288,7 @@ enrichers:
           {{- $contextRoot := .payload.Image.ContextRoots | first }}
           {{- $namespace := ($contextRoot.Contexts | filter "Owner" "startsWith" "pharos-controller" | first).Data.namespace }}
           owner: {{ .meta.owners.byNamespace | filter "namespace" "startsWith" $namespace | map "field" "owner" | first | toYaml | nindent 2 }}
+    # -- Waive images enricher, this enricher will add a waived field to the context if the image is in a namespace that should be waived, you can customize this enricher to add more logic to determine if an image should be waived or not
     waive-images:
       - type: starlark
         name: waive-images.star
@@ -306,6 +312,7 @@ enrichers:
                   "waived": waived,
               }
         ref: ""
+    # -- Findings summary enricher, this enricher will add a summary of the findings to the context, you can customize this enricher to add more logic to determine the summary of the findings, for example based on the severity of the findings or other context labels    
     findings-summary:
       - type: starlark
         name: findings-summary.star

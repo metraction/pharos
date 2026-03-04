@@ -55,7 +55,13 @@
       "properties": {
         "enabled": { "type": "boolean", "description": "Deploy Redis" },
         "auth": { "type": ["boolean", "object"], "description": "Enable Redis AUTH or auth config" },
-        "replicas": { "type": "integer", "description": "Replica count", "minimum": 0 }
+        "replicas": { "type": "integer", "description": "Replica count", "minimum": 0 },
+        "persistentVolume": {
+          "type": "object",
+          "properties": {
+            "size": { "type": "string", "description": "Persistent volume size" }
+          }
+        }
       }
     },
     "scannerPod": {
@@ -233,32 +239,6 @@
         "create": { "type": "boolean", "description": "Create Role" }
       }
     },
-    "scheduler": {
-      "type": "object",
-      "description": "Scheduler deployment configuration",
-      "properties": {
-        "resources": { "type": "object",
-          "properties": {
-            "limits": {
-              "type": "object",
-              "description": "Resource limits for scheduler pods",
-              "properties": {
-                "cpu": { "type": "string", "description": "CPU limit" },
-                "memory": { "type": "string", "description": "Memory limit" }
-              }
-            },
-            "requests": {
-              "type": "object",
-              "description": "Resource requests for scheduler pods",
-              "properties": {
-                "cpu": { "type": "string", "description": "CPU request" },
-                "memory": { "type": "string", "description": "Memory request" }
-              }
-            }
-          }
-        }
-      }
-    },
     "controller": {
       "type": "object",
       "description": "Controller deployment configuration",
@@ -276,26 +256,14 @@
             "queueSize": { "type": "integer", "description": "Publisher queue size", "minimum": 0 }
           }
         },
-        "resources": { "type": "object",
-          "properties": {
-            "limits": {
-              "type": "object",
-              "description": "Resource limits for controller pods",
-              "properties": {
-                "cpu": { "type": "string", "description": "CPU limit" },
-                "memory": { "type": "string", "description": "Memory limit" }
-              }
-            },
-            "requests": {
-              "type": "object",
-              "description": "Resource requests for controller pods",
-              "properties": {
-                "cpu": { "type": "string", "description": "CPU request" },
-                "memory": { "type": "string", "description": "Memory request" }
-              }
-            }
-          }
-        }
+        "resources": { "type": "object" }
+      }
+    },
+    "scheduler": {
+      "type": "object",
+      "description": "Scheduler deployment configuration",
+      "properties": {
+        "resources": { "type": "object" }
       }
     },
     "prometheus": {
@@ -339,18 +307,25 @@
       "properties": {
         "configMap": { "type": "string", "description": "ConfigMap name for enrichers" },
         "config": { "type": "string", "description": "Path to base enricher config" },
-        "mappers": {
+        "order": {
+          "type": "array",
+          "description": "Order of enrichers",
+          "items": { "type": "string" }
+        },
+        "definitions": {
           "type": "object",
-          "properties": {
-            "hbs": {
+          "description": "Definitions of enrichers",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
               "type": "object",
-              "description": "Inline handlebars templates",
-              "additionalProperties": { "type": "string" }
-            },
-            "files": {
-              "type": "object",
-              "description": "External mapper files",
-              "additionalProperties": { "type": "string" }
+              "properties": {
+                "type": { "type": "string" },
+                "name": { "type": "string" },
+                "ref": { "type": "string" },
+                "file": { "type": "string" },
+                "content": { "type": "string" }
+              }
             }
           }
         },
