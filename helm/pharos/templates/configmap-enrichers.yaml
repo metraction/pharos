@@ -9,10 +9,13 @@ data:
               path: eos-enricher.yaml
             - name: owner
               path: owner-enricher.yaml
-            - name: findings-summary
-              path: findings-summary-enricher.yaml
             - name: waive-images
               path: waive-images-enricher.yaml
+            {{- range $key, $value := .Values.enrichers.additionalEnrichers | default dict }}
+            - name: {{ $key }}
+              path: {{ $key }}-enricher.yaml
+            {{- end }}
+
     eos-enricher.yaml: |
         enricher:
             - name: file
