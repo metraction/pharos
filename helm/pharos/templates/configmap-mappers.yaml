@@ -1,3 +1,4 @@
+{{/*
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -15,3 +16,4 @@ data:
   {{ $filename }}: |
 {{ $.Files.Get $filepath | indent 4 }}
 {{- end }}    
+*/}}
