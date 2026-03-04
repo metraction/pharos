@@ -40,12 +40,11 @@ spec:
       containers:
         - name: pharos-controller
           image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          # {{- if .Values.postgres.enabled }}
-          # args: ["http", "--config", "/config/.pharos.yaml", "--database.dsn", "postgres://$(PHAROS_DATABASE_USERNAME):$(PHAROS_DATABASE_PASSWORD)@{{ include "pharos.fullname" . }}-postgres:5432/$(PHAROS_DATABASE)?sslmode=disable", "--database.driver", "postgres"]
-          # {{- else }}
-          # args: ["http", "--config", "/config/.pharos.yaml", "--database.dsn", "$(PHAROS_DATABASE_DSN)", "--database.driver", "postgres"]
-          # {{- end }}
-          command: ["/bin/sh", "-c", "sleep infinity"]
+          {{- if .Values.postgres.enabled }}
+          args: ["http", "--config", "/config/.pharos.yaml", "--database.dsn", "postgres://$(PHAROS_DATABASE_USERNAME):$(PHAROS_DATABASE_PASSWORD)@{{ include "pharos.fullname" . }}-postgres:5432/$(PHAROS_DATABASE)?sslmode=disable", "--database.driver", "postgres"]
+          {{- else }}
+          args: ["http", "--config", "/config/.pharos.yaml", "--database.dsn", "$(PHAROS_DATABASE_DSN)", "--database.driver", "postgres"]
+          {{- end }}
           livenessProbe:
             httpGet:
               path: /api/v1/metrics/liveness

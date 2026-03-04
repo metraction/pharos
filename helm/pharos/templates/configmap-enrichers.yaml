@@ -6,7 +6,7 @@ data:
           - {{ . }}
         {{- end }}
         sources:
-          {{- range $key, $value := .Values.enrichers.additionalEnrichers | default dict }}
+          {{- range $key, $value := .Values.enrichers.definitions | default dict }}
           - name: {{ $key }}
             path: {{ $key }}-enricher.yaml
           {{- end }}
