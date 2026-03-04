@@ -249,100 +249,103 @@ prometheus:
 enrichers:
   configMap: pharos-enrichers
   config: enrichers/enricher.yaml
-  # If config is not specified allows to create configMap from hbs and files
-  # mappers: 
-  #   hbs: 
-  #     eos_v1.hbs: |
-  #       distro: {{ .payload.Image.DistroName }}
-  #       version: {{ .payload.Image.DistroVersion }}
-  #       eos: {{ index .meta.eos .payload.Image.DistroName | filter "version" "matchWildcard" .payload.Image.DistroVersion | map "field" "eos" | first }}
-  #   files:
-  #     eos.yaml: files/eos.yaml
-  additionalEnrichers:
+  order:
+    - eos
+    - owner
+    - waive-images
+    - findings-summary
+  definitions:
+    eos:
+      - type: file
+        name: eos-eos.yaml
+        ref: eos
+        file: files/eos-eos.yaml
+      - type: hbs
+        name: eos-eos_v1.hbs
+        content: |
+          distro: {{ .payload.Image.DistroName }}
+          version: {{ .payload.Image.DistroVersion }}
+          eos: {{ index .meta.eos .payload.Image.DistroName | filter "version" "matchWildcard" .payload.Image.DistroVersion | map "field" "eos" | first }}
     owner:
-      - name: file
-        config:
-          name: owner-owners.yaml
-          ref: owners
-          content: |
-            byNamespace:
-              - namespace: kube-system
-                owner: john@mail.com
-              - namespace: default
-                owner: jessica@mail.com
-      - name: hbs
-        config:
-          name: owner-owners_v1.hbs
-          ref: ""
-          content: |
-            {{- $contextRoot := .payload.Image.ContextRoots | first }}
-            {{- $namespace := ($contextRoot.Contexts | filter "Owner" "startsWith" "pharos-controller" | first).Data.namespace }}
-            owner: {{ .meta.owners.byNamespace | filter "namespace" "startsWith" $namespace | map "field" "owner" | first | toYaml | nindent 2 }}
+      - type: file
+        name: owner-owners.yaml
+        ref: owners
+        content: |
+          byNamespace:
+            - namespace: kube-system
+              owner: john@mail.com
+            - namespace: default
+              owner: jessica@mail.com
+      - type: hbs
+        name: owner-owners_v1.hbs
+        ref: ""
+        content: |
+          {{- $contextRoot := .payload.Image.ContextRoots | first }}
+          {{- $namespace := ($contextRoot.Contexts | filter "Owner" "startsWith" "pharos-controller" | first).Data.namespace }}
+          owner: {{ .meta.owners.byNamespace | filter "namespace" "startsWith" $namespace | map "field" "owner" | first | toYaml | nindent 2 }}
     waive-images:
-      - name: starlark
-        config:
-          name: waive-images.star
-          content: |
-            #!/usr/bin/env star
+      - type: starlark
+        name: waive-images.star
+        content: |
+          #!/usr/bin/env star
 
-            # Return summary of findings
-            def enrich(input):
-                data = input.payload
-                waived = "false"
-                namespace = data.Image.ContextRoots[0].Contexts[0].Data.namespace
-                if namespace == "kube-system":
-                  waived = "true"
-                if namespace == "cattle-system":
-                  waived = "true"
-                if namespace == "cattle-fleet-system":
-                  waived = "true"
-                if namespace == "cattle-monitoring-system":
-                  waived = "true"
-                return { 
-                    "waived": waived,
-                }
-          ref: ""
+          # Return summary of findings
+          def enrich(input):
+              data = input.payload
+              waived = "false"
+              namespace = data.Image.ContextRoots[0].Contexts[0].Data.namespace
+              if namespace == "kube-system":
+                waived = "true"
+              if namespace == "cattle-system":
+                waived = "true"
+              if namespace == "cattle-fleet-system":
+                waived = "true"
+              if namespace == "cattle-monitoring-system":
+                waived = "true"
+              return { 
+                  "waived": waived,
+              }
+        ref: ""
     findings-summary:
-      - name: starlark
-        config: 
-          name: findings-summary.star
-          content: |
-            #!/usr/bin/env star
+      - type: starlark
+        name: findings-summary.star
+        content: |
+          #!/usr/bin/env star
 
-            # Return summary of findings
-            def enrich(input):
-                data = input.payload
-                severity_01_critical = 0
-                severity_02_high = 0
-                severity_03_medium = 0
-                severity_04_low = 0
-                severity_05_negligible = 0
-                if data.Image.Findings == None:
-                    print("error iterating through findings, value of findings: " + str(data.Image.Findings))
-                else:
-                    for finding in data.Image.Findings:
-                        if finding.Severity == "Critical":
-                            severity_01_critical += 1
-                        elif finding.Severity == "High":
-                            severity_02_high += 1
-                        elif finding.Severity == "Medium":
-                            severity_03_medium += 1
-                        elif finding.Severity == "Low":
-                            severity_04_low += 1
-                        elif finding.Severity == "Negligible":
-                            severity_05_negligible += 1
-                alerted = False
-                if severity_01_critical > 0 or severity_02_high > 0:
-                    alerted = True
-                return {
-                    "Severity01Critical": severity_01_critical,
-                    "Severity02High": severity_02_high,
-                    "Severity03Medium": severity_03_medium,
-                    "Severity04Low": severity_04_low,
-                    "Severity05Negligible": severity_05_negligible,
-                    "Alerted": alerted
-                }               
-          ref: ""
+          # Return summary of findings
+          def enrich(input):
+              data = input.payload
+              severity_01_critical = 0
+              severity_02_high = 0
+              severity_03_medium = 0
+              severity_04_low = 0
+              severity_05_negligible = 0
+              if data.Image.Findings == None:
+                  print("error iterating through findings, value of findings: " + str(data.Image.Findings))
+              else:
+                  for finding in data.Image.Findings:
+                      if finding.Severity == "Critical":
+                          severity_01_critical += 1
+                      elif finding.Severity == "High":
+                          severity_02_high += 1
+                      elif finding.Severity == "Medium":
+                          severity_03_medium += 1
+                      elif finding.Severity == "Low":
+                          severity_04_low += 1
+                      elif finding.Severity == "Negligible":
+                          severity_05_negligible += 1
+              alerted = False
+              if severity_01_critical > 0 or severity_02_high > 0:
+                  alerted = True
+              return {
+                  "Severity01Critical": severity_01_critical,
+                  "Severity02High": severity_02_high,
+                  "Severity03Medium": severity_03_medium,
+                  "Severity04Low": severity_04_low,
+                  "Severity05Negligible": severity_05_negligible,
+                  "Alerted": alerted
+              }               
+        ref: ""
   uiUrl: "" # leave empty to disable UI enrichers
   #uiUrl: "http://pharos-client.pharos-client.svc.cluster.local:3000" # URL to the Pharos UI, used in enrichers to run visual enrichers.
 

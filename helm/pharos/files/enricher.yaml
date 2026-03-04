@@ -1,5 +1,0 @@
-enricher:
-- name: file
-  config: eos.yaml
-- name: hbs
-  config: eos_v1.hbs
