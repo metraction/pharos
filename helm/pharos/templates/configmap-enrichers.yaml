@@ -7,25 +7,29 @@ data:
         {{- end }}
         sources:
           {{- range $key, $value := .Values.enrichers.definitions | default dict }}
+          {{- if not $value.disabled | default false }}
           - name: {{ $key }}
             path: {{ $key }}-enricher.yaml
           {{- end }}
+          {{- end }}
 
     {{- range $key, $value := .Values.enrichers.definitions | default dict }}
+    {{- if not $value.disabled | default false }}
     {{ $key }}-enricher.yaml: |
       enricher:
-        {{- range . }}
+        {{- range .config }}
         - name: {{ .type }}
           config: {{ .name }}
           ref: {{ .ref | default "" }}
         {{- end }}
-    {{- range $value }}
+    {{- range $value.config }}
     {{ .name }}: |
     {{- if .content }}
     {{- .content | default "" | nindent 6 }}
     {{- else }}
     {{- if .file }}
     {{- .file | $.Files.Get | nindent 6 }}
+    {{- end }}
     {{- end }}
     {{- end }}
     {{- end }}

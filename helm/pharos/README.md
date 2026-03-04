@@ -109,16 +109,6 @@ Referenced by Schema ID: <a href="#values.schema.json">values.schema.json</a>
 
 
 
-## <a name="0d0e9d650424ed8ec356e26e2bb1e93f414fb82db4b56c55bbb6b63dbaaa1906"></a>redis.persistentVolume
-
-Referenced by Schema ID: <a href="#values.schema.json">values.schema.json</a>
-
-| Key | Type | Description | Default | Examples | Extra |
-|-----|------|-------------|---------|----------|-------|
-| `size` | `string` | Persistent volume size |  |  |  |
-
-
-
 ## <a name="0b9d1b3ee17bbb3cb8519d7169bc1511a9ec0296b00de5edd27884bb56b83fc9"></a>Jiralert configuration file contents
 
 Referenced by Schema ID: <a href="#values.schema.json">values.schema.json</a>
@@ -132,7 +122,17 @@ Referenced by Schema ID: <a href="#values.schema.json">values.schema.json</a>
 
 
 
-## <a name="65d930d1ae28735fdefc0d8cdb21f975cb24cddc38b5caf4072b5e8a639efd02"></a>postgres.readinessProbe
+## <a name="0d0e9d650424ed8ec356e26e2bb1e93f414fb82db4b56c55bbb6b63dbaaa1906"></a>redis.persistentVolume
+
+Referenced by Schema ID: <a href="#values.schema.json">values.schema.json</a>
+
+| Key | Type | Description | Default | Examples | Extra |
+|-----|------|-------------|---------|----------|-------|
+| `size` | `string` | Persistent volume size |  |  |  |
+
+
+
+## <a name="65d930d1ae28735fdefc0d8cdb21f975cb24cddc38b5caf4072b5e8a639efd02"></a>postgres.startupProbe
 
 Referenced by Schema ID: <a href="#values.schema.json">values.schema.json</a>
 
@@ -147,7 +147,74 @@ Referenced by Schema ID: <a href="#values.schema.json">values.schema.json</a>
 
 
 
-## <a name="65d930d1ae28735fdefc0d8cdb21f975cb24cddc38b5caf4072b5e8a639efd02"></a>postgres.startupProbe
+## <a name="65d930d1ae28735fdefc0d8cdb21f975cb24cddc38b5caf4072b5e8a639efd02"></a>postgres.livenessProbe
+
+Referenced by Schema ID: <a href="#values.schema.json">values.schema.json</a>
+
+| Key | Type | Description | Default | Examples | Extra |
+|-----|------|-------------|---------|----------|-------|
+| `enabled` | `boolean` |  |  |  |  |
+| `failureThreshold` | `integer` |  |  |  |  |
+| `initialDelaySeconds` | `integer` |  |  |  |  |
+| `periodSeconds` | `integer` |  |  |  |  |
+| `successThreshold` | `integer` |  |  |  |  |
+| `timeoutSeconds` | `integer` |  |  |  |  |
+
+
+
+## <a name="af2a21e0c49f7b5f19356c5c16782524e731e3791ccc5f46a59d2542a0a5fa34"></a>postgres.podSecurityContext
+
+Referenced by Schema ID: <a href="#values.schema.json">values.schema.json</a>
+
+| Key | Type | Description | Default | Examples | Extra |
+|-----|------|-------------|---------|----------|-------|
+| `fsGroup` | `integer` |  |  |  |  |
+| `supplementalGroups` | `integer[]` |  |  |  |  |
+
+
+
+## <a name="df162de5f4e8b01560a3f997cd8f6f24efbec775a04fb8133d276ac6c02c14eb"></a>postgres.image
+
+Referenced by Schema ID: <a href="#values.schema.json">values.schema.json</a>
+
+| Key | Type | Description | Default | Examples | Extra |
+|-----|------|-------------|---------|----------|-------|
+| `pullPolicy` | `string` |  |  |  |  |
+| `registry` | `string` |  |  |  |  |
+| `repository` | `string` |  |  |  |  |
+| `tag` | `string` |  |  |  |  |
+
+
+
+## <a name="1e83abfeea4699b49fc661613d500238a433ecfa9c3dbaccc3c0705d761ceddb"></a>postgres.serviceAccount
+
+Referenced by Schema ID: <a href="#values.schema.json">values.schema.json</a>
+
+| Key | Type | Description | Default | Examples | Extra |
+|-----|------|-------------|---------|----------|-------|
+| `annotations` | `object` |  |  |  |  |
+| `create` | `boolean` |  |  |  |  |
+| `name` | `string` |  |  |  |  |
+
+
+
+## <a name="95d8987ae5a683c53ae5932928476387baab9b5176bd282f64c3950add945bae"></a>postgres.securityContext
+
+Referenced by Schema ID: <a href="#values.schema.json">values.schema.json</a>
+
+| Key | Type | Description | Default | Examples | Extra |
+|-----|------|-------------|---------|----------|-------|
+| `allowPrivilegeEscalation` | `boolean` |  |  |  |  |
+| `capabilities.drop` | `string[]` |  |  |  |  |
+| `privileged` | `boolean` |  |  |  |  |
+| `readOnlyRootFilesystem` | `boolean` |  |  |  |  |
+| `runAsGroup` | `integer` |  |  |  |  |
+| `runAsNonRoot` | `boolean` |  |  |  |  |
+| `runAsUser` | `integer` |  |  |  |  |
+
+
+
+## <a name="65d930d1ae28735fdefc0d8cdb21f975cb24cddc38b5caf4072b5e8a639efd02"></a>postgres.readinessProbe
 
 Referenced by Schema ID: <a href="#values.schema.json">values.schema.json</a>
 
@@ -178,58 +245,6 @@ Referenced by Schema ID: <a href="#values.schema.json">values.schema.json</a>
 
 
 
-## <a name="cf1e9b8734bafafb2bed2f380e1d58c26b9000faea599573002fb34b51b15941"></a>postgres.auth
-
-Referenced by Schema ID: <a href="#values.schema.json">values.schema.json</a>
-
-| Key | Type | Description | Default | Examples | Extra |
-|-----|------|-------------|---------|----------|-------|
-| `database` | `string` |  |  |  |  |
-| `password` | `string` |  |  |  |  |
-| `postgresPassword` | `string` |  |  |  |  |
-| `username` | `string` |  |  |  |  |
-
-
-
-## <a name="df162de5f4e8b01560a3f997cd8f6f24efbec775a04fb8133d276ac6c02c14eb"></a>postgres.image
-
-Referenced by Schema ID: <a href="#values.schema.json">values.schema.json</a>
-
-| Key | Type | Description | Default | Examples | Extra |
-|-----|------|-------------|---------|----------|-------|
-| `pullPolicy` | `string` |  |  |  |  |
-| `registry` | `string` |  |  |  |  |
-| `repository` | `string` |  |  |  |  |
-| `tag` | `string` |  |  |  |  |
-
-
-
-## <a name="65d930d1ae28735fdefc0d8cdb21f975cb24cddc38b5caf4072b5e8a639efd02"></a>postgres.livenessProbe
-
-Referenced by Schema ID: <a href="#values.schema.json">values.schema.json</a>
-
-| Key | Type | Description | Default | Examples | Extra |
-|-----|------|-------------|---------|----------|-------|
-| `enabled` | `boolean` |  |  |  |  |
-| `failureThreshold` | `integer` |  |  |  |  |
-| `initialDelaySeconds` | `integer` |  |  |  |  |
-| `periodSeconds` | `integer` |  |  |  |  |
-| `successThreshold` | `integer` |  |  |  |  |
-| `timeoutSeconds` | `integer` |  |  |  |  |
-
-
-
-## <a name="af2a21e0c49f7b5f19356c5c16782524e731e3791ccc5f46a59d2542a0a5fa34"></a>postgres.podSecurityContext
-
-Referenced by Schema ID: <a href="#values.schema.json">values.schema.json</a>
-
-| Key | Type | Description | Default | Examples | Extra |
-|-----|------|-------------|---------|----------|-------|
-| `fsGroup` | `integer` |  |  |  |  |
-| `supplementalGroups` | `integer[]` |  |  |  |  |
-
-
-
 ## <a name="58a6554a3336c2a88493003cdda6e2d6649146fe170659498af8a6aef17ab0d9"></a>postgres.service
 
 Referenced by Schema ID: <a href="#values.schema.json">values.schema.json</a>
@@ -247,41 +262,16 @@ Referenced by Schema ID: <a href="#values.schema.json">values.schema.json</a>
 
 
 
-## <a name="95d8987ae5a683c53ae5932928476387baab9b5176bd282f64c3950add945bae"></a>postgres.securityContext
+## <a name="cf1e9b8734bafafb2bed2f380e1d58c26b9000faea599573002fb34b51b15941"></a>postgres.auth
 
 Referenced by Schema ID: <a href="#values.schema.json">values.schema.json</a>
 
 | Key | Type | Description | Default | Examples | Extra |
 |-----|------|-------------|---------|----------|-------|
-| `allowPrivilegeEscalation` | `boolean` |  |  |  |  |
-| `capabilities.drop` | `string[]` |  |  |  |  |
-| `privileged` | `boolean` |  |  |  |  |
-| `readOnlyRootFilesystem` | `boolean` |  |  |  |  |
-| `runAsGroup` | `integer` |  |  |  |  |
-| `runAsNonRoot` | `boolean` |  |  |  |  |
-| `runAsUser` | `integer` |  |  |  |  |
-
-
-
-## <a name="1e83abfeea4699b49fc661613d500238a433ecfa9c3dbaccc3c0705d761ceddb"></a>postgres.serviceAccount
-
-Referenced by Schema ID: <a href="#values.schema.json">values.schema.json</a>
-
-| Key | Type | Description | Default | Examples | Extra |
-|-----|------|-------------|---------|----------|-------|
-| `annotations` | `object` |  |  |  |  |
-| `create` | `boolean` |  |  |  |  |
-| `name` | `string` |  |  |  |  |
-
-
-
-## <a name="401d33198791f650ad476ed559af6c56b90aef91959490a41c9da98e92a4d2be"></a>controller.publisher
-
-Referenced by Schema ID: <a href="#values.schema.json">values.schema.json</a>
-
-| Key | Type | Description | Default | Examples | Extra |
-|-----|------|-------------|---------|----------|-------|
-| `queueSize` | `integer` | Publisher queue size |  |  |  |
+| `database` | `string` |  |  |  |  |
+| `password` | `string` |  |  |  |  |
+| `postgresPassword` | `string` |  |  |  |  |
+| `username` | `string` |  |  |  |  |
 
 
 
@@ -292,6 +282,16 @@ Referenced by Schema ID: <a href="#values.schema.json">values.schema.json</a>
 | Key | Type | Description | Default | Examples | Extra |
 |-----|------|-------------|---------|----------|-------|
 | `queueSize` | `integer` | Collector queue size |  |  |  |
+
+
+
+## <a name="401d33198791f650ad476ed559af6c56b90aef91959490a41c9da98e92a4d2be"></a>controller.publisher
+
+Referenced by Schema ID: <a href="#values.schema.json">values.schema.json</a>
+
+| Key | Type | Description | Default | Examples | Extra |
+|-----|------|-------------|---------|----------|-------|
+| `queueSize` | `integer` | Publisher queue size |  |  |  |
 
 
 
@@ -319,11 +319,3 @@ Referenced by Schema ID: <a href="#values.schema.json">values.schema.json</a>
 | `tokenKey` | `string` | Key for token |  |  |  |
 | `usernameKey` | `string` | Key for username |  |  |  |
 
-
-
-**Note:**  
-For more details and examples, see the [values.yaml](./values.yaml) file in the chart.
-## Enabling Jira Alerting
-
-Please follow the example in [./values-jiralert-example.yaml](./values-jiralert-example.yaml) to enable Jira alerting.
-This will install the jiralert component in your cluster, and configure pharos to send alerts to it.
