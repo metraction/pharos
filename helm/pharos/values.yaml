@@ -299,7 +299,7 @@ enrichers:
                       "Severity05Negligible": severity_05_negligible,
                       "Alerted": alerted
                   }               
-              ref: ""
+            ref: ""
   uiUrl: "" # leave empty to disable UI enrichers
   #uiUrl: "http://pharos-client.pharos-client.svc.cluster.local:3000" # URL to the Pharos UI, used in enrichers to run visual enrichers.
 
