@@ -61,7 +61,8 @@ var clientCmd = &cobra.Command{
 			namespace, _ := cmd.Flags().GetString("namespace")
 			clientLogger.Debug().Str("result", stdout.String()).Msg("Scan successful")
 			scanTask := model.PharosScanTask{
-				ImageSpec: source,
+				ImageSpec:      source,
+				ContextRootKey: namespace,
 				Context: map[string]any{
 					"namespace": namespace,
 				},

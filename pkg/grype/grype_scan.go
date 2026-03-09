@@ -43,6 +43,7 @@ func ScanImage(task model.PharosScanTask, scanEngine *GrypeScanner, kvc *cache.P
 		}
 		result.ScanTask.RxDigest = manifestDigest
 		result.ScanTask.RxPlatform = rxPlatform
+		result.Image.IndexDigest = "not applicable"
 	} else {
 
 		// return sbom cache key for given digest
@@ -64,7 +65,6 @@ func ScanImage(task model.PharosScanTask, scanEngine *GrypeScanner, kvc *cache.P
 		}
 		result.ScanTask.RxDigest = manifestDigest
 		result.ScanTask.RxPlatform = rxPlatform
-
 		logger.Info().
 			Str("digest.idx", utils.ShortDigest(indexDigest)).
 			Str("digest.man", utils.ShortDigest(manifestDigest)).
