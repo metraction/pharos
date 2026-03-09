@@ -1,0 +1,1772 @@
+{
+  "matches":
+    [
+      {
+        "vulnerability":
+          {
+            "id": "CVE-2025-61726",
+            "dataSource": "https://nvd.nist.gov/vuln/detail/CVE-2025-61726",
+            "namespace": "nvd:cpe",
+            "severity": "High",
+            "urls":
+              [
+                "https://go.dev/cl/736712",
+                "https://go.dev/issue/77101",
+                "https://groups.google.com/g/golang-announce/c/Vd2tYVM8eUc",
+                "https://pkg.go.dev/vuln/GO-2026-4341",
+              ],
+            "description": "The net/url package does not set a limit on the number of query parameters in a query. While the maximum size of query parameters in URLs is generally limited by the maximum request header size, the net/http.Request.ParseForm method can parse large URL-encoded forms. Parsing a large form containing many unique query parameters can cause excessive memory consumption.",
+            "cvss":
+              [
+                {
+                  "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+                  "type": "Secondary",
+                  "version": "3.1",
+                  "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+                  "metrics":
+                    {
+                      "baseScore": 7.5,
+                      "exploitabilityScore": 3.9,
+                      "impactScore": 3.6,
+                    },
+                  "vendorMetadata": {},
+                },
+              ],
+            "epss":
+              [
+                {
+                  "cve": "CVE-2025-61726",
+                  "epss": 0.00032,
+                  "percentile": 0.09092,
+                  "date": "2026-03-08",
+                },
+              ],
+            "cwes":
+              [
+                {
+                  "cve": "CVE-2025-61726",
+                  "cwe": "CWE-770",
+                  "source": "nvd@nist.gov",
+                  "type": "Primary",
+                },
+              ],
+            "fix":
+              {
+                "versions": ["1.24.12", "1.25.6"],
+                "state": "fixed",
+                "available":
+                  [
+                    {
+                      "version": "1.24.12",
+                      "date": "2026-01-31",
+                      "kind": "first-observed",
+                    },
+                    {
+                      "version": "1.25.6",
+                      "date": "2026-01-31",
+                      "kind": "first-observed",
+                    },
+                  ],
+              },
+            "advisories": [],
+            "risk": 0.024000000000000004,
+          },
+        "relatedVulnerabilities": [],
+        "matchDetails":
+          [
+            {
+              "type": "cpe-match",
+              "matcher": "go-module-matcher",
+              "searchedBy":
+                {
+                  "namespace": "nvd:cpe",
+                  "cpes": ["cpe:2.3:a:golang:go:1.25.5:-:*:*:*:*:*:*"],
+                  "package": { "name": "stdlib", "version": "go1.25.5" },
+                },
+              "found":
+                {
+                  "vulnerabilityID": "CVE-2025-61726",
+                  "versionConstraint": "< 1.24.12,>= 1.25.0, < 1.25.6 (unknown)",
+                  "cpes": ["cpe:2.3:a:golang:go:*:*:*:*:*:*:*:*"],
+                },
+              "fix": { "suggestedVersion": "1.25.6" },
+            },
+          ],
+        "artifact":
+          {
+            "id": "a1d0753900415077",
+            "name": "stdlib",
+            "version": "go1.25.5",
+            "type": "go-module",
+            "locations":
+              [
+                {
+                  "path": "/k9s",
+                  "accessPath": "/k9s",
+                  "annotations": { "evidence": "primary" },
+                },
+              ],
+            "language": "go",
+            "licenses": ["BSD-3-Clause"],
+            "cpes": ["cpe:2.3:a:golang:go:1.25.5:-:*:*:*:*:*:*"],
+            "purl": "pkg:golang/stdlib@1.25.5",
+            "upstreams": [],
+            "metadataType": "GolangBinMetadata",
+            "metadata": { "goCompiledVersion": "go1.25.5", "architecture": "" },
+          },
+      },
+      {
+        "vulnerability":
+          {
+            "id": "CVE-2025-68119",
+            "dataSource": "https://nvd.nist.gov/vuln/detail/CVE-2025-68119",
+            "namespace": "nvd:cpe",
+            "severity": "High",
+            "urls":
+              [
+                "https://go.dev/cl/736710",
+                "https://go.dev/issue/77099",
+                "https://groups.google.com/g/golang-announce/c/Vd2tYVM8eUc",
+                "https://pkg.go.dev/vuln/GO-2026-4338",
+              ],
+            "description": "Downloading and building modules with malicious version strings can cause local code execution. On systems with Mercurial (hg) installed, downloading modules from non-standard sources (e.g., custom domains) can cause unexpected code execution due to how external VCS commands are constructed. This issue can also be triggered by providing a malicious version string to the toolchain. On systems with Git installed, downloading and building modules with malicious version strings can allow an attacker to write to arbitrary files on the filesystem. This can only be triggered by explicitly providing the malicious version strings to the toolchain and does not affect usage of @latest or bare module paths.",
+            "cvss":
+              [
+                {
+                  "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+                  "type": "Secondary",
+                  "version": "3.1",
+                  "vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
+                  "metrics":
+                    {
+                      "baseScore": 7,
+                      "exploitabilityScore": 1.1,
+                      "impactScore": 5.9,
+                    },
+                  "vendorMetadata": {},
+                },
+              ],
+            "epss":
+              [
+                {
+                  "cve": "CVE-2025-68119",
+                  "epss": 0.00013,
+                  "percentile": 0.02094,
+                  "date": "2026-03-08",
+                },
+              ],
+            "cwes":
+              [
+                {
+                  "cve": "CVE-2025-68119",
+                  "cwe": "CWE-787",
+                  "source": "nvd@nist.gov",
+                  "type": "Primary",
+                },
+              ],
+            "fix":
+              {
+                "versions": ["1.25.6"],
+                "state": "fixed",
+                "available":
+                  [
+                    {
+                      "version": "1.25.6",
+                      "date": "2026-01-31",
+                      "kind": "first-observed",
+                    },
+                  ],
+              },
+            "advisories": [],
+            "risk": 0.009425,
+          },
+        "relatedVulnerabilities": [],
+        "matchDetails":
+          [
+            {
+              "type": "cpe-match",
+              "matcher": "go-module-matcher",
+              "searchedBy":
+                {
+                  "namespace": "nvd:cpe",
+                  "cpes": ["cpe:2.3:a:golang:go:1.25.5:-:*:*:*:*:*:*"],
+                  "package": { "name": "stdlib", "version": "go1.25.5" },
+                },
+              "found":
+                {
+                  "vulnerabilityID": "CVE-2025-68119",
+                  "versionConstraint": ">= 1.25.0, < 1.25.6 (unknown)",
+                  "cpes": ["cpe:2.3:a:golang:go:*:*:*:*:*:*:*:*"],
+                },
+              "fix": { "suggestedVersion": "1.25.6" },
+            },
+          ],
+        "artifact":
+          {
+            "id": "a1d0753900415077",
+            "name": "stdlib",
+            "version": "go1.25.5",
+            "type": "go-module",
+            "locations":
+              [
+                {
+                  "path": "/k9s",
+                  "accessPath": "/k9s",
+                  "annotations": { "evidence": "primary" },
+                },
+              ],
+            "language": "go",
+            "licenses": ["BSD-3-Clause"],
+            "cpes": ["cpe:2.3:a:golang:go:1.25.5:-:*:*:*:*:*:*"],
+            "purl": "pkg:golang/stdlib@1.25.5",
+            "upstreams": [],
+            "metadataType": "GolangBinMetadata",
+            "metadata": { "goCompiledVersion": "go1.25.5", "architecture": "" },
+          },
+      },
+      {
+        "vulnerability":
+          {
+            "id": "CVE-2025-61728",
+            "dataSource": "https://nvd.nist.gov/vuln/detail/CVE-2025-61728",
+            "namespace": "nvd:cpe",
+            "severity": "Medium",
+            "urls":
+              [
+                "https://go.dev/cl/736713",
+                "https://go.dev/issue/77102",
+                "https://groups.google.com/g/golang-announce/c/Vd2tYVM8eUc",
+                "https://pkg.go.dev/vuln/GO-2026-4342",
+                "http://www.openwall.com/lists/oss-security/2026/01/15/4",
+              ],
+            "description": "archive/zip uses a super-linear file name indexing algorithm that is invoked the first time a file in an archive is opened. This can lead to a denial of service when consuming a maliciously constructed ZIP archive.",
+            "cvss":
+              [
+                {
+                  "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+                  "type": "Secondary",
+                  "version": "3.1",
+                  "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+                  "metrics":
+                    {
+                      "baseScore": 6.5,
+                      "exploitabilityScore": 2.9,
+                      "impactScore": 3.6,
+                    },
+                  "vendorMetadata": {},
+                },
+              ],
+            "epss":
+              [
+                {
+                  "cve": "CVE-2025-61728",
+                  "epss": 0.00016,
+                  "percentile": 0.03635,
+                  "date": "2026-03-08",
+                },
+              ],
+            "cwes":
+              [
+                {
+                  "cve": "CVE-2025-61728",
+                  "cwe": "CWE-770",
+                  "source": "nvd@nist.gov",
+                  "type": "Primary",
+                },
+              ],
+            "fix":
+              {
+                "versions": ["1.24.12", "1.25.6"],
+                "state": "fixed",
+                "available":
+                  [
+                    {
+                      "version": "1.24.12",
+                      "date": "2026-01-31",
+                      "kind": "first-observed",
+                    },
+                    {
+                      "version": "1.25.6",
+                      "date": "2026-01-31",
+                      "kind": "first-observed",
+                    },
+                  ],
+              },
+            "advisories": [],
+            "risk": 0.0092,
+          },
+        "relatedVulnerabilities": [],
+        "matchDetails":
+          [
+            {
+              "type": "cpe-match",
+              "matcher": "go-module-matcher",
+              "searchedBy":
+                {
+                  "namespace": "nvd:cpe",
+                  "cpes": ["cpe:2.3:a:golang:go:1.25.5:-:*:*:*:*:*:*"],
+                  "package": { "name": "stdlib", "version": "go1.25.5" },
+                },
+              "found":
+                {
+                  "vulnerabilityID": "CVE-2025-61728",
+                  "versionConstraint": "< 1.24.12,>= 1.25.0, < 1.25.6 (unknown)",
+                  "cpes": ["cpe:2.3:a:golang:go:*:*:*:*:*:*:*:*"],
+                },
+              "fix": { "suggestedVersion": "1.25.6" },
+            },
+          ],
+        "artifact":
+          {
+            "id": "a1d0753900415077",
+            "name": "stdlib",
+            "version": "go1.25.5",
+            "type": "go-module",
+            "locations":
+              [
+                {
+                  "path": "/k9s",
+                  "accessPath": "/k9s",
+                  "annotations": { "evidence": "primary" },
+                },
+              ],
+            "language": "go",
+            "licenses": ["BSD-3-Clause"],
+            "cpes": ["cpe:2.3:a:golang:go:1.25.5:-:*:*:*:*:*:*"],
+            "purl": "pkg:golang/stdlib@1.25.5",
+            "upstreams": [],
+            "metadataType": "GolangBinMetadata",
+            "metadata": { "goCompiledVersion": "go1.25.5", "architecture": "" },
+          },
+      },
+      {
+        "vulnerability":
+          {
+            "id": "CVE-2025-68121",
+            "dataSource": "https://nvd.nist.gov/vuln/detail/CVE-2025-68121",
+            "namespace": "nvd:cpe",
+            "severity": "Critical",
+            "urls":
+              [
+                "https://go.dev/cl/737700",
+                "https://go.dev/issue/77217",
+                "https://groups.google.com/g/golang-announce/c/K09ubi9FQFk",
+                "https://pkg.go.dev/vuln/GO-2026-4337",
+              ],
+            "description": "During session resumption in crypto/tls, if the underlying Config has its ClientCAs or RootCAs fields mutated between the initial handshake and the resumed handshake, the resumed handshake may succeed when it should have failed. This may happen when a user calls Config.Clone and mutates the returned Config, or uses Config.GetConfigForClient. This can cause a client to resume a session with a server that it would not have resumed with during the initial handshake, or cause a server to resume a session with a client that it would not have resumed with during the initial handshake.",
+            "cvss":
+              [
+                {
+                  "source": "nvd@nist.gov",
+                  "type": "Primary",
+                  "version": "3.1",
+                  "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H",
+                  "metrics":
+                    {
+                      "baseScore": 10,
+                      "exploitabilityScore": 3.9,
+                      "impactScore": 6.1,
+                    },
+                  "vendorMetadata": {},
+                },
+                {
+                  "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+                  "type": "Secondary",
+                  "version": "3.1",
+                  "vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+                  "metrics":
+                    {
+                      "baseScore": 7.4,
+                      "exploitabilityScore": 2.3,
+                      "impactScore": 5.2,
+                    },
+                  "vendorMetadata": {},
+                },
+              ],
+            "epss":
+              [
+                {
+                  "cve": "CVE-2025-68121",
+                  "epss": 0.00009,
+                  "percentile": 0.0085,
+                  "date": "2026-03-08",
+                },
+              ],
+            "cwes":
+              [
+                {
+                  "cve": "CVE-2025-68121",
+                  "cwe": "CWE-295",
+                  "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+                  "type": "Secondary",
+                },
+              ],
+            "fix":
+              {
+                "versions": ["1.24.13", "1.25.7", "1.26.0-rc.3"],
+                "state": "fixed",
+                "available":
+                  [
+                    {
+                      "version": "1.24.13",
+                      "date": "2026-02-10",
+                      "kind": "first-observed",
+                    },
+                    {
+                      "version": "1.25.7",
+                      "date": "2026-02-10",
+                      "kind": "first-observed",
+                    },
+                    {
+                      "version": "1.26.0-rc.3",
+                      "date": "2026-02-10",
+                      "kind": "first-observed",
+                    },
+                  ],
+              },
+            "advisories": [],
+            "risk": 0.007965000000000002,
+          },
+        "relatedVulnerabilities": [],
+        "matchDetails":
+          [
+            {
+              "type": "cpe-match",
+              "matcher": "go-module-matcher",
+              "searchedBy":
+                {
+                  "namespace": "nvd:cpe",
+                  "cpes": ["cpe:2.3:a:golang:go:1.25.5:-:*:*:*:*:*:*"],
+                  "package": { "name": "stdlib", "version": "go1.25.5" },
+                },
+              "found":
+                {
+                  "vulnerabilityID": "CVE-2025-68121",
+                  "versionConstraint": "< 1.24.13,>= 1.25.0-0, < 1.25.7,>= 1.26.0-rc.1, < 1.26.0-rc.3 (unknown)",
+                  "cpes": ["cpe:2.3:a:golang:go:*:*:*:*:*:*:*:*"],
+                },
+              "fix": { "suggestedVersion": "1.25.7" },
+            },
+          ],
+        "artifact":
+          {
+            "id": "a1d0753900415077",
+            "name": "stdlib",
+            "version": "go1.25.5",
+            "type": "go-module",
+            "locations":
+              [
+                {
+                  "path": "/k9s",
+                  "accessPath": "/k9s",
+                  "annotations": { "evidence": "primary" },
+                },
+              ],
+            "language": "go",
+            "licenses": ["BSD-3-Clause"],
+            "cpes": ["cpe:2.3:a:golang:go:1.25.5:-:*:*:*:*:*:*"],
+            "purl": "pkg:golang/stdlib@1.25.5",
+            "upstreams": [],
+            "metadataType": "GolangBinMetadata",
+            "metadata": { "goCompiledVersion": "go1.25.5", "architecture": "" },
+          },
+      },
+      {
+        "vulnerability":
+          {
+            "id": "CVE-2025-61731",
+            "dataSource": "https://nvd.nist.gov/vuln/detail/CVE-2025-61731",
+            "namespace": "nvd:cpe",
+            "severity": "High",
+            "urls":
+              [
+                "https://go.dev/cl/736711",
+                "https://go.dev/issue/77100",
+                "https://groups.google.com/g/golang-announce/c/Vd2tYVM8eUc",
+                "https://pkg.go.dev/vuln/GO-2026-4339",
+              ],
+            "description": 'Building a malicious file with cmd/go can cause can cause a write to an attacker-controlled file with partial control of the file content. The "#cgo pkg-config:" directive in a Go source file provides command-line arguments to provide to the Go pkg-config command. An attacker can provide a "--log-file" argument to this directive, causing pkg-config to write to an attacker-controlled location.',
+            "cvss":
+              [
+                {
+                  "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+                  "type": "Secondary",
+                  "version": "3.1",
+                  "vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+                  "metrics":
+                    {
+                      "baseScore": 7.8,
+                      "exploitabilityScore": 1.9,
+                      "impactScore": 5.9,
+                    },
+                  "vendorMetadata": {},
+                },
+              ],
+            "epss":
+              [
+                {
+                  "cve": "CVE-2025-61731",
+                  "epss": 0.0001,
+                  "percentile": 0.01104,
+                  "date": "2026-03-08",
+                },
+              ],
+            "fix":
+              {
+                "versions": ["1.24.12", "1.25.6"],
+                "state": "fixed",
+                "available":
+                  [
+                    {
+                      "version": "1.24.12",
+                      "date": "2026-01-31",
+                      "kind": "first-observed",
+                    },
+                    {
+                      "version": "1.25.6",
+                      "date": "2026-01-31",
+                      "kind": "first-observed",
+                    },
+                  ],
+              },
+            "advisories": [],
+            "risk": 0.0076500000000000005,
+          },
+        "relatedVulnerabilities": [],
+        "matchDetails":
+          [
+            {
+              "type": "cpe-match",
+              "matcher": "go-module-matcher",
+              "searchedBy":
+                {
+                  "namespace": "nvd:cpe",
+                  "cpes": ["cpe:2.3:a:golang:go:1.25.5:-:*:*:*:*:*:*"],
+                  "package": { "name": "stdlib", "version": "go1.25.5" },
+                },
+              "found":
+                {
+                  "vulnerabilityID": "CVE-2025-61731",
+                  "versionConstraint": "< 1.24.12,>= 1.25.0, < 1.25.6 (unknown)",
+                  "cpes": ["cpe:2.3:a:golang:go:*:*:*:*:*:*:*:*"],
+                },
+              "fix": { "suggestedVersion": "1.25.6" },
+            },
+          ],
+        "artifact":
+          {
+            "id": "a1d0753900415077",
+            "name": "stdlib",
+            "version": "go1.25.5",
+            "type": "go-module",
+            "locations":
+              [
+                {
+                  "path": "/k9s",
+                  "accessPath": "/k9s",
+                  "annotations": { "evidence": "primary" },
+                },
+              ],
+            "language": "go",
+            "licenses": ["BSD-3-Clause"],
+            "cpes": ["cpe:2.3:a:golang:go:1.25.5:-:*:*:*:*:*:*"],
+            "purl": "pkg:golang/stdlib@1.25.5",
+            "upstreams": [],
+            "metadataType": "GolangBinMetadata",
+            "metadata": { "goCompiledVersion": "go1.25.5", "architecture": "" },
+          },
+      },
+      {
+        "vulnerability":
+          {
+            "id": "GHSA-q9hv-hpm4-hj6x",
+            "dataSource": "https://github.com/advisories/GHSA-q9hv-hpm4-hj6x",
+            "namespace": "github:language:go",
+            "severity": "Low",
+            "urls":
+              [
+                "https://github.com/cloudflare/circl/security/advisories/GHSA-q9hv-hpm4-hj6x",
+                "https://nvd.nist.gov/vuln/detail/CVE-2026-1229",
+                "https://github.com/cloudflare/circl/pull/583",
+                "https://github.com/cloudflare/circl/releases/tag/v1.6.3",
+              ],
+            "description": "CIRCL has an incorrect calculation in secp384r1 CombinedMult",
+            "cvss":
+              [
+                {
+                  "type": "Secondary",
+                  "version": "4.0",
+                  "vector": "CVSS:4.0/AV:N/AC:H/AT:N/PR:N/UI:N/VC:L/VI:L/VA:L/SC:L/SI:L/SA:L/E:P/S:N/AU:Y/U:Amber",
+                  "metrics": { "baseScore": 2.9 },
+                  "vendorMetadata": {},
+                },
+              ],
+            "epss":
+              [
+                {
+                  "cve": "CVE-2026-1229",
+                  "epss": 0.0002,
+                  "percentile": 0.05031,
+                  "date": "2026-03-08",
+                },
+              ],
+            "cwes":
+              [
+                {
+                  "cve": "CVE-2026-1229",
+                  "cwe": "CWE-682",
+                  "source": "cna@cloudflare.com",
+                  "type": "Secondary",
+                },
+              ],
+            "fix":
+              {
+                "versions": ["1.6.3"],
+                "state": "fixed",
+                "available":
+                  [
+                    {
+                      "version": "1.6.3",
+                      "date": "2026-03-04",
+                      "kind": "first-observed",
+                    },
+                  ],
+              },
+            "advisories": [],
+            "risk": 0.0059,
+          },
+        "relatedVulnerabilities":
+          [
+            {
+              "id": "CVE-2026-1229",
+              "dataSource": "https://nvd.nist.gov/vuln/detail/CVE-2026-1229",
+              "namespace": "nvd:cpe",
+              "severity": "Critical",
+              "urls": ["https://github.com/cloudflare/circl"],
+              "description": "The CombinedMult function in the CIRCL ecc/p384 package (secp384r1 curve) produces an incorrect value for specific inputs. The issue is fixed by using complete addition formulas.\nECDH and ECDSA signing relying on this curve are not affected.\n\nThe bug was fixed in  v1.6.3 https://github.com/cloudflare/circl/releases/tag/v1.6.3 .",
+              "cvss":
+                [
+                  {
+                    "source": "nvd@nist.gov",
+                    "type": "Primary",
+                    "version": "3.1",
+                    "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+                    "metrics":
+                      {
+                        "baseScore": 9.8,
+                        "exploitabilityScore": 3.9,
+                        "impactScore": 5.9,
+                      },
+                    "vendorMetadata": {},
+                  },
+                  {
+                    "source": "cna@cloudflare.com",
+                    "type": "Secondary",
+                    "version": "4.0",
+                    "vector": "CVSS:4.0/AV:N/AC:H/AT:N/PR:N/UI:N/VC:L/VI:L/VA:L/SC:L/SI:L/SA:L/E:P/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:N/AU:Y/R:X/V:X/RE:X/U:Amber",
+                    "metrics": { "baseScore": 2.9 },
+                    "vendorMetadata": {},
+                  },
+                ],
+              "epss":
+                [
+                  {
+                    "cve": "CVE-2026-1229",
+                    "epss": 0.0002,
+                    "percentile": 0.05031,
+                    "date": "2026-03-08",
+                  },
+                ],
+              "cwes":
+                [
+                  {
+                    "cve": "CVE-2026-1229",
+                    "cwe": "CWE-682",
+                    "source": "cna@cloudflare.com",
+                    "type": "Secondary",
+                  },
+                ],
+            },
+          ],
+        "matchDetails":
+          [
+            {
+              "type": "exact-direct-match",
+              "matcher": "go-module-matcher",
+              "searchedBy":
+                {
+                  "language": "go",
+                  "namespace": "github:language:go",
+                  "package":
+                    {
+                      "name": "github.com/cloudflare/circl",
+                      "version": "v1.6.1",
+                    },
+                },
+              "found":
+                {
+                  "vulnerabilityID": "GHSA-q9hv-hpm4-hj6x",
+                  "versionConstraint": "<1.6.3 (go)",
+                },
+              "fix": { "suggestedVersion": "1.6.3" },
+            },
+          ],
+        "artifact":
+          {
+            "id": "eca5598275d61d5f",
+            "name": "github.com/cloudflare/circl",
+            "version": "v1.6.1",
+            "type": "go-module",
+            "locations":
+              [
+                {
+                  "path": "/k9s",
+                  "accessPath": "/k9s",
+                  "annotations": { "evidence": "primary" },
+                },
+              ],
+            "language": "go",
+            "licenses": [],
+            "cpes": ["cpe:2.3:a:cloudflare:circl:v1.6.1:*:*:*:*:*:*:*"],
+            "purl": "pkg:golang/github.com/cloudflare/circl@v1.6.1",
+            "upstreams": [],
+            "metadataType": "GolangBinMetadata",
+            "metadata":
+              {
+                "goCompiledVersion": "go1.25.5",
+                "architecture": "arm64",
+                "h1Digest": "h1:zqIqSPIndyBh1bjLVVDHMPpVKqp8Su/V+6MeDzzQBQ0=",
+                "mainModule": "github.com/derailed/k9s",
+              },
+          },
+      },
+      {
+        "vulnerability":
+          {
+            "id": "GHSA-9h8m-3fm2-qjrq",
+            "dataSource": "https://github.com/advisories/GHSA-9h8m-3fm2-qjrq",
+            "namespace": "github:language:go",
+            "severity": "High",
+            "urls":
+              [
+                "https://github.com/open-telemetry/opentelemetry-go/security/advisories/GHSA-9h8m-3fm2-qjrq",
+                "https://github.com/open-telemetry/opentelemetry-go/commit/d45961bcda453fcbdb6469c22d6e88a1f9970a53",
+                "https://nvd.nist.gov/vuln/detail/CVE-2026-24051",
+                "https://pkg.go.dev/vuln/GO-2026-4394",
+              ],
+            "description": "OpenTelemetry Go SDK Vulnerable to Arbitrary Code Execution via PATH Hijacking",
+            "cvss":
+              [
+                {
+                  "type": "Secondary",
+                  "version": "3.1",
+                  "vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
+                  "metrics":
+                    {
+                      "baseScore": 7,
+                      "exploitabilityScore": 1.1,
+                      "impactScore": 5.9,
+                    },
+                  "vendorMetadata": {},
+                },
+              ],
+            "epss":
+              [
+                {
+                  "cve": "CVE-2026-24051",
+                  "epss": 0.00007,
+                  "percentile": 0.005,
+                  "date": "2026-03-08",
+                },
+              ],
+            "cwes":
+              [
+                {
+                  "cve": "CVE-2026-24051",
+                  "cwe": "CWE-426",
+                  "source": "security-advisories@github.com",
+                  "type": "Primary",
+                },
+              ],
+            "fix":
+              {
+                "versions": ["1.40.0"],
+                "state": "fixed",
+                "available":
+                  [
+                    {
+                      "version": "1.40.0",
+                      "date": "2026-02-28",
+                      "kind": "first-observed",
+                    },
+                  ],
+              },
+            "advisories": [],
+            "risk": 0.005075,
+          },
+        "relatedVulnerabilities":
+          [
+            {
+              "id": "CVE-2026-24051",
+              "dataSource": "https://nvd.nist.gov/vuln/detail/CVE-2026-24051",
+              "namespace": "nvd:cpe",
+              "severity": "High",
+              "urls":
+                [
+                  "https://github.com/open-telemetry/opentelemetry-go/commit/d45961bcda453fcbdb6469c22d6e88a1f9970a53",
+                  "https://github.com/open-telemetry/opentelemetry-go/security/advisories/GHSA-9h8m-3fm2-qjrq",
+                ],
+              "description": "OpenTelemetry-Go is the Go implementation of OpenTelemetry. The OpenTelemetry Go SDK in version v1.20.0-1.39.0 is vulnerable to Path Hijacking (Untrusted Search Paths) on macOS/Darwin systems. The resource detection code in sdk/resource/host_id.go executes the ioreg system command using a search path. An attacker with the ability to locally modify the PATH environment variable can achieve Arbitrary Code Execution (ACE) within the context of the application. A fix was released with v1.40.0.",
+              "cvss":
+                [
+                  {
+                    "source": "security-advisories@github.com",
+                    "type": "Secondary",
+                    "version": "3.1",
+                    "vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
+                    "metrics":
+                      {
+                        "baseScore": 7,
+                        "exploitabilityScore": 1.1,
+                        "impactScore": 5.9,
+                      },
+                    "vendorMetadata": {},
+                  },
+                ],
+              "epss":
+                [
+                  {
+                    "cve": "CVE-2026-24051",
+                    "epss": 0.00007,
+                    "percentile": 0.005,
+                    "date": "2026-03-08",
+                  },
+                ],
+              "cwes":
+                [
+                  {
+                    "cve": "CVE-2026-24051",
+                    "cwe": "CWE-426",
+                    "source": "security-advisories@github.com",
+                    "type": "Primary",
+                  },
+                ],
+            },
+          ],
+        "matchDetails":
+          [
+            {
+              "type": "exact-direct-match",
+              "matcher": "go-module-matcher",
+              "searchedBy":
+                {
+                  "language": "go",
+                  "namespace": "github:language:go",
+                  "package":
+                    {
+                      "name": "go.opentelemetry.io/otel/sdk",
+                      "version": "v1.37.0",
+                    },
+                },
+              "found":
+                {
+                  "vulnerabilityID": "GHSA-9h8m-3fm2-qjrq",
+                  "versionConstraint": ">=1.21.0,<1.40.0 (go)",
+                },
+              "fix": { "suggestedVersion": "1.40.0" },
+            },
+          ],
+        "artifact":
+          {
+            "id": "086c5fd11d541e7f",
+            "name": "go.opentelemetry.io/otel/sdk",
+            "version": "v1.37.0",
+            "type": "go-module",
+            "locations":
+              [
+                {
+                  "path": "/k9s",
+                  "accessPath": "/k9s",
+                  "annotations": { "evidence": "primary" },
+                },
+              ],
+            "language": "go",
+            "licenses": [],
+            "cpes": ["cpe:2.3:a:otel:sdk:v1.37.0:*:*:*:*:*:*:*"],
+            "purl": "pkg:golang/go.opentelemetry.io/otel/sdk@v1.37.0",
+            "upstreams": [],
+            "metadataType": "GolangBinMetadata",
+            "metadata":
+              {
+                "goCompiledVersion": "go1.25.5",
+                "architecture": "arm64",
+                "h1Digest": "h1:ItB0QUqnjesGRvNcmAcU0LyvkVyGJ2xftD29bWdDvKI=",
+                "mainModule": "github.com/derailed/k9s",
+              },
+          },
+      },
+      {
+        "vulnerability":
+          {
+            "id": "CVE-2025-61732",
+            "dataSource": "https://nvd.nist.gov/vuln/detail/CVE-2025-61732",
+            "namespace": "nvd:cpe",
+            "severity": "High",
+            "urls":
+              [
+                "https://go.dev/cl/734220",
+                "https://go.dev/issue/76697",
+                "https://groups.google.com/g/golang-announce/c/K09ubi9FQFk",
+                "https://pkg.go.dev/vuln/GO-2026-4433",
+              ],
+            "description": "A discrepancy between how Go and C/C++ comments were parsed allowed for code smuggling into the resulting cgo binary.",
+            "cvss":
+              [
+                {
+                  "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+                  "type": "Secondary",
+                  "version": "3.1",
+                  "vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:H",
+                  "metrics":
+                    {
+                      "baseScore": 8.6,
+                      "exploitabilityScore": 1.9,
+                      "impactScore": 6.1,
+                    },
+                  "vendorMetadata": {},
+                },
+              ],
+            "epss":
+              [
+                {
+                  "cve": "CVE-2025-61732",
+                  "epss": 0.00006,
+                  "percentile": 0.00385,
+                  "date": "2026-03-08",
+                },
+              ],
+            "cwes":
+              [
+                {
+                  "cve": "CVE-2025-61732",
+                  "cwe": "CWE-94",
+                  "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+                  "type": "Secondary",
+                },
+              ],
+            "fix":
+              {
+                "versions": ["1.24.13", "1.25.7"],
+                "state": "fixed",
+                "available":
+                  [
+                    {
+                      "version": "1.24.13",
+                      "date": "2026-02-10",
+                      "kind": "first-observed",
+                    },
+                    {
+                      "version": "1.25.7",
+                      "date": "2026-02-10",
+                      "kind": "first-observed",
+                    },
+                  ],
+              },
+            "advisories": [],
+            "risk": 0.004829999999999999,
+          },
+        "relatedVulnerabilities": [],
+        "matchDetails":
+          [
+            {
+              "type": "cpe-match",
+              "matcher": "go-module-matcher",
+              "searchedBy":
+                {
+                  "namespace": "nvd:cpe",
+                  "cpes": ["cpe:2.3:a:golang:go:1.25.5:-:*:*:*:*:*:*"],
+                  "package": { "name": "stdlib", "version": "go1.25.5" },
+                },
+              "found":
+                {
+                  "vulnerabilityID": "CVE-2025-61732",
+                  "versionConstraint": "< 1.24.13,>= 1.25.0-0, < 1.25.7 (unknown)",
+                  "cpes": ["cpe:2.3:a:golang:go:*:*:*:*:*:*:*:*"],
+                },
+              "fix": { "suggestedVersion": "1.25.7" },
+            },
+          ],
+        "artifact":
+          {
+            "id": "a1d0753900415077",
+            "name": "stdlib",
+            "version": "go1.25.5",
+            "type": "go-module",
+            "locations":
+              [
+                {
+                  "path": "/k9s",
+                  "accessPath": "/k9s",
+                  "annotations": { "evidence": "primary" },
+                },
+              ],
+            "language": "go",
+            "licenses": ["BSD-3-Clause"],
+            "cpes": ["cpe:2.3:a:golang:go:1.25.5:-:*:*:*:*:*:*"],
+            "purl": "pkg:golang/stdlib@1.25.5",
+            "upstreams": [],
+            "metadataType": "GolangBinMetadata",
+            "metadata": { "goCompiledVersion": "go1.25.5", "architecture": "" },
+          },
+      },
+      {
+        "vulnerability":
+          {
+            "id": "GHSA-p436-gjf2-799p",
+            "dataSource": "https://github.com/advisories/GHSA-p436-gjf2-799p",
+            "namespace": "github:language:go",
+            "severity": "High",
+            "urls":
+              [
+                "https://github.com/docker/cli/security/advisories/GHSA-p436-gjf2-799p",
+                "https://nvd.nist.gov/vuln/detail/CVE-2025-15558",
+                "https://github.com/docker/cli/pull/6713",
+                "https://github.com/docker/compose/pull/12300",
+                "https://github.com/docker/cli/commit/13759330b1f7e7cb0d67047ea42c5482548ba7fa",
+                "https://docs.docker.com/desktop/release-notes",
+                "https://www.zerodayinitiative.com/advisories/ZDI-CAN-28304",
+              ],
+            "description": "Docker CLI Plugins: Uncontrolled Search Path Element Leads to Local Privilege Escalation on Windows",
+            "cvss":
+              [
+                {
+                  "type": "Secondary",
+                  "version": "4.0",
+                  "vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:L/UI:P/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+                  "metrics": { "baseScore": 7 },
+                  "vendorMetadata": {},
+                },
+              ],
+            "epss":
+              [
+                {
+                  "cve": "CVE-2025-15558",
+                  "epss": 0.00005,
+                  "percentile": 0.00245,
+                  "date": "2026-03-08",
+                },
+              ],
+            "cwes":
+              [
+                {
+                  "cve": "CVE-2025-15558",
+                  "cwe": "CWE-427",
+                  "source": "security@docker.com",
+                  "type": "Secondary",
+                },
+              ],
+            "fix":
+              {
+                "versions": ["29.2.0"],
+                "state": "fixed",
+                "available":
+                  [
+                    {
+                      "version": "29.2.0",
+                      "date": "2026-03-05",
+                      "kind": "first-observed",
+                    },
+                  ],
+              },
+            "advisories": [],
+            "risk": 0.003625,
+          },
+        "relatedVulnerabilities":
+          [
+            {
+              "id": "CVE-2025-15558",
+              "dataSource": "https://nvd.nist.gov/vuln/detail/CVE-2025-15558",
+              "namespace": "nvd:cpe",
+              "severity": "High",
+              "urls":
+                [
+                  "https://docs.docker.com/desktop/release-notes/",
+                  "https://github.com/docker/cli/pull/6713",
+                  "https://www.zerodayinitiative.com/advisories/ZDI-CAN-28304/",
+                ],
+              "description": "Docker CLI for Windows searches for plugin binaries in C:\\ProgramData\\Docker\\cli-plugins, a directory that does not exist by default. A low-privileged attacker can create this directory and place malicious CLI plugin binaries (docker-compose.exe, docker-buildx.exe, etc.) that are executed when a victim user opens Docker Desktop or invokes Docker CLI plugin features, and allow privilege-escalation if the docker CLI is executed as a privileged user.\n\nThis issue affects Docker CLI: through 29.1.5 and Windows binaries acting as a CLI-plugin manager using the  github.com/docker/cli/cli-plugins/manager https://pkg.go.dev/github.com/docker/cli@v29.1.5+incompatible/cli-plugins/manager  package, such as Docker Compose.\n\nThis issue does not impact non-Windows binaries, and projects not using the plugin-manager code.",
+              "cvss":
+                [
+                  {
+                    "source": "security@docker.com",
+                    "type": "Secondary",
+                    "version": "4.0",
+                    "vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:L/UI:P/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:N/R:U/V:X/RE:X/U:X",
+                    "metrics": { "baseScore": 7 },
+                    "vendorMetadata": {},
+                  },
+                ],
+              "epss":
+                [
+                  {
+                    "cve": "CVE-2025-15558",
+                    "epss": 0.00005,
+                    "percentile": 0.00245,
+                    "date": "2026-03-08",
+                  },
+                ],
+              "cwes":
+                [
+                  {
+                    "cve": "CVE-2025-15558",
+                    "cwe": "CWE-427",
+                    "source": "security@docker.com",
+                    "type": "Secondary",
+                  },
+                ],
+            },
+          ],
+        "matchDetails":
+          [
+            {
+              "type": "exact-direct-match",
+              "matcher": "go-module-matcher",
+              "searchedBy":
+                {
+                  "language": "go",
+                  "namespace": "github:language:go",
+                  "package":
+                    {
+                      "name": "github.com/docker/cli",
+                      "version": "v29.1.2+incompatible",
+                    },
+                },
+              "found":
+                {
+                  "vulnerabilityID": "GHSA-p436-gjf2-799p",
+                  "versionConstraint": ">=19.03.0,<29.2.0 (go)",
+                },
+              "fix": { "suggestedVersion": "29.2.0" },
+            },
+          ],
+        "artifact":
+          {
+            "id": "844c2a5321e3bbc1",
+            "name": "github.com/docker/cli",
+            "version": "v29.1.2+incompatible",
+            "type": "go-module",
+            "locations":
+              [
+                {
+                  "path": "/k9s",
+                  "accessPath": "/k9s",
+                  "annotations": { "evidence": "primary" },
+                },
+              ],
+            "language": "go",
+            "licenses": [],
+            "cpes":
+              ["cpe:2.3:a:docker:cli:v29.1.2\\+incompatible:*:*:*:*:*:*:*"],
+            "purl": "pkg:golang/github.com/docker/cli@v29.1.2%2Bincompatible",
+            "upstreams": [],
+            "metadataType": "GolangBinMetadata",
+            "metadata":
+              {
+                "goCompiledVersion": "go1.25.5",
+                "architecture": "arm64",
+                "h1Digest": "h1:s4QI7drXpIo78OM+CwuthPsO5kCf8cpNsck5PsLVTH8=",
+                "mainModule": "github.com/derailed/k9s",
+              },
+          },
+      },
+      {
+        "vulnerability":
+          {
+            "id": "CVE-2025-61730",
+            "dataSource": "https://nvd.nist.gov/vuln/detail/CVE-2025-61730",
+            "namespace": "nvd:cpe",
+            "severity": "Medium",
+            "urls":
+              [
+                "https://go.dev/cl/724120",
+                "https://go.dev/issue/76443",
+                "https://groups.google.com/g/golang-announce/c/Vd2tYVM8eUc",
+                "https://pkg.go.dev/vuln/GO-2026-4340",
+              ],
+            "description": "During the TLS 1.3 handshake if multiple messages are sent in records that span encryption level boundaries (for instance the Client Hello and Encrypted Extensions messages), the subsequent messages may be processed before the encryption level changes. This can cause some minor information disclosure if a network-local attacker can inject messages during the handshake.",
+            "cvss":
+              [
+                {
+                  "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+                  "type": "Secondary",
+                  "version": "3.1",
+                  "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+                  "metrics":
+                    {
+                      "baseScore": 5.3,
+                      "exploitabilityScore": 3.9,
+                      "impactScore": 1.5,
+                    },
+                  "vendorMetadata": {},
+                },
+              ],
+            "epss":
+              [
+                {
+                  "cve": "CVE-2025-61730",
+                  "epss": 0.00007,
+                  "percentile": 0.00603,
+                  "date": "2026-03-08",
+                },
+              ],
+            "fix":
+              {
+                "versions": ["1.24.12", "1.25.6"],
+                "state": "fixed",
+                "available":
+                  [
+                    {
+                      "version": "1.24.12",
+                      "date": "2026-01-31",
+                      "kind": "first-observed",
+                    },
+                    {
+                      "version": "1.25.6",
+                      "date": "2026-01-31",
+                      "kind": "first-observed",
+                    },
+                  ],
+              },
+            "advisories": [],
+            "risk": 0.0036049999999999997,
+          },
+        "relatedVulnerabilities": [],
+        "matchDetails":
+          [
+            {
+              "type": "cpe-match",
+              "matcher": "go-module-matcher",
+              "searchedBy":
+                {
+                  "namespace": "nvd:cpe",
+                  "cpes": ["cpe:2.3:a:golang:go:1.25.5:-:*:*:*:*:*:*"],
+                  "package": { "name": "stdlib", "version": "go1.25.5" },
+                },
+              "found":
+                {
+                  "vulnerabilityID": "CVE-2025-61730",
+                  "versionConstraint": "< 1.24.12,>= 1.25.0, < 1.25.6 (unknown)",
+                  "cpes": ["cpe:2.3:a:golang:go:*:*:*:*:*:*:*:*"],
+                },
+              "fix": { "suggestedVersion": "1.25.6" },
+            },
+          ],
+        "artifact":
+          {
+            "id": "a1d0753900415077",
+            "name": "stdlib",
+            "version": "go1.25.5",
+            "type": "go-module",
+            "locations":
+              [
+                {
+                  "path": "/k9s",
+                  "accessPath": "/k9s",
+                  "annotations": { "evidence": "primary" },
+                },
+              ],
+            "language": "go",
+            "licenses": ["BSD-3-Clause"],
+            "cpes": ["cpe:2.3:a:golang:go:1.25.5:-:*:*:*:*:*:*"],
+            "purl": "pkg:golang/stdlib@1.25.5",
+            "upstreams": [],
+            "metadataType": "GolangBinMetadata",
+            "metadata": { "goCompiledVersion": "go1.25.5", "architecture": "" },
+          },
+      },
+      {
+        "vulnerability":
+          {
+            "id": "GHSA-37cx-329c-33x3",
+            "dataSource": "https://github.com/advisories/GHSA-37cx-329c-33x3",
+            "namespace": "github:language:go",
+            "severity": "Medium",
+            "urls":
+              [
+                "https://github.com/go-git/go-git/security/advisories/GHSA-37cx-329c-33x3",
+                "https://github.com/go-git/go-git/releases/tag/v5.16.5",
+                "https://nvd.nist.gov/vuln/detail/CVE-2026-25934",
+              ],
+            "description": "go-git improperly verifies data integrity values for .idx and .pack files",
+            "cvss":
+              [
+                {
+                  "type": "Secondary",
+                  "version": "3.1",
+                  "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:L/A:N",
+                  "metrics":
+                    {
+                      "baseScore": 4.3,
+                      "exploitabilityScore": 2.9,
+                      "impactScore": 1.5,
+                    },
+                  "vendorMetadata": {},
+                },
+              ],
+            "epss":
+              [
+                {
+                  "cve": "CVE-2026-25934",
+                  "epss": 0.00006,
+                  "percentile": 0.00281,
+                  "date": "2026-03-08",
+                },
+              ],
+            "cwes":
+              [
+                {
+                  "cve": "CVE-2026-25934",
+                  "cwe": "CWE-354",
+                  "source": "security-advisories@github.com",
+                  "type": "Primary",
+                },
+              ],
+            "fix":
+              {
+                "versions": ["5.16.5"],
+                "state": "fixed",
+                "available":
+                  [
+                    {
+                      "version": "5.16.5",
+                      "date": "2026-02-10",
+                      "kind": "first-observed",
+                    },
+                  ],
+              },
+            "advisories": [],
+            "risk": 0.0027899999999999995,
+          },
+        "relatedVulnerabilities":
+          [
+            {
+              "id": "CVE-2026-25934",
+              "dataSource": "https://nvd.nist.gov/vuln/detail/CVE-2026-25934",
+              "namespace": "nvd:cpe",
+              "severity": "Medium",
+              "urls":
+                [
+                  "https://github.com/go-git/go-git/releases/tag/v5.16.5",
+                  "https://github.com/go-git/go-git/security/advisories/GHSA-37cx-329c-33x3",
+                ],
+              "description": "go-git is a highly extensible git implementation library written in pure Go. Prior to 5.16.5, a vulnerability was discovered in go-git whereby data integrity values for .pack and .idx files were not properly verified. This resulted in go-git potentially consuming corrupted files, which would likely result in unexpected errors such as object not found. For context, clients fetch packfiles from upstream Git servers. Those files contain a checksum of their contents, so that clients can perform integrity checks before consuming it. The pack indexes (.idx) are generated locally by go-git, or the git cli, when new .pack files are received and processed. The integrity checks for both files were not being verified correctly. This vulnerability is fixed in 5.16.5.",
+              "cvss":
+                [
+                  {
+                    "source": "nvd@nist.gov",
+                    "type": "Primary",
+                    "version": "3.1",
+                    "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:L/A:N",
+                    "metrics":
+                      {
+                        "baseScore": 4.3,
+                        "exploitabilityScore": 2.9,
+                        "impactScore": 1.5,
+                      },
+                    "vendorMetadata": {},
+                  },
+                  {
+                    "source": "security-advisories@github.com",
+                    "type": "Secondary",
+                    "version": "3.1",
+                    "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:L/A:N",
+                    "metrics":
+                      {
+                        "baseScore": 4.3,
+                        "exploitabilityScore": 2.9,
+                        "impactScore": 1.5,
+                      },
+                    "vendorMetadata": {},
+                  },
+                ],
+              "epss":
+                [
+                  {
+                    "cve": "CVE-2026-25934",
+                    "epss": 0.00006,
+                    "percentile": 0.00281,
+                    "date": "2026-03-08",
+                  },
+                ],
+              "cwes":
+                [
+                  {
+                    "cve": "CVE-2026-25934",
+                    "cwe": "CWE-354",
+                    "source": "security-advisories@github.com",
+                    "type": "Primary",
+                  },
+                ],
+            },
+          ],
+        "matchDetails":
+          [
+            {
+              "type": "exact-direct-match",
+              "matcher": "go-module-matcher",
+              "searchedBy":
+                {
+                  "language": "go",
+                  "namespace": "github:language:go",
+                  "package":
+                    {
+                      "name": "github.com/go-git/go-git/v5",
+                      "version": "v5.16.3",
+                    },
+                },
+              "found":
+                {
+                  "vulnerabilityID": "GHSA-37cx-329c-33x3",
+                  "versionConstraint": "<=5.16.4 (go)",
+                },
+              "fix": { "suggestedVersion": "5.16.5" },
+            },
+          ],
+        "artifact":
+          {
+            "id": "5bf5956e119a8869",
+            "name": "github.com/go-git/go-git/v5",
+            "version": "v5.16.3",
+            "type": "go-module",
+            "locations":
+              [
+                {
+                  "path": "/k9s",
+                  "accessPath": "/k9s",
+                  "annotations": { "evidence": "primary" },
+                },
+              ],
+            "language": "go",
+            "licenses": [],
+            "cpes":
+              [
+                "cpe:2.3:a:go-git:go-git\\/v5:v5.16.3:*:*:*:*:*:*:*",
+                "cpe:2.3:a:go-git:go_git\\/v5:v5.16.3:*:*:*:*:*:*:*",
+                "cpe:2.3:a:go_git:go-git\\/v5:v5.16.3:*:*:*:*:*:*:*",
+                "cpe:2.3:a:go_git:go_git\\/v5:v5.16.3:*:*:*:*:*:*:*",
+                "cpe:2.3:a:go:go-git\\/v5:v5.16.3:*:*:*:*:*:*:*",
+                "cpe:2.3:a:go:go_git\\/v5:v5.16.3:*:*:*:*:*:*:*",
+              ],
+            "purl": "pkg:golang/github.com/go-git/go-git@v5.16.3#v5",
+            "upstreams": [],
+            "metadataType": "GolangBinMetadata",
+            "metadata":
+              {
+                "goCompiledVersion": "go1.25.5",
+                "architecture": "arm64",
+                "h1Digest": "h1:Z8BtvxZ09bYm/yYNgPKCzgWtaRqDTgIKRgIRHBfU6Z8=",
+                "mainModule": "github.com/derailed/k9s",
+              },
+          },
+      },
+    ],
+  "source": { "type": "file", "target": "/opt/homebrew/bin/k9s" },
+  "distro": { "name": "", "version": "", "idLike": null },
+  "descriptor":
+    {
+      "name": "grype",
+      "version": "0.109.0",
+      "configuration":
+        {
+          "output": ["json"],
+          "file": "",
+          "pretty": false,
+          "distro": "",
+          "add-cpes-if-none": false,
+          "output-template-file": "",
+          "check-for-app-update": true,
+          "only-fixed": false,
+          "only-notfixed": false,
+          "ignore-wontfix": "",
+          "platform": "",
+          "search":
+            {
+              "scope": "squashed",
+              "unindexed-archives": false,
+              "indexed-archives": true,
+            },
+          "ignore":
+            [
+              {
+                "vulnerability": "",
+                "include-aliases": false,
+                "reason": "",
+                "namespace": "",
+                "fix-state": "",
+                "package":
+                  {
+                    "name": "kernel-headers",
+                    "version": "",
+                    "language": "",
+                    "type": "rpm",
+                    "location": "",
+                    "upstream-name": "kernel",
+                  },
+                "vex-status": "",
+                "vex-justification": "",
+                "match-type": "exact-indirect-match",
+              },
+              {
+                "vulnerability": "",
+                "include-aliases": false,
+                "reason": "",
+                "namespace": "",
+                "fix-state": "",
+                "package":
+                  {
+                    "name": "linux(-.*)?-headers-.*",
+                    "version": "",
+                    "language": "",
+                    "type": "deb",
+                    "location": "",
+                    "upstream-name": "linux.*",
+                  },
+                "vex-status": "",
+                "vex-justification": "",
+                "match-type": "exact-indirect-match",
+              },
+              {
+                "vulnerability": "",
+                "include-aliases": false,
+                "reason": "",
+                "namespace": "",
+                "fix-state": "",
+                "package":
+                  {
+                    "name": "linux-libc-dev",
+                    "version": "",
+                    "language": "",
+                    "type": "deb",
+                    "location": "",
+                    "upstream-name": "linux",
+                  },
+                "vex-status": "",
+                "vex-justification": "",
+                "match-type": "exact-indirect-match",
+              },
+            ],
+          "exclude": [],
+          "externalSources":
+            {
+              "enable": false,
+              "maven":
+                {
+                  "searchUpstreamBySha1": true,
+                  "baseUrl": "https://search.maven.org/solrsearch/select",
+                  "rateLimit": 300000000,
+                },
+            },
+          "match":
+            {
+              "java": { "using-cpes": false },
+              "jvm": { "using-cpes": true },
+              "dotnet": { "using-cpes": false },
+              "golang":
+                {
+                  "using-cpes": false,
+                  "always-use-cpe-for-stdlib": true,
+                  "allow-main-module-pseudo-version-comparison": false,
+                },
+              "javascript": { "using-cpes": false },
+              "python": { "using-cpes": false },
+              "ruby": { "using-cpes": false },
+              "rust": { "using-cpes": false },
+              "hex": { "using-cpes": false },
+              "stock": { "using-cpes": true },
+              "dpkg":
+                {
+                  "using-cpes": false,
+                  "missing-epoch-strategy": "zero",
+                  "use-cpes-for-eol": false,
+                },
+              "rpm":
+                {
+                  "using-cpes": false,
+                  "missing-epoch-strategy": "auto",
+                  "use-cpes-for-eol": false,
+                },
+            },
+          "fail-on-severity": "",
+          "registry":
+            {
+              "insecure-skip-tls-verify": false,
+              "insecure-use-http": false,
+              "ca-cert": "",
+            },
+          "show-suppressed": false,
+          "by-cve": false,
+          "SortBy": { "sort-by": "risk" },
+          "name": "",
+          "default-image-pull-source": "",
+          "from": null,
+          "vex-documents": [],
+          "vex-add": [],
+          "match-upstream-kernel-headers": false,
+          "fix-channel":
+            { "redhat-eus": { "apply": "auto", "versions": ">= 8.0" } },
+          "timestamp": true,
+          "alerts": { "enable-eol-distro-warnings": true },
+          "db":
+            {
+              "cache-dir": "/Users/frank/Library/Caches/grype/db",
+              "update-url": "https://grype.anchore.io/databases",
+              "ca-cert": "",
+              "auto-update": true,
+              "validate-by-hash-on-start": true,
+              "validate-age": true,
+              "max-allowed-built-age": 432000000000000,
+              "require-update-check": false,
+              "update-available-timeout": 30000000000,
+              "update-download-timeout": 300000000000,
+              "max-update-check-frequency": 7200000000000,
+            },
+          "exp": {},
+          "dev": { "db": { "debug": false } },
+        },
+      "db":
+        {
+          "status":
+            {
+              "schemaVersion": "v6.1.4",
+              "from": "https://grype.anchore.io/databases/v6/vulnerability-db_v6.1.4_2026-03-09T00:31:20Z_1773037994.tar.zst?checksum=sha256%3Af7757ac30144da7c8e0cd3b7183622f2ffd5c0217aec90ce2f7f23453dc4e7cb",
+              "built": "2026-03-09T06:33:14Z",
+              "path": "/Users/frank/Library/Caches/grype/db/6/vulnerability.db",
+              "valid": true,
+            },
+          "providers":
+            {
+              "alma":
+                {
+                  "captured": "2026-03-09T00:31:33Z",
+                  "input": "xxh64:914c7d889a9ad6e4",
+                },
+              "alpine":
+                {
+                  "captured": "2026-03-09T00:31:44Z",
+                  "input": "xxh64:d62b1e226b35421b",
+                },
+              "amazon":
+                {
+                  "captured": "2026-03-09T00:32:02Z",
+                  "input": "xxh64:006d071143274cc7",
+                },
+              "arch":
+                {
+                  "captured": "2026-03-09T00:31:27Z",
+                  "input": "xxh64:3685d93c7e198eca",
+                },
+              "bitnami":
+                {
+                  "captured": "2026-03-09T00:31:46Z",
+                  "input": "xxh64:249eb0c1fa1e5265",
+                },
+              "chainguard":
+                {
+                  "captured": "2026-03-09T00:31:36Z",
+                  "input": "xxh64:88c3a4e17df69e89",
+                },
+              "chainguard-libraries":
+                {
+                  "captured": "2026-03-09T00:31:20Z",
+                  "input": "xxh64:9914d509e30fed7b",
+                },
+              "debian":
+                {
+                  "captured": "2026-03-09T00:31:29Z",
+                  "input": "xxh64:d1f423fed4c9cfa7",
+                },
+              "echo":
+                {
+                  "captured": "2026-03-09T00:31:30Z",
+                  "input": "xxh64:3449e99e8092eaed",
+                },
+              "eol":
+                {
+                  "captured": "2026-03-09T00:31:25Z",
+                  "input": "xxh64:cb148ebb38d87476",
+                },
+              "epss":
+                {
+                  "captured": "2026-03-09T00:31:25Z",
+                  "input": "xxh64:5df6161c035da991",
+                },
+              "fedora":
+                {
+                  "captured": "2026-03-09T00:31:38Z",
+                  "input": "xxh64:7c33a147d59ce2f2",
+                },
+              "github":
+                {
+                  "captured": "2026-03-09T00:32:27Z",
+                  "input": "xxh64:3a0957fc2e26c39f",
+                },
+              "kev":
+                {
+                  "captured": "2026-03-09T00:31:31Z",
+                  "input": "xxh64:db4fa7fba0103f27",
+                },
+              "mariner":
+                {
+                  "captured": "2026-03-09T00:31:23Z",
+                  "input": "xxh64:470a31fd75b9eb32",
+                },
+              "minimos":
+                {
+                  "captured": "2026-03-09T00:31:32Z",
+                  "input": "xxh64:6dbbbc167a4024f8",
+                },
+              "nvd":
+                {
+                  "captured": "2026-03-09T00:31:38Z",
+                  "input": "xxh64:b07c521ec620cb68",
+                },
+              "oracle":
+                {
+                  "captured": "2026-03-09T00:31:28Z",
+                  "input": "xxh64:5c29e2de21831daf",
+                },
+              "photon":
+                {
+                  "captured": "2026-03-09T00:31:25Z",
+                  "input": "xxh64:065d16c041cc7fd8",
+                },
+              "rhel":
+                {
+                  "captured": "2026-03-09T00:31:57Z",
+                  "input": "xxh64:171818179eb6a3af",
+                },
+              "secureos":
+                {
+                  "captured": "2026-03-09T00:31:26Z",
+                  "input": "xxh64:96f35e269dcfa8e1",
+                },
+              "sles":
+                {
+                  "captured": "2026-03-09T00:31:22Z",
+                  "input": "xxh64:5bcbc87dfad3c373",
+                },
+              "ubuntu":
+                {
+                  "captured": "2026-03-09T00:32:29Z",
+                  "input": "xxh64:e781c66226c72f97",
+                },
+              "wolfi":
+                {
+                  "captured": "2026-03-09T00:31:42Z",
+                  "input": "xxh64:bbd9f510483885e3",
+                },
+            },
+        },
+      "timestamp": "2026-03-09T11:33:11.136004+01:00",
+    },
+}
