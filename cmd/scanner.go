@@ -26,7 +26,7 @@ var scannerCmd = &cobra.Command{
 		ctx, cancel := context.WithCancel(cmd.Context())
 		defer cancel() // Ensure cancel is called on exit to clean up resources
 
-		err := routing.NewScannerFlow(ctx, config)
+		err := routing.NewScannerFlow(ctx, config, true)
 		if err != nil {
 			fmt.Printf("Error creating scanner flow: %v\n", err)
 			return

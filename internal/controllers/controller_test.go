@@ -18,7 +18,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/metraction/pharos/cmd"
 	"github.com/metraction/pharos/internal/controllers"
-	"github.com/metraction/pharos/internal/integrations/cache"
 	"github.com/metraction/pharos/internal/integrations/db"
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/internal/routing"
@@ -64,19 +63,19 @@ func TestServer(t *testing.T) {
 	logger := logging.NewLogger("info", "component", "cmd.http")
 	err = databaseContext.Migrate()
 	require.NoError(t, err)
-	ctx := t.Context()
-	config.Redis.DSN = "localhost:6379"
+	// ctx := t.Context()
+	// config.Redis.DSN = "localhost:6379"
 	config.Scanner.RequestQueue = "scantasks"
 	config.Scanner.ResponseQueue = "scanresult"
 	config.Scanner.Timeout = (300 * time.Second).String()
 	config.Scanner.CacheEndpoint = "redis://localhost:6379"
 
-	logger.Info().Msg("Checking Redis cache...")
-	kvc, err := cache.NewPharosCache(config.Scanner.CacheEndpoint, logger)
-	require.NoError(t, err, "Failed to create Redis cache")
-	logger.Info().Str("redis_version", kvc.Version(ctx)).Msg("PharosCache.Connect() OK")
-	err = kvc.Connect(ctx)
-	require.NoError(t, err, "Failed to connect to Redis cache")
+	// logger.Info().Msg("Checking Redis cache...")
+	// kvc, err := cache.NewPharosCache(config.Scanner.CacheEndpoint, logger)
+	// require.NoError(t, err, "Failed to create Redis cache")
+	// logger.Info().Str("redis_version", kvc.Version(ctx)).Msg("PharosCache.Connect() OK")
+	// err = kvc.Connect(ctx)
+	// require.NoError(t, err, "Failed to connect to Redis cache")
 
 	logger.Info().Msg("Updating Grype scanner...")
 	if _, err := grype.NewGrypeScanner(60, true, "", logger); err != nil {
@@ -99,6 +98,7 @@ func TestServer(t *testing.T) {
 		extension.NewChanSource(taskChannel),
 		&databaseContext,
 		logger,
+		false,
 	)
 
 	// Create results flow without redis

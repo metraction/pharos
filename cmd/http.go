@@ -107,6 +107,7 @@ These submissions are then published to a Redis stream for further processing by
 			extension.NewChanSource(taskChannel),
 			databaseContext,
 			logger,
+			true,
 		)
 
 		// Create results flow without redis

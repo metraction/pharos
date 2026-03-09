@@ -16,11 +16,12 @@ func NewScanResultCollectorFlow(
 	source streams.Source,
 
 	databaseContext *model.DatabaseContext,
-	log *zerolog.Logger) streams.Flow {
+	log *zerolog.Logger,
+	checkRedis bool) streams.Flow {
 	pharosScanTaskHandler := pharosstreams.NewPharosScanTaskHandler(databaseContext)
 
 	redisFlow := source.
-		Via(NewScannerFlow(ctx, config)).
+		Via(NewScannerFlow(ctx, config, checkRedis)).
 		Via(flow.NewMap(pharosScanTaskHandler.UpdateScanTaskMetrics, 1)).
 		Via(flow.NewFilter(pharosScanTaskHandler.FilterFailedTasks, 1)).
 		Via(flow.NewMap(pharosScanTaskHandler.UpdateScanTime, 1)).

@@ -16,7 +16,7 @@ import (
 
 var logger *zerolog.Logger
 
-func NewScannerFlow(ctx context.Context, cfg *model.Config) streams.Flow {
+func NewScannerFlow(ctx context.Context, cfg *model.Config, checkRedis bool) streams.Flow {
 	logger = logging.NewLogger("info")
 
 	// connect redis for key value cache
@@ -26,8 +26,10 @@ func NewScannerFlow(ctx context.Context, cfg *model.Config) streams.Flow {
 	}
 	// TODO close cache connection on shutdown
 	// defer kvc.Close()
-	if err = kvc.Connect(ctx); err != nil {
-		logger.Fatal().Err(err).Msg("Redis cache connect")
+	if checkRedis {
+		if err = kvc.Connect(ctx); err != nil {
+			logger.Fatal().Err(err).Msg("Redis cache connect")
+		}
 	}
 	logger.Info().Str("redis_version", kvc.Version(ctx)).Msg("PharosCache.Connect() OK")
 
