@@ -34,17 +34,15 @@ var rootCmd = &cobra.Command{
 		cmd.SetContext(ctx)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		// TODO: this is duplicate code of scanner.go
-		// Create a new context that can be cancelled.
 		if os.Getenv("CI") == "true" {
 			fmt.Println("CI mode", config.Command)
 			switch config.Command {
-			case "scanner":
-				scannerCmd.Run(cmd, args)
 			case "http":
 				httpCmd.Run(cmd, args)
 			case "scheduler":
 				schedulerCmd.Run(cmd, args)
+			case "client":
+				clientCmd.Run(cmd, args)
 			default:
 				fmt.Println("Unknown CI command: " + config.Command)
 			}
@@ -190,7 +188,6 @@ func init() {
 	rootCmd.PersistentFlags().String("enrichercommon.enricherPath", "enrichers", "Base path for the enrichers")
 	rootCmd.PersistentFlags().String("enrichercommon.uiUrl", "http://localhost:3000", "URL of the Pharos UI server, used for visual enrichers")
 
-	rootCmd.AddCommand(scannerCmd)
 }
 
 // deriveBasePath determines the base path for the application based on environment variables or defaults

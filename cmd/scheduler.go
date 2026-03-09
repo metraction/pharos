@@ -6,11 +6,14 @@ import (
 	"os"
 
 	_ "github.com/danielgtaylor/huma/v2/adapters/humachi"
+	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/internal/routing"
 	"github.com/metraction/pharos/pkg/alerting"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/spf13/cobra"
 )
+
+var schedulerLogger = logging.NewLogger("info", "component", "scheduler")
 
 // schedulerCmd represents the scheduler command
 var schedulerCmd = &cobra.Command{
@@ -20,16 +23,16 @@ var schedulerCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		configValue := cmd.Context().Value("config")
 		if configValue == nil {
-			logger.Fatal().Msg("Configuration not found in context. Ensure rootCmd PersistentPreRun is setting it.")
+			schedulerLogger.Fatal().Msg("Configuration not found in context. Ensure rootCmd PersistentPreRun is setting it.")
 		}
 		config, ok := configValue.(*model.Config)
 		if !ok || config == nil {
-			logger.Fatal().Msg("Invalid configuration type in context.")
+			schedulerLogger.Fatal().Msg("Invalid configuration type in context.")
 		}
 		databaseContext := model.NewDatabaseContext(&config.Database, config.Init)
 		databaseContext.Migrate()
 		if config.Init {
-			logger.Info().Msg("Init flag set, exiting after migrations.")
+			schedulerLogger.Info().Msg("Init flag set, exiting after migrations.")
 			os.Exit(0)
 		}
 		go routing.NewImageSchedulerFlow(databaseContext, config)
@@ -41,12 +44,11 @@ var schedulerCmd = &cobra.Command{
 		})
 		err := http.ListenAndServe(serverAddr, nil)
 		if err != nil {
-			logger.Fatal().Err(err).Msg("Failed to start HTTP server")
+			schedulerLogger.Fatal().Err(err).Msg("Failed to start HTTP server")
 		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(schedulerCmd)
-	schedulerCmd.Flags().IntVarP(&httpPort, "port", "p", 8080, "Port for the HTTP server")
 }

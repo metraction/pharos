@@ -305,13 +305,13 @@ func CreateEnrichersFlow(plugin streams.Source, enrichers *model.EnrichersConfig
 		if source.Git != nil {
 			tempDir, err := os.MkdirTemp("", "pharos-enricher-*")
 			if err != nil {
-				logger.Error().Msgf("Error creating temporary directory: %v\n", err)
+				httpLogger.Error().Msgf("Error creating temporary directory: %v\n", err)
 				return nil
 			}
 
 			enricherPath, err = enricher.FetchEnricherFromGit(*source.Git, tempDir)
 			if err != nil {
-				logger.Error().Msgf("Error loading enricher from Git: %v\n", err)
+				httpLogger.Error().Msgf("Error loading enricher from Git: %v\n", err)
 				return nil
 			}
 		} else if source.Path != "" {
@@ -326,7 +326,7 @@ func CreateEnrichersFlow(plugin streams.Source, enrichers *model.EnrichersConfig
 		var dbEnrichers []model.Enricher
 		result := databaseContext.DB.Find(&dbEnrichers)
 		if result.Error != nil {
-			logger.Error().Err(result.Error).Msg("Error loading enrichers from database")
+			httpLogger.Error().Err(result.Error).Msg("Error loading enrichers from database")
 			return plugin.(streams.Flow)
 		}
 		for _, dbEnricher := range dbEnrichers {
