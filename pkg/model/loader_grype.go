@@ -33,9 +33,8 @@ func (rx *PharosScanResult) LoadGrypeImageScan(sbom syfttype.SyftSbomType, scan 
 	}
 	rx.Image.ImageId = target.ImageId
 	if rx.Image.ImageId == "" {
-		rx.Image.ImageId = sbom.Source.Version
+		rx.Image.ImageId = sbom.Source.ID
 	}
-	rx.Image.ManifestDigest = target.ManifestDigest
 	if len(target.RepoDigests) > 0 {
 		re := regexp.MustCompile(`@(.+)$`)
 		matches := re.FindStringSubmatch(target.RepoDigests[0])
@@ -45,7 +44,12 @@ func (rx *PharosScanResult) LoadGrypeImageScan(sbom syfttype.SyftSbomType, scan 
 			rx.Image.IndexDigest = ""
 		}
 	} // TODO: check if this is correct, but we use this for now.
-	rx.Image.RepoDigests = lo.Map(target.RepoDigests, func(x string, k int) string { return ParseDigest(x) })
+	if rx.Image.IndexDigest == "" {
+		rx.Image.IndexDigest = "not applicable"
+	}
+	if rx.Image.ManifestDigest == "" {
+		rx.Image.ManifestDigest = "not applicable"
+	}
 
 	rx.Image.ArchName = target.Architecture
 	rx.Image.ArchOS = target.OS

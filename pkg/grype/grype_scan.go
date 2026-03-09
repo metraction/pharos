@@ -32,18 +32,10 @@ func ScanImage(task model.PharosScanTask, scanEngine *GrypeScanner, kvc *cache.P
 		logger.Info().Msg("Using provided sbom, skip cache and sbom generation")
 		cacheState = "provided sbom"
 		sbomData = []byte(*task.Sbom)
-		_, manifestDigest, rxPlatform, err := images.GetImageDigests(task)
-		if err != nil {
-			result.ScanTask.SetError(err)
-			return result, nil, nil, fmt.Errorf("error getting digests: image:%s %w", task.ImageSpec, err)
-		}
 		if err := sbomProd.FromBytes(sbomData); err != nil {
 			result.ScanTask.SetError(err)
 			return result, nil, nil, fmt.Errorf("image:%s %w", task.ImageSpec, err)
 		}
-		result.ScanTask.RxDigest = manifestDigest
-		result.ScanTask.RxPlatform = rxPlatform
-		result.Image.IndexDigest = "not applicable"
 	} else {
 
 		// return sbom cache key for given digest
