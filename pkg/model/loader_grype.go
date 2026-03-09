@@ -28,7 +28,13 @@ func (rx *PharosScanResult) LoadGrypeImageScan(sbom syfttype.SyftSbomType, scan 
 
 	// (1) load image metadata
 	rx.Image.ImageSpec = target.UserInput
+	if rx.Image.ImageSpec == "" {
+		rx.Image.ImageSpec = scan.Source.TargetPath
+	}
 	rx.Image.ImageId = target.ImageId
+	if rx.Image.ImageId == "" {
+		rx.Image.ImageId = sbom.Source.Version
+	}
 	rx.Image.ManifestDigest = target.ManifestDigest
 	if len(target.RepoDigests) > 0 {
 		re := regexp.MustCompile(`@(.+)$`)

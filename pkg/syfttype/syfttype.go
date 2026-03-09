@@ -39,9 +39,16 @@ type SyftSource struct {
 }
 
 type SyftMetadata struct {
-	UserInput string `json:"userInput"`
-	ImageId   string `json:"imageId"`
-	ImageSize uint64 `json:"imageSize"`
+	UserInput string       `json:"userInput"`
+	ImageId   string       `json:"imageId"`
+	ImageSize uint64       `json:"imageSize"`
+	Path      string       `json:"path"`
+	Digests   []SyftDigest `json:"digests"`
+}
+
+type SyftDigest struct {
+	Algorithm string `json:"algorithm"`
+	Value     string `json:"value"`
 }
 
 type SyftDistro struct {

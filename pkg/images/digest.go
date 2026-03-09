@@ -2,6 +2,7 @@ package images
 
 import (
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -12,6 +13,7 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/metraction/pharos/internal/utils"
 	"github.com/metraction/pharos/pkg/model"
+	"github.com/metraction/pharos/pkg/syfttype"
 )
 
 // split "linux/amd64" or "linux/arm/v6" to OS, architecture, variant
@@ -30,7 +32,18 @@ func SplitPlatformStr(input string) (string, string, string) {
 //
 // func GetImageDigests(imageRef, platform string, auth model.PharosRepoAuth, tlsCheck bool) (string, string, error) {
 func GetImageDigests(task model.PharosScanTask) (string, string, string, error) {
-
+	if task.Sbom != nil {
+		var sbom syfttype.SyftSbomType
+		err := json.Unmarshal([]byte(*task.Sbom), &sbom)
+		if err != nil {
+			return "", "", "", fmt.Errorf("failed to deserialize SBOM: %w", err)
+		}
+		if len(sbom.Source.Metadata.Digests) == 0 {
+			return "", "", "", fmt.Errorf("no digests found in SBOM")
+		}
+		digest := sbom.Source.Metadata.Digests[0].Algorithm + ":" + sbom.Source.Metadata.Digests[0].Value
+		return digest, digest, "", nil
+	}
 	var options []remote.Option
 	platform := task.Platform // TODO: Empty platform -> default? What if @sha:.. is given, so no platform needed
 
