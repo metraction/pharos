@@ -14,6 +14,7 @@ import (
 	"github.com/metraction/pharos/internal/controllers"
 	"github.com/metraction/pharos/internal/integrations/cache"
 	"github.com/metraction/pharos/internal/integrations/db"
+	pharosstreams "github.com/metraction/pharos/internal/integrations/streams"
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/internal/metriccollectors"
 	"github.com/metraction/pharos/internal/routing"
@@ -22,6 +23,7 @@ import (
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/reugn/go-streams/extension"
+	"github.com/reugn/go-streams/flow"
 	"github.com/spf13/cobra"
 )
 
@@ -120,8 +122,10 @@ These submissions are then published to a Redis stream for further processing by
 
 		enricherFlowInternal := NewEnricherFlow(enrichers, databaseContext, &config.EnricherCommon)
 		enricherFlowCollector := NewEnricherFlow(enrichers, databaseContext, &config.EnricherCommon)
+		pharosScanTaskHandler := pharosstreams.NewPharosScanTaskHandler(databaseContext)
 
 		go collectorFlow.Via(enricherFlowCollector).
+			Via(flow.NewMap(pharosScanTaskHandler.NotifyReceiver, 1)).
 			To(db.NewImageDbSink(databaseContext))
 
 		go internalFlow.Via(enricherFlowInternal).
