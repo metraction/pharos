@@ -34,8 +34,8 @@ type ProbeResult struct {
 type MetricsController struct {
 	Path              string
 	Api               *huma.API
-	AsyncPublisher    *redis.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult]
-	PriorityPublisher *redis.RedisGtrsClient[model.PharosScanTask2, model.PharosScanResult]
+	AsyncPublisher    *redis.RedisGtrsClient[model.PharosScanTask, model.PharosScanResult]
+	PriorityPublisher *redis.RedisGtrsClient[model.PharosScanTask, model.PharosScanResult]
 	Config            *model.Config
 	Logger            *zerolog.Logger
 	contextLabels     map[string]string      // Used to collect labels for contexts metric

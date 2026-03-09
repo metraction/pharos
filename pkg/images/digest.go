@@ -29,7 +29,7 @@ func SplitPlatformStr(input string) (string, string, string) {
 //   - manifestDigest (platform specific)
 //
 // func GetImageDigests(imageRef, platform string, auth model.PharosRepoAuth, tlsCheck bool) (string, string, error) {
-func GetImageDigests(task model.PharosScanTask2) (string, string, string, error) {
+func GetImageDigests(task model.PharosScanTask) (string, string, string, error) {
 
 	var options []remote.Option
 	platform := task.Platform // TODO: Empty platform -> default? What if @sha:.. is given, so no platform needed

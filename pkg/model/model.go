@@ -33,8 +33,8 @@ func (ss StringSlice) Value() (driver.Value, error) {
 // Update: Stefan 2025-06-29
 // Context and scanner info is in ScanTask
 type PharosScanResult struct {
-	Version  string          `json:"Version" yaml:"Version"`
-	ScanTask PharosScanTask2 `json:"ScanTask" yaml:"ScanTask"`
+	Version  string         `json:"Version" yaml:"Version"`
+	ScanTask PharosScanTask `json:"ScanTask" yaml:"ScanTask"`
 
 	//ScanEngine PharosScanEngine `json:"ScanEngine"` // scanner info in scan task
 

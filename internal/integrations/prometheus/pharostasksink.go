@@ -35,7 +35,7 @@ var _ streams.Sink = (*PharosTaskSink)(nil)
 func (ps *PharosTaskSink) process() {
 	defer close(ps.done)
 	for task := range ps.in {
-		scanTask, _ := task.(model.PharosScanTask2)
+		scanTask, _ := task.(model.PharosScanTask)
 		url := ps.Config.Prometheus.PharosURL + "/api/v1/pharosscantask/asyncscan"
 
 		client := &http.Client{}

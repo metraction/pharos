@@ -44,7 +44,7 @@ func NewScannerFlow(ctx context.Context, cfg *model.Config) streams.Flow {
 		logger.Fatal().Err(err).Msg("NewGrypeScanner()")
 	}
 
-	return flow.NewMap(func(task model.PharosScanTask2) model.PharosScanResult {
+	return flow.NewMap(func(task model.PharosScanTask) model.PharosScanResult {
 		logger.Info().Str("ImageSpec", task.ImageSpec).Msg("Processing scan request")
 
 		result, _, _, err := grype.ScanImage(task, scanEngine, kvc, logger)

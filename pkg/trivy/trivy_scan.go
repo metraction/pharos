@@ -15,7 +15,7 @@ import (
 )
 
 // execute scan with grype scanner
-func ScanImage(task model.PharosScanTask2, scanEngine *TrivyScanner, kvc *cache.PharosCache, logger *zerolog.Logger) (model.PharosScanResult, []byte, []byte, error) {
+func ScanImage(task model.PharosScanTask, scanEngine *TrivyScanner, kvc *cache.PharosCache, logger *zerolog.Logger) (model.PharosScanResult, []byte, []byte, error) {
 
 	logger.Debug().Msg("Trivy.ScanImage()")
 

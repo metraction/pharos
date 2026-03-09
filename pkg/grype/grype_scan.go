@@ -18,7 +18,7 @@ import (
 )
 
 // execute scan with grype scanner
-func ScanImage(task model.PharosScanTask2, scanEngine *GrypeScanner, kvc *cache.PharosCache, logger *zerolog.Logger) (model.PharosScanResult, []byte, []byte, error) {
+func ScanImage(task model.PharosScanTask, scanEngine *GrypeScanner, kvc *cache.PharosCache, logger *zerolog.Logger) (model.PharosScanResult, []byte, []byte, error) {
 
 	logger.Debug().Msg("ScanImage() ..")
 
@@ -65,11 +65,17 @@ func ScanImage(task model.PharosScanTask2, scanEngine *GrypeScanner, kvc *cache.
 	cacheState := "n/a"
 	key := CacheKey(manifestDigest)
 
-	// try cache, else create
-	sbomData, err = kvc.GetExpireUnpack(ctx, key, task.CacheTTL)
-	if err != nil && !errors.Is(err, cache.ErrKeyNotFound) {
-		result.ScanTask.SetError(err)
-		return result, nil, nil, fmt.Errorf("image:%s %w", task.ImageSpec, err)
+	if task.Sbom != nil && *task.Sbom != "" {
+		logger.Info().Msg("Using provided sbom, skip cache and sbom generation")
+		cacheState = "provided sbom"
+		sbomData = []byte(*task.Sbom)
+	} else {
+		// try cache, else create
+		sbomData, err = kvc.GetExpireUnpack(ctx, key, task.CacheTTL)
+		if err != nil && !errors.Is(err, cache.ErrKeyNotFound) {
+			result.ScanTask.SetError(err)
+			return result, nil, nil, fmt.Errorf("image:%s %w", task.ImageSpec, err)
+		}
 	}
 
 	if errors.Is(err, cache.ErrKeyNotFound) {

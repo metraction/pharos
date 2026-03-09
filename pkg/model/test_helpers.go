@@ -5,9 +5,9 @@ import (
 	"time"
 )
 
-func NewTestScanTask(t *testing.T, taskID, image string) PharosScanTask2 {
+func NewTestScanTask(t *testing.T, taskID, image string) PharosScanTask {
 	t.Helper()
-	task := PharosScanTask2{
+	task := PharosScanTask{
 		JobId:     taskID,
 		ImageSpec: image,
 		ScanTTL:   30 * time.Second,
@@ -18,7 +18,7 @@ func NewTestScanTask(t *testing.T, taskID, image string) PharosScanTask2 {
 }
 
 // newTestScanResult is a test helper that creates a PharosScanResult for a given task and engine name.
-func NewTestScanResult(task PharosScanTask2, engineName string) PharosScanResult {
+func NewTestScanResult(task PharosScanTask, engineName string) PharosScanResult {
 	return PharosScanResult{
 		Version:  "1.0",
 		ScanTask: task,
