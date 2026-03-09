@@ -19,12 +19,14 @@ import (
 	"github.com/metraction/pharos/cmd"
 	"github.com/metraction/pharos/internal/controllers"
 	"github.com/metraction/pharos/internal/integrations/db"
+	pharosstreams "github.com/metraction/pharos/internal/integrations/streams"
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/internal/routing"
 	"github.com/metraction/pharos/pkg/enricher"
 	"github.com/metraction/pharos/pkg/grype"
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/reugn/go-streams/extension"
+	"github.com/reugn/go-streams/flow"
 	"github.com/stretchr/testify/require"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
@@ -111,11 +113,14 @@ func TestServer(t *testing.T) {
 
 	enricherFlowInternal := cmd.NewEnricherFlow(enrichers, &databaseContext, &config.EnricherCommon)
 	enricherFlowCollector := cmd.NewEnricherFlow(enrichers, &databaseContext, &config.EnricherCommon)
+	pharosScanTaskHandler := pharosstreams.NewPharosScanTaskHandler(&databaseContext)
 
 	go collectorFlow.Via(enricherFlowCollector).
+		Via(flow.NewMap(pharosScanTaskHandler.NotifyReceiver, 1)).
 		To(db.NewImageDbSink(&databaseContext))
 
 	go internalFlow.Via(enricherFlowInternal).
+		Via(flow.NewMap(pharosScanTaskHandler.NotifyReceiver, 1)).
 		To(db.NewImageDbSink(&databaseContext))
 	// Base Router
 	baseRouter := chi.NewRouter()
@@ -153,8 +158,9 @@ func TestServer(t *testing.T) {
 			Context: map[string]any{
 				"namespace": "temporary",
 			},
-			Platform: "darwin/arm64",
-			Sbom:     &sbom,
+			ContextRootKey: "test",
+			Platform:       "darwin/arm64",
+			Sbom:           &sbom,
 		}
 		scanTaskJSON, err := json.Marshal(scanTask)
 		require.NoError(t, err)
