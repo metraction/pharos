@@ -194,6 +194,7 @@ func (pc *PharosScanTaskController) V1PostSyncScan() (huma.Operation, func(ctx c
 					Description: "Internal server error",
 				},
 			},
+			MaxBodyBytes: 100 * 1024 * 1024, // 10 MiB
 		}, func(ctx context.Context, input *PharosScanTask2) (*PharosScanResult, error) {
 			// We create one responseChannel per request, and store it in the Scantask.
 			receiver := make(chan model.PharosScanResult, 1)
