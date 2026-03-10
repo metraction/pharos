@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os/exec"
 	"strings"
+	"time"
 
 	_ "github.com/danielgtaylor/huma/v2/adapters/humachi"
 	"github.com/metraction/pharos/internal/logging"
@@ -29,6 +30,8 @@ var clientCmd = &cobra.Command{
 		action, _ := cmd.Flags().GetString("action")
 		outputFormat, _ := cmd.Flags().GetString("outputformat")
 		if action == "pharosscantask/syncscan" {
+			scanTTL, _ := cmd.Flags().GetInt("scan-ttl")
+			contextValues, _ := cmd.Flags().GetStringToString("context")
 			clientLogger.Info().Msg("Performing synchronous scan...")
 			source, _ := cmd.Flags().GetString("source")
 			syftBin, err := utils.OsWhich("syft")
@@ -60,13 +63,20 @@ var clientCmd = &cobra.Command{
 			}
 			namespace, _ := cmd.Flags().GetString("namespace")
 			clientLogger.Debug().Str("result", stdout.String()).Msg("Scan successful")
+			// Merge contextValues into the Context map
+			contextMap := map[string]any{
+				"namespace": namespace,
+			}
+			for k, v := range contextValues {
+				contextMap[k] = v
+			}
+
 			scanTask := model.PharosScanTask{
 				ImageSpec:      source,
 				ContextRootKey: namespace,
-				Context: map[string]any{
-					"namespace": namespace,
-				},
-				Sbom: &sbomString,
+				ScanTTL:        time.Duration(scanTTL) * time.Second,
+				Context:        contextMap,
+				Sbom:           &sbomString,
 			}
 			scanTaskJSON, err := json.Marshal(scanTask)
 			if err != nil {
@@ -128,4 +138,7 @@ func init() {
 		}
 		return nil
 	}
+	clientCmd.Flags().Int("scan-ttl", 43200, "How long to keep the result in the scanner (seconds)")
+	clientCmd.Flags().StringToString("context", map[string]string{}, "Additional context key-value pairs (e.g. key1=val1,key2=val2)")
+
 }
