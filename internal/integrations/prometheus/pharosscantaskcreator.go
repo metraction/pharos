@@ -85,7 +85,7 @@ func (pst *PharosScanTaskCreator) WithImagePullSecrets() *PharosScanTaskCreator 
 	return pst
 }
 
-func (pst *PharosScanTaskCreator) Result(metric hwmodel.ImageMetric) []model.PharosScanTask2 {
+func (pst *PharosScanTaskCreator) Result(metric hwmodel.ImageMetric) []model.PharosScanTask {
 	// Look for a matching DockerConfigJSON for the image
 	repo := "docker.io"
 	matches := regexp.MustCompile(`^([^/]+)/`).FindStringSubmatch(metric.Image_spec)
@@ -133,7 +133,7 @@ func (pst *PharosScanTaskCreator) Result(metric hwmodel.ImageMetric) []model.Pha
 	}
 
 	pst.Logger.Info().Str("manifestDigest", manifestDigest).Msg("Using manifest digest for scan task")
-	pharosScanTask := model.PharosScanTask2{
+	pharosScanTask := model.PharosScanTask{
 		ImageSpec:      metric.Image_spec,
 		Platform:       pst.Config.Prometheus.Platform, // Default platform, can be adjusted as needed
 		AuthDsn:        pharosRepoAuth.ToDsn(),
@@ -145,5 +145,5 @@ func (pst *PharosScanTaskCreator) Result(metric hwmodel.ImageMetric) []model.Pha
 		RxPlatform:     pst.Config.Prometheus.Platform, // we return platform as it is, no need to fetch again by scanner
 		ScanTTL:        scanTTL,                        // 12 hour scan ttl
 	}
-	return []model.PharosScanTask2{pharosScanTask}
+	return []model.PharosScanTask{pharosScanTask}
 }

@@ -33,15 +33,23 @@ func (rx *SyftSbomType) FromBytes(input []byte) error {
 }
 
 type SyftSource struct {
+	ID       string       `json:"id"`
 	Name     string       `json:"name"`
 	Version  string       `json:"version"`
 	Metadata SyftMetadata `json:"metadata"`
 }
 
 type SyftMetadata struct {
-	UserInput string `json:"userInput"`
-	ImageId   string `json:"imageId"`
-	ImageSize uint64 `json:"imageSize"`
+	UserInput string       `json:"userInput"`
+	ImageId   string       `json:"imageId"`
+	ImageSize uint64       `json:"imageSize"`
+	Path      string       `json:"path"`
+	Digests   []SyftDigest `json:"digests"`
+}
+
+type SyftDigest struct {
+	Algorithm string `json:"algorithm"`
+	Value     string `json:"value"`
 }
 
 type SyftDistro struct {

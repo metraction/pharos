@@ -1,4 +1,4 @@
-package controllers
+package controllers_test
 
 import (
 	"encoding/json"
@@ -6,17 +6,27 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/1set/starlet/lib/file"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humachi"
 	"github.com/go-chi/chi/v5"
+	"github.com/metraction/pharos/cmd"
+	"github.com/metraction/pharos/internal/controllers"
+	"github.com/metraction/pharos/internal/integrations/db"
+	pharosstreams "github.com/metraction/pharos/internal/integrations/streams"
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/internal/routing"
+	"github.com/metraction/pharos/pkg/enricher"
+	"github.com/metraction/pharos/pkg/grype"
 	"github.com/metraction/pharos/pkg/model"
+	"github.com/reugn/go-streams/extension"
+	"github.com/reugn/go-streams/flow"
 	"github.com/stretchr/testify/require"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
@@ -35,29 +45,86 @@ func TestServer(t *testing.T) {
 	}
 	fmt.Printf("Using database driver: %s, DSN: %s\n", driver, dsn)
 	config := &model.Config{}
-	var db *gorm.DB
+	var database *gorm.DB
 	var err error
 	if driver == "sqlite" {
-		db, err = gorm.Open(sqlite.Open(dsn), &gorm.Config{
+		database, err = gorm.Open(sqlite.Open(dsn), &gorm.Config{
 			DisableForeignKeyConstraintWhenMigrating: false,
 		})
 	} else if driver == "postgres" {
-		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
+		database, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
 			DisableForeignKeyConstraintWhenMigrating: false,
 		})
 	} else {
 		t.Fatalf("Unsupported database driver: %s", driver)
 	}
 	databaseContext := model.DatabaseContext{
-		DB:     db,
+		DB:     database,
 		Logger: logging.NewLogger("info", "component", "DatabaseContext"),
 	}
-	require.NoError(t, err)
+	logger := logging.NewLogger("info", "component", "cmd.http")
 	err = databaseContext.Migrate()
 	require.NoError(t, err)
+	// ctx := t.Context()
+	// config.Redis.DSN = "localhost:6379"
+	config.Scanner.RequestQueue = "scantasks"
+	config.Scanner.ResponseQueue = "scanresult"
+	config.Scanner.Timeout = (300 * time.Second).String()
+	config.Scanner.CacheEndpoint = "redis://localhost:6379"
+
+	// logger.Info().Msg("Checking Redis cache...")
+	// kvc, err := cache.NewPharosCache(config.Scanner.CacheEndpoint, logger)
+	// require.NoError(t, err, "Failed to create Redis cache")
+	// logger.Info().Str("redis_version", kvc.Version(ctx)).Msg("PharosCache.Connect() OK")
+	// err = kvc.Connect(ctx)
+	// require.NoError(t, err, "Failed to connect to Redis cache")
+
+	logger.Info().Msg("Updating Grype scanner...")
+	if _, err := grype.NewGrypeScanner(60, true, "", logger); err != nil {
+		dbCacheDir := os.Getenv("GRYPE_DB_CACHE_DIR")
+		logger.Debug().Str("GRYPE_DB_CACHE_DIR", dbCacheDir).Msg("Grype settings: ")
+	}
+	require.NoError(t, err)
+	yamlPath := filepath.Join("..", "..", "testdata", "enrichers", "enrichers.yaml")
+	enrichers, err := enricher.LoadEnrichersConfig(yamlPath)
+
+	require.NoError(t, err)
+	// For scan tasks
+	taskChannel := make(chan any, config.Publisher.QueueSize)
+	// For scanning bypass
+	resultChannel := make(chan any, config.ResultCollector.QueueSize)
+	// Results processing stream reading from redis
+	collectorFlow := routing.NewScanResultCollectorFlow(
+		t.Context(),
+		config,
+		extension.NewChanSource(taskChannel),
+		&databaseContext,
+		logger,
+		false,
+	)
+
+	// Create results flow without redis
+	internalFlow := routing.NewScanResultsInternalFlow(extension.NewChanSource(resultChannel), &databaseContext)
+
+	// go CreateEnrichersFlow(internalFlow, enrichers, databaseContext, &config.EnricherCommon).
+	// 	To(db.NewImageDbSink(databaseContext))
+	// go CreateEnrichersFlow(collectorFlow, enrichers, databaseContext, &config.EnricherCommon).
+	// 	To(db.NewImageDbSink(databaseContext))
+
+	enricherFlowInternal := cmd.NewEnricherFlow(enrichers, &databaseContext, &config.EnricherCommon)
+	enricherFlowCollector := cmd.NewEnricherFlow(enrichers, &databaseContext, &config.EnricherCommon)
+	pharosScanTaskHandler := pharosstreams.NewPharosScanTaskHandler(&databaseContext)
+
+	go collectorFlow.Via(enricherFlowCollector).
+		Via(flow.NewMap(pharosScanTaskHandler.NotifyReceiver, 1)).
+		To(db.NewImageDbSink(&databaseContext))
+
+	go internalFlow.Via(enricherFlowInternal).
+		Via(flow.NewMap(pharosScanTaskHandler.NotifyReceiver, 1)).
+		To(db.NewImageDbSink(&databaseContext))
 	// Base Router
 	baseRouter := chi.NewRouter()
-	commonController := NewCommonController()
+	commonController := controllers.NewCommonController()
 	baseRouter.Use(commonController.RedirectToV1)
 	// Define the v1 api
 	v1ApiRouter := chi.NewMux()
@@ -68,10 +135,11 @@ func TestServer(t *testing.T) {
 
 	v1ApiConfig.OpenAPIPath = "/openapi"
 	v1Api := humachi.New(v1ApiRouter, v1ApiConfig)
-	metricsController := NewMetricsController(&v1Api, config, make(chan any, 1000))
+	metricsController := controllers.NewMetricsController(&v1Api, config, make(chan any, 1000))
 	v1Api.UseMiddleware(metricsController.MetricsMiddleware())
 	v1Api.UseMiddleware(databaseContext.DatabaseMiddleware())
-	NewimageController(&v1Api, config).V1AddRoutes()
+	controllers.NewImageController(&v1Api, config).V1AddRoutes()
+	controllers.NewPharosScanTaskController(&v1Api, config, taskChannel, resultChannel).V1AddRoutes()
 	metricsController.V1AddRoutes()
 
 	baseRouter.Mount("/api/v1", v1ApiRouter)
@@ -80,7 +148,36 @@ func TestServer(t *testing.T) {
 		err := http.ListenAndServe(":8081", baseRouter)
 		require.NoError(t, err, "Failed to start server")
 	}()
-	t.Run("01 AddDataTo Database", func(t *testing.T) {
+
+	t.Run("01 Create sbom with syft", func(t *testing.T) {
+		sbom, err := file.ReadFileString("../../testdata/sbom-k9s.json")
+		require.NoError(t, err)
+		URL := "http://localhost:8081/api/v1/pharosscantask/syncscan"
+		scanTask := model.PharosScanTask{
+			ImageSpec: "/bin/k9s",
+			Context: map[string]any{
+				"namespace": "temporary",
+			},
+			ContextRootKey: "test",
+			Platform:       "darwin/arm64",
+			Sbom:           &sbom,
+		}
+		scanTaskJSON, err := json.Marshal(scanTask)
+		require.NoError(t, err)
+		// // Wait for the server to start before making the request
+		// logger.Info().Msg("Waiting for server to start...")
+		// time.Sleep(120 * time.Second)
+		reqBody := strings.NewReader(string(scanTaskJSON))
+		resp, err := http.Post(URL, "application/json", reqBody)
+		require.NoError(t, err)
+		require.Equal(t, http.StatusOK, resp.StatusCode)
+		var got model.PharosScanResult
+		err = json.NewDecoder(resp.Body).Decode(&got)
+		require.NoError(t, err)
+		defer resp.Body.Close()
+	})
+
+	t.Run("03 AddDataTo Database", func(t *testing.T) {
 		pharosImageMeta := model.PharosImageMeta{
 			ImageId:     "test-image-id",
 			IndexDigest: "test-digest",
@@ -116,7 +213,7 @@ func TestServer(t *testing.T) {
 		time.Sleep(5 * time.Second)
 	})
 
-	t.Run("02 GetDataViaAPI", func(t *testing.T) {
+	t.Run("04 GetDataViaAPI", func(t *testing.T) {
 		resp, err := http.Get("http://localhost:8081/api/pharosimagemeta/test-image-id")
 		require.NoError(t, err)
 		defer resp.Body.Close()
@@ -138,7 +235,7 @@ func TestServer(t *testing.T) {
 		require.Equal(t, "CVE-2023-12345", got.Findings[0].AdvId)
 	})
 	// Uncomment the following test once the metrics endpoint is implemented
-	t.Run("03 GetMetrics", func(t *testing.T) {
+	t.Run("05 GetMetrics", func(t *testing.T) {
 		resp, err := http.Get("http://localhost:8081/api/metrics/gauge")
 		if err != nil {
 			t.Fatalf("Failed to make request: %v", err)
@@ -162,7 +259,7 @@ func TestServer(t *testing.T) {
 		//require.Greater(t, lines, 0)
 		//require.Greater(t, vulnerabilites, 0, "Expected at least one pharos_vulnerabilities metric")
 	})
-	t.Run("05 Test enricher controller", func(t *testing.T) {
+	t.Run("06 Test enricher controller", func(t *testing.T) {
 		// Setup: Add a test image meta to the database
 		enricher := model.Enricher{
 			Name:        "Test Enricher",
@@ -171,7 +268,7 @@ func TestServer(t *testing.T) {
 		}
 
 		// Setup: Create EnricherController and add routes
-		enricherController := NewEnricherController(&v1Api, config)
+		enricherController := controllers.NewEnricherController(&v1Api, config)
 		enricherController.V1AddRoutes()
 
 		// Simulate enrichment via API (assuming POST /api/v1/enricher)
@@ -248,7 +345,7 @@ func TestServer(t *testing.T) {
 		require.Equal(t, "Enricher 2", enrichers[0].Name)
 		require.Equal(t, "Enricher 3", enrichers[1].Name)
 	})
-	t.Run("05 Cleanup", func(t *testing.T) {
+	t.Run("07 Cleanup", func(t *testing.T) {
 		go routing.NewImageSchedulerFlow(&databaseContext, config)
 		// Allow cleanup to run
 		time.Sleep(10 * time.Second)

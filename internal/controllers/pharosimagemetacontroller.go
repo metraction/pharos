@@ -48,7 +48,7 @@ type PharosImageMetaSearchInput struct {
 	Detail         bool   `query:"detail" default:"false" doc:"If true, returns detailed information about the image, including vulnerabilities, packages and findings"`
 }
 
-func NewimageController(api *huma.API, config *model.Config) *PharosImageMetaController {
+func NewImageController(api *huma.API, config *model.Config) *PharosImageMetaController {
 	pc := &PharosImageMetaController{
 		Path:    "/pharosimagemeta",
 		Api:     api,

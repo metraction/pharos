@@ -32,7 +32,7 @@ func TestIntegrationScannerFlow(t *testing.T) {
 	close(outChan)
 
 	stream := extension.NewChanSource(outChan).
-		Via(NewScannerFlow(context.Background(), config))
+		Via(NewScannerFlow(context.Background(), config, false))
 
 	result := (<-stream.Out()).(model.PharosScanResult)
 
@@ -73,7 +73,7 @@ func TestIntegrationScanResultCollectorFlow(t *testing.T) {
 	close(outChan)
 
 	source := extension.NewChanSource(outChan)
-	stream := NewScanResultCollectorFlow(context.Background(), config, source, nil, logger) // Testing this without a database and we do not handle CreatedAt for Vulnerabilities
+	stream := NewScanResultCollectorFlow(context.Background(), config, source, nil, logger, false) // Testing this without a database and we do not handle CreatedAt for Vulnerabilities
 	stream = stream.Via(mappers.NewEnricherMap("result", enricherConfig, &config.EnricherCommon))
 
 	result := (<-stream.Out()).(model.PharosScanResult)

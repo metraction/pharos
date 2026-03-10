@@ -27,7 +27,7 @@ type PharosScanTaskController struct {
 
 // TODO: Rename as PharosScanTask2 is know from model, leads to confusion
 type PharosScanTask2 struct {
-	Body model.PharosScanTask2 `json:"body"`
+	Body model.PharosScanTask `json:"body"`
 }
 
 func NewPharosScanTaskController(api *huma.API, config *model.Config, sourceChannel chan any, resultChannel chan any) *PharosScanTaskController {
@@ -59,7 +59,7 @@ func (pc *PharosScanTaskController) V1AddRoutes() {
 	}
 }
 
-func (pc *PharosScanTaskController) sendScanRequest(ctx context.Context, pharosScanTask *model.PharosScanTask2) (*model.PharosScanTask2, error) {
+func (pc *PharosScanTaskController) sendScanRequest(ctx context.Context, pharosScanTask *model.PharosScanTask) (*model.PharosScanTask, error) {
 	// Set default values for ArchName and ArchOS if not provided
 	//now := time.Now().UTC()
 	if pharosScanTask.Platform == "" {
@@ -194,6 +194,7 @@ func (pc *PharosScanTaskController) V1PostSyncScan() (huma.Operation, func(ctx c
 					Description: "Internal server error",
 				},
 			},
+			MaxBodyBytes: 100 * 1024 * 1024, // 10 MiB
 		}, func(ctx context.Context, input *PharosScanTask2) (*PharosScanResult, error) {
 			// We create one responseChannel per request, and store it in the Scantask.
 			receiver := make(chan model.PharosScanResult, 1)

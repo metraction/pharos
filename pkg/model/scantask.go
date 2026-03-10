@@ -8,7 +8,7 @@ import "time"
 // JobId: correlation ID for tracking state of tasks
 // AuthDsn: registry://user:pwd@repo.host.net/?tlscheck=off
 
-type PharosScanTask2 struct {
+type PharosScanTask struct {
 	// task status
 	JobId  string `json:"jobId" required:"false" default:"" doc:"you can give a job id here to track the job."` // jobid for batch jobs tracking
 	Status string `json:"status" required:"false" readOnly:"true"`
@@ -29,19 +29,20 @@ type PharosScanTask2 struct {
 
 	Created  time.Time              `json:"created" yaml:"created" required:"false"`
 	Updated  time.Time              `json:"updated" yaml:"updated" required:"false"`
+	Sbom     *string                `json:"sbom" yaml:"sbom" required:"false"`
 	receiver *chan PharosScanResult // receiver channel to send results to when doing async scan
 }
 
-func (pt *PharosScanTask2) SetReceiver(ch *chan PharosScanResult) {
+func (pt *PharosScanTask) SetReceiver(ch *chan PharosScanResult) {
 	pt.receiver = ch
 }
 
-func (pt *PharosScanTask2) GetReceiver() *chan PharosScanResult {
+func (pt *PharosScanTask) GetReceiver() *chan PharosScanResult {
 	return pt.receiver
 }
 
 // set error and status
-func (rx *PharosScanTask2) SetError(err error) *PharosScanTask2 {
+func (rx *PharosScanTask) SetError(err error) *PharosScanTask {
 	rx.Status = "error"
 	rx.Error = err.Error()
 	return rx

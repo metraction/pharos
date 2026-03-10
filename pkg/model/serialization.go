@@ -37,7 +37,7 @@ func (p *PharosScanResult) FromMap(values map[string]any) error {
 }
 
 // ToMap implements ConvertibleTo interface for PharosScanResult
-func (p PharosScanTask2) ToMap() (map[string]any, error) {
+func (p PharosScanTask) ToMap() (map[string]any, error) {
 	// Convert the entire struct to JSON first
 	data, err := json.Marshal(p)
 	if err != nil {
@@ -51,7 +51,7 @@ func (p PharosScanTask2) ToMap() (map[string]any, error) {
 }
 
 // FromMap implements ConvertibleFrom interface for PharosScanResult
-func (p *PharosScanTask2) FromMap(values map[string]any) error {
+func (p *PharosScanTask) FromMap(values map[string]any) error {
 	// Extract the JSON data from the map
 	dataField, ok := values["data"]
 	if !ok {

@@ -14,6 +14,7 @@ import (
 	"github.com/metraction/pharos/internal/controllers"
 	"github.com/metraction/pharos/internal/integrations/cache"
 	"github.com/metraction/pharos/internal/integrations/db"
+	pharosstreams "github.com/metraction/pharos/internal/integrations/streams"
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/internal/metriccollectors"
 	"github.com/metraction/pharos/internal/routing"
@@ -22,10 +23,11 @@ import (
 	"github.com/metraction/pharos/pkg/model"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/reugn/go-streams/extension"
+	"github.com/reugn/go-streams/flow"
 	"github.com/spf13/cobra"
 )
 
-var logger = logging.NewLogger("info", "component", "cmd.http")
+var httpLogger = logging.NewLogger("info", "component", "http")
 
 // httpCmd represents the http command
 var httpCmd = &cobra.Command{
@@ -36,43 +38,43 @@ These submissions are then published to a Redis stream for further processing by
 	Run: func(cmd *cobra.Command, args []string) {
 		configValue := cmd.Context().Value("config")
 		if configValue == nil {
-			logger.Fatal().Msg("Configuration not found in context. Ensure rootCmd PersistentPreRun is setting it.")
+			httpLogger.Fatal().Msg("Configuration not found in context. Ensure rootCmd PersistentPreRun is setting it.")
 		}
 		config, ok := configValue.(*model.Config)
 		if !ok || config == nil {
-			logger.Fatal().Msg("Invalid configuration type in context.")
+			httpLogger.Fatal().Msg("Invalid configuration type in context.")
 		}
 		databaseContext := model.NewDatabaseContext(&config.Database, config.Init)
 		databaseContext.Migrate()
 		if config.Init {
 			ctx := cmd.Context()
 			redisOk := false
-			logger.Info().Msg("Checking Redis cache...")
+			httpLogger.Info().Msg("Checking Redis cache...")
 			for !redisOk {
-				kvc, err := cache.NewPharosCache(config.Scanner.CacheEndpoint, logger)
+				kvc, err := cache.NewPharosCache(config.Scanner.CacheEndpoint, httpLogger)
 				if err != nil {
-					logger.Err(err).Msg("Redis cache create")
+					httpLogger.Err(err).Msg("Redis cache create")
 				}
 				if err == nil {
 					if err = kvc.Connect(ctx); err != nil {
-						logger.Err(err).Msg("Redis cache connect")
+						httpLogger.Err(err).Msg("Redis cache connect")
 					} else {
 						redisOk = true
-						logger.Info().Str("redis_version", kvc.Version(ctx)).Msg("PharosCache.Connect() OK")
+						httpLogger.Info().Str("redis_version", kvc.Version(ctx)).Msg("PharosCache.Connect() OK")
 					}
 				}
 				if !redisOk {
-					logger.Info().Msg("Retrying Redis cache connection in 5 seconds...")
+					httpLogger.Info().Msg("Retrying Redis cache connection in 5 seconds...")
 					<-time.After(5 * time.Second)
 				}
 			}
-			logger.Info().Msg("Updating Grype scanner...")
-			if _, err := grype.NewGrypeScanner(60, true, "", logger); err != nil {
+			httpLogger.Info().Msg("Updating Grype scanner...")
+			if _, err := grype.NewGrypeScanner(60, true, "", httpLogger); err != nil {
 				dbCacheDir := os.Getenv("GRYPE_DB_CACHE_DIR")
-				logger.Debug().Str("GRYPE_DB_CACHE_DIR", dbCacheDir).Msg("Grype settings: ")
-				logger.Fatal().Err(err).Msg("NewGrypeScanner()")
+				httpLogger.Debug().Str("GRYPE_DB_CACHE_DIR", dbCacheDir).Msg("Grype settings: ")
+				httpLogger.Fatal().Err(err).Msg("NewGrypeScanner()")
 			}
-			logger.Info().Msg("Init flag set, exiting.")
+			httpLogger.Info().Msg("Init flag set, exiting.")
 			os.Exit(0)
 		}
 
@@ -106,7 +108,8 @@ These submissions are then published to a Redis stream for further processing by
 			config,
 			extension.NewChanSource(taskChannel),
 			databaseContext,
-			logger,
+			httpLogger,
+			true,
 		)
 
 		// Create results flow without redis
@@ -119,8 +122,10 @@ These submissions are then published to a Redis stream for further processing by
 
 		enricherFlowInternal := NewEnricherFlow(enrichers, databaseContext, &config.EnricherCommon)
 		enricherFlowCollector := NewEnricherFlow(enrichers, databaseContext, &config.EnricherCommon)
+		pharosScanTaskHandler := pharosstreams.NewPharosScanTaskHandler(databaseContext)
 
 		go collectorFlow.Via(enricherFlowCollector).
+			Via(flow.NewMap(pharosScanTaskHandler.NotifyReceiver, 1)).
 			To(db.NewImageDbSink(databaseContext))
 
 		go internalFlow.Via(enricherFlowInternal).
@@ -144,7 +149,7 @@ These submissions are then published to a Redis stream for further processing by
 		v1Api.UseMiddleware(metricsController.MetricsMiddleware())
 
 		v1Api.UseMiddleware(databaseContext.DatabaseMiddleware())
-		controllers.NewimageController(&v1Api, config).V1AddRoutes()
+		controllers.NewImageController(&v1Api, config).V1AddRoutes()
 		controllers.NewPharosScanTaskController(&v1Api, config, taskChannel, resultChannel).V1AddRoutes()
 		controllers.NewConfigController(&v1Api, config).V1AddRoutes()
 		controllers.NewAlertController(&v1Api, config).V1AddRoutes()
@@ -187,9 +192,9 @@ These submissions are then published to a Redis stream for further processing by
 
 		serverAddr := fmt.Sprintf(":%d", httpPort)
 		baseRouter.Mount("/api/v1", v1ApiRouter)
-		logger.Info().Str("address", serverAddr).Msg("Starting HTTP server")
+		httpLogger.Info().Str("address", serverAddr).Msg("Starting HTTP server")
 		if err := http.ListenAndServe(serverAddr, baseRouter); err != nil {
-			logger.Fatal().Err(err).Msg("Failed to start HTTP server")
+			httpLogger.Fatal().Err(err).Msg("Failed to start HTTP server")
 		}
 	},
 }
