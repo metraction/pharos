@@ -48,6 +48,9 @@ func NewEnricherMap(name string, enricher model.EnricherConfig, enricherCommon *
 				case "starlark":
 					wrapped = Wrap(NewStarlark(config))(wrapped)
 					processed = true
+				case "yaegi":
+					wrapped = Wrap(NewYaegi(config))(wrapped)
+					processed = true
 				case "debug":
 					wrapped = Wrap(NewDebug(config))(wrapped)
 					processed = true
