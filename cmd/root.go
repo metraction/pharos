@@ -43,6 +43,9 @@ var rootCmd = &cobra.Command{
 				schedulerCmd.Run(cmd, args)
 			case "client":
 				clientCmd.Run(cmd, args)
+			case "enricher-debugger":
+				enricherDebuggerCmd.Run(cmd, args)
+				// Add other CI commands here as needed
 			default:
 				fmt.Println("Unknown CI command: " + config.Command)
 			}
