@@ -1,9 +1,9 @@
 dependencies:
 - name: redis-ha
   repository: https://dandydeveloper.github.io/charts
-  version: 4.35.0
+  version: 4.35.10
 - name: jiralert
   repository: https://prometheus-community.github.io/helm-charts
   version: 1.8.1
-digest: sha256:d74df025bd96f77cecbaf8218949007433807b80cd67cc48801b1c85ad445ef0
-generated: "2025-10-14T13:42:56.077428+02:00"
+digest: sha256:7e8c16cfd9540ee2731089e62197d47e9a5811484b91e358c2d08adca8996fcd
+generated: "2026-03-18T11:21:27.21978+01:00"
