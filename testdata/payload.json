@@ -1,0 +1,3401 @@
+{
+  "meta": {
+    "test": {
+      "foo": "bar"
+    }
+  },
+  "payload": {
+    "Image": {
+      "ArchName": "amd64",
+      "ArchOS": "linux",
+      "ContextRoots": [
+        {
+          "Contexts": [
+            {
+              "ContextRootKey": "namespace=kube-system",
+              "Data": {
+                "namespace": "kube-system"
+              },
+              "ID": 0,
+              "ImageId": "sha256:dec08be8c84dd5d26d3940b98f19a37a796efda8376ecc72e1183948ff146b2e",
+              "Owner": "pharos-controller",
+              "UpdatedAt": "2026-03-18T12:49:24.194118638Z"
+            },
+            {
+              "ContextRootKey": "namespace=kube-system",
+              "Data": {
+                "distro": "alpine",
+                "eos": "2027-05-01 00:00:00 +0000 UTC",
+                "version": "3.22.1"
+              },
+              "ID": 0,
+              "ImageId": "sha256:dec08be8c84dd5d26d3940b98f19a37a796efda8376ecc72e1183948ff146b2e",
+              "Owner": "eos",
+              "UpdatedAt": "2026-03-18T12:49:24.221761834Z"
+            },
+            {
+              "ContextRootKey": "namespace=kube-system",
+              "Data": {
+                "Alerted": true,
+                "Severity01Critical": 3,
+                "Severity02High": 22,
+                "Severity03Medium": 50,
+                "Severity04Low": 9,
+                "Severity05Negligible": 0
+              },
+              "ID": 0,
+              "ImageId": "sha256:dec08be8c84dd5d26d3940b98f19a37a796efda8376ecc72e1183948ff146b2e",
+              "Owner": "findings-summary",
+              "UpdatedAt": "2026-03-18T12:49:24.226519802Z"
+            },
+            {
+              "ContextRootKey": "namespace=kube-system",
+              "Data": {
+                "hasUpdate": false,
+                "reason": "Not a Velero image"
+              },
+              "ID": 0,
+              "ImageId": "sha256:dec08be8c84dd5d26d3940b98f19a37a796efda8376ecc72e1183948ff146b2e",
+              "Owner": "has-update",
+              "UpdatedAt": "2026-03-18T12:49:24.234204038Z"
+            },
+            {
+              "ContextRootKey": "namespace=kube-system",
+              "Data": {
+                "owner": "john@mail.com"
+              },
+              "ID": 0,
+              "ImageId": "sha256:dec08be8c84dd5d26d3940b98f19a37a796efda8376ecc72e1183948ff146b2e",
+              "Owner": "owner",
+              "UpdatedAt": "2026-03-18T12:49:24.238253269Z"
+            }
+          ],
+          "ImageId": "sha256:dec08be8c84dd5d26d3940b98f19a37a796efda8376ecc72e1183948ff146b2e",
+          "Key": "namespace=kube-system",
+          "TTL": 1800000000000,
+          "UpdatedAt": "2026-03-18T12:49:24.194118578Z"
+        }
+      ],
+      "DistroName": "alpine",
+      "DistroVersion": "3.22.1",
+      "Findings": [
+        {
+          "AdvId": "CVE-2025-15467",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.5-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192953623Z",
+          "Severity": "Critical",
+          "UpdateDate": "2026-03-18T12:49:24.192953693Z"
+        },
+        {
+          "AdvId": "CVE-2025-15467",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.5-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192957413Z",
+          "Severity": "Critical",
+          "UpdateDate": "2026-03-18T12:49:24.192957473Z"
+        },
+        {
+          "AdvId": "CVE-2025-69420",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.5-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192958543Z",
+          "Severity": "High",
+          "UpdateDate": "2026-03-18T12:49:24.192958593Z"
+        },
+        {
+          "AdvId": "CVE-2025-69420",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.5-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192962023Z",
+          "Severity": "High",
+          "UpdateDate": "2026-03-18T12:49:24.192962083Z"
+        },
+        {
+          "AdvId": "CVE-2025-6069",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "unknown",
+          "FixVersions": [],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192962773Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.192962843Z"
+        },
+        {
+          "AdvId": "CVE-2025-8194",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "unknown",
+          "FixVersions": [],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192964933Z",
+          "Severity": "High",
+          "UpdateDate": "2026-03-18T12:49:24.192964993Z"
+        },
+        {
+          "AdvId": "CVE-2025-13836",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "unknown",
+          "FixVersions": [],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192965833Z",
+          "Severity": "High",
+          "UpdateDate": "2026-03-18T12:49:24.192965893Z"
+        },
+        {
+          "AdvId": "CVE-2026-0672",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "unknown",
+          "FixVersions": [],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192968403Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.192968463Z"
+        },
+        {
+          "AdvId": "CVE-2026-0865",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "unknown",
+          "FixVersions": [],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192969083Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.192969143Z"
+        },
+        {
+          "AdvId": "CVE-2026-3644",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "unknown",
+          "FixVersions": [],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192970743Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.192970813Z"
+        },
+        {
+          "AdvId": "CVE-2026-25679",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "1.25.8",
+            "1.26.1"
+          ],
+          "FoundIn": [
+            "/bin/hcloud-csi-driver"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192971373Z",
+          "Severity": "High",
+          "UpdateDate": "2026-03-18T12:49:24.192971433Z"
+        },
+        {
+          "AdvId": "CVE-2025-8291",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "unknown",
+          "FixVersions": [],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192974503Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.192974553Z"
+        },
+        {
+          "AdvId": "CVE-2025-69421",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.5-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192975373Z",
+          "Severity": "High",
+          "UpdateDate": "2026-03-18T12:49:24.192975433Z"
+        },
+        {
+          "AdvId": "CVE-2025-69421",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.5-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192976263Z",
+          "Severity": "High",
+          "UpdateDate": "2026-03-18T12:49:24.192976473Z"
+        },
+        {
+          "AdvId": "CVE-2025-69419",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.5-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192977223Z",
+          "Severity": "High",
+          "UpdateDate": "2026-03-18T12:49:24.192977273Z"
+        },
+        {
+          "AdvId": "CVE-2025-69419",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.5-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192978043Z",
+          "Severity": "High",
+          "UpdateDate": "2026-03-18T12:49:24.192978103Z"
+        },
+        {
+          "AdvId": "CVE-2025-15366",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "unknown",
+          "FixVersions": [],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192978583Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.192978643Z"
+        },
+        {
+          "AdvId": "CVE-2025-15367",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "unknown",
+          "FixVersions": [],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192980903Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.192980963Z"
+        },
+        {
+          "AdvId": "CVE-2026-22796",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.5-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192981483Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.192981543Z"
+        },
+        {
+          "AdvId": "CVE-2026-22796",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.5-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192982963Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.192983013Z"
+        },
+        {
+          "AdvId": "CVE-2025-60876",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "",
+          "FixVersions": [],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192983373Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.192983433Z"
+        },
+        {
+          "AdvId": "CVE-2025-60876",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "",
+          "FixVersions": [],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192984083Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.192984133Z"
+        },
+        {
+          "AdvId": "CVE-2025-60876",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "",
+          "FixVersions": [],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192984473Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.192984523Z"
+        },
+        {
+          "AdvId": "CVE-2025-66199",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.5-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192984863Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.192984923Z"
+        },
+        {
+          "AdvId": "CVE-2025-66199",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.5-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192986853Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.192986903Z"
+        },
+        {
+          "AdvId": "CVE-2025-15468",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.5-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192987353Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.192987403Z"
+        },
+        {
+          "AdvId": "CVE-2025-15468",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.5-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192987803Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.192987853Z"
+        },
+        {
+          "AdvId": "CVE-2025-12084",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "unknown",
+          "FixVersions": [],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192988213Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.192988273Z"
+        },
+        {
+          "AdvId": "CVE-2025-46394",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "1.37.0-r20"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192988543Z",
+          "Severity": "Low",
+          "UpdateDate": "2026-03-18T12:49:24.192988603Z"
+        },
+        {
+          "AdvId": "CVE-2025-46394",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "1.37.0-r20"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192988853Z",
+          "Severity": "Low",
+          "UpdateDate": "2026-03-18T12:49:24.192988913Z"
+        },
+        {
+          "AdvId": "CVE-2025-46394",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "1.37.0-r20"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192989243Z",
+          "Severity": "Low",
+          "UpdateDate": "2026-03-18T12:49:24.192989293Z"
+        },
+        {
+          "AdvId": "CVE-2026-1299",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "unknown",
+          "FixVersions": [],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192989543Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.192989603Z"
+        },
+        {
+          "AdvId": "CVE-2025-61726",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "1.24.12",
+            "1.25.6"
+          ],
+          "FoundIn": [
+            "/bin/hcloud-csi-driver"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192989883Z",
+          "Severity": "High",
+          "UpdateDate": "2026-03-18T12:49:24.192989933Z"
+        },
+        {
+          "AdvId": "CVE-2025-9230",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.4-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192991383Z",
+          "Severity": "High",
+          "UpdateDate": "2026-03-18T12:49:24.192991433Z"
+        },
+        {
+          "AdvId": "CVE-2025-9230",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.4-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192991723Z",
+          "Severity": "High",
+          "UpdateDate": "2026-03-18T12:49:24.192991773Z"
+        },
+        {
+          "AdvId": "CVE-2025-61725",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "1.24.8",
+            "1.25.2"
+          ],
+          "FoundIn": [
+            "/bin/hcloud-csi-driver"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192992123Z",
+          "Severity": "High",
+          "UpdateDate": "2026-03-18T12:49:24.192992173Z"
+        },
+        {
+          "AdvId": "CVE-2024-58251",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "1.37.0-r20"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192992423Z",
+          "Severity": "Low",
+          "UpdateDate": "2026-03-18T12:49:24.192992483Z"
+        },
+        {
+          "AdvId": "CVE-2024-58251",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "1.37.0-r20"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192992753Z",
+          "Severity": "Low",
+          "UpdateDate": "2026-03-18T12:49:24.192992803Z"
+        },
+        {
+          "AdvId": "CVE-2024-58251",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "1.37.0-r20"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192993163Z",
+          "Severity": "Low",
+          "UpdateDate": "2026-03-18T12:49:24.192993213Z"
+        },
+        {
+          "AdvId": "CVE-2025-61723",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "1.24.8",
+            "1.25.2"
+          ],
+          "FoundIn": [
+            "/bin/hcloud-csi-driver"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192993653Z",
+          "Severity": "High",
+          "UpdateDate": "2026-03-18T12:49:24.192993713Z"
+        },
+        {
+          "AdvId": "CVE-2025-15282",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "unknown",
+          "FixVersions": [],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192994093Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.192994143Z"
+        },
+        {
+          "AdvId": "CVE-2025-11468",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "unknown",
+          "FixVersions": [],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192994423Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.192994483Z"
+        },
+        {
+          "AdvId": "CVE-2025-9232",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.4-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192994733Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.192994793Z"
+        },
+        {
+          "AdvId": "CVE-2025-9232",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.4-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192995873Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.192995923Z"
+        },
+        {
+          "AdvId": "CVE-2026-27142",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "1.25.8",
+            "1.26.1"
+          ],
+          "FoundIn": [
+            "/bin/hcloud-csi-driver"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192996193Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.192996243Z"
+        },
+        {
+          "AdvId": "CVE-2026-2673",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "unknown",
+          "FixVersions": [],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192996513Z",
+          "Severity": "High",
+          "UpdateDate": "2026-03-18T12:49:24.192996563Z"
+        },
+        {
+          "AdvId": "CVE-2026-2673",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "unknown",
+          "FixVersions": [],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192996823Z",
+          "Severity": "High",
+          "UpdateDate": "2026-03-18T12:49:24.192996873Z"
+        },
+        {
+          "AdvId": "CVE-2025-58186",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "1.24.8",
+            "1.25.2"
+          ],
+          "FoundIn": [
+            "/bin/hcloud-csi-driver"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192997103Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.192997163Z"
+        },
+        {
+          "AdvId": "CVE-2025-6075",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "unknown",
+          "FixVersions": [],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192997393Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.192997443Z"
+        },
+        {
+          "AdvId": "CVE-2025-61729",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "1.24.11",
+            "1.25.5"
+          ],
+          "FoundIn": [
+            "/bin/hcloud-csi-driver"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192997723Z",
+          "Severity": "High",
+          "UpdateDate": "2026-03-18T12:49:24.192997783Z"
+        },
+        {
+          "AdvId": "CVE-2025-9231",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.4-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192999633Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.192999683Z"
+        },
+        {
+          "AdvId": "CVE-2025-9231",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.4-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.192999963Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.193000023Z"
+        },
+        {
+          "AdvId": "CVE-2025-61728",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "1.24.12",
+            "1.25.6"
+          ],
+          "FoundIn": [
+            "/bin/hcloud-csi-driver"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193000353Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.193000413Z"
+        },
+        {
+          "AdvId": "CVE-2025-58185",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "1.24.8",
+            "1.25.2"
+          ],
+          "FoundIn": [
+            "/bin/hcloud-csi-driver"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193000643Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.193000703Z"
+        },
+        {
+          "AdvId": "CVE-2025-47912",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "1.24.8",
+            "1.25.2"
+          ],
+          "FoundIn": [
+            "/bin/hcloud-csi-driver"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193000953Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.193001003Z"
+        },
+        {
+          "AdvId": "CVE-2025-13837",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "unknown",
+          "FixVersions": [],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193001363Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.193001413Z"
+        },
+        {
+          "AdvId": "CVE-2025-13462",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "unknown",
+          "FixVersions": [],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193001783Z",
+          "Severity": "Low",
+          "UpdateDate": "2026-03-18T12:49:24.193001843Z"
+        },
+        {
+          "AdvId": "CVE-2025-58187",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "1.24.9",
+            "1.25.3"
+          ],
+          "FoundIn": [
+            "/bin/hcloud-csi-driver"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193002183Z",
+          "Severity": "High",
+          "UpdateDate": "2026-03-18T12:49:24.193002233Z"
+        },
+        {
+          "AdvId": "CVE-2025-12781",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "unknown",
+          "FixVersions": [],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193002473Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.193002533Z"
+        },
+        {
+          "AdvId": "CVE-2026-4224",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "unknown",
+          "FixVersions": [],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193002853Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.193002913Z"
+        },
+        {
+          "AdvId": "CVE-2026-22795",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.5-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193003153Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.193003203Z"
+        },
+        {
+          "AdvId": "CVE-2026-22795",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.5-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193004653Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.193004703Z"
+        },
+        {
+          "AdvId": "CVE-2025-68121",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "1.24.13",
+            "1.25.7",
+            "1.26.0-rc.3"
+          ],
+          "FoundIn": [
+            "/bin/hcloud-csi-driver"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193005223Z",
+          "Severity": "Critical",
+          "UpdateDate": "2026-03-18T12:49:24.193005273Z"
+        },
+        {
+          "AdvId": "CVE-2026-2297",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "unknown",
+          "FixVersions": [],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193005693Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.193005753Z"
+        },
+        {
+          "AdvId": "CVE-2025-61724",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "1.24.8",
+            "1.25.2"
+          ],
+          "FoundIn": [
+            "/bin/hcloud-csi-driver"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193006133Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.193006183Z"
+        },
+        {
+          "AdvId": "CVE-2025-68160",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.5-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193006443Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.193006493Z"
+        },
+        {
+          "AdvId": "CVE-2025-68160",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.5-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193010503Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.193010563Z"
+        },
+        {
+          "AdvId": "CVE-2025-61731",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "1.24.12",
+            "1.25.6"
+          ],
+          "FoundIn": [
+            "/bin/hcloud-csi-driver"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193010973Z",
+          "Severity": "High",
+          "UpdateDate": "2026-03-18T12:49:24.193011033Z"
+        },
+        {
+          "AdvId": "CVE-2025-11187",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.5-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193011273Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.193011323Z"
+        },
+        {
+          "AdvId": "CVE-2025-11187",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.5-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193011733Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.193011783Z"
+        },
+        {
+          "AdvId": "CVE-2025-61727",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "1.24.11",
+            "1.25.5"
+          ],
+          "FoundIn": [
+            "/bin/hcloud-csi-driver"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193012123Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.193012173Z"
+        },
+        {
+          "AdvId": "CVE-2025-58183",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "1.24.8",
+            "1.25.2"
+          ],
+          "FoundIn": [
+            "/bin/hcloud-csi-driver"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193012533Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.193012583Z"
+        },
+        {
+          "AdvId": "CVE-2025-61732",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "1.24.13",
+            "1.25.7"
+          ],
+          "FoundIn": [
+            "/bin/hcloud-csi-driver"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193012833Z",
+          "Severity": "High",
+          "UpdateDate": "2026-03-18T12:49:24.193012883Z"
+        },
+        {
+          "AdvId": "CVE-2025-58189",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "1.24.8",
+            "1.25.2"
+          ],
+          "FoundIn": [
+            "/bin/hcloud-csi-driver"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193013123Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.193013173Z"
+        },
+        {
+          "AdvId": "CVE-2026-25210",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "2.7.4-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193013523Z",
+          "Severity": "High",
+          "UpdateDate": "2026-03-18T12:49:24.193013573Z"
+        },
+        {
+          "AdvId": "CVE-2025-58188",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "1.24.8",
+            "1.25.2"
+          ],
+          "FoundIn": [
+            "/bin/hcloud-csi-driver"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193013843Z",
+          "Severity": "High",
+          "UpdateDate": "2026-03-18T12:49:24.193013893Z"
+        },
+        {
+          "AdvId": "CVE-2025-61730",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "1.24.12",
+            "1.25.6"
+          ],
+          "FoundIn": [
+            "/bin/hcloud-csi-driver"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193014133Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.193014193Z"
+        },
+        {
+          "AdvId": "CVE-2025-15469",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.5-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193015813Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.193015863Z"
+        },
+        {
+          "AdvId": "CVE-2025-15469",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.5-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193016103Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.193016153Z"
+        },
+        {
+          "AdvId": "CVE-2026-27171",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "unknown",
+          "FixVersions": [],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193016433Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.193016483Z"
+        },
+        {
+          "AdvId": "CVE-2025-69418",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.5-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193016773Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.193016833Z"
+        },
+        {
+          "AdvId": "CVE-2025-69418",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "3.5.5-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193017073Z",
+          "Severity": "Medium",
+          "UpdateDate": "2026-03-18T12:49:24.193017123Z"
+        },
+        {
+          "AdvId": "CVE-2026-24515",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "2.7.4-r0"
+          ],
+          "FoundIn": [
+            "/lib/apk/db/installed"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193017353Z",
+          "Severity": "Low",
+          "UpdateDate": "2026-03-18T12:49:24.193017413Z"
+        },
+        {
+          "AdvId": "CVE-2026-27139",
+          "AdvSource": "nvd:cpe",
+          "DueDate": "0001-01-01T00:00:00Z",
+          "FirstSeen": "0001-01-01T00:00:00Z",
+          "FixState": "fixed",
+          "FixVersions": [
+            "1.25.8",
+            "1.26.1"
+          ],
+          "FoundIn": [
+            "/bin/hcloud-csi-driver"
+          ],
+          "ScanDate": "2026-03-18T12:49:24.193017653Z",
+          "Severity": "Low",
+          "UpdateDate": "2026-03-18T12:49:24.193017713Z"
+        }
+      ],
+      "ImageId": "sha256:dec08be8c84dd5d26d3940b98f19a37a796efda8376ecc72e1183948ff146b2e",
+      "ImageSpec": "docker.io/hetznercloud/hcloud-csi-driver:v2.18.0",
+      "IndexDigest": "sha256:76c4442429851079734ee8b07b578f8a11ba26ae523527909216e2f2622170e9",
+      "LastSuccessfulScan": "2026-03-18T12:49:24.214473016Z",
+      "Layers": [
+        "sha256:418dccb7d85a63a6aa574439840f7a6fa6fd2321b3e2394568a317735e867d35",
+        "sha256:9eae51577d42757fa2fbdf72ceef575d88ff55f5084d41c34141c9687881c34a",
+        "sha256:109233587d14ffade3b8cc236dd0940bbde620072989ff06aae57e9f7b19eaa0",
+        "sha256:844b628afa28b7d0cfb80bdd3071c41104414d3f5bab37efd6626925fe9f9406"
+      ],
+      "ManifestDigest": "not applicable",
+      "Packages": [
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/alpine-baselayout@3.7.0-r0?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Name": "alpine-baselayout",
+          "Purl": "pkg:apk/alpine/alpine-baselayout@3.7.0-r0?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Type": "apk",
+          "Version": "3.7.0-r0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/alpine-baselayout-data@3.7.0-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=alpine-baselayout",
+          "Name": "alpine-baselayout-data",
+          "Purl": "pkg:apk/alpine/alpine-baselayout-data@3.7.0-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=alpine-baselayout",
+          "Type": "apk",
+          "Version": "3.7.0-r0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/alpine-keys@2.5-r0?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Name": "alpine-keys",
+          "Purl": "pkg:apk/alpine/alpine-keys@2.5-r0?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Type": "apk",
+          "Version": "2.5-r0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/alpine-release@3.22.1-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=alpine-base",
+          "Name": "alpine-release",
+          "Purl": "pkg:apk/alpine/alpine-release@3.22.1-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=alpine-base",
+          "Type": "apk",
+          "Version": "3.22.1-r0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/apk-tools@2.14.9-r2?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Name": "apk-tools",
+          "Purl": "pkg:apk/alpine/apk-tools@2.14.9-r2?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Type": "apk",
+          "Version": "2.14.9-r2"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/blkid@2.41-r9?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=util-linux",
+          "Name": "blkid",
+          "Purl": "pkg:apk/alpine/blkid@2.41-r9?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=util-linux",
+          "Type": "apk",
+          "Version": "2.41-r9"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/btrfs-progs@6.14-r0?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Name": "btrfs-progs",
+          "Purl": "pkg:apk/alpine/btrfs-progs@6.14-r0?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Type": "apk",
+          "Version": "6.14-r0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/busybox@1.37.0-r18?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Name": "busybox",
+          "Purl": "pkg:apk/alpine/busybox@1.37.0-r18?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Type": "apk",
+          "Version": "1.37.0-r18"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/busybox-binsh@1.37.0-r18?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=busybox",
+          "Name": "busybox-binsh",
+          "Purl": "pkg:apk/alpine/busybox-binsh@1.37.0-r18?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=busybox",
+          "Type": "apk",
+          "Version": "1.37.0-r18"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/ca-certificates@20250619-r0?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Name": "ca-certificates",
+          "Purl": "pkg:apk/alpine/ca-certificates@20250619-r0?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Type": "apk",
+          "Version": "20250619-r0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/ca-certificates-bundle@20250619-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=ca-certificates",
+          "Name": "ca-certificates-bundle",
+          "Purl": "pkg:apk/alpine/ca-certificates-bundle@20250619-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=ca-certificates",
+          "Type": "apk",
+          "Version": "20250619-r0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/cryptsetup@2.7.5-r1?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Name": "cryptsetup",
+          "Purl": "pkg:apk/alpine/cryptsetup@2.7.5-r1?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Type": "apk",
+          "Version": "2.7.5-r1"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/cryptsetup-libs@2.7.5-r1?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=cryptsetup",
+          "Name": "cryptsetup-libs",
+          "Purl": "pkg:apk/alpine/cryptsetup-libs@2.7.5-r1?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=cryptsetup",
+          "Type": "apk",
+          "Version": "2.7.5-r1"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/device-mapper-libs@2.03.32-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=lvm2",
+          "Name": "device-mapper-libs",
+          "Purl": "pkg:apk/alpine/device-mapper-libs@2.03.32-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=lvm2",
+          "Type": "apk",
+          "Version": "2.03.32-r0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/e2fsprogs@1.47.2-r2?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Name": "e2fsprogs",
+          "Purl": "pkg:apk/alpine/e2fsprogs@1.47.2-r2?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Type": "apk",
+          "Version": "1.47.2-r2"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/e2fsprogs-extra@1.47.2-r2?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=e2fsprogs",
+          "Name": "e2fsprogs-extra",
+          "Purl": "pkg:apk/alpine/e2fsprogs-extra@1.47.2-r2?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=e2fsprogs",
+          "Type": "apk",
+          "Version": "1.47.2-r2"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/e2fsprogs-libs@1.47.2-r2?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=e2fsprogs",
+          "Name": "e2fsprogs-libs",
+          "Purl": "pkg:apk/alpine/e2fsprogs-libs@1.47.2-r2?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=e2fsprogs",
+          "Type": "apk",
+          "Version": "1.47.2-r2"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/eudev-libs@3.2.14-r5?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=eudev",
+          "Name": "eudev-libs",
+          "Purl": "pkg:apk/alpine/eudev-libs@3.2.14-r5?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=eudev",
+          "Type": "apk",
+          "Version": "3.2.14-r5"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/gdbm@1.24-r0?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Name": "gdbm",
+          "Purl": "pkg:apk/alpine/gdbm@1.24-r0?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Type": "apk",
+          "Version": "1.24-r0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/github.com/beorn7/perks@v1.0.1",
+          "Name": "github.com/beorn7/perks",
+          "Purl": "pkg:golang/github.com/beorn7/perks@v1.0.1",
+          "Type": "go-module",
+          "Version": "v1.0.1"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/github.com/cespare/xxhash/v2@v2.3.0",
+          "Name": "github.com/cespare/xxhash/v2",
+          "Purl": "pkg:golang/github.com/cespare/xxhash/v2@v2.3.0",
+          "Type": "go-module",
+          "Version": "v2.3.0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/github.com/container-storage-interface/spec@v1.11.0",
+          "Name": "github.com/container-storage-interface/spec",
+          "Purl": "pkg:golang/github.com/container-storage-interface/spec@v1.11.0",
+          "Type": "go-module",
+          "Version": "v1.11.0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/github.com/go-logr/logr@v1.4.3",
+          "Name": "github.com/go-logr/logr",
+          "Purl": "pkg:golang/github.com/go-logr/logr@v1.4.3",
+          "Type": "go-module",
+          "Version": "v1.4.3"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/github.com/golang/protobuf@v1.5.4",
+          "Name": "github.com/golang/protobuf",
+          "Purl": "pkg:golang/github.com/golang/protobuf@v1.5.4",
+          "Type": "go-module",
+          "Version": "v1.5.4"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus@v1.1.0",
+          "Name": "github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus",
+          "Purl": "pkg:golang/github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus@v1.1.0",
+          "Type": "go-module",
+          "Version": "v1.1.0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/github.com/grpc-ecosystem/go-grpc-middleware/v2@v2.1.0",
+          "Name": "github.com/grpc-ecosystem/go-grpc-middleware/v2",
+          "Purl": "pkg:golang/github.com/grpc-ecosystem/go-grpc-middleware/v2@v2.1.0",
+          "Type": "go-module",
+          "Version": "v2.1.0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/github.com/hetznercloud/csi-driver@v1.6.1-0.20250926082852-6b35debea7b7%2Bdirty",
+          "Name": "github.com/hetznercloud/csi-driver",
+          "Purl": "pkg:golang/github.com/hetznercloud/csi-driver@v1.6.1-0.20250926082852-6b35debea7b7%2Bdirty",
+          "Type": "go-module",
+          "Version": "v1.6.1-0.20250926082852-6b35debea7b7+dirty"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/github.com/hetznercloud/hcloud-go/v2@v2.25.0",
+          "Name": "github.com/hetznercloud/hcloud-go/v2",
+          "Purl": "pkg:golang/github.com/hetznercloud/hcloud-go/v2@v2.25.0",
+          "Type": "go-module",
+          "Version": "v2.25.0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/github.com/moby/buildkit@v0.24.0",
+          "Name": "github.com/moby/buildkit",
+          "Purl": "pkg:golang/github.com/moby/buildkit@v0.24.0",
+          "Type": "go-module",
+          "Version": "v0.24.0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/github.com/moby/sys/mountinfo@v0.7.2",
+          "Name": "github.com/moby/sys/mountinfo",
+          "Purl": "pkg:golang/github.com/moby/sys/mountinfo@v0.7.2",
+          "Type": "go-module",
+          "Version": "v0.7.2"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/github.com/munnerz/goautoneg@v0.0.0-20191010083416-a7dc8b61c822",
+          "Name": "github.com/munnerz/goautoneg",
+          "Purl": "pkg:golang/github.com/munnerz/goautoneg@v0.0.0-20191010083416-a7dc8b61c822",
+          "Type": "go-module",
+          "Version": "v0.0.0-20191010083416-a7dc8b61c822"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/github.com/pkg/errors@v0.9.1",
+          "Name": "github.com/pkg/errors",
+          "Purl": "pkg:golang/github.com/pkg/errors@v0.9.1",
+          "Type": "go-module",
+          "Version": "v0.9.1"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/github.com/prometheus/client_golang@v1.23.2",
+          "Name": "github.com/prometheus/client_golang",
+          "Purl": "pkg:golang/github.com/prometheus/client_golang@v1.23.2",
+          "Type": "go-module",
+          "Version": "v1.23.2"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/github.com/prometheus/client_model@v0.6.2",
+          "Name": "github.com/prometheus/client_model",
+          "Purl": "pkg:golang/github.com/prometheus/client_model@v0.6.2",
+          "Type": "go-module",
+          "Version": "v0.6.2"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/github.com/prometheus/common@v0.66.1",
+          "Name": "github.com/prometheus/common",
+          "Purl": "pkg:golang/github.com/prometheus/common@v0.66.1",
+          "Type": "go-module",
+          "Version": "v0.66.1"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/github.com/prometheus/procfs@v0.16.1",
+          "Name": "github.com/prometheus/procfs",
+          "Purl": "pkg:golang/github.com/prometheus/procfs@v0.16.1",
+          "Type": "go-module",
+          "Version": "v0.16.1"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/go.yaml.in/yaml/v2@v2.4.2",
+          "Name": "go.yaml.in/yaml/v2",
+          "Purl": "pkg:golang/go.yaml.in/yaml/v2@v2.4.2",
+          "Type": "go-module",
+          "Version": "v2.4.2"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/golang.org/x/net@v0.43.0",
+          "Name": "golang.org/x/net",
+          "Purl": "pkg:golang/golang.org/x/net@v0.43.0",
+          "Type": "go-module",
+          "Version": "v0.43.0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/golang.org/x/sys@v0.36.0",
+          "Name": "golang.org/x/sys",
+          "Purl": "pkg:golang/golang.org/x/sys@v0.36.0",
+          "Type": "go-module",
+          "Version": "v0.36.0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/golang.org/x/text@v0.28.0",
+          "Name": "golang.org/x/text",
+          "Purl": "pkg:golang/golang.org/x/text@v0.28.0",
+          "Type": "go-module",
+          "Version": "v0.28.0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/google.golang.org/genproto/googleapis/rpc@v0.0.0-20250707201910-8d1bb00bc6a7",
+          "Name": "google.golang.org/genproto/googleapis/rpc",
+          "Purl": "pkg:golang/google.golang.org/genproto/googleapis/rpc@v0.0.0-20250707201910-8d1bb00bc6a7",
+          "Type": "go-module",
+          "Version": "v0.0.0-20250707201910-8d1bb00bc6a7"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/google.golang.org/grpc@v1.75.1",
+          "Name": "google.golang.org/grpc",
+          "Purl": "pkg:golang/google.golang.org/grpc@v1.75.1",
+          "Type": "go-module",
+          "Version": "v1.75.1"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/google.golang.org/protobuf@v1.36.8",
+          "Name": "google.golang.org/protobuf",
+          "Purl": "pkg:golang/google.golang.org/protobuf@v1.36.8",
+          "Type": "go-module",
+          "Version": "v1.36.8"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/inih@60-r0?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Name": "inih",
+          "Purl": "pkg:apk/alpine/inih@60-r0?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Type": "apk",
+          "Version": "60-r0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/json-c@0.18-r1?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Name": "json-c",
+          "Purl": "pkg:apk/alpine/json-c@0.18-r1?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Type": "apk",
+          "Version": "0.18-r1"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/k8s.io/klog/v2@v2.130.1",
+          "Name": "k8s.io/klog/v2",
+          "Purl": "pkg:golang/k8s.io/klog/v2@v2.130.1",
+          "Type": "go-module",
+          "Version": "v2.130.1"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/k8s.io/mount-utils@v0.34.1",
+          "Name": "k8s.io/mount-utils",
+          "Purl": "pkg:golang/k8s.io/mount-utils@v0.34.1",
+          "Type": "go-module",
+          "Version": "v0.34.1"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/k8s.io/utils@v0.0.0-20250820121507-0af2bda4dd1d",
+          "Name": "k8s.io/utils",
+          "Purl": "pkg:golang/k8s.io/utils@v0.0.0-20250820121507-0af2bda4dd1d",
+          "Type": "go-module",
+          "Version": "v0.0.0-20250820121507-0af2bda4dd1d"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/libapk2@2.14.9-r2?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=apk-tools",
+          "Name": "libapk2",
+          "Purl": "pkg:apk/alpine/libapk2@2.14.9-r2?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=apk-tools",
+          "Type": "apk",
+          "Version": "2.14.9-r2"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/libblkid@2.41-r9?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=util-linux",
+          "Name": "libblkid",
+          "Purl": "pkg:apk/alpine/libblkid@2.41-r9?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=util-linux",
+          "Type": "apk",
+          "Version": "2.41-r9"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/libbz2@1.0.8-r6?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=bzip2",
+          "Name": "libbz2",
+          "Purl": "pkg:apk/alpine/libbz2@1.0.8-r6?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=bzip2",
+          "Type": "apk",
+          "Version": "1.0.8-r6"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/libcom_err@1.47.2-r2?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=e2fsprogs",
+          "Name": "libcom_err",
+          "Purl": "pkg:apk/alpine/libcom_err@1.47.2-r2?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=e2fsprogs",
+          "Type": "apk",
+          "Version": "1.47.2-r2"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/libcrypto3@3.5.1-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=openssl",
+          "Name": "libcrypto3",
+          "Purl": "pkg:apk/alpine/libcrypto3@3.5.1-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=openssl",
+          "Type": "apk",
+          "Version": "3.5.1-r0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/libeconf@0.6.3-r0?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Name": "libeconf",
+          "Purl": "pkg:apk/alpine/libeconf@0.6.3-r0?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Type": "apk",
+          "Version": "0.6.3-r0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/libedit@20250104.3.1-r1?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Name": "libedit",
+          "Purl": "pkg:apk/alpine/libedit@20250104.3.1-r1?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Type": "apk",
+          "Version": "20250104.3.1-r1"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/libexpat@2.7.2-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=expat",
+          "Name": "libexpat",
+          "Purl": "pkg:apk/alpine/libexpat@2.7.2-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=expat",
+          "Type": "apk",
+          "Version": "2.7.2-r0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/libffi@3.4.8-r0?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Name": "libffi",
+          "Purl": "pkg:apk/alpine/libffi@3.4.8-r0?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Type": "apk",
+          "Version": "3.4.8-r0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/libgcc@14.2.0-r6?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=gcc",
+          "Name": "libgcc",
+          "Purl": "pkg:apk/alpine/libgcc@14.2.0-r6?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=gcc",
+          "Type": "apk",
+          "Version": "14.2.0-r6"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/libncursesw@6.5_p20250503-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=ncurses",
+          "Name": "libncursesw",
+          "Purl": "pkg:apk/alpine/libncursesw@6.5_p20250503-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=ncurses",
+          "Type": "apk",
+          "Version": "6.5_p20250503-r0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/libpanelw@6.5_p20250503-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=ncurses",
+          "Name": "libpanelw",
+          "Purl": "pkg:apk/alpine/libpanelw@6.5_p20250503-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=ncurses",
+          "Type": "apk",
+          "Version": "6.5_p20250503-r0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/libssl3@3.5.1-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=openssl",
+          "Name": "libssl3",
+          "Purl": "pkg:apk/alpine/libssl3@3.5.1-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=openssl",
+          "Type": "apk",
+          "Version": "3.5.1-r0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/libstdc%2B%2B@14.2.0-r6?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=gcc",
+          "Name": "libstdc++",
+          "Purl": "pkg:apk/alpine/libstdc%2B%2B@14.2.0-r6?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=gcc",
+          "Type": "apk",
+          "Version": "14.2.0-r6"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/libuuid@2.41-r9?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=util-linux",
+          "Name": "libuuid",
+          "Purl": "pkg:apk/alpine/libuuid@2.41-r9?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=util-linux",
+          "Type": "apk",
+          "Version": "2.41-r9"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/lzo@2.10-r5?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Name": "lzo",
+          "Purl": "pkg:apk/alpine/lzo@2.10-r5?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Type": "apk",
+          "Version": "2.10-r5"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/mpdecimal@4.0.1-r0?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Name": "mpdecimal",
+          "Purl": "pkg:apk/alpine/mpdecimal@4.0.1-r0?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Type": "apk",
+          "Version": "4.0.1-r0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/musl@1.2.5-r10?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Name": "musl",
+          "Purl": "pkg:apk/alpine/musl@1.2.5-r10?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Type": "apk",
+          "Version": "1.2.5-r10"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/musl-utils@1.2.5-r10?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=musl",
+          "Name": "musl-utils",
+          "Purl": "pkg:apk/alpine/musl-utils@1.2.5-r10?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=musl",
+          "Type": "apk",
+          "Version": "1.2.5-r10"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/ncurses-terminfo-base@6.5_p20250503-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=ncurses",
+          "Name": "ncurses-terminfo-base",
+          "Purl": "pkg:apk/alpine/ncurses-terminfo-base@6.5_p20250503-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=ncurses",
+          "Type": "apk",
+          "Version": "6.5_p20250503-r0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/popt@1.19-r4?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Name": "popt",
+          "Purl": "pkg:apk/alpine/popt@1.19-r4?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Type": "apk",
+          "Version": "1.19-r4"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/pyc@3.12.11-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=python3",
+          "Name": "pyc",
+          "Purl": "pkg:apk/alpine/pyc@3.12.11-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=python3",
+          "Type": "apk",
+          "Version": "3.12.11-r0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/python3@3.12.11-r0?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Name": "python3",
+          "Purl": "pkg:apk/alpine/python3@3.12.11-r0?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Type": "apk",
+          "Version": "3.12.11-r0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/python3-pyc@3.12.11-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=python3",
+          "Name": "python3-pyc",
+          "Purl": "pkg:apk/alpine/python3-pyc@3.12.11-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=python3",
+          "Type": "apk",
+          "Version": "3.12.11-r0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/python3-pycache-pyc0@3.12.11-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=python3",
+          "Name": "python3-pycache-pyc0",
+          "Purl": "pkg:apk/alpine/python3-pycache-pyc0@3.12.11-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=python3",
+          "Type": "apk",
+          "Version": "3.12.11-r0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/readline@8.2.13-r1?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Name": "readline",
+          "Purl": "pkg:apk/alpine/readline@8.2.13-r1?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Type": "apk",
+          "Version": "8.2.13-r1"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/scanelf@1.3.8-r1?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=pax-utils",
+          "Name": "scanelf",
+          "Purl": "pkg:apk/alpine/scanelf@1.3.8-r1?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=pax-utils",
+          "Type": "apk",
+          "Version": "1.3.8-r1"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/sqlite-libs@3.49.2-r1?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=sqlite",
+          "Name": "sqlite-libs",
+          "Purl": "pkg:apk/alpine/sqlite-libs@3.49.2-r1?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=sqlite",
+          "Type": "apk",
+          "Version": "3.49.2-r1"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/ssl_client@1.37.0-r18?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=busybox",
+          "Name": "ssl_client",
+          "Purl": "pkg:apk/alpine/ssl_client@1.37.0-r18?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=busybox",
+          "Type": "apk",
+          "Version": "1.37.0-r18"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:golang/stdlib@1.24.7",
+          "Name": "stdlib",
+          "Purl": "pkg:golang/stdlib@1.24.7",
+          "Type": "go-module",
+          "Version": "go1.24.7"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/userspace-rcu@0.15.2-r0?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Name": "userspace-rcu",
+          "Purl": "pkg:apk/alpine/userspace-rcu@0.15.2-r0?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Type": "apk",
+          "Version": "0.15.2-r0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/xfsprogs@6.14.0-r0?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Name": "xfsprogs",
+          "Purl": "pkg:apk/alpine/xfsprogs@6.14.0-r0?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Type": "apk",
+          "Version": "6.14.0-r0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/xfsprogs-extra@6.14.0-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=xfsprogs",
+          "Name": "xfsprogs-extra",
+          "Purl": "pkg:apk/alpine/xfsprogs-extra@6.14.0-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=xfsprogs",
+          "Type": "apk",
+          "Version": "6.14.0-r0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/xz-libs@5.8.1-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=xz",
+          "Name": "xz-libs",
+          "Purl": "pkg:apk/alpine/xz-libs@5.8.1-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=xz",
+          "Type": "apk",
+          "Version": "5.8.1-r0"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/zlib@1.3.1-r2?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Name": "zlib",
+          "Purl": "pkg:apk/alpine/zlib@1.3.1-r2?arch=x86_64\u0026distro=alpine-3.22.1",
+          "Type": "apk",
+          "Version": "1.3.1-r2"
+        },
+        {
+          "Cpes": null,
+          "Key": "pkg:apk/alpine/zstd-libs@1.5.7-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=zstd",
+          "Name": "zstd-libs",
+          "Purl": "pkg:apk/alpine/zstd-libs@1.5.7-r0?arch=x86_64\u0026distro=alpine-3.22.1\u0026upstream=zstd",
+          "Type": "apk",
+          "Version": "1.5.7-r0"
+        }
+      ],
+      "RepoDigests": null,
+      "Size": 73996058,
+      "TTL": 21600000000000,
+      "Tags": [],
+      "Vulnerabilities": [
+        {
+          "AdvId": "CVE-2025-15467",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192953823Z",
+          "CvssBase": 9.8,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
+          ],
+          "Cwes": null,
+          "Description": "",
+          "FirstSeen": "2026-03-10T20:43:57.418463Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Critical"
+        },
+        {
+          "AdvId": "CVE-2025-69420",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192958693Z",
+          "CvssBase": 7.5,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          ],
+          "Cwes": null,
+          "Description": "",
+          "FirstSeen": "2026-03-10T20:43:57.4199Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "High"
+        },
+        {
+          "AdvId": "CVE-2025-6069",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192962973Z",
+          "CvssBase": 4.3,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:L"
+          ],
+          "Cwes": null,
+          "Description": "The html.parser.HTMLParser class had worse-case quadratic complexity when processing certain crafted malformed inputs potentially leading to amplified denial-of-service.",
+          "FirstSeen": "2026-03-10T20:44:10.422703Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2025-8194",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192965103Z",
+          "CvssBase": 7.5,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          ],
+          "Cwes": null,
+          "Description": "There is a defect in the CPython “tarfile” module affecting the “TarFile” extraction and entry enumeration APIs. The tar implementation would process tar archives with negative offsets without error, resulting in an infinite loop and deadlock during the parsing of maliciously crafted tar archives. \n\nThis vulnerability can be mitigated by including the following patch after importing the “tarfile” module:  https://gist.github.com/sethmlarson/1716ac5b82b73dbcbf23ad2eff8b33e1",
+          "FirstSeen": "2026-03-10T20:44:10.421533Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "High"
+        },
+        {
+          "AdvId": "CVE-2025-13836",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192966103Z",
+          "CvssBase": 7.5,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+            "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:L/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X"
+          ],
+          "Cwes": null,
+          "Description": "When reading an HTTP response from a server, if no read amount is specified, the default behavior will be to use Content-Length. This allows a malicious server to cause the client to read large amounts of data into memory, potentially causing OOM or other DoS.",
+          "FirstSeen": "2026-03-10T20:44:10.4241Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "High"
+        },
+        {
+          "AdvId": "CVE-2026-0672",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192968593Z",
+          "CvssBase": 6,
+          "CvssVectors": [
+            "CVSS:4.0/AV:N/AC:L/AT:P/PR:L/UI:N/VC:L/VI:H/VA:N/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X"
+          ],
+          "Cwes": null,
+          "Description": "When using http.cookies.Morsel, user-controlled cookie values and parameters can allow injecting HTTP headers into messages. Patch rejects all control characters within cookie names, values, and parameters.",
+          "FirstSeen": "2026-03-10T20:44:10.424794Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2026-0865",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192969243Z",
+          "CvssBase": 5.9,
+          "CvssVectors": [
+            "CVSS:4.0/AV:N/AC:L/AT:P/PR:H/UI:N/VC:N/VI:H/VA:N/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X"
+          ],
+          "Cwes": null,
+          "Description": "User-controlled header names and values containing newlines can allow injecting HTTP headers.",
+          "FirstSeen": "2026-03-10T20:44:10.425711Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2026-3644",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192970913Z",
+          "CvssBase": 6,
+          "CvssVectors": [
+            "CVSS:4.0/AV:N/AC:L/AT:P/PR:L/UI:N/VC:L/VI:H/VA:N/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X"
+          ],
+          "Cwes": null,
+          "Description": "The fix for CVE-2026-0672, which rejected control characters in http.cookies.Morsel, was incomplete. The Morsel.update(), |= operator, and unpickling paths were not patched, allowing control characters to bypass input validation. Additionally, BaseCookie.js_output() lacked the output validation applied to BaseCookie.output().",
+          "FirstSeen": "2026-03-18T12:49:24.199512614Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2026-25679",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192971643Z",
+          "CvssBase": 7.5,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          ],
+          "Cwes": null,
+          "Description": "url.Parse insufficiently validated the host/authority component and accepted some invalid URLs.",
+          "FirstSeen": "2026-03-10T20:43:53.166191Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "High"
+        },
+        {
+          "AdvId": "CVE-2025-8291",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192974783Z",
+          "CvssBase": 4.3,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:L/A:N"
+          ],
+          "Cwes": null,
+          "Description": "The 'zipfile' module would not check the validity of the ZIP64 End of\nCentral Directory (EOCD) Locator record offset value would not be used to\nlocate the ZIP64 EOCD record, instead the ZIP64 EOCD record would be\nassumed to be the previous record in the ZIP archive. This could be abused\nto create ZIP archives that are handled differently by the 'zipfile' module\ncompared to other ZIP implementations.\n\n\nRemediation maintains this behavior, but checks that the offset specified\nin the ZIP64 EOCD Locator record matches the expected value.",
+          "FirstSeen": "2026-03-10T20:44:10.430971Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2025-69421",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192975643Z",
+          "CvssBase": 7.5,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          ],
+          "Cwes": null,
+          "Description": "",
+          "FirstSeen": "2026-03-10T20:43:57.421258Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "High"
+        },
+        {
+          "AdvId": "CVE-2025-69419",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192977543Z",
+          "CvssBase": 7.4,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N"
+          ],
+          "Cwes": null,
+          "Description": "",
+          "FirstSeen": "2026-03-10T20:43:57.421612Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "High"
+        },
+        {
+          "AdvId": "CVE-2025-15366",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192978753Z",
+          "CvssBase": 5.9,
+          "CvssVectors": [
+            "CVSS:4.0/AV:N/AC:L/AT:P/PR:H/UI:N/VC:L/VI:H/VA:N/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X"
+          ],
+          "Cwes": null,
+          "Description": "The imaplib module, when passed a user-controlled command, can have additional commands injected using newlines. Mitigation rejects commands containing control characters.",
+          "FirstSeen": "2026-03-10T20:44:10.426603Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2025-15367",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192981093Z",
+          "CvssBase": 5.9,
+          "CvssVectors": [
+            "CVSS:4.0/AV:N/AC:L/AT:P/PR:H/UI:N/VC:L/VI:H/VA:N/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X"
+          ],
+          "Cwes": null,
+          "Description": "The poplib module, when passed a user-controlled command, can have\nadditional commands injected using newlines. Mitigation rejects commands\ncontaining control characters.",
+          "FirstSeen": "2026-03-10T20:44:10.427688Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2026-22796",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192981743Z",
+          "CvssBase": 5.3,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          ],
+          "Cwes": null,
+          "Description": "",
+          "FirstSeen": "2026-03-10T20:43:57.422398Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2025-60876",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192983723Z",
+          "CvssBase": 6.5,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N"
+          ],
+          "Cwes": null,
+          "Description": "BusyBox wget thru 1.3.7 accepted raw CR (0x0D)/LF (0x0A) and other C0 control bytes in the HTTP request-target (path/query), allowing the request line to be split and attacker-controlled headers to be injected. To preserve the HTTP/1.1 request-line shape METHOD SP request-target SP HTTP/1.1, a raw space (0x20) in the request-target must also be rejected (clients should use %20).",
+          "FirstSeen": "2026-03-10T20:43:53.160209Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2025-66199",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192985003Z",
+          "CvssBase": 5.9,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          ],
+          "Cwes": null,
+          "Description": "",
+          "FirstSeen": "2026-03-10T20:43:57.422745Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2025-15468",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192987493Z",
+          "CvssBase": 5.9,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          ],
+          "Cwes": null,
+          "Description": "",
+          "FirstSeen": "2026-03-10T20:43:57.425077Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2025-12084",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192988343Z",
+          "CvssBase": 6.3,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+            "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X"
+          ],
+          "Cwes": null,
+          "Description": "When building nested elements using xml.dom.minidom methods such as appendChild() that have a dependency on _clear_id_cache() the algorithm is quadratic. Availability can be impacted when building excessively nested documents.",
+          "FirstSeen": "2026-03-10T20:44:10.434674Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2025-46394",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192988673Z",
+          "CvssBase": 3.3,
+          "CvssVectors": [
+            "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:N"
+          ],
+          "Cwes": null,
+          "Description": "",
+          "FirstSeen": "2026-03-10T20:43:57.42693Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Low"
+        },
+        {
+          "AdvId": "CVE-2026-1299",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192989683Z",
+          "CvssBase": 6,
+          "CvssVectors": [
+            "CVSS:4.0/AV:N/AC:L/AT:P/PR:L/UI:N/VC:L/VI:H/VA:N/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X"
+          ],
+          "Cwes": null,
+          "Description": "The \nemail module, specifically the \"BytesGenerator\" class, didn’t properly quote newlines for email headers when \nserializing an email message allowing for header injection when an email\n is serialized. This is only applicable if using \"LiteralHeader\" writing headers that don't respect email folding rules, the new behavior will reject the incorrectly folded headers in \"BytesGenerator\".",
+          "FirstSeen": "2026-03-10T20:44:10.442672Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2025-61726",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192990023Z",
+          "CvssBase": 7.5,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          ],
+          "Cwes": null,
+          "Description": "The net/url package does not set a limit on the number of query parameters in a query. While the maximum size of query parameters in URLs is generally limited by the maximum request header size, the net/http.Request.ParseForm method can parse large URL-encoded forms. Parsing a large form containing many unique query parameters can cause excessive memory consumption.",
+          "FirstSeen": "2026-03-10T20:43:53.161526Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "High"
+        },
+        {
+          "AdvId": "CVE-2025-9230",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192991513Z",
+          "CvssBase": 7.5,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          ],
+          "Cwes": null,
+          "Description": "",
+          "FirstSeen": "2026-03-10T20:44:10.447972Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "High"
+        },
+        {
+          "AdvId": "CVE-2025-61725",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192992253Z",
+          "CvssBase": 7.5,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          ],
+          "Cwes": null,
+          "Description": "The ParseAddress function constructs domain-literal address components through repeated string concatenation. When parsing large domain-literal components, this can cause excessive CPU consumption.",
+          "FirstSeen": "2026-03-10T20:43:53.164489Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "High"
+        },
+        {
+          "AdvId": "CVE-2024-58251",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192992553Z",
+          "CvssBase": 2.5,
+          "CvssVectors": [
+            "CVSS:3.1/AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:L"
+          ],
+          "Cwes": null,
+          "Description": "",
+          "FirstSeen": "2026-03-10T20:43:57.427866Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Low"
+        },
+        {
+          "AdvId": "CVE-2025-61723",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192993803Z",
+          "CvssBase": 7.5,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          ],
+          "Cwes": null,
+          "Description": "The processing time for parsing some invalid inputs scales non-linearly with respect to the size of the input. This affects programs which parse untrusted PEM inputs.",
+          "FirstSeen": "2026-03-10T20:43:53.166541Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "High"
+        },
+        {
+          "AdvId": "CVE-2025-15282",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192994223Z",
+          "CvssBase": 6,
+          "CvssVectors": [
+            "CVSS:4.0/AV:N/AC:L/AT:P/PR:L/UI:N/VC:N/VI:H/VA:N/SC:N/SI:L/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X"
+          ],
+          "Cwes": null,
+          "Description": "User-controlled data URLs parsed by urllib.request.DataHandler allow injecting headers through newlines in the data URL mediatype.",
+          "FirstSeen": "2026-03-10T20:44:10.442098Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2025-11468",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192994553Z",
+          "CvssBase": 5.7,
+          "CvssVectors": [
+            "CVSS:4.0/AV:N/AC:L/AT:P/PR:H/UI:P/VC:N/VI:H/VA:N/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X"
+          ],
+          "Cwes": null,
+          "Description": "When folding a long comment in an email header containing exclusively unfoldable characters, the parenthesis would not be preserved. This could be used for injecting headers into email messages where addresses are user-controlled and not sanitized.",
+          "FirstSeen": "2026-03-10T20:44:10.443456Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2025-9232",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192994863Z",
+          "CvssBase": 5.9,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          ],
+          "Cwes": null,
+          "Description": "",
+          "FirstSeen": "2026-03-10T20:44:10.451601Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2026-27142",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192996323Z",
+          "CvssBase": 6.1,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N"
+          ],
+          "Cwes": null,
+          "Description": "Actions which insert URLs into the content attribute of HTML meta tags are not escaped. This can allow XSS if the meta tag also has an http-equiv attribute with the value \"refresh\". A new GODEBUG setting has been added, htmlmetacontenturlescape, which can be used to disable escaping URLs in actions in the meta content attribute which follow \"url=\" by setting htmlmetacontenturlescape=0.",
+          "FirstSeen": "2026-03-10T20:43:53.167774Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2026-2673",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192996633Z",
+          "CvssBase": 7.5,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N"
+          ],
+          "Cwes": null,
+          "Description": "Issue summary: An OpenSSL TLS 1.3 server may fail to negotiate the expected\npreferred key exchange group when its key exchange group configuration includes\nthe default by using the 'DEFAULT' keyword.\n\nImpact summary: A less preferred key exchange may be used even when a more\npreferred group is supported by both client and server, if the group\nwas not included among the client's initial predicated keyshares.\nThis will sometimes be the case with the new hybrid post-quantum groups,\nif the client chooses to defer their use until specifically requested by\nthe server.\n\nIf an OpenSSL TLS 1.3 server's configuration uses the 'DEFAULT' keyword to\ninterpolate the built-in default group list into its own configuration, perhaps\nadding or removing specific elements, then an implementation defect causes the\n'DEFAULT' list to lose its 'tuple' structure, and all server-supported groups\nwere treated as a single sufficiently secure 'tuple', with the server not\nsending a Hello Retry Request (HRR) even when a group in a more preferred tuple\nwas mutually supported.\n\nAs a result, the client and server might fail to negotiate a mutually supported\npost-quantum key agreement group, such as 'X25519MLKEM768', if the client's\nconfiguration results in only 'classical' groups (such as 'X25519' being the\nonly ones in the client's initial keyshare prediction).\n\nOpenSSL 3.5 and later support a new syntax for selecting the most preferred TLS\n1.3 key agreement group on TLS servers.  The old syntax had a single 'flat'\nlist of groups, and treated all the supported groups as sufficiently secure.\nIf any of the keyshares predicted by the client were supported by the server\nthe most preferred among these was selected, even if other groups supported by\nthe client, but not included in the list of predicted keyshares would have been\nmore preferred, if included.\n\nThe new syntax partitions the groups into distinct 'tuples' of roughly\nequivalent security.  Within each tuple the most preferred group included among\nthe client's predicted keyshares is chosen, but if the client supports a group\nfrom a more preferred tuple, but did not predict any corresponding keyshares,\nthe server will ask the client to retry the ClientHello (by issuing a Hello\nRetry Request or HRR) with the most preferred mutually supported group.\n\nThe above works as expected when the server's configuration uses the built-in\ndefault group list, or explicitly defines its own list by directly defining the\nvarious desired groups and group 'tuples'.\n\nNo OpenSSL FIPS modules are affected by this issue, the code in question lies\noutside the FIPS boundary.\n\nOpenSSL 3.6 and 3.5 are vulnerable to this issue.\n\nOpenSSL 3.6 users should upgrade to OpenSSL 3.6.2 once it is released.\nOpenSSL 3.5 users should upgrade to OpenSSL 3.5.6 once it is released.\n\nOpenSSL 3.4, 3.3, 3.0, 1.0.2 and 1.1.1 are not affected by this issue.",
+          "FirstSeen": "2026-03-18T11:06:31.590477Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "High"
+        },
+        {
+          "AdvId": "CVE-2025-58186",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192997233Z",
+          "CvssBase": 5.3,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          ],
+          "Cwes": null,
+          "Description": "Despite HTTP headers having a default limit of 1MB, the number of cookies that can be parsed does not have a limit. By sending a lot of very small cookies such as \"a=;\", an attacker can make an HTTP server allocate a large amount of structs, causing large memory consumption.",
+          "FirstSeen": "2026-03-10T20:43:53.170525Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2025-6075",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192997513Z",
+          "CvssBase": 5.5,
+          "CvssVectors": [
+            "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:H",
+            "CVSS:4.0/AV:L/AC:L/AT:P/PR:H/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X"
+          ],
+          "Cwes": null,
+          "Description": "If the value passed to os.path.expandvars() is user-controlled a \nperformance degradation is possible when expanding environment \nvariables.",
+          "FirstSeen": "2026-03-10T20:44:10.449348Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2025-61729",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192997853Z",
+          "CvssBase": 7.5,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          ],
+          "Cwes": null,
+          "Description": "Within HostnameError.Error(), when constructing an error string, there is no limit to the number of hosts that will be printed out. Furthermore, the error string is constructed by repeated string concatenation, leading to quadratic runtime. Therefore, a certificate provided by a malicious actor can result in excessive resource consumption.",
+          "FirstSeen": "2026-03-10T20:43:53.168152Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "High"
+        },
+        {
+          "AdvId": "CVE-2025-9231",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.192999793Z",
+          "CvssBase": 6.5,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:L"
+          ],
+          "Cwes": null,
+          "Description": "",
+          "FirstSeen": "2026-03-10T20:44:10.453071Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2025-61728",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.193000483Z",
+          "CvssBase": 6.5,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H"
+          ],
+          "Cwes": null,
+          "Description": "archive/zip uses a super-linear file name indexing algorithm that is invoked the first time a file in an archive is opened. This can lead to a denial of service when consuming a maliciously constructed ZIP archive.",
+          "FirstSeen": "2026-03-10T20:43:53.176678Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2025-58185",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.193000793Z",
+          "CvssBase": 5.3,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          ],
+          "Cwes": null,
+          "Description": "Parsing a maliciously crafted DER payload could allocate large amounts of memory, causing memory exhaustion.",
+          "FirstSeen": "2026-03-10T20:43:53.174014Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2025-47912",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.193001073Z",
+          "CvssBase": 5.3,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N"
+          ],
+          "Cwes": null,
+          "Description": "The Parse function permits values other than IPv6 addresses to be included in square brackets within the host component of a URL. RFC 3986 permits IPv6 addresses to be included within the host component, enclosed within square brackets. For example: \"http://[::1]/\". IPv4 addresses and hostnames must not appear within square brackets. Parse did not enforce this requirement.",
+          "FirstSeen": "2026-03-10T20:43:53.174589Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2025-13837",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.193001483Z",
+          "CvssBase": 5.5,
+          "CvssVectors": [
+            "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+            "CVSS:4.0/AV:L/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:L/SC:N/SI:L/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X"
+          ],
+          "Cwes": null,
+          "Description": "When loading a plist file, the plistlib module reads data in size specified by the file itself, meaning a malicious file can cause OOM and DoS issues",
+          "FirstSeen": "2026-03-10T20:44:10.453676Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2025-13462",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.193001913Z",
+          "CvssBase": 2,
+          "CvssVectors": [
+            "CVSS:4.0/AV:L/AC:H/AT:P/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X"
+          ],
+          "Cwes": null,
+          "Description": "The \"tarfile\" module would still apply normalization of AREGTYPE (\\x00) blocks to DIRTYPE, even while processing a multi-block member such as GNUTYPE_LONGNAME or GNUTYPE_LONGLINK. This could result in a crafted tar archive being misinterpreted by the tarfile module compared to other implementations.",
+          "FirstSeen": "2026-03-18T12:49:02.197534Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Low"
+        },
+        {
+          "AdvId": "CVE-2025-58187",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.193002323Z",
+          "CvssBase": 7.5,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          ],
+          "Cwes": null,
+          "Description": "Due to the design of the name constraint checking algorithm, the processing time of some inputs scale non-linearly with respect to the size of the certificate. This affects programs which validate arbitrary certificate chains.",
+          "FirstSeen": "2026-03-10T20:43:53.177984Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "High"
+        },
+        {
+          "AdvId": "CVE-2025-12781",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.193002603Z",
+          "CvssBase": 6.3,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+            "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X"
+          ],
+          "Cwes": null,
+          "Description": "When passing data to the b64decode(), standard_b64decode(), and urlsafe_b64decode() functions in the \"base64\" module the characters \"+/\" will always be accepted, regardless of the value of \"altchars\" parameter, typically used to establish an \"alternative base64 alphabet\" such as the URL safe alphabet. This behavior matches what is recommended in earlier base64 RFCs, but newer RFCs now recommend either dropping characters outside the specified base64 alphabet or raising an error. The old behavior has the possibility of causing data integrity issues.\n\n\n\n\nThis behavior can only be insecure if your application uses an alternate base64 alphabet (without \"+/\"). If your application does not use the \"altchars\" parameter or the urlsafe_b64decode() function, then your application does not use an alternative base64 alphabet.\n\n\n\n\nThe attached patches DOES NOT make the base64-decode behavior raise an error, as this would be a change in behavior and break existing programs. Instead, the patch deprecates the behavior which will be replaced with the newly recommended behavior in a future version of Python. Users are recommended to mitigate by verifying user-controlled inputs match the base64 \nalphabet they are expecting or verify that their application would not be \naffected if the b64decode() functions accepted \"+\" or \"/\" outside of altchars.",
+          "FirstSeen": "2026-03-10T20:44:10.455599Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2026-4224",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.193002993Z",
+          "CvssBase": 6,
+          "CvssVectors": [
+            "CVSS:4.0/AV:N/AC:L/AT:P/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X"
+          ],
+          "Cwes": null,
+          "Description": "When an Expat parser with a registered ElementDeclHandler parses an inline\ndocument type definition containing a deeply nested content model a C stack\noverflow occurs.",
+          "FirstSeen": "2026-03-18T12:49:24.210587834Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2026-22795",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.193003373Z",
+          "CvssBase": 5.5,
+          "CvssVectors": [
+            "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H"
+          ],
+          "Cwes": null,
+          "Description": "",
+          "FirstSeen": "2026-03-10T20:43:57.42826Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2025-68121",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.193005353Z",
+          "CvssBase": 10,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H",
+            "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N"
+          ],
+          "Cwes": null,
+          "Description": "During session resumption in crypto/tls, if the underlying Config has its ClientCAs or RootCAs fields mutated between the initial handshake and the resumed handshake, the resumed handshake may succeed when it should have failed. This may happen when a user calls Config.Clone and mutates the returned Config, or uses Config.GetConfigForClient. This can cause a client to resume a session with a server that it would not have resumed with during the initial handshake, or cause a server to resume a session with a client that it would not have resumed with during the initial handshake.",
+          "FirstSeen": "2026-03-10T20:43:53.177453Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Critical"
+        },
+        {
+          "AdvId": "CVE-2026-2297",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.193005823Z",
+          "CvssBase": 5.7,
+          "CvssVectors": [
+            "CVSS:4.0/AV:L/AC:L/AT:P/PR:L/UI:N/VC:N/VI:H/VA:N/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X"
+          ],
+          "Cwes": null,
+          "Description": "The import hook in CPython that handles legacy *.pyc files (SourcelessFileLoader) is incorrectly handled in FileLoader (a base class) and so does not use io.open_code() to read the .pyc files. sys.audit handlers for this audit event therefore do not fire.",
+          "FirstSeen": "2026-03-10T20:44:10.458554Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2025-61724",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.193006263Z",
+          "CvssBase": 5.3,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          ],
+          "Cwes": null,
+          "Description": "The Reader.ReadResponse function constructs a response string through repeated string concatenation of lines. When the number of lines in a response is large, this can cause excessive CPU consumption.",
+          "FirstSeen": "2026-03-10T20:43:53.178965Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2025-68160",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.193006573Z",
+          "CvssBase": 4.7,
+          "CvssVectors": [
+            "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:N/A:H"
+          ],
+          "Cwes": null,
+          "Description": "",
+          "FirstSeen": "2026-03-10T20:43:57.428667Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2025-61731",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.193011103Z",
+          "CvssBase": 7.8,
+          "CvssVectors": [
+            "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H"
+          ],
+          "Cwes": null,
+          "Description": "Building a malicious file with cmd/go can cause can cause a write to an attacker-controlled file with partial control of the file content. The \"#cgo pkg-config:\" directive in a Go source file provides command-line arguments to provide to the Go pkg-config command. An attacker can provide a \"--log-file\" argument to this directive, causing pkg-config to write to an attacker-controlled location.",
+          "FirstSeen": "2026-03-10T20:43:53.178363Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "High"
+        },
+        {
+          "AdvId": "CVE-2025-11187",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.193011413Z",
+          "CvssBase": 6.1,
+          "CvssVectors": [
+            "CVSS:3.1/AV:L/AC:L/PR:L/UI:R/S:U/C:L/I:L/A:H"
+          ],
+          "Cwes": null,
+          "Description": "",
+          "FirstSeen": "2026-03-10T20:43:57.429161Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2025-61727",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.193012243Z",
+          "CvssBase": 6.5,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N"
+          ],
+          "Cwes": null,
+          "Description": "An excluded subdomain constraint in a certificate chain does not restrict the usage of wildcard SANs in the leaf certificate. For example a constraint that excludes the subdomain test.example.com does not prevent a leaf certificate from claiming the SAN *.example.com.",
+          "FirstSeen": "2026-03-10T20:43:53.179589Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2025-58183",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.193012673Z",
+          "CvssBase": 4.3,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:L"
+          ],
+          "Cwes": null,
+          "Description": "tar.Reader does not set a maximum size on the number of sparse region data blocks in GNU tar pax 1.0 sparse files. A maliciously-crafted archive containing a large number of sparse regions can cause a Reader to read an unbounded amount of data from the archive into memory. When reading from a compressed source, a small compressed input can result in large allocations.",
+          "FirstSeen": "2026-03-10T20:43:53.17929Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2025-61732",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.193012963Z",
+          "CvssBase": 8.6,
+          "CvssVectors": [
+            "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:H"
+          ],
+          "Cwes": null,
+          "Description": "A discrepancy between how Go and C/C++ comments were parsed allowed for code smuggling into the resulting cgo binary.",
+          "FirstSeen": "2026-03-10T20:43:53.179889Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "High"
+        },
+        {
+          "AdvId": "CVE-2025-58189",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.193013253Z",
+          "CvssBase": 5.3,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N"
+          ],
+          "Cwes": null,
+          "Description": "When Conn.Handshake fails during ALPN negotiation the error contains attacker controlled information (the ALPN protocols sent by the client) which is not escaped.",
+          "FirstSeen": "2026-03-10T20:43:53.181384Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2026-25210",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.193013653Z",
+          "CvssBase": 7.8,
+          "CvssVectors": [
+            "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H"
+          ],
+          "Cwes": null,
+          "Description": "",
+          "FirstSeen": "2026-03-10T20:44:10.462968Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "High"
+        },
+        {
+          "AdvId": "CVE-2025-58188",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.193013973Z",
+          "CvssBase": 7.5,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          ],
+          "Cwes": null,
+          "Description": "Validating certificate chains which contain DSA public keys can cause programs to panic, due to a interface cast that assumes they implement the Equal method. This affects programs which validate arbitrary certificate chains.",
+          "FirstSeen": "2026-03-10T20:43:53.180269Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "High"
+        },
+        {
+          "AdvId": "CVE-2025-61730",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.193014263Z",
+          "CvssBase": 5.3,
+          "CvssVectors": [
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N"
+          ],
+          "Cwes": null,
+          "Description": "During the TLS 1.3 handshake if multiple messages are sent in records that span encryption level boundaries (for instance the Client Hello and Encrypted Extensions messages), the subsequent messages may be processed before the encryption level changes. This can cause some minor information disclosure if a network-local attacker can inject messages during the handshake.",
+          "FirstSeen": "2026-03-10T20:43:53.181987Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2025-15469",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.193015933Z",
+          "CvssBase": 5.5,
+          "CvssVectors": [
+            "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:N"
+          ],
+          "Cwes": null,
+          "Description": "",
+          "FirstSeen": "2026-03-10T20:43:57.429547Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2026-27171",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.193016563Z",
+          "CvssBase": 5.5,
+          "CvssVectors": [
+            "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:H",
+            "CVSS:3.1/AV:L/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          ],
+          "Cwes": null,
+          "Description": "zlib before 1.3.2 allows CPU consumption via crc32_combine64 and crc32_combine_gen64 because x2nmodp can do right shifts within a loop that has no termination condition.",
+          "FirstSeen": "2026-03-10T20:43:53.182336Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2025-69418",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.193016903Z",
+          "CvssBase": 4,
+          "CvssVectors": [
+            "CVSS:3.1/AV:L/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:N"
+          ],
+          "Cwes": null,
+          "Description": "",
+          "FirstSeen": "2026-03-10T20:43:57.432705Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Medium"
+        },
+        {
+          "AdvId": "CVE-2026-24515",
+          "AdvSource": "alpine:distro:alpine:3.22",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.193017493Z",
+          "CvssBase": 2.5,
+          "CvssVectors": [
+            "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:N/A:L"
+          ],
+          "Cwes": null,
+          "Description": "",
+          "FirstSeen": "2026-03-10T20:44:10.467014Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Low"
+        },
+        {
+          "AdvId": "CVE-2026-27139",
+          "AdvSource": "nvd:cpe",
+          "Aliases": "",
+          "Cpes": null,
+          "CreateDate": "2026-03-18T12:49:24.193017783Z",
+          "CvssBase": 2.5,
+          "CvssVectors": [
+            "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:L/I:N/A:N"
+          ],
+          "Cwes": null,
+          "Description": "On Unix platforms, when listing the contents of a directory using File.ReadDir or File.Readdir the returned FileInfo could reference a file outside of the Root in which the File was opened. The impact of this escape is limited to reading metadata provided by lstat from arbitrary locations on the filesystem without permitting reading or writing files outside the root.",
+          "FirstSeen": "2026-03-10T20:43:53.183002Z",
+          "KevDate": "0001-01-01T00:00:00Z",
+          "ModDate": "0001-01-01T00:00:00Z",
+          "PubDate": "0001-01-01T00:00:00Z",
+          "RansomwareUsed": "",
+          "References": [],
+          "RiskScore": 0,
+          "Severity": "Low"
+        }
+      ]
+    }
+  }
+}

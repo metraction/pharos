@@ -1,0 +1,55 @@
+package main
+
+import (
+	"fmt"
+)
+
+func enrich(payload map[string]interface{}) map[string]interface{} {
+	fmt.Println("Running SDX test enricher (yaegi)")
+
+	vulns, ok := payload["Vulnerabilities"].([]interface{})
+	if !ok {
+		fmt.Println("Invalid vulnerabilities format")
+		return nil
+	}
+
+	counts := map[string]int{
+		"L1": 0,
+		"L2": 0,
+		"L3": 0,
+		"L4": 0,
+		"L5": 0,
+	}
+
+	for _, v := range vulns {
+		vuln, ok := v.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		baseScore, _ := vuln["CvssBase"].(float64)
+		if baseScore >= 9.0 {
+			counts["L1"]++
+		} else if baseScore >= 7.0 {
+			counts["L2"]++
+		} else if baseScore >= 4.0 {
+			counts["L3"]++
+		} else if baseScore > 0.0 {
+			counts["L4"]++
+		} else {
+			counts["L5"]++
+		}
+	}
+
+	fmt.Printf("Vulnerabilities by base score (%d total):\n", len(vulns))
+	for _, label := range []string{"L1", "L2", "L3", "L4", "L5"} {
+		fmt.Printf("  %-10s %d\n", label+":", counts[label])
+	}
+
+	return map[string]interface{}{
+		"L1": counts["L1"],
+		"L2": counts["L2"],
+		"L3": counts["L3"],
+		"L4": counts["L4"],
+		"L5": counts["L5"],
+	}
+}

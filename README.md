@@ -34,6 +34,15 @@ Create datasources for Pharos:
 In addition Pharos can be executed as a cli tool for following tasks:
 - Testing plugins
 - Packaging plugins for the deployments
+- Debugging enrichers
+
+### Debugging enrichers
+
+To debug an enricher, you can use `testdata/payload.json` and test starlark and yaegi scripts:
+
+```cmd
+pharos enricher-debugger --payload testdata/payload.json --script testdata/enrichers/findings-summary/findings-summary.star
+```
 
 
 ## Support
