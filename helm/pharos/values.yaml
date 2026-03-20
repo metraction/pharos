@@ -221,7 +221,7 @@ prometheus:
   query: 'kube_pod_container_info{}'
   # -- Interval for scanning images
   interval: 10m
-  # -- Context labels to add to the Prometheus context
+  # -- Context labels to add to the Prometheus context, separate by comma
   contextLabels: "namespace"
   # -- Time to live for the scan results, defaults to 12 hours
   ttl: "12h"

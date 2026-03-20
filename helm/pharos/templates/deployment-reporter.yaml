@@ -67,6 +67,10 @@ spec:
                   name: {{ .Values.prometheus.authFromSecret.existingSecret }}
                   key: {{ .Values.prometheus.authFromSecret.passwordKey }}
             {{- end }}
+            {{- if .Values.prometheus.contextLabels}}
+            - name: PHAROS_PROMETHEUS_CONTEXTLABELS
+              value: {{ .Values.prometheus.contextLabels | quote }}
+            {{- end }}
             {{- if .Values.prometheus.authFromSecret.tokenKey }}      
             - name: PHAROS_PROMETHEUS_AUTH_TOKEN
               valueFrom:
