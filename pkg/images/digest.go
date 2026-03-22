@@ -1,11 +1,13 @@
 package images
 
 import (
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/name"
@@ -44,7 +46,11 @@ func GetImageDigests(task model.PharosScanTask) (string, string, string, error) 
 		digest := sbom.Source.Metadata.Digests[0].Algorithm + ":" + sbom.Source.Metadata.Digests[0].Value
 		return digest, digest, "", nil
 	}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*1)
+	defer cancel()
+
 	var options []remote.Option
+	options = append(options, remote.WithContext(ctx))
 	platform := task.Platform // TODO: Empty platform -> default? What if @sha:.. is given, so no platform needed
 
 	ref, err := name.ParseReference(task.ImageSpec)
