@@ -204,6 +204,8 @@ github.com/mattn/go-sqlite3 v1.14.32 h1:JD12Ag3oLy1zQA+BNn74xRgaBbdhbNIDYvQUEuuE
 github.com/mattn/go-sqlite3 v1.14.32/go.mod h1:Uh1q+B4BYcTPb+yiD3kU8Ct7aC0hY9fxUwlHK0RXw+Y=
 github.com/metraction/handwheel v0.0.3 h1:Gyw38RnqzJzwMMYw5EBJ4XDXnGvPz8CF0cOZkXT3RIk=
 github.com/metraction/handwheel v0.0.3/go.mod h1:Yh3ep7n59UXW8m9hMIuEzJ+T72Z6pVoO6hDFx94+A6M=
+github.com/metraction/handwheel v0.0.4-0.20260322110411-97c01ffc1d24 h1:44aNxZqYwseQOs5VMzuJzKUeNoDvGL6dNUfBiW0DDMQ=
+github.com/metraction/handwheel v0.0.4-0.20260322110411-97c01ffc1d24/go.mod h1:Yh3ep7n59UXW8m9hMIuEzJ+T72Z6pVoO6hDFx94+A6M=
 github.com/mitchellh/copystructure v1.2.0 h1:vpKXTN4ewci03Vljg/q9QvCGUDttBOGBIa15WveJJGw=
 github.com/mitchellh/copystructure v1.2.0/go.mod h1:qLl+cE2AmVv+CoeAwDPye/v+N2HKCj9FbZEVFJRxO9s=
 github.com/mitchellh/go-homedir v1.1.0 h1:lukF9ziXFxDFPkA1vsr5zpc1XuPDn/wFntq5mG+4E0Y=
