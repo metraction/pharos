@@ -44,12 +44,6 @@ func (rx *PharosScanResult) LoadGrypeImageScan(sbom syfttype.SyftSbomType, scan 
 			rx.Image.IndexDigest = ""
 		}
 	} // TODO: check if this is correct, but we use this for now.
-	if rx.Image.IndexDigest == "" {
-		rx.Image.IndexDigest = "not applicable"
-	}
-	if rx.Image.ManifestDigest == "" {
-		rx.Image.ManifestDigest = "not applicable"
-	}
 
 	rx.Image.ArchName = target.Architecture
 	rx.Image.ArchOS = target.OS

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/dustin/go-humanize"
 	"github.com/metraction/pharos/internal/integrations/cache"
@@ -43,7 +44,9 @@ func ScanImage(task model.PharosScanTask, scanEngine *GrypeScanner, kvc *cache.P
 			return lo.Substring(digest, 0, 39) + ".grype.sbom"
 		}
 
-		ctx := context.Background()
+		ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
+		defer cancel()
+
 		var sbomEngine *syft.SyftSbomCreator
 
 		result.ScanTask.Status = "get-digest"

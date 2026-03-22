@@ -1,7 +1,12 @@
 {
   "meta": {
-    "test": {
-      "foo": "bar"
+    "namespaces": {
+      "traefik-external": {
+        "exposure": "external"
+      },
+      "kube-system":{
+        "exposure": "internal"
+      }
     }
   },
   "payload": {

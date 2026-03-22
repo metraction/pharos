@@ -178,11 +178,11 @@ func (rx *GrypeScanner) VulnScanSbom(sbom []byte) (grypetype.GrypeScanType, []by
 
 	rx.wgDbUpdate.Wait() // wait in case of running db update
 
-	ctx, cancel := context.WithTimeout(context.Background(), rx.ScanTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
 	defer cancel()
 
 	elapsed := utils.ElapsedFunc()
-	cmd := exec.Command(rx.ScannerBin, "-o", "json") // cyclonedx-json has no "fixed" state ;-(
+	cmd := exec.CommandContext(ctx, rx.ScannerBin, "-o", "json") // cyclonedx-json has no "fixed" state ;-(
 	cmd.Stdin = bytes.NewReader(sbom)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr

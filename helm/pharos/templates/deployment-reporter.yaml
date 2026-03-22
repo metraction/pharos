@@ -48,6 +48,10 @@ spec:
               value: {{ .Values.prometheus.query }}
             - name: PHAROS_PROMETHEUS_INTERVAL
               value: {{ .Values.prometheus.interval }}
+            {{- if .Values.prometheus.contextLabels}}
+            - name: PHAROS_PROMETHEUS_CONTEXTLABELS
+              value: {{ .Values.prometheus.contextLabels | quote }}
+            {{- end }}
             - name: PHAROS_PROMETHEUS_NAMESPACE
               valueFrom:
                 fieldRef:
