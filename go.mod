@@ -50,7 +50,7 @@ require (
 	github.com/dustinkirkland/golang-petname v0.0.0-20240428194347-eebcea082ee0
 	github.com/go-chi/chi/v5 v5.2.3
 	github.com/go-git/go-git/v5 v5.16.3
-	github.com/metraction/handwheel v0.0.4-0.20260322113137-0cefbce05270
+	github.com/metraction/handwheel v0.0.4
 	github.com/otiai10/copy v1.14.1
 	github.com/prometheus/client_golang v1.23.2
 	github.com/theory/jsonpath v0.10.2
