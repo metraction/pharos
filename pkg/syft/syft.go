@@ -85,7 +85,7 @@ func (rx *SyftSbomCreator) CreateSbom(task model.PharosScanTask, format string) 
 	}
 	// note: empty platform is OK
 	elapsed := utils.ElapsedFunc()
-	cmd := exec.Command(rx.SyftBin, "scan", "registry:"+task.ImageSpec, "--platform", task.Platform, "-o", format)
+	cmd := exec.CommandContext(ctx, rx.SyftBin, "scan", "registry:"+task.ImageSpec, "--platform", task.Platform, "-o", format)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 

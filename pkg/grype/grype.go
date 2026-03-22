@@ -182,7 +182,7 @@ func (rx *GrypeScanner) VulnScanSbom(sbom []byte) (grypetype.GrypeScanType, []by
 	defer cancel()
 
 	elapsed := utils.ElapsedFunc()
-	cmd := exec.Command(rx.ScannerBin, "-o", "json") // cyclonedx-json has no "fixed" state ;-(
+	cmd := exec.CommandContext(ctx, rx.ScannerBin, "-o", "json") // cyclonedx-json has no "fixed" state ;-(
 	cmd.Stdin = bytes.NewReader(sbom)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr

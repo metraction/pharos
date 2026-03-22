@@ -2,6 +2,7 @@ package grype
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -75,7 +76,9 @@ func GrypeExeOutput[T any](cmd *exec.Cmd) (T, error) {
 // check grype binary version
 func GetScannerVersion(scannerBin string) (string, error) {
 
-	cmd := exec.Command(scannerBin, "version", "-o", "json")
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, scannerBin, "version", "-o", "json")
 	cmd.Env = append(cmd.Env, "GRYPE_CHECK_FOR_APP_UPDATE=false")
 
 	result, err := GrypeExeOutput[GrypeVersion](cmd)
@@ -88,7 +91,9 @@ func GetScannerVersion(scannerBin string) (string, error) {
 // check grype local database status, update DbState
 func GetDatabaseStatus(scannerBin string, targetDir string) (string, time.Time, error) {
 
-	cmd := exec.Command(scannerBin, "db", "status", "-o", "json")
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, scannerBin, "db", "status", "-o", "json")
 	cmd.Env = append(cmd.Env, "GRYPE_CHECK_FOR_APP_UPDATE=false")
 	cmd.Env = append(cmd.Env, "GRYPE_DB_CACHE_DIR="+targetDir)
 
@@ -102,7 +107,9 @@ func GetDatabaseStatus(scannerBin string, targetDir string) (string, time.Time, 
 // check if local db in targetDir requires an update
 func GrypeUpdateRequired(scannerBin, targetDir string) bool {
 
-	cmd := exec.Command(scannerBin, "db", "check", "-o", "json")
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, scannerBin, "db", "check", "-o", "json")
 	cmd.Env = append(cmd.Env, "GRYPE_CHECK_FOR_APP_UPDATE=false")
 	cmd.Env = append(cmd.Env, "GRYPE_DB_CACHE_DIR="+targetDir)
 
@@ -118,7 +125,9 @@ func GetGrypeUpdate(scannerBin, targetDir string) error {
 
 	// do update
 	var stdout, stderr bytes.Buffer
-	cmd := exec.Command(scannerBin, "db", "update", "--quiet")
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, scannerBin, "db", "update", "--quiet")
 	cmd.Env = append(cmd.Env, "GRYPE_CHECK_FOR_APP_UPDATE=false")
 	cmd.Env = append(cmd.Env, "GRYPE_DB_CACHE_DIR="+targetDir)
 	cmd.Stdout = &stdout
@@ -137,7 +146,9 @@ func GrypeTestScan(scannerBin, targetDir string) error {
 
 	var stdout, stderr bytes.Buffer
 
-	cmd := exec.Command(scannerBin, "-o", "json")
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, scannerBin, "-o", "json")
 	cmd.Stdin = bytes.NewReader(sampleSbom)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
