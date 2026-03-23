@@ -52,6 +52,10 @@ spec:
             - name: PHAROS_PROMETHEUS_CONTEXTLABELS
               value: {{ .Values.prometheus.contextLabels | quote }}
             {{- end }}
+            {{- if .Values.prometheus.wait}}
+            - name: PHAROS_PROMETHEUS_WAIT
+              value: {{ .Values.prometheus.wait | quote }}
+            {{- end }}
             - name: PHAROS_PROMETHEUS_NAMESPACE
               valueFrom:
                 fieldRef:
