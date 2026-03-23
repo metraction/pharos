@@ -122,6 +122,7 @@ func ScanImage(task model.PharosScanTask, scanEngine *GrypeScanner, kvc *cache.P
 	result.Image.Findings = result.Findings
 	result.Image.Vulnerabilities = result.Vulnerabilities
 	result.Image.Packages = result.Packages
+	result.Image.ManifestDigest = result.ScanTask.RxDigest
 
 	result.ScanTask.Status = "done"
 	logger.Info().

@@ -13,6 +13,7 @@ on:
     - 'PH-198/*'
     - 'PH-201/*'
     - 'PH-205/*'
+    - 'PH-207/*'
   pull_request:
     branches:
     - main
