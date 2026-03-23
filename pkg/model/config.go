@@ -105,6 +105,7 @@ type PrometheusReporterConfig struct {
 	TTL           string                 `mapstructure:"ttl"`           // Time to live for the scan results
 	Query         string                 `mapstructure:"query"`         // Query to use for fetching metrics
 	Auth          hwmodel.PrometheusAuth `mapstructure:"auth"`          // Authentication details for Prometheus
+	Wait          string                 `mapstructure:"wait"`          // How long to wait between each post of data
 }
 
 // Redis holds Redis-specific configuration.

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/metraction/pharos/internal/logging"
 	"github.com/metraction/pharos/internal/utils"
@@ -51,9 +52,14 @@ func (ps *PharosTaskSink) process() {
 			ps.log.Error().Err(err).Msg("Failed to POST to PharosScanTask endpoint")
 			continue
 		}
+
 		pod := resp.Header.Get("Pharos-Pod-Name") // Read the pod name from the response header
 		ps.log.Info().Str("image", scanTask.ImageSpec).Str("auth", utils.MaskDsn(scanTask.AuthDsn)).Str("Pod", pod).Msg("Sending task to PharosScanTask endpoint")
 		resp.Body.Close()
+		if d, err := time.ParseDuration(ps.Config.Prometheus.Wait); err == nil {
+			ps.log.Info().Str("time", ps.Config.Prometheus.Wait).Msg("Waiting")
+			time.Sleep(d)
+		}
 	}
 }
 
