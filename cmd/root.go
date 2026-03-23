@@ -182,7 +182,7 @@ func init() {
 	rootCmd.PersistentFlags().String("prometheus.auth.username", "", "Username for Prometheus authentication")
 	rootCmd.PersistentFlags().String("prometheus.auth.password", "", "Password for Prometheus authentication")
 	rootCmd.PersistentFlags().String("prometheus.auth.token", "", "Token for Prometheus authentication")
-	rootCmd.PersistentFlags().Int("prometheus.wait", 0, "How long the reporter should wait after each post of a data")
+	rootCmd.PersistentFlags().String("prometheus.wait", "0s", "How long the reporter should wait after each post of a data")
 
 	rootCmd.PersistentFlags().String("database.driver", "postgres", "Database driver for the scanner, righ now, only 'postgres' is implemented.")
 	defaultDSN := "postgres://postgres:postgres@localhost:5432/pharos?sslmode=disable" // run `brew install db-browser-for-sqlite` to view the database.
