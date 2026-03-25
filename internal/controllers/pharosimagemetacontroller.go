@@ -232,9 +232,6 @@ func (pc *PharosImageMetaController) V1GetContexts() (huma.Operation, func(ctx c
 					return nil, huma.Error500InternalServerError("Failed to retrieve Docker image: " + err.Error())
 				}
 			}
-			if value.IndexDigest == "" {
-				return nil, huma.Error404NotFound("Image with ImageId " + input.ImageId + " not found")
-			}
 			var contextEntries = []model.ContextEntry{}
 			for _, contextRoot := range value.ContextRoots {
 				for _, context := range contextRoot.Contexts {
