@@ -117,9 +117,6 @@ func (pc *PharosImageMetaController) V1Get() (huma.Operation, func(ctx context.C
 					return nil, huma.Error500InternalServerError("Failed to retrieve Docker image: " + err.Error())
 				}
 			}
-			if value.IndexDigest == "" {
-				return nil, huma.Error404NotFound("Image with ImageId " + input.ImageId + " not found")
-			}
 			return &PharosImageMeta{
 				Body: value,
 			}, nil
