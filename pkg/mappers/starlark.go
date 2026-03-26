@@ -2,10 +2,10 @@ package mappers
 
 import (
 	"fmt"
-	"log"
 	"regexp"
 
 	"github.com/Masterminds/semver/v3"
+	"github.com/metraction/pharos/internal/logging"
 	"github.com/reugn/go-streams/flow"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
@@ -60,8 +60,9 @@ func semverConstraintFunc(thread *starlark.Thread, b *starlark.Builtin, args sta
 }
 
 func NewStarlark(rule string) flow.MapFunction[map[string]interface{}, map[string]interface{}] {
+	logger := logging.NewLogger("info", "component", "Starlark")
 	thread := &starlark.Thread{Name: "starlark_thread"}
-	fmt.Println("Creating Starlark mapper for rule:", rule)
+	logger.Info().Msgf("Creating Starlark mapper for rule: %s", rule)
 	return func(item map[string]interface{}) map[string]interface{} {
 		// Use ExecFileOptions with the correct signature
 		fileOpts := &syntax.FileOptions{}
@@ -74,36 +75,61 @@ func NewStarlark(rule string) flow.MapFunction[map[string]interface{}, map[strin
 
 		globals, err := starlark.ExecFileOptions(fileOpts, thread, rule, nil, predeclared)
 		if err != nil {
-			log.Fatalf("Failed to execute Starlark script: %v", err)
+			errorString := "Failed to execute Starlark script"
+			logger.Error().Err(err).Msg(errorString)
+			return map[string]interface{}{
+				"error": errorString,
+			}
 		}
 
 		// Get the enrich function from the globals
 		enrich, ok := globals["enrich"]
 		if !ok {
-			log.Fatalf("Function 'enrich' not found in Starlark script")
+			errorString := "Function 'enrich' not found in Starlark script"
+			logger.Error().Msg(errorString)
+			return map[string]interface{}{
+				"error": errorString,
+			}
+
 		}
 
 		dict, err := toStringDict(item)
 		if err != nil {
-			log.Fatal(err)
+			errorString := "Failed to convert item to Starlark dict"
+			logger.Error().Err(err).Msg(errorString)
+			return map[string]interface{}{
+				"error": errorString,
+			}
 		}
 		st := starlarkstruct.FromStringDict(starlarkstruct.Default, dict)
 
 		v, err := starlark.Call(thread, enrich, starlark.Tuple{st}, nil)
 		if err != nil {
-			log.Fatalf("Evaluate returned error: %v", err)
+			errorString := "Evaluate returned error"
+			logger.Error().Err(err).Msg(errorString)
+			return map[string]interface{}{
+				"error": errorString,
+			}
 		}
 
 		// Convert the Starlark result to a Go map
 		result, err := starlarkValueToGo(v)
 		if err != nil {
-			log.Fatalf("Failed to convert Starlark result: %v", err)
+			errorString := "Failed to convert Starlark result to Go value"
+			logger.Error().Err(err).Msg(errorString)
+			return map[string]interface{}{
+				"error": errorString,
+			}
 		}
 
 		// Ensure we have a map[string]interface{}
 		resultMap, ok := result.(map[string]interface{})
 		if !ok {
-			log.Fatalf("Expected map[string]interface{}, got %T", result)
+			errorString := "Starlark enrich function did not return a map[string]interface{}"
+			logger.Error().Msg(errorString)
+			return map[string]interface{}{
+				"error": errorString,
+			}
 		}
 
 		return resultMap

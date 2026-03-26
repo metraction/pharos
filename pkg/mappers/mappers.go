@@ -56,6 +56,7 @@ func CreateRef(file string) string {
 }
 
 func NewPureHbs[T any, R any](rule string) flow.MapFunction[T, R] {
+	logger := logging.NewLogger("info", "component", "PureHbs")
 	rp, err := NewPolicy[T](rule)
 	if err != nil {
 		log.Fatalf("NewRiskPolicy returned error: %v", err)
@@ -66,7 +67,7 @@ func NewPureHbs[T any, R any](rule string) flow.MapFunction[T, R] {
 		// Create a zero value of R to check its type
 		var r R
 		if err != nil {
-			log.Printf("Evaluate returned error: %v", err)
+			logger.Error().Err(err).Msg("Evaluate returned error")
 			return r // Return zero value of R on error
 		}
 

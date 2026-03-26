@@ -1,11 +1,10 @@
 package mappers
 
 import (
-	"fmt"
-	"log"
 	"reflect"
 
 	"github.com/Masterminds/semver/v3"
+	"github.com/metraction/pharos/internal/logging"
 	"github.com/reugn/go-streams/flow"
 	"github.com/traefik/yaegi/interp"
 	"github.com/traefik/yaegi/stdlib"
@@ -25,7 +24,8 @@ func semverConstraint(version, constraint string) bool {
 }
 
 func NewYaegi(rule string) flow.MapFunction[map[string]interface{}, map[string]interface{}] {
-	fmt.Println("Creating Yaegi mapper for rule:", rule)
+	logger := logging.NewLogger("info", "component", "Yaegi")
+	logger.Info().Msgf("Creating Yaegi mapper for rule: %s", rule)
 	return func(item map[string]interface{}) map[string]interface{} {
 		// Create a new Yaegi interpreter
 		i := interp.New(interp.Options{})
@@ -36,26 +36,42 @@ func NewYaegi(rule string) flow.MapFunction[map[string]interface{}, map[string]i
 		// Define the semverConstraint function as a global variable
 		_, err := i.Eval("var semverConstraint func(string, string) bool")
 		if err != nil {
-			log.Fatalf("Failed to define semverConstraint variable: %v", err)
+			errorString := "Failed to define semverConstraint variable"
+			logger.Error().Err(err).Msg(errorString)
+			return map[string]interface{}{
+				"error": errorString,
+			}
 		}
-		
+
 		// Set the function value
 		semverConstraintVal, err := i.Eval("semverConstraint")
 		if err != nil {
-			log.Fatalf("Failed to get semverConstraint variable: %v", err)
+			errorString := "Failed to get semverConstraint variable"
+			logger.Error().Err(err).Msg(errorString)
+			return map[string]interface{}{
+				"error": errorString,
+			}
 		}
 		semverConstraintVal.Set(reflect.ValueOf(semverConstraint))
 
 		// Execute the Yaegi script first
 		_, err = i.EvalPath(rule)
 		if err != nil {
-			log.Fatalf("Failed to execute Yaegi script: %v", err)
+			errorString := "Failed to execute Yaegi script"
+			logger.Error().Err(err).Msg(errorString)
+			return map[string]interface{}{
+				"error": errorString,
+			}
 		}
 
 		// Get the enrich function
 		enrichFunc, err := i.Eval("enrich")
 		if err != nil {
-			log.Fatalf("Function 'enrich' not found in Yaegi script: %v", err)
+			errorString := "Function 'enrich' not found in Yaegi script"
+			logger.Error().Err(err).Msg(errorString)
+			return map[string]interface{}{
+				"error": errorString,
+			}
 		}
 
 		// Call the enrich function with the payload
@@ -65,14 +81,22 @@ func NewYaegi(rule string) flow.MapFunction[map[string]interface{}, map[string]i
 		results := enrichFunc.Call(args)
 
 		if len(results) == 0 {
-			log.Fatalf("Enrich function returned no results")
+			errorString := "Enrich function returned no results"
+			logger.Error().Msg(errorString)
+			return map[string]interface{}{
+				"error": errorString,
+			}
 		}
 
 		// Convert the result back to map[string]interface{}
 		result := results[0].Interface()
 		resultMap, ok := result.(map[string]interface{})
 		if !ok {
-			log.Fatalf("Expected map[string]interface{}, got %T", result)
+			errorString := "Expected map[string]interface{}, got different type"
+			logger.Error().Msg(errorString)
+			return map[string]interface{}{
+				"error": errorString,
+			}
 		}
 
 		return resultMap
