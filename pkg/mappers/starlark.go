@@ -2,7 +2,6 @@ package mappers
 
 import (
 	"fmt"
-	"log"
 	"regexp"
 
 	"github.com/Masterminds/semver/v3"
@@ -61,9 +60,9 @@ func semverConstraintFunc(thread *starlark.Thread, b *starlark.Builtin, args sta
 }
 
 func NewStarlark(rule string) flow.MapFunction[map[string]interface{}, map[string]interface{}] {
-	thread := &starlark.Thread{Name: "starlark_thread"}
-	fmt.Println("Creating Starlark mapper for rule:", rule)
 	logger := logging.NewLogger("info", "component", "Starlark")
+	thread := &starlark.Thread{Name: "starlark_thread"}
+	logger.Info().Msgf("Creating Starlark mapper for rule: %s", rule)
 	return func(item map[string]interface{}) map[string]interface{} {
 		// Use ExecFileOptions with the correct signature
 		fileOpts := &syntax.FileOptions{}
@@ -76,7 +75,11 @@ func NewStarlark(rule string) flow.MapFunction[map[string]interface{}, map[strin
 
 		globals, err := starlark.ExecFileOptions(fileOpts, thread, rule, nil, predeclared)
 		if err != nil {
-			log.Fatalf("Failed to execute Starlark script: %v", err)
+			errorString := "Failed to execute Starlark script"
+			logger.Error().Err(err).Msg(errorString)
+			return map[string]interface{}{
+				"error": errorString,
+			}
 		}
 
 		// Get the enrich function from the globals

@@ -1,7 +1,6 @@
 package mappers
 
 import (
-	"fmt"
 	"reflect"
 
 	"github.com/Masterminds/semver/v3"
@@ -26,7 +25,7 @@ func semverConstraint(version, constraint string) bool {
 
 func NewYaegi(rule string) flow.MapFunction[map[string]interface{}, map[string]interface{}] {
 	logger := logging.NewLogger("info", "component", "Yaegi")
-	fmt.Println("Creating Yaegi mapper for rule:", rule)
+	logger.Info().Msgf("Creating Yaegi mapper for rule: %s", rule)
 	return func(item map[string]interface{}) map[string]interface{} {
 		// Create a new Yaegi interpreter
 		i := interp.New(interp.Options{})
